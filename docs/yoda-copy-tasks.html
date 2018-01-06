@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>GitHub Copy Tasks</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="yoda.css">
+
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-copy-tasks.js"></script>
+
+	<div class="frame">
+		<div class="field">
+			<label>GitHub user</label>
+			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
+		</div>
+
+		<div class="field">
+			<label>GitHub token</label>
+			<input type="password" size="25" id="token" value="" onChange="githubAuth()">
+		</div>
+
+		<div class="field">
+			<label>Recurring Label Filter</label>
+			<input type="text" id="recurring" size="25" value="Q - Recurring,T3 - Task"  onchange="refreshIssues()">
+		</div>
+
+		<div class="field">
+			<label>Body remove regexp</label>
+			<input type="text" id="bodyremove" size="35" value="^> remaining .*$/,- \[(x|X)\] /- [ ] ">
+		</div>
+		
+		<div class="field">
+			<label>Bracket Title Copy</label>
+			<input type="checkbox" id="brackets" checked>
+		</div>
+		
+		<button id="githubbutton" onclick="openSprint()">Goto GitHub</button>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Src Owner</label>
+			<input type="text" id="srcowner" size="10" onchange="updateSrcRepos();">
+		</div>
+
+		<div class="field">
+			<label>Source Repo</label>
+			<input list="srcrepolist" id="srcrepo" size="10" value="" onchange="updateSrcMilestones();">
+		</div>
+		
+		<datalist id="srcrepolist">
+		</datalist>
+
+		<div class="field">
+			<label>Source Milestone</label>
+			<select id="srcmilestone" style="width:250px" onchange="refreshIssues()"></select>
+		</div>
+
+		<div class="field">
+			<label>Dst Owner</label>
+			<input type="text" id="dstowner" size="10" value="hpsd" onchange="updateDstRepos();">
+		</div>
+
+		<div class="field">
+			<label>Destination Repo</label>
+			<input list="dstrepolist" id="dstrepo" size="10" value="" onchange="updateDstMilestones();">
+		</div>
+		
+		<datalist id="dstrepolist">
+		</datalist>
+
+		<div class="field">
+			<label>Destination Milestone</label>
+			<select id="dstmilestone" style="width:250px" onchange="refreshIssues()"></select>
+		</div>
+
+		<button id="refreshbutton" onclick="refreshIssues()">Refresh issues</button>
+		<button id="copybutton" onclick="copyIssues()">Copy issues</button>
+
+	</div>
+
+	<br>
+<!-- 
+	<div>
+		<table id="issuesTable"></table>
+	</div>
+	
+	
+-->
+
+	<div class="frame">
+		<div class="field">
+			<label>Console</label>
+			<textarea cols="140" rows="25" id="console" readonly></textarea>
+		</div>
+	</div>
+
+
+	<div id="snackbar">Some text some message..</div>
+
+	<script>
+		yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
+
+		yoda.decodeUrlParam("#srcowner", "srcowner");
+		yoda.decodeUrlParam("#dstowner", "dstowner");
+		yoda.decodeUrlParam("#srcrepo", "srcrepo");
+		yoda.decodeUrlParam("#dstrepo", "dstrepo");
+		yoda.decodeUrlParam("#recurring", "recurring");
+		yoda.decodeUrlParam("#bodyremove", "bodyremove");
+		
+		// Does not work in IE
+		try {
+			$("#user").val(localStorage.getItem("gitHubUserId"));
+			$("#token").val(localStorage.getItem("gitHubAccessToken"));
+		}
+		catch (err) {
+			console.error("Failed to set user-id and token into localStorage. Probably IE.");
+		}
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+
+		// We do not want caching here. 
+		$.ajaxSetup({ cache: false });
+
+		githubAuth();
+		if ($("#srcrepo").val() == "") {
+			updateSrcRepos();
+		}
+		if ($("#dstrepo").val() == "") {
+			updateDstRepos();
+		}
+		updateSrcMilestones();
+		updateDstMilestones();
+		
+	</script>
+</body>
+</html>

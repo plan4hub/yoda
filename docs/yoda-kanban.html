@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Github Kanban</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
+<link rel="stylesheet" type="text/css" href="yoda.css">
+<style>
+
+.cardcolumn {	
+	float: left;
+    color: rgb(36, 41, 46);
+    min-height: auto;
+    overflow-wrap: break-word;
+    position: relative;
+    width: 300px;
+    word-wrap: break-word;
+    border: 0px none rgb(36, 41, 46);
+    font: normal normal 400 normal 14px / 21px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    padding: 3px;
+}
+
+.columnheader {
+    color: white;
+    overflow-wrap: break-word;
+    position: relative;
+    text-size-adjust: 100%;
+    background: #01a982;
+    border: 2px solid rgb(225, 228, 232);
+    border-radius: 3px 3px 3px 3px;
+    font: normal normal 400 normal 14px / 21px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0px 0px 8px;
+    padding: 8px 8px 8px 12px;
+}
+
+.card {
+    color: rgb(36, 41, 46);
+    cursor: move;
+    overflow-wrap: break-word;
+    position: relative;
+    text-size-adjust: 100%;
+    word-wrap: break-word;
+    background: rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box;
+    border: 2px solid rgb(225, 228, 232);
+    font: normal normal 400 normal 14px / 21px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0px 0px 8px;
+    padding: 8px 8px 8px 12px;
+}
+
+.cardlink {
+    color: rgb(3, 102, 214);
+    display: block;
+    overflow-wrap: break-word;
+    text-decoration: none solid rgb(3, 102, 214);
+    word-wrap: break-word;
+    border: 0px none rgb(3, 102, 214);
+    font: normal normal 600 normal 14px / 17.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0px 0px 4px 0px;
+    
+}
+
+.cardlabels {
+    color: rgb(36, 41, 46);
+    cursor: move;
+    display: block;
+    overflow-wrap: break-word;
+    position: relative;
+    word-wrap: break-word;
+    border: 0px none rgb(36, 41, 46);
+    font: normal normal 400 normal 14px / 21px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    padding: 0px 0px 0px;
+}
+
+.cardlabel {
+    color: rgb(51, 32, 32);
+    cursor: move;
+    display: inline-block;
+    overflow-wrap: break-word;
+    position: relative;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    word-wrap: break-word;
+    background: rgb(233, 150, 149) none repeat scroll 0% 0% / auto padding-box border-box;
+    font: normal normal 600 normal 12px / 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 2px 2px 2px;
+    padding: 4px 4px;
+}
+
+.dragging {
+    transform: rotate(-5deg);
+	opacity: 0.6;
+}
+
+/* Input field */
+.select2-selection__rendered { }
+
+/* Around the search field */
+.select2-search {  }
+
+/* Search field */
+.select2-search input {  }
+
+/* Each result */
+.select2-results {  }
+
+/* Higlighted (hover) result */
+.select2-results__option--highlighted {  }
+
+/* Selected option */
+.select2-results__option[aria-selected=true] {  }
+
+</style>
+
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-kanban.js"></script>
+
+	<div class="frame">
+		<div class="field">
+			<label>Owner</label>
+			<input type="text" id="owner" size="10" onchange="updateRepos();">
+			 <span class="tooltip">GitHub organisation or user</span>
+		</div>
+
+		<div class="field">
+			<label>Github user</label>
+			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			 <span class="tooltip">Your GitHub user-id</span>
+		</div>
+
+		<div class="field">
+			<label>Github token</label>
+			<input type="password" size="20" id="token" value="" onchange="githubAuth()">
+			 <span class="tooltip">GitHub personal token</span>
+		</div>
+		
+		<div class="field">
+			<label>Columns</label>
+			<select id="columns" style="width: 450px" class="select2">
+				<option selected>[Urgent]open:S1 - Urgent,[High]open:S2 - High,[Medium]open:S3 - Medium,[Low]open:S4 - Low,[Other]open:*,[Closed]closed:*</option>
+				<option>[Defect]open:T1 - Defect,[Enhancement]open:T2 - Enhancement,[Task]open:T3 - Task,[Other]open:*,[Closed]closed:*</option>
+				<option>[Ready for Dev]open:S - Ready for Dev,[In Progress]open:S - In Progress,[In Testing]open:S - In Testing,[Complete]open:S - Complete,[Done]closed:S - Done</option>
+				<option>[Ready]open:*,[Tentative]open:P - Tentative,[In progress]open:Q - In Progress,[Done]closed:*</option>
+			</select>
+			 <span class="tooltip">Column definitions. Comma sep. list of [<i>Title</i>]open|closed:<i>label</i>|*</span>
+		</div>
+		
+		<div class="field">
+			<label>Closed milestones</label>
+			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()">
+            <span class="tooltip">Show closed milestones</span>
+		</div>
+
+		<div class="field">
+			<label>Closed issues</label>
+			<input type="checkbox" id="closedissues" onchange="updateIssues()" checked>
+			<span class="tooltip">Include closed issues</span>
+		</div>
+		
+		<div class="field">
+			<label>Locked</label>
+			<input type="checkbox" id="locked" onchange="enableDisableSortable();" checked>
+			<span class="tooltip">Editing locked</span>
+		</div>
+
+		<div class="field">
+			<label>Estimates</label><div id="estimateradio">
+				<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
+				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label> 
+  				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
+			</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
+		</div>
+		
+		<div class="field">
+			<label>Milestones (filter)</label>
+			<select id="milestonelist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Milestones to show</span>
+		</div>
+		
+		<div class="field">
+			<label>Labels</label>
+			<select id="labellist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Label filter (AND)</span>
+		</div>
+
+		<div class="field">
+			<label>Assignees</label>
+			<select id="assigneelist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Assignee filter (OR)</span>
+		</div>
+	</div>
+
+	<div id="kanban" class="kanbanboard">
+	</div>
+	
+	<div id="snackbar">Message goes here</div>
+	
+	<script>
+		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#repo", "yoda.repo");
+		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+
+		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParam("#repo", "repo");
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
+
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+		
+		yoda.decodeUrlParamBoolean("#closedissues", "closedissues");
+		yoda.decodeUrlParamBoolean("#locked", "locked");
+				
+		githubAuth(); 
+		updateRepos();
+		
+		// We do not want caching here. 
+		$.ajaxSetup({ cache: false });
+		
+		$(document).ready(function() {
+			$('#repolist').select2();
+			$('#milestonelist').select2();
+			$('#assigneelist').select2();
+			$('#labellist').select2();
+			$('#columns').select2({tags:true});
+
+			// Special handling for columns URL arg
+			var columns = GetURLParameter("columns");
+			if (columns == null) 
+				columns = yoda.getDefaultLocalStorageValue("yoda.kanban.columns");
+			if (columns != null) {
+				// Set the value, creating a new option if necessary
+				if ($('#columns').find("option[value='" + columns + "']").length) {
+			    	$('#columns').val(columns).trigger('change');
+				} else { 
+			    	var newOption = new Option(columns, columns, true, true);
+			    	$('#columns').append(newOption).trigger('change');
+				} 
+			}
+						
+			$('#repolist').on('change.select2', function (e) {
+				repoList = 	$("#repolist").val();			
+				console.log("List of selected repos is now: " + repoList);
+				updateMilestones();
+			});
+			
+			$('#milestonelist').on('change.select2', function (e) {
+				milestoneList = $("#milestonelist").val();
+				
+				console.log("List of selected milestones is now: " + milestoneList);
+				updateIssues();
+			});
+			
+			$('#milestonelist').on('select2:select', function (e) {
+			    var data = e.params.data;
+			    console.log("selected item: " + data.text);
+			    
+				// If "All milestones" or "No milestones" option selected, clear all other milestones. 
+			    if (data.text == "All milestones") {
+			    	$("#milestonelist").val(["All milestones"]);
+			    	$("#milestonelist").trigger("change");
+			    }
+				
+			    if (data.text == "No milestone") {
+			    	$("#milestonelist").val(["No milestone"]);
+			    	$("#milestonelist").trigger("change");
+			    }
+			});
+			
+			$('#labellist').on('change.select2', function (e) {
+				issueLabelFiltered = $("#labellist").val();			
+				console.log("List of selected labels is now: " + issueLabelFiltered);
+				drawKanban();
+			});
+			
+			$('#assigneelist').on('change.select2', function (e) {
+				issueAssigneesFiltered = $("#assigneelist").val();			
+				console.log("List of selected assignees: " + issueAssigneesFiltered);
+				drawKanban();
+			});
+
+			$('#columns').on('change.select2', function (e) {
+				drawKanban();
+			});
+		});
+		
+		// Now for argument decoding.
+		
+		
+		
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>GitHub Label Manager</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+<link rel="stylesheet" type="text/css" href="yoda.css">
+<style>
+label, input {
+	float: left;
+	margin: 5px 5px 2px 2px;
+}
+</style>
+</head>
+
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-label-manager.js"></script>
+
+	<div class="frame">
+		<div class="field">
+			<label>GitHub user</label> <input type="text" size="15" id="user"
+				value="" onChange="githubAuth()">
+			<span class="tooltip">Your GitHub user-id</span>
+		</div>
+
+		<div class="field">
+			<label>GitHub token</label> <input type="password" size="30"
+				id="token" value="" onChange="githubAuth()">
+			<span class="tooltip">GitHub personal token</span>
+		</div>
+	</div>
+
+	<div class="thetwoframes">
+		<div class="labelframe">
+			<div class="frame">
+				<h3 style="color: white; margin: 4px 20px">Source</h3>
+				<div class="flatfield">
+					<label>Owner</label> <input type="text" id="srcowner" size="10"
+						value="hpsd" onchange="updateSrcRepos()">
+					<span class="tooltip">Source GitHub organization or user</span>
+				</div>
+
+				<div class="flatfield">
+					<label>Repo</label> <input list="srcrepolist" type="text" id="srcrepo" size="10"
+						value="github-utils" onchange="getSrcLabels()">
+					<span class="tooltip">Source repository</span>
+				</div>
+				<datalist id="srcrepolist">
+				</datalist>
+
+				<div class="flatfield">
+					<label># Labels</label> <input type="text" id="srclabelsnumber" size="8" readonly>
+				</div>
+				
+			</div>
+
+			<button id="copyall" class="gitbutton" style="background: grey;"
+				onclick="copyAllLabels()">Copy all labels</button>
+			<button id="githubbutton" class="gitbutton" onclick="openSrcRepo()">Goto
+				github</button>
+			<button id="refreshbutton" class="gitbutton"
+				onclick="getSrcLabels();">Refresh Labels</button>
+			<p class="gitnote">Click to copy/update update to destination (left to right).</p>
+
+			<div class="gitlabelblock" id="srclabels"></div>
+		</div>
+
+		<div class="labelframe">
+			<div class="frame">
+				<h3 style="color: white; margin: 4px 20px">Destination</h3>
+				<div class="flatfield">
+					<label>Owner</label> <input type="text" id="dstowner" size="10"
+						value="hpsd" onchange="getSrcRepos()">
+					<span class="tooltip">Destination GitHub organization or user</span>
+				</div>
+
+				<div class="flatfield">
+					<label>Repo</label> <input list="dstrepolist" type="text" id="dstrepo" size="10"
+						value="" onchange="getDstLabels()">
+					<span class="tooltip">Destination repository</span>						
+				</div>
+				<datalist id="dstrepolist">
+				</datalist>
+
+
+				<div class="flatfield">
+					<label># Labels</label> <input type="text" id="dstlabelsnumber" size="8" readonly>
+				</div>
+			</div>
+
+			<button id="deleteall" class="gitbutton" style="background: grey;"
+				onclick="deleteAllLabels()">Delete all labels</button>
+			<button id="githubbutton" class="gitbutton" onclick="openDstRepo()">Goto
+				github</button>
+			<button id="refreshbutton" class="gitbutton"
+				onclick="getDstLabels()">Refresh Labels</button>
+			<p class="gitnote">Click label to delete it (only if no issues using them). Delete all button to do same for all</p>
+
+			<div class="gitlabelblock" id="dstlabels"></div>
+
+		</div>
+		<div id="snackbar">Some text some message..</div>
+	</div>
+
+	<script>
+		yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
+	
+		yoda.decodeUrlParam("#srcowner", "srcowner");
+		yoda.decodeUrlParam("#srcrepo", "srcrepo");
+		yoda.decodeUrlParam("#dstowner", "dstowner");
+		yoda.decodeUrlParam("#dstrepo", "dstrepo");
+		
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+				
+		// We do not want caching here. 
+		$.ajaxSetup({ cache: false });
+		
+		githubAuth();
+		updateSrcRepos();
+		updateDstRepos();
+		getSrcLabels();
+		getDstLabels();
+	</script>
+</body>
+</html>

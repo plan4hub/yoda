@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>GitHub Issue Exporter</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.6/papaparse.min.js"></script>
+<link rel="stylesheet" type="text/css" href="yoda.css">
+
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-exporter.js"></script>
+
+	<div class="frame">
+		<div class="field">
+			<label>Owner</label>
+			<input type="text" id="owner" size="10" value="hpsd" onchange="updateRepos()">
+			<span class="tooltip">GitHub organisation or user</span>
+		</div>
+
+		<div class="field">
+			<label>Repo</label>
+			<input list="repolist" id="repo" size="20" value="">
+			<span class="tooltip">GitHub repository (blank for all)</span>
+		</div>
+		
+		<datalist id="repolist">
+		</datalist>
+		
+		<div class="field">
+			<label>GitHub user</label>
+			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			<span class="tooltip">Your GitHub user-id</span>
+		</div>
+
+		<div class="field">
+			<label>GitHub token</label>
+			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
+			<span class="tooltip">GitHub personal token</span>
+		</div>
+
+		<div class="field">
+			<label>Label filter</label>
+			<input type="text" size="37" id="labelfilter" value="">
+			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Multi-label column definitions</label>
+			<input type="text" id="sharedlabeldef" size="140" value="Severity=^S[1-4] -,Issue Type=^T[1-9] - ">
+			<span class="tooltip">Comma separated list of fields to merge into single column</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Single label column definitions (fiels automatically added to the end)</label>
+			<input type="text" id="singlelabeldef" size="140" value="Support,Customer Encountered,P - Tentative">
+			<span class="tooltip">Comma separate list of boolean fields defined by labels</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Single label column regexps (fields automatically added to the end)</label>
+			<input type="text" id="splitlabeldef" size="140" value="^C - ,^Th - ">
+			<span class="tooltip">Comma separate list of boolean fields defined by regular expressions</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Fields (further fields are: Body,Report Date, URL)</label>
+			<input type="text" id="fields" size="140" value="Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining">
+			<span class="tooltip">Basis fields to export</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>CSV delimiter</label>
+			<input type="text" id="csvdelimiter" size="10" value=';'>
+			<span class="tooltip">CSV field delimiter</span>
+		</div>
+
+		<div class="field">
+			<label>Label indicator</label>
+			<input type="text" id="labelindicator" size="10" value='1'>
+			<span class="tooltip">"True" value for boolean fields. False will be blank</span>
+		</div>
+
+		<div class="field">
+			<label>Issue state</label> 
+			<select id="state">
+				<option selected value="open">open</option>
+				<option value="closed">closed</option>
+				<option value="all">all</option>
+			</select>
+			<span class="tooltip">Issues states to export</span>
+		</div> 
+
+		<div class="field">
+			<label>Output file name</label>
+			<input type="text" id="outputfile" size="25" value="issues.csv">
+			<span class="tooltip">Output file name</span>
+		</div>
+
+		<button id="exportbutton" onclick="startExport()">Export</button>
+	</div>
+	<br>
+	<div class="frame">
+		<div class="field">
+			<label>Console</label>
+			<textarea cols="140" rows="15" id="console" readonly></textarea>
+		</div>
+	</div>
+	
+	<script>
+		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+
+		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParam("#repo", "repo");
+		yoda.decodeUrlParam("#singlelabeldef", "singlelabeldef");
+		yoda.decodeUrlParam("#sharedlabeldef", "sharedlabeldef");
+		yoda.decodeUrlParam("#splitlabeldef", "splitlabeldef");
+		yoda.decodeUrlParam("#fields", "fields");
+		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+		yoda.decodeUrlParam("#labelindicator", "labelindicator");
+		yoda.decodeUrlParam("#state", "state");
+		yoda.decodeUrlParam("#outputfile", "outputfile");
+		
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+				
+		githubAuth(); // if set already
+		if ($("#repo").val() == "") {
+			updateRepos();
+		}
+		
+		// Should we start export directly?
+		if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
+			startExport();
+		}
+	</script>
+
+</body>
+</html>

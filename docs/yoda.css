@@ -1,0 +1,221 @@
+/*
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+body {
+    min-width: 1020px;
+    word-wrap: break-word;
+}
+.field {
+    float: left;
+    box-sizing: border-box;
+    margin: 0 0 3px 0px;
+    position: relative;
+    display: inline-block;
+    
+}
+.field .tooltip,
+.flatfield .tooltip{
+    visibility: hidden;
+    background-color: grey;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 5px 2px 2px;
+    white-space: nowrap;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: 5px;
+    left: 95%;
+    
+ 	opacity: 0;
+    transition: opacity 1s;
+}
+.field .tooltip::after,
+.flatfield .tooltip::after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    right: 100%; /* To the left of the tooltip */
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent grey transparent transparent;
+}
+.field:hover .tooltip,
+.flatfield:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+label {
+	font-size: 14px;
+	font-weight: bold;
+	color: white;
+}
+select, input, label, textarea {
+	display: block;
+    float: top;
+    margin: 5px 5px 2px 2px;
+}
+#countradio label {
+	display: inline;
+    float: left;
+}
+
+#countradio input {
+	display: inline;
+    float: left;
+}
+
+ #estimateradio label {
+	display: inline;
+    float: left;
+} 
+
+ #estimateradio input {
+	display: inline;
+    float: left;
+} 
+
+.frame {
+	float: top;
+	display: flex;
+ 	overflow: hidden;
+	margin: 0 0 3px 0px;
+	padding: 3px;
+	background: #01a982;       /* HPE Green */ 
+/*	background: #00a3cc;  */   /* Nice blue */ 
+}
+button {
+	margin: 10px;
+  	padding: 10px 5px;
+	padding: 10px;
+	background-color: #adad85;
+	color: white;
+}
+table {
+    font-size:16px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+thead {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    background-color: #01a982;
+    color: white;
+}
+
+.gitnote {
+	font: status-bar;
+	margin: 0px 10px;
+}
+.gitlabel {
+	font-size: 15px;
+	font-weight: 600;
+    line-height: 2;
+    text-align: center;
+    padding: 0px 0px;
+}
+.gitbutton {
+	font-size: 13px;
+	font-weight: 300;
+    line-height: 2;
+    text-align: center;
+    padding: 2px 15px;
+}
+.gitlabelblock {
+	margin: 5px 5px;
+ 	display: grid;
+  	grid-template-columns: 200px 200px 200px;
+  	float: left;
+}
+.labelframe {
+	float: left;
+	border: 2px dashed green;
+	margin: 5px 5px;
+	padding: 5px 5px; 
+  	width: 610px;
+}
+.frameheader {
+	color: white;
+	width: 20%;
+}
+.thetwoframes {
+	float: top;
+}
+.flatfield {
+    float: left;
+    margin: 0 0 3px 0px;
+    position: relative;
+    display: inline-block;
+}
+#snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #01a982;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}

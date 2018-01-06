@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>GitHub Generate Test Issues</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="yoda.css">
+
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-make-test-issues.js"></script>
+
+	<div class="frame">
+		<div class="field">
+			<label>GitHub user</label>
+			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
+		</div>
+
+		<div class="field">
+			<label>GitHub token</label>
+			<input type="password" size="25" id="token" value="" onChange="githubAuth()">
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Owner</label>
+			<input type="text" id="owner" size="10" value="hpsd" onchange="updateRepos();">
+		</div>
+
+		<div class="field">
+			<label>Repo</label>
+			<input list="repolist" id="repo" size="10" value="">
+		</div>
+		
+		<datalist id="repolist">
+		</datalist>
+
+		<div class="field">
+			<label>Number of issues to create</label>
+			<input type="number" id="noissues" size="10" value="1">
+		</div>
+		
+		<button id="createissues" onclick="createIssues($('#noissues').val())">Create issues</button>
+	</div>
+
+	<br>
+
+	<div class="frame">
+		<div class="field">
+			<label>Console</label>
+			<textarea cols="140" rows="25" id="console" readonly></textarea>
+		</div>
+	</div>
+
+
+	<div id="snackbar">Some text some message..</div>
+
+	<script>
+		makeBodyText(15);
+		logMessage("Loading random texts...");
+		$("*").css("cursor", "wait");
+
+		
+		setTimeout(function() {
+	
+			yoda.decodeUrlParam("#owner", "owner");
+			yoda.decodeUrlParam("#repo", "repo");
+			yoda.decodeUrlParam("#noissues", "noissues");
+		
+			// Local storage
+			yoda.getUserTokenLocalStorage("#user", "#token");
+
+			// Do it after getting from localStorage
+			yoda.decodeUrlParam("#user", "user");
+			yoda.decodeUrlParam("#token", "token");
+	
+			$.ajaxSetup({ cache: false });
+			githubAuth();
+			if ($("#repo").val() == "") {
+				updateRepos();
+			}
+			logMessage("Ready...");
+			$("*").css("cursor", "default");
+
+		}, 10000);
+	</script>
+</body>
+</html>
