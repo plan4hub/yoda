@@ -1,6 +1,6 @@
 # Yoda
 
-Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting Agile Project Management using GitHub issues. Yoda was developed as an internal tool inside Hewlett Packard Enterprise (HPE) and OpenSourced using an MIT license in 2018.
+Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting Agile Project Management using GitHub issues. Yoda was developed as an internal tool at Hewlett Packard Enterprise (HPE) and Open-Sourced using an MIT license in 2018.
  
 
 ## Getting Started
@@ -17,7 +17,7 @@ You can of course copy Yoda to your own Webserver, GitHub repository, or GitHub 
 Documentation is available either via the Yoda landing page, or directly [here](docs/MANUAL.md).
 
 
-## Running the tests
+## Testing
 
 TODO: Right now, there is no automated testing for Yoda. Plan is to use [Selenium](http://www.seleniumhq.org/). 
 
@@ -29,7 +29,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Authors
 
-* **Jens Vedel Markussen** Hewlett Packard Enterprise.
+* Jens Vedel Markussen, Hewlett Packard Enterprise. E-mail: jens.markussen@hpe.com.
 
 
 ## License
@@ -39,4 +39,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* Flemmning Lau for valuable inputs and functional discussions.
+* Flemming Lau, Hewlett Packard Enterprise for patience, valuable inputs and discussions on Yoda.
