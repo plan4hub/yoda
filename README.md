@@ -12,6 +12,11 @@ In order to access issues in non-public repositories, you will need to set an ap
 You can of course copy Yoda to your own Webserver, GitHub repository, or GitHub Enterprise. Simply get all the files in the `/docs` folder.
 
 
+## Documentation
+
+Documentation is available either via the Yoda landing page, or directly [here](docs/MANUAL.md).
+
+
 ## Running the tests
 
 TODO: Right now, there is no automated testing for Yoda. Plan is to use [Selenium](http://www.seleniumhq.org/). 
