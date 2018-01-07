@@ -461,6 +461,8 @@ function drawKanban() {
 		$("#kanban").append(createColumn("column" + c, columnNameList[c]));
 		console.log("Added column: column" + c + ", name: " + columnNameList[c]);
 	}
+	// Adjust width of kanban board
+	$("#kanban").css("width", columnNameList.length * 310);
 	
 	// The createElement() method creates an Element Node with the specified name.
 	//	Tip: Use the createTextNode() method to create a text node.
