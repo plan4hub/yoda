@@ -41,4 +41,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* Flemming Lau, Hewlett Packard Enterprise for patience, valuable inputs and discussions on Yoda.
+* Flemming Lau, Hewlett Packard Enterprise for patience, valuable inputs, reviews and discussions on Yoda.
