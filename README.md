@@ -16,7 +16,7 @@ You can of course copy Yoda to your own Webserver, GitHub repository, or GitHub 
 
 Documentation is available either via the Yoda landing page, or directly [here](docs/MANUAL.md).
 
-Furthermore, an introductionary presentation is available [here]("Yoda - Agile Project Management with GitHub.pdf").
+Furthermore, an introductionary presentation is available [here](yoda/blob/master/Yoda - Agile Project Management with GitHub.pdf).
 
 
 ## Testing
