@@ -418,6 +418,23 @@ var yoda = (function() {
 			}
 		},
 		
+		issueRemainingMeta(issue, estimate) {
+			if (issue.closed_at != null ) 
+				return 0;
+			
+			switch (estimateInIssues) {
+			case "inbody": 
+				return issueRemaining(issue, estimate);
+				
+			case "noissues":
+				return 1;
+				
+			case "inlabels":
+				return estimate;
+			}
+			return 0;
+		},
+		
 		// Count number of completed tasks (lines in body starting with "- [x]" or "- [X]"
 		getbodyCompletedTasks: function(body) {
 			var res = body.match(/^- \[(x|X)\]/mg);

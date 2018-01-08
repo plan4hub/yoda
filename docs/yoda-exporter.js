@@ -36,10 +36,15 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "csvdelimiter");
 	params = addIfNotDefault(params, "labelindicator");
 	params = addIfNotDefault(params, "outputfile");
+	params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#state").val() != "open") {
 		params += "&state=" + $("#state").val(); 
 	}
 	return params;
+}
+
+function estimateClick(radio) {
+	yoda.setEstimateInIssues(radio.value);
 }
 
 function logMessage(message) {
@@ -176,7 +181,7 @@ function exportIssues(issues) {
 				el["Estimate"] = yoda.issueEstimate(issues[i]);
 				break;
 			case "Remaining":
-				el["Remaining"] = yoda.issueRemaining(issues[i], yoda.issueEstimate(issues[i]));
+				el["Remaining"] = yoda.issueRemainingMeta(issues[i], yoda.issueEstimate(issues[i]));
 				break;
 			case "Body":
 				el["Body"] = issues[i].body;

@@ -127,6 +127,15 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			</select>
 			<span class="tooltip">Issues states to export</span>
 		</div> 
+		
+		<div class="field">
+			<label>Estimates</label><div id="estimateradio">
+				<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
+				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label> 
+  				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
+				</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
 
 		<div class="field">
 			<label>Output file name</label>
@@ -146,6 +155,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	<script>
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#repo", "repo");
@@ -157,6 +167,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#labelindicator", "labelindicator");
 		yoda.decodeUrlParam("#state", "state");
 		yoda.decodeUrlParam("#outputfile", "outputfile");
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
