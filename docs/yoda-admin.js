@@ -74,3 +74,10 @@ function setGitHubCom() {
 	$("#githubbaseurl").val("https://www.github.com/");
 }
 
+function setHPEGitHub() {
+	setLocalStorage('gitHubApiBaseUrl', "https://github.hpe.com/api/v3/");
+	setLocalStorage('gitHubBaseUrl', "https://github.hpe.com/");
+	$("#githubapibaseurl").val("https://github.hpe.com/api/v3/");
+	$("#githubbaseurl").val("https://github.hpe.com/");
+}
+
