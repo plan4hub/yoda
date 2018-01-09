@@ -73,6 +73,8 @@ Example:
 
 To access non-public repos, you need to set GitHub user-name and token. A token can be easily created by logging into GitHub, then select Settings, and Personal access tokens, Create new token. Copy your user name and the resulting token. 
 
+To retrieve your token, select *Settings/Developer Settings/Personal access tokens* in GitHub.
+
 The token is centrally for your browser by using the [Yoda Admin](yoda-admin.html).
 
 *Note*: This feature uses the "localStorage" mechanism, which is not supported in earlier Internet Explorer versions.
