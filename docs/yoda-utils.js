@@ -36,13 +36,18 @@ var yoda = (function() {
 	
 	// UPDATE THESE TO FIT YOUR GITHUB...
 	
-	// HPE Github Enterprise settings 
-	var gitHubApiBaseUrl = "https://github.hpe.com/api/v3/";
-	var gitHubBaseUrl = "https://github.hpe.com/";
-
 	// Standard github.com settings.
-//	var gitHubApiBaseUrl = "https://api.github.com/";
-//	var gitHubBaseUrl = "https://www.github.com/";
+	var gitHubApiBaseUrl = "https://api.github.com/";
+	var gitHubBaseUrl = "https://www.github.com/";
+
+	console.log("URL: " + window.location.href);
+	console.log("URL hostname: " + window.location.hostname);
+	
+	// If page is served from github.hpe.com, then change URL defaults to HPE GitHub Enterprise Instance
+	if (window.location.hostname.indexOf("github.hpe.com") != -1) {
+		var gitHubApiBaseUrl = "https://github.hpe.com/api/v3/";
+		var gitHubBaseUrl = "https://github.hpe.com/";
+	}
 	
 	// Retrieve URL parameters
 	GetURLParameter = function (sParam) {
