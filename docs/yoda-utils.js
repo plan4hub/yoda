@@ -424,7 +424,7 @@ var yoda = (function() {
 			
 			switch (estimateInIssues) {
 			case "inbody": 
-				return issueRemaining(issue, estimate);
+				return yoda.issueRemaining(issue, estimate);
 				
 			case "noissues":
 				return 1;
