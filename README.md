@@ -5,7 +5,7 @@ Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting A
 
 ## Getting Started
 
-To get started with Yoda is easy. There is no need to download or install it separately as you can run Yoda straight off GitHub via the [Yoda Landing Page](https://pages.github.com/github-yoda/yoda). 
+To get started with Yoda is easy. There is no need to download or install it separately as you can run Yoda straight off GitHub via the [Yoda Landing Page](https://github.com/HewlettPackard/yoda). 
 
 In order to access issues in non-public repositories, you will need to set an appropriate personal GitHub Token. This is explained in the MANUAL linked via the landing page.
 
