@@ -19,6 +19,17 @@ If you use GitHub issues to simply register a few bugs, that are fixed in an ad-
 If, on the other hand, you are looking for an all-in-one tool to keep track of all sprint-based software development activities, including task estimation, planning and follow-up, then look no further than GitHub with Yoda!  
 
 
+## GitHub Token
+
+To access non-public repos, you need to set GitHub user-name and token. A token can be easily created by logging into GitHub, then select Settings, and Personal access tokens, Create new token. Copy your user name and the resulting token. 
+
+To retrieve your token, select *Settings/Developer Settings/Personal access tokens* in GitHub. Be sure to select all appropriate access rights for issues management; if in doubt, give all permissions.  
+
+The token is set centrally for your browser by using [Yoda Admin](yoda-admin.html).
+
+*Note*: This feature uses the "localStorage" mechanism, which is not supported in earlier Internet Explorer versions.
+
+
 ## Estimates into issues
 
 In support of Yoda Burndown and Velocity reporting, issues must be annotated with estimates. The estimation unit is Story Points. How Story Points are calculated is a non-tool discussion (some teams may prefer to start with man days for Story Points). Note, that some teams try to use only certain distinct values (to indicate that precision cannot be expected into the higher numbers). One example is 1,2,3,5,8,13,21,40. 
@@ -64,17 +75,6 @@ Example:
 > capacity 51
 
 > burndownduedate 2017-12-13
-
-
-## GitHub Token
-
-To access non-public repos, you need to set GitHub user-name and token. A token can be easily created by logging into GitHub, then select Settings, and Personal access tokens, Create new token. Copy your user name and the resulting token. 
-
-To retrieve your token, select *Settings/Developer Settings/Personal access tokens* in GitHub.
-
-The token is centrally for your browser by using the [Yoda Admin](yoda-admin.html).
-
-*Note*: This feature uses the "localStorage" mechanism, which is not supported in earlier Internet Explorer versions.
 
 
 ## Yoda URL Parameters
@@ -128,6 +128,8 @@ All arguments may be supplied directly using the URL using default "parameter=<v
 *Note*: A further URL argument, draw, will result in the graph being drawn immediately (without the user having to press "Draw Chart" button). Simply add "draw=true" to URL. Similarly, it is possible to hide the header (e.g. if including the graph into a dashboard as an iFrame) by putting "hideheader=true".
 
 The report is available [here](yoda-time-stats.html).
+
+[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true). 
 
 
 ## Burndown Report
