@@ -131,8 +131,9 @@ The report is available [here](yoda-time-stats.html).
 
 [Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true).
 
-[Example. Opened reports overtime for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repo=coreos-kubernetes&startdate=2015-01-10&interval=1m&labelsplit=&other=NoIssues&count=opened&draw=true)
- 
+[Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repo=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
+
+[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repo=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true).
 
 
 ## Burndown Report
@@ -212,6 +213,8 @@ If unlocked (uncheck the box), the viewer may also be used to modify column-defi
 The Kanban Board is available [here](yoda-kanban.html).
 
 [Example](yoda-kanban.html?owner=HewlettPackard&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
+
+[Example - typings repo](yoda-kanban.html?owner=typings&repolist=typings&estimate=noissues&milestonelist=All%20milestones&columns=[Bug]open:bug,[Enhancement]open:enhancement,[Question]open:question,[Other]open:*,[Closed]closed:*)
 
 
 ## Label Manager
