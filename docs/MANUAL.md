@@ -156,6 +156,8 @@ URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels
 
 The report is available [here](yoda-burndown.html).
 
+[Example](yoda-burndown.html?owner=HewlettPackard&repo=yoda-demo&estimate=inbody&milestone=Sprint 2&draw=chart).
+
 
 ## Velocity Report
 
@@ -166,6 +168,8 @@ Furthermore, the tool attempts to report the estimate/story points per day. If t
 Like the burndown report, the number of issues can be used instead of estimates/story points. Just select the appropriate radio button.
 
 The report is available [here](yoda-velocity.html).
+
+[Example](yoda-velocity.html?owner=HewlettPackard&repo=yoda-demo).
 
 
 ## CFD Chart
@@ -179,6 +183,8 @@ If you do not specify a start date, Yoda will set the start date at the time the
 For more details on specifying interval, start date and end date, consult the Issues Statistics Report. 
 
 The report is available [here](yoda-cfd.html).
+
+[Example](yoda-cfd.html?owner=HewlettPackard&repo=yoda-demo&interval=3&draw=cfd).  
 
 
 # Issue Tools
@@ -201,6 +207,8 @@ If unlocked (uncheck the box), the viewer may also be used to modify column-defi
 
 The Kanban Board is available [here](yoda-kanban.html).
 
+[Example](yoda-kanban.html?owner=HewlettPackard&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
+
 
 ## Label Manager
 
@@ -210,12 +218,16 @@ Label manager can also delete labels, but only in case no issues (open or closed
 
 Label manager is available [here](yoda-label-manager.html).
 
+[Example](yoda-kanban.html?srcowner=hewlettpackard&srcrepo=yoda-demo&dstowner=hewlettpackard&dstrepo=yoda-demo2).
+
 
 ## Issue Exporter
 
 Yoda includes a powerful issues exporter, which can output issues to CSV files, suitable e.g. for importing into Excel. More documentation should be added, but, hey, give it a go.
 
 Issues exporter is available [here](yoda-exporter.html).
+
+[Example](yoda-kanban.html?owner=HewlettPackard&repo=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
 
 ## Task Copier
