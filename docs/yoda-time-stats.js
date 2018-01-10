@@ -22,6 +22,14 @@
 // If stacked, then tool will not do a "totals" line and a corresponding right axis.
 var stacked = false;
 
+function addIfNotDefault(params, field) {
+	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
+		return params + "&" + field + "=" + $("#" + field).val(); 
+	} else {
+		return params;
+	}
+}
+
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repo=" + $("#repo").val();
 
@@ -31,21 +39,11 @@ function getUrlParams() {
 	if ($("#enddate").val() != "") {
 		params += "&enddate=" + $("#enddate").val(); 
 	}
-	if ($("#interval").val() != "") {
-		params += "&interval=" + $("#interval").val(); 
-	}
-	if ($("#labelfilter").val() != "") {
-		params += "&labelfilter=" + $("#labelfilter").val(); 
-	}
-	if ($("#labelsplit").val() != "") {
-		params += "&labelsplit=" + $("#labelsplit").val(); 
-	}
-	if ($("#other").val() != "Other") {
-		params += "&other=" + $("#other").val(); 
-	}
-	if ($("#title").val() != "") {
-		params += "&title=" + $("#title").val(); 
-	}
+	params = addIfNotDefault(params, "interval");	
+	params = addIfNotDefault(params, "labelfilter");	
+	params = addIfNotDefault(params, "labelsplit");	
+	params = addIfNotDefault(params, "other");	
+	params = addIfNotDefault(params, "title");
 	if ($('#stacked').is(":checked")) {
 		params += "&stacked=true";
 	}
