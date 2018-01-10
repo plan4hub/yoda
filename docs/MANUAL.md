@@ -129,11 +129,11 @@ All arguments may be supplied directly using the URL using default "parameter=<v
 
 The report is available [here](yoda-time-stats.html).
 
-[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true).
+[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true)
 
 [Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repo=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
 
-[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repo=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true).
+[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repo=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
 
 
 ## Burndown Report
@@ -254,4 +254,5 @@ It is possible to embed Yoda reports into other Web Pages, typically using the H
 
 Example:
 
-`<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.hpe.com/hpsd/yoda/yoda-time-stats.html?owner=hpsd&amp;repo=hpsd&amp;labelfilter=T1%20-%20Defect&amp;count=opened&amp;draw=true&amp;hideheader=true"></iframe>`
+`<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.com/HewlettPackard/yoda/yoda-time-stats.html?owner=HewlettPackard&amp;repo=yoda-demo&amp;draw=true&amp;hideheader=true"></iframe>`
+
