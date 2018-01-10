@@ -129,7 +129,10 @@ All arguments may be supplied directly using the URL using default "parameter=<v
 
 The report is available [here](yoda-time-stats.html).
 
-[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true). 
+[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true).
+
+[Example. Opened reports overtime for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repo=coreos-kubernetes&startdate=2015-01-10&interval=1m&labelsplit=&other=NoIssues&count=opened&draw=true)
+ 
 
 
 ## Burndown Report
@@ -157,6 +160,7 @@ URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels
 The report is available [here](yoda-burndown.html).
 
 [Example](yoda-burndown.html?owner=HewlettPackard&repo=yoda-demo&estimate=inbody&milestone=Sprint 2&draw=chart).
+
 
 
 ## Velocity Report
@@ -248,6 +252,3 @@ It is possible to embed Yoda reports into other Web Pages, typically using the H
 Example:
 
 `<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.hpe.com/hpsd/yoda/yoda-time-stats.html?owner=hpsd&amp;repo=hpsd&amp;labelfilter=T1%20-%20Defect&amp;count=opened&amp;draw=true&amp;hideheader=true"></iframe>`
-
-
- 
