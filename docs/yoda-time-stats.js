@@ -172,31 +172,45 @@ function createChart() {
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
 	bars = [];
 	barsIds = [];
-	if (labelSplit.split(",").length > 1) {
-		var ls = labelSplit.split(",");
-		for (l = 0; l < ls.length; l++) {
-			bars.push(ls[l].trim());
+	
+	// Special handling for "repo"
+	if (labelSplit == "repo") {
+		// This is a special situation. We will create a bar for each repo. Useful only when doing organization level graph.
+		for (i=0; i<issues.length; i++) {
+			var repo = yoda.getUrlRepo(issues[i].repository_url);
+			if (bars.indexOf(repo) == -1)
+				bars.push(repo);
 		}
+		bars.sort();
 	} else {
-		if (labelSplit != "") {
-			var splitReg = new RegExp(labelSplit);
+		if (labelSplit.split(",").length > 1) {
+			// Explicit list of labels
+			var ls = labelSplit.split(",");
+			for (l = 0; l < ls.length; l++) {
+				bars.push(ls[l].trim());
+			}
+		} else {
+			// Regular expression
 			if (labelSplit != "") {
-				for (i=0; i<issues.length; i++) {
-					for (var l=0; l<issues[i].labels.length; l++) {
-						var labelName = issues[i].labels[l].name;
-						var res = labelName.match(splitReg);
-						if (res != null) {
-							if (bars.indexOf(labelName) == -1) {
-								console.log("Found label: " + labelName);
-								bars.push(labelName);
-//								barsIds.push(issues[i].labels[l].id);
+				var splitReg = new RegExp(labelSplit);
+				if (labelSplit != "") {
+					for (i=0; i<issues.length; i++) {
+						for (var l=0; l<issues[i].labels.length; l++) {
+							var labelName = issues[i].labels[l].name;
+							var res = labelName.match(splitReg);
+							if (res != null) {
+								if (bars.indexOf(labelName) == -1) {
+									console.log("Found label: " + labelName);
+									bars.push(labelName);
+//									barsIds.push(issues[i].labels[l].id);
+								}
 							}
 						}
 					}
 				}
+				bars = bars.sort();
+				console.log("Number of distinct labels: " + bars.length);
 			}
-			bars = bars.sort();
-			console.log("Number of distinct labels: " + bars.length);
 		}
 	}
 	console.log("Labels: " + bars);
@@ -286,7 +300,13 @@ function createChart() {
 			// Ok, relevant
 			var foundLabel = false;
 			var labelList = issuesLabels(issues[i], date);
-			// Log's look at the labels.			
+			
+			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
+			// This will cause an immediate match.
+			if (labelSplit == "repo") 
+				labelList = [{name: yoda.getUrlRepo(issues[i].repository_url)}];
+			
+			// Log's look at the labels.
 			for (l = 0; l < labelList.length; l++) {
 				var labelName = labelList[l].name;
 				// Search bars array

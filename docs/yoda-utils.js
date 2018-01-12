@@ -177,7 +177,15 @@ var yoda = (function() {
 			'rgb(51, 153, 102)', // stylish grey
 			'rgb(153, 204, 0)', // orange-yellow
 			'rgb(153, 214, 255)', // very light blue
-			'rgb(179, 134, 0)' // dark orange
+			'rgb(179, 134, 0)', // dark orange
+			'rgb(155, 80, 80)', // red'
+			'rgb(155, 53, 0)', // orange'
+			'rgb(50, 0, 150)', // blue'
+			'rgb(0, 104, 0)', // green'
+			'rgb(104, 155, 51)', // yellow'
+			'rgb(104, 102, 155)', // purple'
+			'rgb(53, 52, 0)', // brown'
+			'rgb(53, 53, 155)' // light blue'
 		],
 		
 		// Show snackbar (pop-up in bottom of page shown for short time only). Timeout in ms, default 1500 ms.
