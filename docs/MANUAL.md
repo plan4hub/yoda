@@ -12,7 +12,9 @@ Yoda works best if a consistent *labelling strategy* is used for issues. Yoda in
 [ss1]: index.html
 
 
-**Table of Contents**  
+_________
+
+# Table of Contents
 
 - [Yoda](#yoda)
 	- [Is Yoda for you?](#is-yoda-for-you)
