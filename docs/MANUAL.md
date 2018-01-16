@@ -283,7 +283,7 @@ Finally, it is possible to detail if only open issues, only closed issues, or si
 
 Issues exporter is available [here](yoda-exporter.html).
 
-[Example](yoda-kanban.html?owner=HewlettPackard&repo=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
+[Example](yoda-exporter.html?owner=HewlettPackard&repo=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
 
 ## Task Copier
