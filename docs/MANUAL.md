@@ -11,7 +11,6 @@ Yoda works best if a consistent *labelling strategy* is used for issues. Yoda in
 [![Yoda Landing Page](yoda-size-matters-not.jpg "Landing page")][ss1]
 [ss1]: index.html
 
-
 _________
 
 # Table of Contents
@@ -126,7 +125,7 @@ A good way of integrating Yoda reports into GitHub is use of Custom Tabs. Custom
 
 To add a Yoda report as a custom tab, select Settings/Custom Tabs, enter tab name and Yoda URL (including the parameters you wish to define, see above), then press "Add Tab".
 
-**Note**: Custom Tabs are only available in GitHub Enterprise, not on github.com for some reason .... 
+*Note*: Custom Tabs are only available in GitHub Enterprise, not on github.com for some reason .... 
 
 
 # GitHub Reports
@@ -264,7 +263,23 @@ Label manager is available [here](yoda-label-manager.html).
 
 ## Issue Exporter
 
-Yoda includes a powerful issues exporter, which can output issues to CSV files, suitable e.g. for importing into Excel. More documentation should be added, but, hey, give it a go.
+Yoda includes a powerful issues exporter, which can output issues to CSV files, suitable e.g. for importing into Excel. A large number of configuration options exists. 
+
+The exporter can export issues from a single repo or - if repo field is left blank - then all organization repos will be scoped for export.
+
+In the end, the columns of the resulting CSV file is defined in the "Fields" input box as a comma-separated list. The default list of fields are: Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining.
+
+Of these, "Issue Type", "Severity", "Estimate", and "Remaining" are special fields. 
+
+"Issue Type" and "Severity" are defined in the "Multi-label column definitions" box. Such definitions allow multiple labels (that should be mutually exclusive on each issue) to be merged into a single column. E.g. the defaults assume that issues are defined by a label prefixed by "T<1-9> - ".
+
+Besides the fields mentioned in the "Fields" list, extra fields are added to the CSV file based on sources: "Single label column definitions" and "Single label column regexps".
+
+Columns mentioned in "Single label column definitions" are added based on the label mentioned. If a given issue has the label assigned, the cell will be filled with the "Label indicator", otherwise it will be blank. The default for the "Label indicator" is "1", thus allowing the number of issues with this label set to be easily counted, e.g. in a PivotTable.
+
+Correspondingly, "Single label column regexps" add columns with label indicators to the CSV file. In this case, however, the colums are not explicitly named, only their pattern. For example, assuming that the labelling convention calls for prefixing customer encountered issues with "C - <customer name>", then the prefix "^C -" will cause all customer labels to received their own column, like "C - Acme Corp".
+
+Finally, it is possible to detail if only open issues, only closed issues, or simply all issues should be exported. Further, the file name, CSV separator, and "Label indicator" may be specified as options.
 
 Issues exporter is available [here](yoda-exporter.html).
 
