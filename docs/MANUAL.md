@@ -12,6 +12,29 @@ Yoda works best if a consistent *labelling strategy* is used for issues. Yoda in
 [ss1]: index.html
 
 
+**Table of Contents**  
+
+- [Yoda](#)
+	- [Is Yoda for you?](#)
+	- [GitHub Token](#)
+	- [Estimates into issues](#)
+		- [Estimate alternative (labels)](#)
+	- [Handling of milestones](#)
+	- [Yoda URL Parameters](#)
+	- [Yoda Defaults](#)
+- [GitHub Reports](#)
+	- [Issue Statistics Report](#)
+	- [Burndown Report](#)
+	- [Velocity Report](#)
+	- [CFD Chart](#)
+- [Issue Tools](#)
+	- [Kanban Board](#)
+	- [Label Manager](#)
+	- [Issue Exporter](#)
+	- [Task Copier](#)
+- [Embedding Reports into another Web Page](#)
+
+
 ## Is Yoda for you?
 
 If you use GitHub issues to simply register a few bugs, that are fixed in an ad-hoc fashion, then probably you don't need Yoda.
@@ -93,6 +116,15 @@ If all parameters are given in the URL, Yoda reports may automatically draw (not
 ## Yoda Defaults
 
 Yoda tools have some default values for certain fields. Some of these defaults may be overwritten using the [Yoda Admin](yoda-admin.html) tool. Note, that the defaults are maintained per-site by each browser, so it is possible to have different defaults, e.g. for github.com vs. an GitHub Enterprise instance.
+
+
+## GitHub Integration
+
+A good way of integrating Yoda reports into GitHub is use of Custom Tabs. Custom Tabs can be added to the Tab line in the GitHub Web GUI just below the organization/repository name. Often Custom Tabs will end up in a sub-menu under a "More..." tab heading.
+
+To add a Yoda report as a custom tab, select Settings/Custom Tabs, enter tab name and Yoda URL (including the parameters you wish to define, see above), then press "Add Tab".
+
+**Note**: Custom Tabs are only available in GitHub Enterprise, not on github.com for some reason .... 
 
 
 # GitHub Reports
