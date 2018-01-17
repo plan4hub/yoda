@@ -302,11 +302,10 @@ function handleIssueMove(url, fromColumn, toColumn) {
 	if (toColumnState != "open" && toColumnState != "closed")
 		toColumnState = ""; // then it is not the open/closed state.
 	
-	// First, let's find the issue in out list.
+	// First, let's find the issue in our list.
 	for (var i = 0; i < issues.length; i++) {
 		if (issues[i].url == url) {
 			console.log("Found issue. It is at index " + i);
-
 			
 			console.log("Labels:");
 			console.log(issues[i].labels);
@@ -352,6 +351,17 @@ function handleIssueMove(url, fromColumn, toColumn) {
 					}
 				}
 				newLabels.push(toLabel);
+			}
+			
+			// We should also handle case were moving from a label column to a "*" column. In this case, the labels
+			// should be removed.
+			if (fromLabel != "*" && toLabel == "*") {
+				var fromIndex = newLabels.indexOf(fromLabel);
+				console.log("Fromindex: " + fromIndex);
+				if (fromIndex != -1) {
+					console.log("Remove issues from index " + fromIndex);
+					newLabels.splice(fromIndex, 1);
+				}
 			}
 			
 			console.log("New labels:");
