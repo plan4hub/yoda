@@ -628,55 +628,8 @@ function updateIssues() {
 
 //----------------
 
-var firstReposhow = true;
-function showRepos(repos) {
-	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() > b.name.toLowerCase()) {
-			return 1;
-		} else {
-			return -1;
-		}
-	});
-	
-	var selectRepos = [];
-	if (firstReposhow == true) {
-		firstReposhow = false;
-		
-		var urlRepoList = yoda.decodeUrlParam(null, "repolist");
-		if (urlRepoList != null) 
-			selectRepos = urlRepoList.split(",");
-	}
-	
-	var reposSelected = false;
-	for (var r = 0; r < repos.length; r++) {
-		var selectRepo = false;
-		if (selectRepos.indexOf(repos[r].name) != -1) {
-			selectRepo = true;
-			reposSelected = true;
-		}
-		
-		var newOption = new Option(repos[r].name, repos[r].name, selectRepo, selectRepo);
-		$('#repolist').append(newOption);
-	}
-	
-	if (reposSelected)
-		$('#repolist').trigger('change');
-}
-
-function updateReposUser() {
-	console.log("updateReposUser");
-	// We failed to get stuff for owner, try user
-	var getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-	yoda.getLoop(getReposUrl, 1, [], showRepos, null);
-}
-
-
 function updateRepos() {
-	console.log("Update repos");
-	$("#repolist").empty();
-
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
-	yoda.getLoop(getReposUrl, 1, [], function(data) {if (data.length == 0) updateReposUser(); else showRepos(data);}, updateReposUser);
+	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", null, null);
 }
 
 // -------------

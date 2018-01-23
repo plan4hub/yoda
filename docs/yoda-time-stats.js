@@ -22,6 +22,8 @@
 // If stacked, then tool will not do a "totals" line and a corresponding right axis.
 var stacked = false;
 
+var repoList = [];
+
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
 		return params + "&" + field + "=" + $("#" + field).val(); 
@@ -31,8 +33,9 @@ function addIfNotDefault(params, field) {
 }
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repo=" + $("#repo").val();
-
+	var params = "owner=" + $("#owner").val();
+	if ($("#repolist").val() != "") 
+		params += "&repolist=" + $("#repolist").val();
 	if ($("#startdate").val() != "") {
 		params += "&startdate=" + $("#startdate").val(); 
 	}
@@ -126,10 +129,6 @@ function createChart() {
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 		
-	console.log("Creating chart. No issues (before filtering out pull requests): " + issues.length);
-	yoda.filterPullRequests(issues);
-	console.log("Creating chart. No issues (after filtering out pull requests): " + issues.length);
-
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
 	today.setHours(0);
@@ -289,7 +288,6 @@ function createChart() {
 				if (countType == "closed")
 					continue;
 			}
-			
 			
 			// Ok, it is open, IF we are counting opened, we are only interested if it was opened during this period.
 			if (countType == "opened" && submitDate < previousDate) {
@@ -462,7 +460,7 @@ function createChart() {
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repo").val();
+	var chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
@@ -489,30 +487,6 @@ function createChart() {
 }
 
 // ----------------
-
-function showRepos(repos) {
-	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
-	});
-
-	for (var r = 0; r < repos.length; r++) {
-		$("#repolist").append($("<option></option>").attr("value", repos[r].name));
-	}
-}
-
-function updateRepos() {
-	console.log("Update repos");
-	$("#repo").val("");
-	$("#repolist").empty();
-	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
-	yoda.getLoop(getReposUrl, 1, [], showRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
-}
 
 	
 // -------------------------
@@ -558,50 +532,37 @@ function startChart() {
 	} else {
 		stacked = false;
 	}
-	
-	// We are able to get either all issues into a given repo, or all issues for an entire org/owner
-	// The value of #repo decides what we do.
-	if ($("#repo").val() == "") {
-		// All issues into org.
-		var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + 
-		"/issues?filter=all&state=all";
-	} else {
-		// Specific repo only. 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() +
-		"/issues?state=all";
-	}
-	
-	if ($("#labelfilter").val() != "") {
-		getIssuesUrl += "&" + "labels=" + $("#labelfilter").val(); 
-	}
-	console.log("URL:" + getIssuesUrl);
-	yoda.getLoop(getIssuesUrl, 1, [], storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	
+	if ($("#repolist").val() == "") 
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	else
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+
 	// Get events as well. ONLY DO THIS ONCE PER REPO. Very heavy
-	if ($('#history').is(":checked") && lastRepoEvents != $("#repo").val()) {
+	if ($('#history').is(":checked") && lastRepoEvents != $("#repolist").val()) {
 		labelEvents = [];
 		labelEventsReceived = false;
-		// Get as well events. This is quite heavy... 
-		if ($("#repo").val() == "") {
-			// All issues into org.  // Does not work There is no such API!
-			var getEventsUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/issues/events";
-		} else {
-			// Specific repo only. 
-			var getEventsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() + "/issues/events";
+ 
+		if ($("#repolist").val() != "") { // Note, label getting does not work across entire org. No such API!
+			var repoList = $("#repolist").val();
+			yoda.showSnackbar("Started retrieving all events");
+			for (var r = 0; r < repoList.length; r++) {
+				var getEventsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/issues/events";
+				console.log("Label URL:" + getEventsUrl);
+
+				yoda.getLoopIterative(getEventsUrl, 1, storeEvents, function() { 
+					lastRepoEvents = $("#repolist").val(); 
+					yoda.showSnackbar("Retrieved all events for repo. Redrawing");
+					labelEventsReceived = true;
+					console.log("Retrieved all events for repo. Redrawing");
+
+					// redraw chart
+					createChart();
+				}, 
+				function(errorText) { 
+					yoda.showSnackbarError("Error getting events: " + errorText, 3000);
+				});
+			}
 		}
-		
-		console.log("URL:" + getEventsUrl);
-		yoda.showSnackbar("Started retrieving all events");
-		yoda.getLoopIterative(getEventsUrl, 1, storeEvents, function() { 
-				lastRepoEvents = $("#repo").val(); 
-				yoda.showSnackbar("Retrieved all events. Redrawing");
-				labelEventsReceived = true;
-				// redraw chart
-				createChart();
-			}, 
-			function(errorText) { 
-				yoda.showSnackbarError("Error getting events: " + errorText, 3000);
-			});
 	}
 }
 

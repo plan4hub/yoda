@@ -132,13 +132,13 @@ To add a Yoda report as a custom tab, select Settings/Custom Tabs, enter tab nam
 
 ## Issue Statistics Report
 
-This highly configurable report can be used to report issues statistics over time, i.e. how many open reports at a given time. All issues for a repository will be retrieved (or, if repo field left blank) all issues for an entire organisation.
+This highly configurable report can be used to report issues statistics over time, i.e. how many open reports at a given time. All issues for the selected repositories will be retrieved (or, if repo field left blank) all issues for an entire organisation.
 
 Issues are shown in a bar chart with the X-axis showing dates between two dates (start date and end date) at a specified interval. Defaults go back 2 months, and display until current date with a one week interval. For interval parameter, you may add an 'm' suffix to specify months rather than days. Similarly, you can specify the start date and end dates as a delta from current day (+/- days, or +/-(m) for months). 
 
-Per default, all issues in the repo are considered. It is possible to specify a label filter as a comma-separate list of label values (logical AND assumed). E.g. "T1 - Defect" to show only defects, if you labelling standard denotes defects with a "T1 - Defect" label.
+Per default, all issues in the selected repos are considered. It is possible to specify a label filter as a comma-separate list of label values (logical AND assumed). E.g. "T1 - Defect" to show only defects, if you labeling standard denotes defects with a "T1 - Defect" label.
 
-For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labelling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
+For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labeling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
 
 Instead of a regular expression, it is also possible to split issues into bars by simply specifying a comma-separate list of labels. Example: "bug, feature".
 
@@ -152,7 +152,9 @@ Optionally, a title may be given. Otherwise a default title "GitHub Issues (owne
 
 Further options display, instead of # of open issues, issues opened or closed in the period, or the average duration for issues being open.
 
-All arguments may be supplied directly using the URL using default "parameter=<value>" notation with & between. The possible arguments are: owner, repo, startdate, enddate, interval, labelfilter, labelsplit, other, title, user, token, count.
+All arguments may be supplied directly using the URL using default "parameter=<value>" notation with & between. The possible arguments are: owner, repolist, startdate, enddate, interval, labelfilter, labelsplit, other, title, user, token, count.
+
+*Note*: The URL field repo is supported for backwards compatbility.
 
 *Note*: Dates (startdate, enddate) may also be specified as delta ref. current date. Example: startdate=-14  (set start date to 2 weeks ago) or startdate=-10m (set start date 10 month back).
 
@@ -162,11 +164,11 @@ All arguments may be supplied directly using the URL using default "parameter=<v
 
 The report is available [here](yoda-time-stats.html).
 
-[Example](yoda-time-stats.html?owner=HewlettPackard&repo=yoda-demo&draw=true)
+[Example](yoda-time-stats.html?owner=HewlettPackard&repolist=yoda-demo&draw=true)
 
-[Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repo=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
+[Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repolist=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
 
-[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repo=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
+[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
 
 
 ## Burndown Report

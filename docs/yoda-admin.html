@@ -93,6 +93,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Repolist default</label>
+			<input type="text" size="25" id="repo"  onchange="setLocalStorage('yoda.repolist', this.value)">
+		</div>
+		
+		<div class="field">
 			<label>Estimates</label><div id="estimateradio">
 				<label><input type="radio" name="estimate" value="noissues" onclick="setLocalStorage('yoda.estimate', this.value)"># issues</label> 
 				<label><input type="radio" name="estimate" value="inbody" onclick="setLocalStorage('yoda.estimate', this.value)">In body</label> 
@@ -185,6 +190,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#token").val(localStorage.getItem("gitHubAccessToken"));
 			$("#owner").val(localStorage.getItem("yoda.owner"));
 			$("#repo").val(localStorage.getItem("yoda.repo"));
+			$("#repolist").val(localStorage.getItem("yoda.repolist"));
 			$("#time_interval").val(localStorage.getItem("yoda.time.interval"));
 			$("#time_labelsplit").val(localStorage.getItem("yoda.time.labelsplit"));
 			$("#time_other").val(localStorage.getItem("yoda.time.other"));

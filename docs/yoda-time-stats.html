@@ -29,7 +29,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <title>GitHub Issue Time Chart</title>
 <link rel="icon" href="favicon.ico" type="image/x-icon" />
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
 
 </head>
@@ -40,26 +43,23 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame">
 		<div class="field">
 			<label>Owner</label>
-			<input type="text" id="owner" size="10" onchange="updateRepos()">
+			<input type="text" id="owner" size="10" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
 			<span class="tooltip">GitHub organisation or user</span>
 		</div>
 
 		<div class="field">
-			<label>Repo</label>
-			<input list="repolist" id="repo" size="10" value="">
-			<span class="tooltip">GitHub repository</span>
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
 		</div>
 		
-		<datalist id="repolist">
-		</datalist>
-		
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub user</label>
 			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub token</label>
 			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
@@ -142,7 +142,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<script>
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.getDefaultLocalStorage("#repo", "yoda.repo");
 		yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.time.labelsplit");
 		yoda.getDefaultLocalStorage("#other", "yoda.time.other");
@@ -150,7 +149,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#other").val("");
 		
 		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#repo", "repo");
+		// repo and repoList handled later, both are supported.		
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
 		yoda.decodeUrlParam("#interval", "interval");
@@ -175,19 +174,24 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#user", "user");
 		yoda.decodeUrlParam("#token", "token");
 				
-		githubAuth(); // if set already
-		if ($("#repo").val() == "") {
-			updateRepos();
-		}
+		// Login
+		githubAuth();
+		
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+			// Should we draw directly? Only check this after the repo updates complete.
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+				startChart();
+			}
+		}, null);
 		
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
 		}
 
-		// Should we draw directly?
-		if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
-			startChart();
-		}
+		$(document).ready(function() {
+			$('#repolist').select2();
+		});
 	</script>
 
 </body>

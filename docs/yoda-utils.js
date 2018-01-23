@@ -31,8 +31,22 @@ Date.prototype.addMonths = function (value) {
 // -----------------------------------------------------
 // Yoda module
 var yoda = (function() {
-	// Yoda Private variables and functions
+	// ------------------------------
+	// Yoda Private variables
+	
+	// Count snackbar to ensure proper updates.
 	var snackbarCount = 0;
+	
+	// GitHub container lists. Retrieve only via access functions
+	var yoda_repoList = [];
+	var yoda_issues = [];
+	
+	var yoda_firstRepoUpdate = true;
+	
+	// GitHub call control variable. New calls will cancel existing calls.
+	var yoda_gitHubCallNo = 0;
+	
+	// -------------------------------
 	
 	// UPDATE THESE TO FIT YOUR GITHUB...
 	
@@ -659,6 +673,7 @@ var yoda = (function() {
 			} else {
 				var authdata = base64_encode(userId  + ':' + accessToken);
 				headers['Authorization'] = 'Basic ' + authdata;
+//				headers['PRIVATE-TOKEN'] = accessToken;  // Gitlab play. API is differnet anyhow
 			}
 			
 			if (origin != undefined) {
@@ -696,8 +711,20 @@ var yoda = (function() {
 		// Collect various information from the API. URL gives the requested info, the function does the
 		// collection and concatenation, calling in the end the final function. 
 		// Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
-		getLoop: function(url, page, collector, finalFunc, errorFunc) {
-			$("*").css("cursor", "wait");
+		getLoop: function(url, page, collector, finalFunc, errorFunc, callNo) {
+			// First call?
+			if (callNo == undefined) {
+				$("*").css("cursor", "wait");
+				yoda_gitHubCallNo++;
+				callNo = yoda_gitHubCallNo;
+				console.log("Starting loop call no " + callNo + " with URL: " + url);
+			} else {
+				// Check if someone started a newer call. Then we will cancel.
+				if ((callNo != -1) && (callNo) < yoda_gitHubCallNo) {
+					console.log("getLoop detected newer call (" + yoda_gitHubCallNo + " > " + callNo + "). Cancelling.");
+					return;
+				}
+			}
 			
 			if (page != -1) {
 				var oldIndex = url.indexOf("per_page=100&page=");
@@ -715,7 +742,7 @@ var yoda = (function() {
 			
 			$.getJSON(url, function(response, status){
 				if (response.length == 100 && page != -1) {
-					yoda.getLoop(url, page + 1, collector.concat(response), finalFunc, errorFunc);
+					yoda.getLoop(url, page + 1, collector.concat(response), finalFunc, errorFunc, callNo);
 				} else {
 					$("*").css("cursor", "default");
 					finalFunc(collector.concat(response));
@@ -735,6 +762,7 @@ var yoda = (function() {
 		// finalFunc is called on the final response.
 		// Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
 		// No cursor changes.
+		// Note, we are not using the callNo cancellation... 
 		getLoopIterative: function(url, page, partFunc, finalFunc, errorFunc) {
 			if (page != -1) {
 				var oldIndex = url.indexOf("per_page=100&page=");
@@ -750,8 +778,11 @@ var yoda = (function() {
 				}
 			}
 			
+			console.log("Iterative call URL: " + url);
 			$.getJSON(url, function(response, status){
-				partFunc(response);
+				if (partFunc != null)
+					partFunc(response);
+				
 				if (response.length == 100 && page != -1) {
 					yoda.getLoopIterative(url, page + 1, partFunc, finalFunc, errorFunc);
 				} else {
@@ -777,6 +808,151 @@ var yoda = (function() {
 				}
 			}
 		},
+		
+		// ----GITHUB REPO FUNCTIONS --------------------------------------
+		
+		// Functions to keep up-to-date list of repos based on owner.
+		getRepoList: function() {
+			return yoda_repoList;
+		},
+		
+		// Update list of repositories for the given owner (organization or user).
+		// user boolean is optional
+		updateRepos: function(owner, okFunc, failFunc, user) {
+			yoda_repoList = [];
+
+			if (user == true)
+				var getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
+			else 
+				var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
+			
+			yoda.getLoop(getReposUrl, 1, [], function(data) {
+				if (data.length == 0 && user == false) {
+					// In case we did not get any repos from organization, let's double check by trying on user.
+					updateRepos(owner, okFunc, failFunc, true);
+				} else {
+					// Sort and store repos.
+					data.sort(function(a,b) {
+						if (a.name.toLowerCase() > b.name.toLowerCase()) {
+							return 1;
+						} else {
+							return -1;
+						}
+					});
+					yoda_repoList = data;
+					
+					if (okFunc != null)
+						okFunc();
+				}}, failFunc);
+		},
+		
+		// Update list of repositories AND update GUI field,. Select repo(s) from URL if supplied.
+		// If required, fallback to the localStorage defaults.
+		updateReposAndGUI: function(owner, fieldId, URLId, localStorageId, okFunc, failFunc) {
+			$(fieldId).empty();
+
+			yoda.updateRepos(owner, function() {
+				var selectRepos = [];
+				if (yoda_firstRepoUpdate == true) {
+					yoda_firstRepoUpdate = false;
+				
+					var urlRepoList = yoda.decodeUrlParam(null, URLId);
+					if (urlRepoList != null) 
+						selectRepos = urlRepoList.split(",");
+					else {
+						urlRepo = yoda.decodeUrlParam(null, "repo");
+						if (urlRepo != null) {
+							selectRepos = urlRepo;
+						} else {
+							// No values into either URLId or (repo), let's check the localStorage
+							if (yoda.getDefaultLocalStorageValue(localStorageId) != null) {
+								selectRepos = yoda.getDefaultLocalStorageValue(localStorageId);
+							}
+						} 
+					}
+				}
+			
+				var reposSelected = false;
+				for (var r = 0; r < yoda_repoList.length; r++) {
+					var selectRepo = false;
+					if (selectRepos.indexOf(yoda_repoList[r].name) != -1) {
+						selectRepo = true;
+						reposSelected = true;
+					}
+					
+					var newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, selectRepo, selectRepo);
+					$(fieldId).append(newOption);
+				}
+			
+				if (reposSelected)
+					$(fieldId).trigger('change');
+				
+				if (okFunc != null)
+					okFunc();
+			}, failFunc);
+		},
+		
+		// ----------- GITHUB ISSUE FUNCTIONS ------------------------
+		getIssues: function() {
+			return yoda_issues;
+		},
+		
+		// Generic function to retrieve issues across multiple repos.
+		// labelFilter can be empty
+		// stateFilter should be "all", "open" or "closed".
+		// Update the issues. Note, that this will result in multiple GitHub calls.
+		// Note, that this call will automatically filter out pull requests.
+		// Do NOT set _internalStarted value
+		updateGitHubIssuesRepos: function (owner, repoList, labelFilter, stateFilter, okFunc, failFunc, _internalStarted) {
+			if (_internalStarted != true) {
+				// Clear issues on first call.
+				yoda_issues = [];
+			}
+
+			// Specific repo only. 
+			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter;
+			if (labelFilter != "") {
+				getIssuesUrl += "&labels=" + labelFilter; 
+			}
+
+			console.log("Get Issues URL:" + getIssuesUrl);
+			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
+				yoda_issues = yoda_issues.concat(issues);
+				
+				if (repoList.length == 1) {
+					// Last call completed.
+					yoda.filterPullRequests(issues);
+					if (okFunc != null)
+						okFunc(yoda_issues);
+				} else {
+					yoda.updateGitHubIssuesRepos(owner, repoList.slice(1), labelFilter, stateFilter, okFunc, failFunc, true);
+				}
+			}, failFunc);
+		},
+
+		// Generic function to retrieve issues across an organization.
+		// labelFilter can be empty
+		// stateFilter should be "all", "open" or "closed".
+		// Note, that this call will automatically filter out pull requests.
+		updateGitHubIssuesOrg: function (owner, labelFilter, stateFilter, okFunc, failFunc) {
+			// Clear old issues.
+			yoda_issues = [];
+			
+			// All issues into org.
+			var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter;
+			
+			if (labelFilter != "") {
+				getIssuesUrl += "&labels=" + labelFilter; 
+			}
+			console.log("Get Issues URL:" + getIssuesUrl);
+			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
+				yoda.filterPullRequests(issues);
+				if (okFunc != null)
+					okFunc()
+			}, failFunc);
+		},
+
+		// ----------------------------------
 		
 		// Deep copy an object by making an intermediate JSON object.
 		deepCopy: function(o) {

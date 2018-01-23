@@ -122,23 +122,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	opacity: 0.6;
 }
 
-/* Input field */
-.select2-selection__rendered { }
-
-/* Around the search field */
-.select2-search {  }
-
-/* Search field */
-.select2-search input {  }
-
-/* Each result */
-.select2-results {  }
-
-/* Higlighted (hover) result */
-.select2-results__option--highlighted {  }
-
-/* Selected option */
-.select2-results__option[aria-selected=true] {  }
 
 </style>
 
@@ -154,13 +137,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			 <span class="tooltip">GitHub organisation or user</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>Github user</label>
 			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
 			 <span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>Github token</label>
 			<input type="password" size="20" id="token" value="" onchange="githubAuth()">
 			 <span class="tooltip">GitHub personal token</span>
@@ -238,11 +221,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	<script>
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.getDefaultLocalStorage("#repo", "yoda.repo");
+		// yoda.getDefaultLocalStorage("#repo", "yoda.repo");
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 
 		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#repo", "repo");
+		// yoda.decodeUrlParam("#repo", "repo");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 

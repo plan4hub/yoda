@@ -219,3 +219,26 @@ thead {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
 }
+/* Input field */
+.select2-selection__rendered { }
+
+/* Around the search field */
+.select2-search {  }
+
+/* Search field */
+.select2-search input {  }
+
+/* Each result */
+.select2-results {  }
+
+/* Higlighted (hover) result */
+.select2-results__option--highlighted {  }
+
+/* Selected option */
+.select2-results__option[aria-selected=true] {  }
+
+.select2, .select2 option {
+  font-size:15px;
+}
+
+
