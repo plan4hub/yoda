@@ -170,7 +170,7 @@ The report is available [here](yoda-time-stats.html).
 
 [Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
 
-[Example. Multiple repos over time]
+[Example. Multiple repos over time](yoda-time-stats.html?yoda-time-stats.html?owner=typings&repolist=core,discussions,typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=repo&other=&draw=true)
 
 
 
