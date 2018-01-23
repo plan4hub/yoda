@@ -53,13 +53,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<datalist id="repolist">
 		</datalist>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub user</label>
 			<input type="text" size="20" id="user" onChange="githubAuth()">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub token</label>
 			<input type="password" size="30" id="token" value="" onChange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
@@ -73,9 +73,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				</div>
 			<span class="tooltip">Where to get estimates</span>
 		</div>
-	</div>
 
-	<div class="frame">
 		<div class="field">
 			<label>Milestones</label>
 			<select id="milestone" multiple onchange='$("#project").val("");'></select>

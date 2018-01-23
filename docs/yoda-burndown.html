@@ -55,13 +55,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<datalist id="repolist">
 		</datalist>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub user</label>
 			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub token</label>
 			<input type="password" size="25" id="token" value="" onChange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
@@ -92,6 +92,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
 				</div>
 			<span class="tooltip">Where to get estimates</span>
+		</div>
+
+		<div class="field">
+			<label>Show closed</label>
+			<input type="checkbox" id="showclosed" checked>
+			<span class="tooltip">Show closed issues in table</span>
 		</div>
 	</div>
 
@@ -124,12 +130,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>Capacity</label>
 			<input type="text" id="capacity" size="6" value="">
 			<span class="tooltip">Sprint capacity (story points)</span>
-		</div>
-		
-		<div class="field">
-			<label>Show closed</label>
-			<input type="checkbox" id="showclosed" checked>
-			<span class="tooltip">Show closed issues in table</span>
 		</div>
 		
 		<button id="drawbutton" onclick="startBurndown()">Draw chart</button>
