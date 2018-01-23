@@ -28,7 +28,9 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
-	params = addIfNotDefault(params, "repo");
+	if ($("#repolist").val() != "") 
+		params += "&repolist=" + $("#repolist").val();
+
 	params = addIfNotDefault(params, "singlelabeldef");
 	params = addIfNotDefault(params, "sharedlabeldef");
 	params = addIfNotDefault(params, "splitlabeldef");
@@ -54,8 +56,6 @@ function logMessage(message) {
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 function exportIssues(issues) {
-	console.log("Exporting issues. No issues (before filtering out pull requests): " + issues.length);
-	yoda.filterPullRequests(issues);
 	console.log("Exporting issues. No issues (after filtering out pull requests): " + issues.length);
 	logMessage("Info: Received " + issues.length + " issues. Now analyzing and converting to CSV.");
 
@@ -286,41 +286,18 @@ function showRepos(repos) {
 	}
 }
 
-function updateRepos() {
-	console.log("Update repos");
-	$("#repo").val("");
-	$("#repolist").empty();
-	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos/";
-	yoda.getLoop(getReposUrl, 1, [], showRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
-}
-
 	
 // -------------------------
 
 function startExport() {
 	$("#console").val("");
 	
-	// We are able to get either all issues into a given repo, or all issues for an entire org/owner
-	// The value of #repo decides what we do.
-	if ($("#repo").val() == "") {
-		// All issues into org.
-		var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + 
-		"/issues?filter=all&state=" + $("#state").val() + "&direction=asc";
-	} else {
-		// Specific repo only. 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() +
-		"/issues?state=" + $("#state").val() + "&direction=asc";
-	}
-	
-	if ($("#labelfilter").val() != "") {
-		getIssuesUrl += "&" + "labels=" + $("#labelfilter").val(); 
-	}
-	console.log("URL:" + getIssuesUrl);
-	logMessage("Info: Initiating Github request: " + getIssuesUrl);
-	yoda.getLoop(getIssuesUrl, 1, [], exportIssues, errorFunc);
+	if ($("#repolist").val() == "") 
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	else
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+
+	logMessage("Info: Initiated Github request.");
 }
 
 // --------------

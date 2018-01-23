@@ -31,36 +31,34 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.6/papaparse.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
 
 </head>
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-exporter.js"></script>
-
-	<div class="frame">
-		<div class="field">
+		<div class="frame">
+			<div class="field">
 			<label>Owner</label>
-			<input type="text" id="owner" size="10" value="" onchange="updateRepos()">
-			<span class="tooltip">GitHub organisation or user</span>
+			<input type="text" id="owner" size="10" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<span class="tooltip">GitHub organization or user</span>
 		</div>
 
 		<div class="field">
-			<label>Repo</label>
-			<input list="repolist" id="repo" size="20" value="">
-			<span class="tooltip">GitHub repository (blank for all)</span>
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
 		</div>
-		
-		<datalist id="repolist">
-		</datalist>
-		
-		<div class="field">
+	
+		<div class="field" style="display: none;">
 			<label>GitHub user</label>
 			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub token</label>
 			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
@@ -156,9 +154,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<script>
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
-
 		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#repo", "repo");
 		yoda.decodeUrlParam("#singlelabeldef", "singlelabeldef");
 		yoda.decodeUrlParam("#sharedlabeldef", "sharedlabeldef");
 		yoda.decodeUrlParam("#splitlabeldef", "splitlabeldef");
@@ -178,14 +174,21 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#token", "token");
 				
 		githubAuth(); // if set already
-		if ($("#repo").val() == "") {
-			updateRepos();
-		}
 		
-		// Should we start export directly?
-		if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
-			startExport();
-		}
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+			// Should we draw directly? Only check this after the repo updates complete.
+			// Should we draw directly?
+			// Should we start export directly?
+			if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
+				startExport();
+			}
+		}, null);
+		
+		$(document).ready(function() {
+			$('#repolist').select2();
+		});
+		
 	</script>
 
 </body>
