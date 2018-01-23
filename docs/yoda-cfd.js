@@ -19,7 +19,9 @@
 
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repo=" + $("#repo").val();
+	var params = "owner=" + $("#owner").val();
+	if ($("#repolist").val() != "") 
+		params += "&repolist=" + $("#repolist").val();
 
 	if ($("#startdate").val() != "") {
 		params += "&startdate=" + $("#startdate").val(); 
@@ -81,10 +83,8 @@ function createChartLT(issues) {
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 
-	console.log("Creating LT chart. No issues (before filtering out pull requests): " + issues.length);
-	yoda.filterPullRequests(issues);
-	console.log("Creating LT chart. No issues (after filtering out pull requests): " + issues.length);
-
+	console.log("Creating LT. No issues (after filtering out pull requests): " + issues.length);
+	
 	// Issue analysis loop.
 	// First, let's sort issues by submit date
 	issues.sort(function(issue_1, issue_2) {
@@ -245,7 +245,7 @@ function createChartLT(issues) {
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "CFD / Lead time / GitHub Issues " + $("#owner").val() + "/" + $("#repo").val();
+	var chartTitle = "CFD / Lead time / GitHub Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
@@ -307,8 +307,6 @@ function createChartCFD(issues) {
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 
-	console.log("Creating chart. No issues (before filtering out pull requests): " + issues.length);
-	yoda.filterPullRequests(issues);
 	console.log("Creating chart. No issues (after filtering out pull requests): " + issues.length);
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)
@@ -461,7 +459,7 @@ function createChartCFD(issues) {
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "CFD / Github Issues " + $("#owner").val() + "/" + $("#repo").val();
+	var chartTitle = "CFD / Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
@@ -495,57 +493,23 @@ function errorFunc(errorText) {
 }
 
 // ----------------
-
-function showRepos(repos) {
-	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
-	});
-
-	for (var r = 0; r < repos.length; r++) {
-		$("#repolist").append($("<option></option>").attr("value", repos[r].name));
+var _chartType = "";
+function storeIssuesThenCreateChart(issues) {
+	if (_chartType == "CFD") {
+		createChartCFD(issues);
+	} else {
+		createChartLT(issues);
 	}
 }
-
-function updateRepos() {
-	console.log("Update repos");
-	$("#repo").val("");
-	$("#repolist").empty();
-	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
-	yoda.getLoop(getReposUrl, 1, [], showRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
-}
-
 	
 // -------------------------
 
 function startChart(chartType) {
-	// We are able to get either all issues into a given repo, or all issues for an entire org/owner
-	// The value of #repo decides what we do.
-	if ($("#repo").val() == "") {
-		// All issues into org.
-		var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + 
-		"/issues?filter=all&state=all";
-	} else {
-		// Specific repo only. 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() +
-		"/issues?state=all";
-	}
-	
-	if ($("#labelfilter").val() != "") {
-		getIssuesUrl += "&" + "labels=" + $("#labelfilter").val(); 
-	}
-	console.log("URL:" + getIssuesUrl);
-	
-	if (chartType == "CFD") {
-		yoda.getLoop(getIssuesUrl, 1, [], createChartCFD, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	} else {
-		yoda.getLoop(getIssuesUrl, 1, [], createChartLT, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	}
+	_chartType = chartType
+	if ($("#repolist").val() == "") 
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	else
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 // --------------

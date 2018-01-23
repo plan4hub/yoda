@@ -220,11 +220,13 @@ The report also allows drawing a Lead Time graphs (the average time taken to add
 
 If you do not specify a start date, Yoda will set the start date at the time the first repo issue was created. 
 
-For more details on specifying interval, start date and end date, consult the Issues Statistics Report. 
+For more details on specifying interval, start date and end date, consult the Issues Statistics Report.
+
+As wit the Issue Statistics Report, multiple repositories may be specified. 
 
 The report is available [here](yoda-cfd.html).
 
-[Example](yoda-cfd.html?owner=HewlettPackard&repo=yoda-demo&interval=3&draw=cfd).  
+[Example](yoda-cfd.html?owner=HewlettPackard&repolist=yoda-demo&interval=3&draw=cfd).  
 
 
 # Issue Tools

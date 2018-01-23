@@ -947,8 +947,10 @@ var yoda = (function() {
 			console.log("Get Issues URL:" + getIssuesUrl);
 			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
 				yoda.filterPullRequests(issues);
+				yoda_issues = issues;
+
 				if (okFunc != null)
-					okFunc()
+					okFunc(yoda_issues)
 			}, failFunc);
 		},
 
