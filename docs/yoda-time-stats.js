@@ -34,8 +34,7 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
-	if ($("#repolist").val() != "") 
-		params += "&repolist=" + $("#repolist").val();
+	params += "&repolist=" + $("#repolist").val();
 	if ($("#startdate").val() != "") {
 		params += "&startdate=" + $("#startdate").val(); 
 	}

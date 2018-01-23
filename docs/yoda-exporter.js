@@ -28,9 +28,7 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
-	if ($("#repolist").val() != "") 
-		params += "&repolist=" + $("#repolist").val();
-
+	params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "singlelabeldef");
 	params = addIfNotDefault(params, "sharedlabeldef");
 	params = addIfNotDefault(params, "splitlabeldef");
