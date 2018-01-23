@@ -170,6 +170,9 @@ The report is available [here](yoda-time-stats.html).
 
 [Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
 
+[Example. Multiple repos over time]
+
+
 
 ## Burndown Report
 
@@ -269,7 +272,7 @@ Label manager is available [here](yoda-label-manager.html).
 
 Yoda includes a powerful issues exporter, which can output issues to CSV files, suitable e.g. for importing into Excel. A large number of configuration options exists. 
 
-The exporter can export issues from a single repo or - if repo field is left blank - then all organization repos will be scoped for export.
+The exporter can export issues multiple repositories within the same organization or - if repo field is left blank - then all organization repos will be scoped for export.
 
 In the end, the columns of the resulting CSV file is defined in the "Fields" input box as a comma-separated list. The default list of fields are: Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining.
 
@@ -287,7 +290,7 @@ Finally, it is possible to detail if only open issues, only closed issues, or si
 
 Issues exporter is available [here](yoda-exporter.html).
 
-[Example](yoda-exporter.html?owner=HewlettPackard&repo=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
+[Example](yoda-exporter.html?owner=HewlettPackard&repolist=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
 
 ## Task Copier
