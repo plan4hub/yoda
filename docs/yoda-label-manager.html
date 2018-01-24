@@ -67,13 +67,13 @@ label, input {
 			<div class="frame">
 				<h3 style="color: white; margin: 4px 20px">Source</h3>
 				<div class="flatfield">
-					<label>Owner</label> <input type="text" id="srcowner" size="10"
+					<label>Owner</label> <input type="text" id="srcowner" size="15"
 						value="" onchange="updateSrcRepos()">
 					<span class="tooltip">Source GitHub organization or user</span>
 				</div>
 
 				<div class="flatfield">
-					<label>Repo</label> <input list="srcrepolist" type="text" id="srcrepo" size="10"
+					<label>Repo</label> <input list="srcrepolist" type="text" id="srcrepo" size="15"
 						value="" onchange="getSrcLabels()">
 					<span class="tooltip">Source repository</span>
 				</div>
@@ -101,13 +101,13 @@ label, input {
 			<div class="frame">
 				<h3 style="color: white; margin: 4px 20px">Destination</h3>
 				<div class="flatfield">
-					<label>Owner</label> <input type="text" id="dstowner" size="10"
+					<label>Owner</label> <input type="text" id="dstowner" size="15"
 						value="hpsd" onchange="getSrcRepos()">
 					<span class="tooltip">Destination GitHub organization or user</span>
 				</div>
 
 				<div class="flatfield">
-					<label>Repo</label> <input list="dstrepolist" type="text" id="dstrepo" size="10"
+					<label>Repo</label> <input list="dstrepolist" type="text" id="dstrepo" size="15"
 						value="" onchange="getDstLabels()">
 					<span class="tooltip">Destination repository</span>						
 				</div>
