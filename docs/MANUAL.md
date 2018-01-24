@@ -142,6 +142,8 @@ For a given date, you have the option of splitting issues into several bars base
 
 Instead of a regular expression, it is also possible to split issues into bars by simply specifying a comma-separate list of labels. Example: "bug, feature".
 
+*Note*: A special value is available for Label Bar Splitting, namely "repo". This value will split the issues by their repository.
+
 Issues without labels matching the expression/list will be put into a special "Others" bar. This may be suppressed by putting a blank value in the Others field.
 
 A line for the total number of issues (all bars) will be drawn above the bars with a right-side axis. 
