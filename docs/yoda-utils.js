@@ -971,6 +971,7 @@ var yoda = (function() {
 		// Menu stuff
 		enableMenu: function() {
 			// Build the menu
+			$("#yodamenu").append('<a href="index.html">Landing Page</a>');
 			$("#yodamenu").append('<a href="yoda-time-stats.html">Time Statistics Report</a>');
 			$("#yodamenu").append('<a href="yoda-cfd.html">CFD Report</a>');
 			$("#yodamenu").append('<a href="yoda-burndown.html">Burndown Report</a>');
@@ -979,6 +980,7 @@ var yoda = (function() {
 			$("#yodamenu").append('<a href="yoda-label-manager.html">Label Manager</a>');
 			$("#yodamenu").append('<a href="yoda-exporter.html">Issue Exporter</a>');
 			$("#yodamenu").append('<a href="yoda-copy-tasks.html">Task Copier</a>');
+			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
 			$("#yodamenu").append('<a href="yoda-admin.html">Admin Settings</a>');
 
 			// Close the dropdown menu if the user clicks outside of it
