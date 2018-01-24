@@ -38,6 +38,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<script type='text/javascript' src="./yoda-velocity.js"></script>
 
 	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
+		</div>
+	
 		<div class="field">
 			<label>Owner</label>
 			<input type="text" id="owner" size="10" value="" onchange="updateRepos(); updateMilestones(); updateProjects()">
@@ -94,6 +99,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	</div>
 
 	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#repo", "yoda.repo");
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));

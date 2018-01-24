@@ -33,13 +33,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.6/papaparse.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="yoda.css">
-
 </head>
+
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-burndown.js"></script>
 
 	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content">
+  			</div>
+		</div>
+		
 		<div class="field">
 			<label>Owner</label>
 			<input type="text" id="owner" size="10" value="" onchange="updateRepos(); updateMilestones(); updateProjects()">
@@ -182,6 +188,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
 		}
+		
+		// Enable yodamenu
+		yoda.enableMenu();
 	</script>
 </body>
 </html>

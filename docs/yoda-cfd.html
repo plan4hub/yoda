@@ -41,6 +41,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<script type='text/javascript' src="./yoda-cfd.js"></script>
 
 	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content">
+  			</div>
+		</div>
+		
+	
 		<div class="field">
 			<label>Owner</label>
 			<input type="text" id="owner" size="10" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
@@ -108,6 +115,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div id="snackbar">Some text some message..</div>
 
 	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+		
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#interval", "yoda.cfd.interval");
 
@@ -145,6 +155,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		$(document).ready(function() {
 			$('#repolist').select2();
 		});
+		
+
 	</script>
 
 </body>

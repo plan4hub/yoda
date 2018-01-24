@@ -38,6 +38,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<script type='text/javascript' src="./yoda-copy-tasks.js"></script>
 
 	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content">
+  			</div>
+		</div>
+		
+	
 		<div class="field">
 			<label>GitHub user</label>
 			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
@@ -128,6 +135,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div id="snackbar">Some text some message..</div>
 
 	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+
 		yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
 
@@ -163,6 +173,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		}
 		updateSrcMilestones();
 		updateDstMilestones();
+		
 		
 	</script>
 </body>

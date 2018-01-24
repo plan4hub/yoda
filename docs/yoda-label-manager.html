@@ -43,14 +43,19 @@ label, input {
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-label-manager.js"></script>
 
-	<div class="frame"  style="display: none;">
-		<div class="field">
+	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
+		</div>
+	
+		<div class="field" style="display: none;">
 			<label>GitHub user</label> <input type="text" size="15" id="user"
 				value="" onChange="githubAuth()">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
-		<div class="field">
+		<div class="field" style="display: none;">
 			<label>GitHub token</label> <input type="password" size="30"
 				id="token" value="" onChange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
@@ -130,6 +135,9 @@ label, input {
 	</div>
 
 	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+
 		yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
 	

@@ -28,6 +28,12 @@ Date.prototype.addMonths = function (value) {
     return this;
 };
 
+// Yoda menu. Runs once
+// Yoda menu
+
+
+
+
 // -----------------------------------------------------
 // Yoda module
 var yoda = (function() {
@@ -960,7 +966,41 @@ var yoda = (function() {
 		// Deep copy an object by making an intermediate JSON object.
 		deepCopy: function(o) {
 		    return JSON.parse(JSON.stringify( o ));
-		}
+		},
+		
+		// Menu stuff
+		enableMenu: function() {
+			// Build the menu
+			$("#yodamenu").append('<a href="yoda-time-stats.html">Time Statistics Report</a>');
+			$("#yodamenu").append('<a href="yoda-cfd.html">CFD Report</a>');
+			$("#yodamenu").append('<a href="yoda-burndown.html">Burndown Report</a>');
+			$("#yodamenu").append('<a href="yoda-velocity.html">Velocity Report</a>');
+			$("#yodamenu").append('<a href="yoda-kanban.html">Kanban Board</a>');
+			$("#yodamenu").append('<a href="yoda-label-manager.html">Label Manager</a>');
+			$("#yodamenu").append('<a href="yoda-exporter.html">Issue Exporter</a>');
+			$("#yodamenu").append('<a href="yoda-copy-tasks.html">Task Copier</a>');
+			$("#yodamenu").append('<a href="yoda-admin.html">Admin Settings</a>');
+
+			// Close the dropdown menu if the user clicks outside of it
+			window.onclick = function(event) {
+				if (!event.target.matches('.dropimg')) {
+					var dropdowns = document.getElementsByClassName("dropdown-content");
+					var i;
+					for (i = 0; i < dropdowns.length; i++) {
+						var openDropdown = dropdowns[i];
+						if (openDropdown.classList.contains('show')) {
+							openDropdown.classList.remove('show');
+						}
+					}
+				}
+			}
+		},
+		
+		/* When the user clicks on the button, 
+		toggle between hiding and showing the dropdown content */
+		menuClick: function() {
+			document.getElementById("yodamenu").classList.toggle("show");
+		},
 	}
-	
+
 })();

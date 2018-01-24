@@ -39,106 +39,119 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-exporter.js"></script>
-		<div class="frame">
-			<div class="field">
-			<label>Owner</label>
-			<input type="text" id="owner" size="10" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
+		</div>
+
+		<div class="field">
+			<label>Owner</label> <input type="text" id="owner" size="10"
+				onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
 			<span class="tooltip">GitHub organization or user</span>
 		</div>
 
 		<div class="field">
-			<label>Repositories</label>
-			<select id="repolist" style="width: 350px" class="select2" multiple></select>
-			<span class="tooltip">Repositories to show</span>
-		</div>
-	
-		<div class="field" style="display: none;">
-			<label>GitHub user</label>
-			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
-			<span class="tooltip">Your GitHub user-id</span>
+			<label>Repositories</label> <select id="repolist"
+				style="width: 350px" class="select2" multiple></select> <span
+				class="tooltip">Repositories to show</span>
 		</div>
 
 		<div class="field" style="display: none;">
-			<label>GitHub token</label>
-			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
-			<span class="tooltip">GitHub personal token</span>
+			<label>GitHub user</label> <input type="text" size="20" id="user"
+				value="" onchange="githubAuth()"> <span class="tooltip">Your
+				GitHub user-id</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>GitHub token</label> <input type="password" size="30"
+				id="token" value="" onchange="githubAuth()"> <span
+				class="tooltip">GitHub personal token</span>
 		</div>
 
 		<div class="field">
-			<label>Label filter</label>
-			<input type="text" size="37" id="labelfilter" value="">
-			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
-		</div>
-	</div>
-
-	<div class="frame">
-		<div class="field">
-			<label>Multi-label column definitions</label>
-			<input type="text" id="sharedlabeldef" size="140" value="Severity=^S[1-4] -,Issue Type=^T[1-9] - ">
-			<span class="tooltip">Comma separated list of fields to merge into single column</span>
+			<label>Label filter</label> <input type="text" size="37"
+				id="labelfilter" value=""> <span class="tooltip">Label
+				filter as comma separated list w/o spaces (AND)</span>
 		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
-			<label>Single label column definitions (fiels automatically added to the end)</label>
-			<input type="text" id="singlelabeldef" size="140" value="Support,Customer Encountered,P - Tentative">
-			<span class="tooltip">Comma separate list of boolean fields defined by labels</span>
+			<label>Multi-label column definitions</label> <input type="text"
+				id="sharedlabeldef" size="140"
+				value="Severity=^S[1-4] -,Issue Type=^T[1-9] - "> <span
+				class="tooltip">Comma separated list of fields to merge into
+				single column</span>
 		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
-			<label>Single label column regexps (fields automatically added to the end)</label>
-			<input type="text" id="splitlabeldef" size="140" value="^C - ,^Th - ">
-			<span class="tooltip">Comma separate list of boolean fields defined by regular expressions</span>
+			<label>Single label column definitions (fiels automatically
+				added to the end)</label> <input type="text" id="singlelabeldef" size="140"
+				value="Support,Customer Encountered,P - Tentative"> <span
+				class="tooltip">Comma separate list of boolean fields defined
+				by labels</span>
 		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
-			<label>Fields (further fields are: Body,Report Date, URL)</label>
-			<input type="text" id="fields" size="140" value="Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining">
+			<label>Single label column regexps (fields automatically
+				added to the end)</label> <input type="text" id="splitlabeldef" size="140"
+				value="^C - ,^Th - "> <span class="tooltip">Comma
+				separate list of boolean fields defined by regular expressions</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Fields (further fields are: Body,Report Date, URL)</label> <input
+				type="text" id="fields" size="140"
+				value="Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining">
 			<span class="tooltip">Basis fields to export</span>
 		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
-			<label>CSV delimiter</label>
-			<input type="text" id="csvdelimiter" size="10" value=';'>
-			<span class="tooltip">CSV field delimiter</span>
+			<label>CSV delimiter</label> <input type="text" id="csvdelimiter"
+				size="10" value=';'> <span class="tooltip">CSV field
+				delimiter</span>
 		</div>
 
 		<div class="field">
-			<label>Label indicator</label>
-			<input type="text" id="labelindicator" size="10" value='1'>
-			<span class="tooltip">"True" value for boolean fields. False will be blank</span>
+			<label>Label indicator</label> <input type="text" id="labelindicator"
+				size="10" value='1'> <span class="tooltip">"True"
+				value for boolean fields. False will be blank</span>
 		</div>
 
 		<div class="field">
-			<label>Issue state</label> 
-			<select id="state">
+			<label>Issue state</label> <select id="state">
 				<option selected value="open">open</option>
 				<option value="closed">closed</option>
 				<option value="all">all</option>
-			</select>
-			<span class="tooltip">Issues states to export</span>
-		</div> 
-		
+			</select> <span class="tooltip">Issues states to export</span>
+		</div>
+
 		<div class="field">
-			<label>Estimates</label><div id="estimateradio">
-				<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
-				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label> 
-  				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
-				</div>
+			<label>Estimates</label>
+			<div id="estimateradio">
+				<label><input type="radio" name="estimate" value="noissues"
+					onclick="estimateClick(this)"># issues</label> <label><input
+					type="radio" name="estimate" value="inbody" checked="checked"
+					onclick="estimateClick(this)">In body</label> <label><input
+					type="radio" name="estimate" value="inlabels"
+					onclick="estimateClick(this)">In Labels</label>
+			</div>
 			<span class="tooltip">Where to get estimates</span>
 		</div>
 
 		<div class="field">
-			<label>Output file name</label>
-			<input type="text" id="outputfile" size="25" value="issues.csv">
-			<span class="tooltip">Output file name</span>
+			<label>Output file name</label> <input type="text" id="outputfile"
+				size="25" value="issues.csv"> <span class="tooltip">Output
+				file name</span>
 		</div>
 
 		<button id="exportbutton" onclick="startExport()">Export</button>
@@ -152,6 +165,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	</div>
 	
 	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 		yoda.decodeUrlParam("#owner", "owner");
