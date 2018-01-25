@@ -833,11 +833,9 @@ var yoda = (function() {
 			else 
 				var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
 			
-			yoda.getLoop(getReposUrl, 1, [], function(data) {
-				if (data.length == 0 && user == false) {
-					// In case we did not get any repos from organization, let's double check by trying on user.
-					updateRepos(owner, okFunc, failFunc, true);
-				} else {
+			yoda.getLoop(getReposUrl, 1, [],
+				// Ok func
+				function(data) {
 					// Sort and store repos.
 					data.sort(function(a,b) {
 						if (a.name.toLowerCase() > b.name.toLowerCase()) {
@@ -850,7 +848,18 @@ var yoda = (function() {
 					
 					if (okFunc != null)
 						okFunc();
-				}}, failFunc);
+				}, 
+				// fail func
+				function() {
+					if (user != true) {
+						console.log("Did not find any repos for org named " + owner + ". Will try users");
+						// In case we did not get any repos from organization, let's double check by trying on user.
+						yoda.updateRepos(owner, okFunc, failFunc, true);
+					} else { 
+						if (failFunc != null)
+							failFunc();
+					}
+				});
 		},
 		
 		// Update list of repositories AND update GUI field,. Select repo(s) from URL if supplied.
