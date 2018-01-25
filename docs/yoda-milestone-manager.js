@@ -28,6 +28,7 @@ var milestoneListComplete = []; // selected milestones, full structure.
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
+	params += "&milestonelist=" + $("#milestonelist").val();
 	return params;
 }
 
@@ -163,10 +164,10 @@ function createMilestone() {
 
 
 	// Note: Burndown due date not mandatory
-	var burndownduedate = $("#burndownduedate").val();
+	var burndownduedate = $("#newburndownduedate").val();
 	var description = "> startdate " + startdate;
 	if (burndownduedate != "")
-		description += "\n>burndownduedate " + burndownduedate;
+		description += "\n> burndownduedate " + burndownduedate;
 	
 	// Ok, now we are ready. We will create a milestone per repo.
 	// Create it.
@@ -197,30 +198,27 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
+function updateMilestoneData(index) {
+	var milestone = milestoneListComplete[index];
+	console.log(milestone);
+	var startdate = $('#startdate' + index).val();
+	var duedate = $('#duedate' + index).val();
+	var burndownduedate = $('#burndownduedate' + index).val();
+	var capacity = $('#capacity' + index).val();
+	
+	console.log("startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + capacity);
+}
+
+function replicateMilestone(index) {
+	var milestone = milestoneListComplete[index];
+	console.log(milestone);
+}
+
 function displayRepoMilestones() {
 	console.log("Redraw table");
 	
 	updateCompleteMilestoneList();
 	
-	// Idea is to draw table with fields:
-	// Repository | milestone | Start-date | Due-date | Burnddown date | Capacity | Actions
-	// ------------------------------------------------------------------------------
-	// hpsp         SD 2.1.3    2018-01-01   2018-02-04 2018-01-31         80        (Update) (Copy/update to other repos).
-	//
-	// Total                                             sum
-	
-	// Start-date / due-date 
-	
-	// Start-date, due-date are capacity are input fields. You can input new data, then push (Update).
-	
-	// How to create new milestone (should copy to other repos create if not there? yes.).
-	
-	// Should we include description field as well? If so, of course capacity can be different, otherwise can be same, or?
-	// Probably best NOT to!
-	
-	// Another question is whether the burndownduedate should be copied across along with start/due dates? It could be argued
-	// that this is per repo... It should be aligned!
-		
 	// Find table
 	var table = document.getElementById("milestonetable");
 	table.innerHTML = "";
@@ -233,6 +231,9 @@ function displayRepoMilestones() {
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Milestone</b>";
+
+	var cell = headerRow.insertCell();
+	cell.innerHTML = "<b>Description</b>";
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Start Date</b>";
@@ -262,6 +263,9 @@ function displayRepoMilestones() {
 	cell.innerHTML = '<input type="text" id="newmilestonetitle" size="20">';
 	
 	cell = row.insertCell();
+	cell.innerHTML = '<input type="text" id="newdescription" size="30">';
+	
+	cell = row.insertCell();
 	cell.innerHTML = '<input type="text" id="newstartdate" size="10" value="YYYY-MM-DD">';
 
 	cell = row.insertCell();
@@ -289,35 +293,43 @@ function displayRepoMilestones() {
 		cell = row.insertCell();
 		cell.innerHTML = '<a href="' + milestone.html_url + '" target="_blank">' + title + '</a>';
 		
+		cell = row.insertCell();
+		cell.innerHTML = '<input type="text" id="description' + m + '" size="40" value="' + 
+			yoda.getPureDescription(milestone.description) + '">';;
+
 		var startdate = yoda.getMilestoneStartdate(milestone.description);
 		if (startdate == null)
 			startdate = "";
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="startdate" size="10" value="' + startdate + '">';
+		cell.innerHTML = '<input type="text" id="startdate' + m + '" size="10" value="' + startdate + '">';
 
 		var duedate = yoda.formatDate(new Date(milestone.due_on));
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="duedate" size="10" value="' + duedate + '">';
+		cell.innerHTML = '<input type="text" id="duedate' + m + '" size="10" value="' + duedate + '">';
 		
 		var burndownduedate = yoda.getMilestoneBurndownDuedate(milestone.description);
 		if (burndownduedate == null)
 			burndownduedate = "";
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="burndownduedate" size="10" value="' + burndownduedate + '">';
+		cell.innerHTML = '<input type="text" id="burndownduedate' + m + '" size="10" value="' + burndownduedate + '">';
 
 		var capacity = yoda.getMilestoneCapacity(milestone.description);
 		if (capacity != null)
 			totalCapacity += parseInt(capacity);
 		cell = row.insertCell();
-		cell.innerHTML = "(capacity)";
-		if (capacity != null)
-			cell.innerHTML = '<input type="number" id="capacity" size="10" value="' + capacity + '">';
-		else
-			cell.innerHTML = '<input type="number" id="capacity" size="10">';
+		if (capacity == null)
+			capacity = "";
+		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="5" value="' + capacity + '">';
 		
 		cell = row.insertCell();
-		cell.innerHTML = "(actions)";
+		var html = '<button id="updatemilestonedata" onclick="updateMilestoneData(' + m + ')" class="tablebutton">Update</button>' +
+			'<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Replicate</button>';
+		console.log(html);
+		cell.innerHTML = html;
 
 	}
 	$("#capacityheader").html('<span id="capacityheader"><b>Capacity (total ' + totalCapacity + ')</b></span>');
+	
+	yoda.updateUrl(getUrlParams());
+
 }

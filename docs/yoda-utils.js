@@ -109,6 +109,12 @@ var yoda = (function() {
 			return null;
 		}
 	};
+	
+	// Remove reg
+	function removeFromBody(body, regexp) {
+		var reg = new RegExp(regexp, 'mg');
+		return body.replace(reg, "");
+	};
 
 	// Private method for UTF-8 encoding. Use for GitHub authentication using personal token.
 	function _utf8_encode(string) {
@@ -395,7 +401,15 @@ var yoda = (function() {
 				return parseFloat(estimate);
 			}
 		},
-
+		
+		// Get the milestone or project description filed without any annotations, ie. "> (keyworkd) (value)"
+		getPureDescription: function(description) {
+			res = removeFromBody(description, "^> startdate .*$");
+			res = removeFromBody(res, "^> burndownduedate .*$");
+			res = removeFromBody(res, "^> capacity .*$");
+			return res;
+		},
+		
 		// Extract "> remaining (date) (value)" entries.
 		// Should be run in a loop with index = 0 first.  
 		getFirstRemaining: function(body, index) {

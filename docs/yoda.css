@@ -112,6 +112,12 @@ button {
 	background-color: #adad85;
 	color: white;
 }
+.tablebutton {
+	margin: 2px;
+  	padding: 4px;
+	background-color: #adad85;
+	color: white;
+}
 table {
     font-size:16px;
     border-collapse: collapse;
