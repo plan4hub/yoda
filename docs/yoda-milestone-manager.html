@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<title>Milestone Manager</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
+<link rel="stylesheet" type="text/css" href="yoda.css">
+
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-milestone-manager.js"></script>
+
+	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content">
+  			</div>
+		</div>
+		
+		<div class="field">
+			<label>Owner</label>
+			<input type="text" id="owner" size="15" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<span class="tooltip">GitHub organisation or user</span>
+		</div>
+
+		<div class="field">
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
+		</div>
+		
+		<div class="field">
+			<label>Milestone(s)</label>
+			<select id="milestonelist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Milestone(s) to show</span>
+		</div>
+		
+		<div class="field">
+			<label>Closed milestones</label>
+			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()">
+            <span class="tooltip">Show closed milestones</span>
+		</div>
+		
+		<div class="field" style="display: none;">
+			<label>GitHub user</label>
+			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			<span class="tooltip">Your GitHub user-id</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>GitHub token</label>
+			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
+			<span class="tooltip">GitHub personal token</span>
+		</div>
+		
+		<button id="refreshbutton" onclick="updateMilestones()">Refresh</button>
+		
+	</div>
+
+	<br>
+	<div>
+		<table id="milestonetable"></table>
+	</div>
+
+	<div id="snackbar">Some text some message..</div>
+
+	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+		
+		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		var selectMilestones = yoda.decodeUrlParam(null, "milestonelist");
+		if (selectMilestones == null)
+			selectMilestones = [];
+
+		yoda.decodeUrlParam("#owner", "owner");
+		
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+				
+		// We do not want caching here. 
+		$.ajaxSetup({ cache: false });
+
+		githubAuth(); // if set already
+
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+			// Any direct actions?
+		}, null);
+
+		$('#repolist').on('change.select2', function (e) {
+			repoList = 	$("#repolist").val();			
+			console.log("List of selected repos is now: " + repoList);
+			updateMilestones();
+		});
+		
+		$('#milestonelist').on('change.select2', function (e) {
+			milestoneList = $("#milestonelist").val();
+			
+			console.log("Selected milestones is : " + milestoneList);
+			selectMilestones = milestoneList;
+			displayRepoMilestones();
+		});
+
+		
+		$(document).ready(function() {
+			$('#repolist').select2();
+			$('#milestonelist').select2();
+		});
+		
+
+	</script>
+
+</body>
+</html>
