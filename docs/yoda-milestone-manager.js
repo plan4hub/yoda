@@ -181,7 +181,7 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
-function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate) {
+function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state) {
 	var urlData = {};
 	
 	if ((startdate != "") && (startdate != null))
@@ -197,6 +197,9 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 
 	if (duedate != "")
 		urlData["due_on"] = duedate + "T23:59:59Z";
+	
+	if (state != undefined)
+		urlData["state"] = state;
 
 	return urlData;
 }
@@ -209,14 +212,16 @@ function updateMilestoneData(index) {
 	var duedate = $('#duedate' + index).val();
 	var burndownduedate = $('#burndownduedate' + index).val();
 	var capacity = $('#capacity' + index).val();
+	var state = $('#state' + index).val();
 	
-	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + capacity);
+	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + 
+			capacity + ", state:" + state);
 	
 	// Ok, let's prepare a PATCH request to update the data.
 	var updateMilestoneUrl = milestone.url;
 	console.log("updateUrl: " + updateMilestoneUrl);
 
-	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate);
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state);
 	
 	$.ajax({
 		url: updateMilestoneUrl,
@@ -236,7 +241,9 @@ function replicateMilestone(index) {
 	var startdate = $('#startdate' + index).val();
 	var duedate = $('#duedate' + index).val();
 	var burndownduedate = $('#burndownduedate' + index).val();
-	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate);
+	var state = $('#state' + index).val();
+	
+	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", state:" + state);
 	
 	// Need to loop through selected repos, and look for milestone (based on title).
 	// If it exists, we do a PATCH request to update description and dates (not capacity!)
@@ -263,7 +270,7 @@ function replicateMilestone(index) {
 		} else {
 			var capacity = null;
 		}
-		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate);
+		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state);
 		console.log(urlData);
 
 		// Ok, let's see. Does milestone already exist
@@ -310,7 +317,10 @@ function displayRepoMilestones() {
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Milestone</b>";
-
+	
+	var cell = headerRow.insertCell();
+	cell.innerHTML = "<b>State</b>";
+	
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Description</b>";
 
@@ -342,6 +352,9 @@ function displayRepoMilestones() {
 	cell.innerHTML = '<input type="text" id="newmilestonetitle" size="20">';
 	
 	cell = row.insertCell();
+	cell.innerHTML = "";
+
+	cell = row.insertCell();
 	cell.innerHTML = '<input type="text" id="newdescription" size="60">';
 	
 	cell = row.insertCell();
@@ -372,6 +385,10 @@ function displayRepoMilestones() {
 		cell = row.insertCell();
 		cell.innerHTML = '<a href="' + milestone.html_url + '" target="_blank">' + title + '</a>';
 		
+		cell = row.insertCell();
+		cell.innerHTML = '<select id="state' + m + '" onchange="updateMilestoneData(' + m + ')"><option selected value="open">open</option><option value="closed">closed</option></select>';
+		$('#state' + m ).val(milestone.state);
+	
 		cell = row.insertCell();
 		cell.innerHTML = '<input type="text" id="description' + m + '" size="60" onchange="updateMilestoneData(' + m + ')" value="' + 
 			yoda.getPureDescription(milestone.description) + '">';;
