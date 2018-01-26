@@ -438,9 +438,6 @@ function makeTable(issues) {
 	yoda.updateUrl(getUrlParams() + "&draw=table");
 }
 
-// ------------------
-
-
 
 // ---------------------------------------
 // Milestone issues have been retrieved. Time to analyse data and draw the chart.
@@ -505,16 +502,19 @@ function burndown(issues) {
 			// Issue (estimate or count) will NOT be included.
 			// NOTE: This can be debated. Issue is after all in the milestone...
 		}  else {
+			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(date));
+
 			if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
-				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + (yoda.issueEstimate(issues[i])));
-				estimateTentative = estimateTentative + (yoda.issueEstimate(issues[i]));
+				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + issueEstimateValue);
+				estimateTentative = estimateTentative + issueEstimateValue;
 			} else {
-				console.log(" => adding: " + issues[i].number + ", estimate: " + (yoda.issueEstimate(issues[i])));
-				estimate = estimate + (yoda.issueEstimate(issues[i]));
+				console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimateValue);
+				estimate = estimate + issueEstimateValue;
 			}
 		}
 	}
 	console.log("Total estimate: " + estimate + ", Total tentative: " + estimateTentative);
+	
 	
 	// Start remaining at estimate, then decrease as issues are closed.
 	var remaining = estimate;

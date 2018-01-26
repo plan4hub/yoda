@@ -433,6 +433,29 @@ var yoda = (function() {
 			return parseFloat(remaining);
 		},
 		
+		// Return the estimate for the issue, taking into account any remaining annotation (> remaining) ahead of the given date. 
+		issueEstimateBeforeDate: function(issue, startdate) {
+			var estimate = yoda.issueEstimate(issue);
+			
+			if (estimateInIssues == "inbody") {
+				// We need to work on potential remaining.
+				for (var index = 0; yoda.getFirstRemaining(issue.body, index) != null; index++) {
+					var remainingEntry = yoda.getFirstRemaining(issue.body, index);
+					// 	Ok, we now have a > remaining entry
+					var remainingDate = remainingEntry.slice(0, 10);
+					remaining = remainingEntry.slice(11);
+					if (remainingDate < startdate) {
+						estimate = parseInt(remaining);
+						console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
+					} else {
+						console.log("NOT reducing initial estimate as after " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
+					}
+				}
+			}
+			
+			return estimate;
+		},
+		
 		//Small helper function to evaluate estimate for an issue. If estimate_in_issues global is set to true
 		//then will attempt to extract estimate (> estimate or /estimate format). Otherwise, all issues will simply
 		//be counted with 1. If trying to extract estimates, and not possible, estimate set to 0.
