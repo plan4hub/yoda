@@ -116,9 +116,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		githubAuth(); // if set already
 
-		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		// Rather complex updating of the defaults repos. 
 		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Any direct actions?
+			// Potential automatic startup actions can go here.
 		}, null);
 
 		$('#repolist').on('change.select2', function (e) {

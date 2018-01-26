@@ -67,8 +67,8 @@ function updateMilestones(repoIndex) {
 		table.innerHTML = "";
 		
 		$("newmilestonetitle").val("");
-		$("newstartdate").val("YYYY-MM-DD");
-		$("newduedate").val("YYYY-MM-DD");
+		$("newstartdate").val("");
+		$("newduedate").val("");
 		$("newburndownduedate").val("");
 	}
 	
@@ -119,6 +119,7 @@ function updateMilestones(repoIndex) {
 			$('#milestonelist').trigger('change');
 		
 		updateCompleteMilestoneList();
+		displayRepoMilestones();
 	}
 }
 
@@ -151,23 +152,14 @@ function createMilestone() {
 	}
 	
 	var startdate = $("#newstartdate").val();
-	if (startdate == "YYYY-MM-DD") {
-		yoda.showSnackbarError("Start date not set");
-		return;
-	}
-
 	var duedate = $("#newduedate").val();
-	if (duedate == "YYYY-MM-DD") {
-		yoda.showSnackbarError("Due date not set");
-		return;
-	}
-
 
 	// Note: Burndown due date not mandatory
 	var burndownduedate = $("#newburndownduedate").val();
-	var description = "> startdate " + startdate;
-	if (burndownduedate != "")
-		description += "\n> burndownduedate " + burndownduedate;
+	var description = $("#newdescription").val();
+	
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, "", duedate);
+	urlData["title"] = title;
 	
 	// Ok, now we are ready. We will create a milestone per repo.
 	// Create it.
@@ -176,15 +168,6 @@ function createMilestone() {
 		var createMilestoneUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoName + "/milestones";
 		console.log("createUrl: " + createMilestoneUrl);
 
-		// example: { "title": "v1.0",  "description": "Tracking milestone for version 1.0",  "due_on": "2012-10-09T23:39:01Z"}
-
-		var urlData = {
-				"title": title,
-				"description": description,
-				due_on: duedate + "T23:59:59Z"
-		};
-	
-		
 		$.ajax({
 			url: createMilestoneUrl,
 			type: 'POST',
@@ -198,15 +181,52 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
+function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate) {
+	var urlData = {};
+	
+	if (startdate != "")
+		description += "\n> startdate " + startdate;
+	
+	if (burndownduedate != "")
+		description += "\n> burndownduedate " + burndownduedate;
+	
+	if (capacity != "")
+		description += "\n> capacity " + capacity;
+	
+	urlData["description"] = description;
+
+	if (duedate != "")
+		urlData["due_on"] = duedate + "T23:59:59Z";
+
+	return urlData;
+}
+
 function updateMilestoneData(index) {
 	var milestone = milestoneListComplete[index];
 	console.log(milestone);
+	var description = $("#description" + index).val();
 	var startdate = $('#startdate' + index).val();
 	var duedate = $('#duedate' + index).val();
 	var burndownduedate = $('#burndownduedate' + index).val();
 	var capacity = $('#capacity' + index).val();
 	
-	console.log("startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + capacity);
+	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + capacity);
+	
+	// Ok, let's prepare a PATCH request to update the data.
+	
+	var updateMilestoneUrl = milestone.url;
+	console.log("updateUrl: " + updateMilestoneUrl);
+
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate);
+	
+	$.ajax({
+		url: updateMilestoneUrl,
+		type: 'PATCH',
+		data: JSON.stringify(urlData),
+		success: function() { yoda.showSnackbarOk("Succesfully updated milestone"); },
+		error: function() { yoda.showSnackbarError("Failed to update milestone"); },
+		complete: function(jqXHR, textStatus) {	/* NOP */ }
+	});
 }
 
 function replicateMilestone(index) {
@@ -263,13 +283,13 @@ function displayRepoMilestones() {
 	cell.innerHTML = '<input type="text" id="newmilestonetitle" size="20">';
 	
 	cell = row.insertCell();
-	cell.innerHTML = '<input type="text" id="newdescription" size="30">';
+	cell.innerHTML = '<input type="text" id="newdescription" size="60">';
 	
 	cell = row.insertCell();
-	cell.innerHTML = '<input type="text" id="newstartdate" size="10" value="YYYY-MM-DD">';
+	cell.innerHTML = '<input type="text" id="newstartdate" size="10" value="">';
 
 	cell = row.insertCell();
-	cell.innerHTML = '<input type="text" id="newduedate" size="10" value="YYYY-MM-DD">';
+	cell.innerHTML = '<input type="text" id="newduedate" size="10" value="">';
 	
 	cell = row.insertCell();
 	cell.innerHTML = '<input type="text" id="newburndownduedate" size="10" value="">';
@@ -294,24 +314,24 @@ function displayRepoMilestones() {
 		cell.innerHTML = '<a href="' + milestone.html_url + '" target="_blank">' + title + '</a>';
 		
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="description' + m + '" size="40" value="' + 
+		cell.innerHTML = '<input type="text" id="description' + m + '" size="60" onchange="updateMilestoneData(' + m + ')" value="' + 
 			yoda.getPureDescription(milestone.description) + '">';;
 
 		var startdate = yoda.getMilestoneStartdate(milestone.description);
 		if (startdate == null)
 			startdate = "";
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="startdate' + m + '" size="10" value="' + startdate + '">';
+		cell.innerHTML = '<input type="text" id="startdate' + m + '" size="10" onchange="updateMilestoneData(' + m + ')" value="' + startdate + '">';
 
 		var duedate = yoda.formatDate(new Date(milestone.due_on));
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="duedate' + m + '" size="10" value="' + duedate + '">';
+		cell.innerHTML = '<input type="text" id="duedate' + m + '" size="10" onchange="updateMilestoneData(' + m + ')" value="' + duedate + '">';
 		
 		var burndownduedate = yoda.getMilestoneBurndownDuedate(milestone.description);
 		if (burndownduedate == null)
 			burndownduedate = "";
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="burndownduedate' + m + '" size="10" value="' + burndownduedate + '">';
+		cell.innerHTML = '<input type="text" id="burndownduedate' + m + '" size="10" onchange="updateMilestoneData(' + m + ')" value="' + burndownduedate + '">';
 
 		var capacity = yoda.getMilestoneCapacity(milestone.description);
 		if (capacity != null)
@@ -319,11 +339,10 @@ function displayRepoMilestones() {
 		cell = row.insertCell();
 		if (capacity == null)
 			capacity = "";
-		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="5" value="' + capacity + '">';
+		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="5" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">';
 		
 		cell = row.insertCell();
-		var html = '<button id="updatemilestonedata" onclick="updateMilestoneData(' + m + ')" class="tablebutton">Update</button>' +
-			'<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Replicate</button>';
+		var html = '<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Copy/Update</button>';
 		console.log(html);
 		cell.innerHTML = html;
 
