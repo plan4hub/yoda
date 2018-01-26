@@ -184,13 +184,13 @@ function createMilestone() {
 function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate) {
 	var urlData = {};
 	
-	if (startdate != "")
+	if ((startdate != "") && (startdate != null))
 		description += "\n> startdate " + startdate;
 	
-	if (burndownduedate != "")
+	if ((burndownduedate != "") && (burndownduedate != null))
 		description += "\n> burndownduedate " + burndownduedate;
 	
-	if (capacity != "")
+	if ((capacity != "") && (capacity != null))
 		description += "\n> capacity " + capacity;
 	
 	urlData["description"] = description;
@@ -213,7 +213,6 @@ function updateMilestoneData(index) {
 	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + capacity);
 	
 	// Ok, let's prepare a PATCH request to update the data.
-	
 	var updateMilestoneUrl = milestone.url;
 	console.log("updateUrl: " + updateMilestoneUrl);
 
@@ -223,7 +222,7 @@ function updateMilestoneData(index) {
 		url: updateMilestoneUrl,
 		type: 'PATCH',
 		data: JSON.stringify(urlData),
-		success: function() { yoda.showSnackbarOk("Succesfully updated milestone"); },
+		success: function() { yoda.showSnackbarOk("Succesfully updated milestone"); milestoneListComplete[index].description = urlData.description;},
 		error: function() { yoda.showSnackbarError("Failed to update milestone"); },
 		complete: function(jqXHR, textStatus) {	/* NOP */ }
 	});
@@ -232,6 +231,66 @@ function updateMilestoneData(index) {
 function replicateMilestone(index) {
 	var milestone = milestoneListComplete[index];
 	console.log(milestone);
+	
+	var description = $("#description" + index).val();
+	var startdate = $('#startdate' + index).val();
+	var duedate = $('#duedate' + index).val();
+	var burndownduedate = $('#burndownduedate' + index).val();
+	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate);
+	
+	// Need to loop through selected repos, and look for milestone (based on title).
+	// If it exists, we do a PATCH request to update description and dates (not capacity!)
+	// If it does not exists, we will do a POST request to create milestone.
+	var noCalls = 0;
+	for (var r = 0; r < repoList.length; r++) {
+		if (repoList[r] == yoda.getRepoFromMilestoneUrl(milestone.url)) {
+			continue;
+		}
+
+		// Find the entry in completeMilestones.
+		// Need to find the milestone (the number)..
+		var existingIndex = -1;
+		for (var m = 0; m < milestoneListComplete.length; m++) {
+			if ((repoList[r] == yoda.getRepoFromMilestoneUrl(milestoneListComplete[m].url)) && (milestone.title == milestoneListComplete[m].title)) {
+				existingIndex = m;
+				break;
+			}
+		}
+
+		// Need to keep capacity
+		if (existingIndex != -1) {
+			var capacity = yoda.getMilestoneCapacity(milestoneListComplete[m].description);
+		} else {
+			var capacity = null;
+		}
+		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate);
+		console.log(urlData);
+
+		// Ok, let's see. Does milestone already exist
+		if (existingIndex == -1) {
+			console.log("Need to create new milestone " + milestone.title + " in " + repoList[r] + " repository.");
+			var operation = 'POST';
+			var milestoneUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/milestones";
+			urlData["title"] = milestone.title;
+		} else {
+			console.log("Need to update existing milestone " + milestone.title + " in " + repoList[r] + " repository.");
+			var milestoneUrl = milestoneListComplete[existingIndex].url;
+			var operation = 'PATCH';
+		}
+		
+		console.log("milestoneURL: " + milestoneUrl);
+		noCalls++;
+
+		$.ajax({
+			url: milestoneUrl,
+			type: operation,
+			data: JSON.stringify(urlData),
+			success: function() { yoda.showSnackbarOk("Succesfully created/updated milestone"); },
+			error: function() { yoda.showSnackbarError("Failed to create/update milestone"); },
+			complete: function(jqXHR, textStatus) {	noCalls--; if (noCalls == 0) updateMilestones(); }
+		});
+	}
+	
 }
 
 function displayRepoMilestones() {
