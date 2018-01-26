@@ -30,6 +30,7 @@ _________
 	- [CFD Chart](#cfd-chart)
 - [Issue Tools](#issue-tools)
 	- [Kanban Board](#kanban-board)
+	- [Milestone Manager](#milestone-manager)
 	- [Label Manager](#label-manager)
 	- [Issue Exporter](#issue-exporter)
 	- [Task Copier](#task-copier)
@@ -257,6 +258,17 @@ The Kanban Board is available [here](yoda-kanban.html).
 [Example](yoda-kanban.html?owner=HewlettPackard&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
 
 [Example - typings repo](yoda-kanban.html?owner=typings&repolist=typings&estimate=noissues&milestonelist=All%20milestones&columns=[Bug]open:bug,[Enhancement]open:enhancement,[Question]open:question,[Other]open:*,[Closed]closed:*)
+
+
+## Milestone Manager
+
+In order to support sprint planning and tracking across issues into separate repositories, it is necessary to ensure consistency between the milestones in those repositories. Also, it is helpful to have a tool to create these milestones for you with a single input. The Milestone Manager does just this.
+
+It is a very simple tool. You select the repositories that will be involved in the sprint. Then you may fill in common data (description, start date, due date, and optionally a burndown due date). Press "Create Milestones" and the Milestone Manager will create an instance of the milestone into each repository.
+
+Similarly, you can change those common fields easily across all the repos. First make the change into the milestone for one of the repos, then press "Copy/Update" to replicate to the milestones in the other repos. If the milestone does not exist in one of the selected repositories, it will be created.
+
+The Milestone Manager is available [here](yoda-milestone-manager.html).
 
 
 ## Label Manager
