@@ -956,7 +956,9 @@ var yoda = (function() {
 		// Update the issues. Note, that this will result in multiple GitHub calls.
 		// Note, that this call will automatically filter out pull requests.
 		// Do NOT set _internalStarted value
-		updateGitHubIssuesRepos: function (owner, repoList, labelFilter, stateFilter, okFunc, failFunc, _internalStarted) {
+		// An addFilterFunc may be specified. This will be called back with the repo as argument. It is possible this function
+		// to return "notthere" in which case the call will be skipped.
+		updateGitHubIssuesRepos: function (owner, repoList, labelFilter, stateFilter, addFilterFunc, okFunc, failFunc, _internalStarted) {
 			if (_internalStarted != true) {
 				// Clear issues on first call.
 				yoda_issues = [];
@@ -966,6 +968,11 @@ var yoda = (function() {
 			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter;
 			if (labelFilter != "") {
 				getIssuesUrl += "&labels=" + labelFilter; 
+			}
+			
+			// Do we need to add add filter (typically milestone as well)?
+			if (addFilterFunc != null) {
+				getIssuesUrl += addFilterFunc(repoList[0]);
 			}
 
 			console.log("Get Issues URL:" + getIssuesUrl);
@@ -978,7 +985,7 @@ var yoda = (function() {
 					if (okFunc != null)
 						okFunc(yoda_issues);
 				} else {
-					yoda.updateGitHubIssuesRepos(owner, repoList.slice(1), labelFilter, stateFilter, okFunc, failFunc, true);
+					yoda.updateGitHubIssuesRepos(owner, repoList.slice(1), labelFilter, stateFilter, addFilterFunc, okFunc, failFunc, true);
 				}
 			}, failFunc);
 		},

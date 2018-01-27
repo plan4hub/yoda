@@ -17,6 +17,10 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+var repoList = [];  // selected repos
+var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
+
+var commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
 
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
@@ -27,19 +31,19 @@ function addIfNotDefault(params, field) {
 }
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repo=" + $("#repo").val();
+	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");	
-	if ($("#milestone").val() != "0") {
-		params += "&milestone=" + $("#milestone :selected").text();
+	if ($("#milestonelist").val() != "") {
+		params += "&milestone=" + $("#milestonelist").val(); 
 	}
-	if ($("#project").val() != "0") {
-		params += "&project=" + $("#project :selected").text().split(":")[1].trim();
+	if ($('#showclosed').is(":checked")) {
+		params += "&showclosed=true";
 	}
-	if (!$('#showclosed').is(":checked")) {
-		params += "&showclosed=false";
+	if ($('#closedmilestones').is(":checked")) {
+		params += "&closedmilestones=true";
 	}
 
 	return params;
@@ -666,11 +670,8 @@ function burndown(issues) {
 	
 	// Chart title
 	var titleText = "Burndown chart for ";
-	if ($("#milestone").val() != "0") {
-		titleText +=  $("#owner").val() + "/" + $("#repo").val() + "/" + $("#milestone :selected").text();
-	} else {
-		titleText += $("#project :selected").text();
-	}
+	if ($("#milestonelist").val() != "") 
+		titleText +=  $("#owner").val() + "/" + $("#repolist").val() + " for milestone " + $("#milestonelist").val();
 
 	var ctx = document.getElementById("canvas").getContext("2d");
 	window.myMixedChart = new Chart(ctx, {
@@ -715,296 +716,185 @@ function burndown(issues) {
 
 // ------------------
 
-//Note special logic to allow URL override of project. ONLY for first selection.
-var firstProjectUpdate = true;
-function addProjects(projects, prefix) {
-	console.log("Project: " + prefix);
-	console.log(projects);
-	var selectProject = 0;
-	
-	for (var p = 0; p < projects.length; p++) {
-		// For value we will add a comma-separated list of:
-		// 1: The API URL for the project
-		// 2: The owner/org for the project 
-		// 3: The repo for the project (can be empty)
-		// 2 and 3 are in the prefix.
-		// 4: The project number.
-		var projectInfo = [projects[p].url, prefix, projects[p].number].join();
-		console.log("ProjectInfo: " + projectInfo);
+function clearFields() {
+	$("#milestonelist").empty();
+	$("#milestone_start").val("");
+	$("#milestone_due").val("");
+	$("#capacity").val("");
+}
+
+// ------------------
+
+function storeMilestones(milestones, repoIndex) {
+	repoMilestones[repoIndex] = milestones;
+	updateMilestones(repoIndex + 1);
+}
+
+var firstMilestoneShow = true;
+function updateMilestones(repoIndex) {
+	if (repoIndex == undefined) {
+		// Clear milestone data
+		repoIndex = 0;
+		repoMilestones = []; 
+		commonMilestones = [];
 		
-		var prefixSplit = prefix.split(',');
-		var prefixPres = prefixSplit[0];
-		if (prefixSplit[1] != "") {
-			prefixPres += "/" + prefixSplit[1];
+	}
+	
+	if (repoIndex < repoList.length) {
+		if ($('#closedmilestones').is(":checked")) {
+			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
+		} else {
+			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
+		}
+
+		console.log("Milestone get URL: " + getMilestonesUrl);
+		
+		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
+	} else {
+		console.log("Read all milestones:");
+		console.log(repoMilestones);
+		
+		// Done getting milestones for all selected repos
+		// Next, find common milestones and update milestones selector.
+		$("#milestonelist").empty();
+		commonMilestones = [];
+		
+		for (var r = 0; r < repoList.length; r++) {
+			for (var m = 0; m < repoMilestones[r].length; m++) {
+				var repoTitle = repoMilestones[r][m].title;
+				
+				if (commonMilestones.indexOf(repoTitle) == -1) {
+					commonMilestones.push(repoTitle);
+				}
+			}
 		}
 		
-		$("#project").append($("<option></option>").attr("value", projectInfo).text(prefixPres + ": " + projects[p].name));
+		// Sort and add. If URL argument has specified the milestone, select it.
+		commonMilestones.sort();
+		console.log("The common milestones are: " + commonMilestones);
+		var milestonesSelected = false;
+		for (var c = 0; c < commonMilestones.length; c++) {
+			var selectMilestone = false;
+			if (firstMilestoneShow && commonMilestones[c] == yoda.decodeUrlParam(null, "milestone")) { 
+				selectMilestone = true;
+				milestonesSelected = true;
+			}
+
+			var newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
+			$('#milestonelist').append(newOption);
+		}
 		
-		if (firstProjectUpdate && projects[p].name == yoda.decodeUrlParam(null, "project")) {
-			selectProject = projectInfo;
+		if (milestonesSelected)
+			$('#milestonelist').trigger('change');
+		
+		firstMilestoneShow = false;
+	}
+}
+
+// ------------
+
+// Helper function to build the list of all milestones to query.
+function addMilestoneFilter(repo) {
+	// Need to find the milestone # for that repo
+	console.log("Searching milestone definition for " + repo);
+
+	for (var r = 0; r < repoList.length; r++) {
+		if (repoList[r] != repo)
+			continue;
+		
+		// Need to find the milestone (the number)..
+		for (var m = 0; m < repoMilestones[r].length; m++) {
+			console.log("Checking " + $("#milestonelist").val() + " against " + repoMilestones[r][m].title);
+			if (repoMilestones[r][m].title == $("#milestonelist").val()) {
+				var filter = "&milestone=" + repoMilestones[r][m].number;
+				console.log("Adding to filter for repo: " + repo + ":" + filter);
+				return filter;
+			}
 		}
 	}
-	
-	if (selectProject != 0) {
-		$("#project").val(selectProject).change();
-		checkDraw();
-	}
-	firstProjectUpdate = false;
-}
-
-function updateProjects() {
-	$("#project").empty();
-	$("#project").append($("<option></option>").attr("value", 0).text("Select project ... "));
-
-	// Org level projects
-	var getProjectsUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/projects?state=all";
-	yoda.getLoop(getProjectsUrl, -1, [], function(data) {addProjects(data, $("#owner").val() + ",")}, null);
-	
-	// Repo level projects (if repo not blank)
-	if ($("#repo") != "") {
-		var getProjectsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() + "/projects?state=all";
-		yoda.getLoop(getProjectsUrl, -1, [], function(data) {addProjects(data, $("#owner").val() + "," + $("#repo").val())}, null);
-	}
-}
-
-//------------------
-// Note special logic to allow URL override of milestone. ONLY for first selection.
-var firstMilestoneUpdate = true;
-function showMilestones(milestones) {
-	var selectMilestone = 0;
-	for (var m = 0; m < milestones.length; m++) {
-		$("#milestone").append($("<option></option>").attr("value", milestones[m].number).text(milestones[m].title));
-		if (firstMilestoneUpdate && milestones[m].title == yoda.decodeUrlParam(null, "milestone")) {
-			selectMilestone = milestones[m].number;
-		}
-	}
-	if (selectMilestone != 0) {
-		$("#milestone").val(selectMilestone).change();
-		checkDraw();
-	}
-	firstMilestoneUpdate = false;
-}
-
-function updateMilestones() {
-	$("#milestone").empty();
-	$("#milestone").append($("<option></option>").attr("value", 0).text("Select milestone ... "));
-	var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() + "/milestones?state=all";
-	yoda.getLoop(getMilestonesUrl, 1, [], showMilestones, null);
-}
-
-
-// -----------
-
-function showRepos(repos) {
-	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
-	});
-
-	for (var r = 0; r < repos.length; r++) {
-		$("#repolist").append($("<option></option>").attr("value", repos[r].name));
-	}
-}
-
-function updateRepos() {
-	console.log("Update repos");
-	$("#repo").val("");
-	$("#repolist").empty();
-	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
-	yoda.getLoop(getReposUrl, 1, [], showRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
+	// We did not find the milestone for this repo. It may not exist. In this case, we'll set an "impossible filter"
+	return "&milestone=none&labels=im_pos_sible";
 }
 
 // ---------------
 
-function showMilestoneData(milestone) {
+var firstMilestoneShowData = true;
+function showMilestoneData() {
 	console.log("Updating milestone data.");
-	var milestoneDueOn = yoda.formatDate(new Date(milestone[0].due_on));
-	console.log("  Milestone due: " + milestoneDueOn);
-	$("#milestone_due").val(milestoneDueOn);
-	var milestoneStartdate = yoda.getMilestoneStartdate(milestone[0].description);
-	if (milestoneStartdate == null) {
-		$("#milestone_start").val("2017-xx-xx");
-		console.log("  Unable to read milestone startdate.");
-	}  else {
-		$("#milestone_start").val(milestoneStartdate);
-		console.log("  Milestone start: " + milestoneStartdate);
+	
+	var selected = $("#milestonelist").val();
+	// First we have to find it all matching milestones within the list and add the capacity
+	// Concering the dates,
+	
+	var totalCapacity = 0;
+	
+	// This is a bit tricky. We will look across all selected repos and consider matching milestones.
+	// We will pick up any capacity value and add to a total. The dates are are bit fluffy, we will assume
+	// that they are equally set, so will just pick up what is there.... Warnings could be another option... 
+	for (var r = 0; r < repoList.length; r++) {
+		for (var m = 0; m < repoMilestones[r].length; m++) {
+			var title = repoMilestones[r][m].title;
+			
+			if (selected == title) {
+				
+				var milestone = repoMilestones[r][m];
+
+				var milestoneDueOn = yoda.formatDate(new Date(milestone.due_on));
+				console.log("  Milestone due: " + milestoneDueOn);
+				$("#milestone_due").val(milestoneDueOn);
+				var milestoneStartdate = yoda.getMilestoneStartdate(milestone.description);
+				if (milestoneStartdate == null) {
+					$("#milestone_start").val("2017-xx-xx");
+					console.log("  Unable to read milestone startdate.");
+				}  else {
+					$("#milestone_start").val(milestoneStartdate);
+					console.log("  Milestone start: " + milestoneStartdate);
+				}
+				// Override due date?
+				var overrideDue = yoda.getMilestoneBurndownDuedate(milestone.description);
+				if (overrideDue != null) {
+					$("#milestone_due").val(overrideDue);
+				}
+
+				var capacity = yoda.getMilestoneCapacity(milestone.description);
+				if (capacity != "") {
+					console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
+					totalCapacity += parseInt(capacity);
+				}
+			}
+		}
 	}
-	// Override due date?
-	var overrideDue = yoda.getMilestoneBurndownDuedate(milestone[0].description);
-	if (overrideDue != null) {
-		$("#milestone_due").val(overrideDue);
+	if (totalCapacity != 0) {
+		$("#capacity").val(totalCapacity);
 	}
 	
-	var capacity = yoda.getMilestoneCapacity(milestone[0].description);
-	if (capacity != "") {
-		$("#capacity").val(capacity);
+	if (firstMilestoneShowData) {
+		firstMilestoneShowData = false;
+		
+		if (yoda.decodeUrlParamBoolean(null, "draw") == "chart") {
+			startBurndown();
+		} else {
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "table") {
+				startTable();
+			}
+		}
 	}
 }
 
-function getMilestoneData() {
-	// Deselect any project to avoid confusion. We run using milestones now!
-	$("#project").val("0");
-	if ($("#milestone").val() == "0") {
-		return; // NOP
-	}
-	
-	var getMilestoneDataUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() + "/milestones/" + $("#milestone").val();
-	yoda.getLoop(getMilestoneDataUrl, 1, [], showMilestoneData, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-}
-	
-//---------------
-
-function showProjectData(project) {
-	console.log(project);
-	
-	console.log("Updating project data.");
-	var milestoneStartdate = yoda.getMilestoneStartdate(project[0].body);
-	if (milestoneStartdate == null) {
-		$("#milestone_start").val("2017-xx-xx");
-		console.log("  Unable to read milestone startdate.");
-	}  else {
-		$("#milestone_start").val(milestoneStartdate);
-		console.log("  Milestone start: " + milestoneStartdate);
-	}
-	
-	// Override due date?
-	var dueDate = yoda.getMilestoneBurndownDuedate(project[0].body);
-	if (dueDate != null) {
-		$("#milestone_due").val(dueDate);
-	} else {
-		$("#milestone_due").val("2017-xx-xx");
-		console.log("  Unable to read milestone duedate.");
-	}
-	
-	var capacity = yoda.getMilestoneCapacity(project[0].body);
-	if (capacity != "") {
-		$("#capacity").val(capacity);
-	}
-}
-
-function getProjectData() {
-	// Deselect any milestone to avoid confusion. We run using milestones now!
-	$("#milestone").val("0");
-	if ($("#project").val() == "0") {
-		return; // NOP
-	}
-	
-	var getProjectDataUrl = $("#project").val().split(',')[0]; // URL is into first part stored directly into the selection.
-	console.log("getProjectDataUrl: " + getProjectDataUrl);
-	yoda.getLoop(getProjectDataUrl, 1, [], showProjectData, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-}
 	
 //-------------- START FUNCTIONS ---
 
-function buildMilestoneIssuesURL() {
-	console.log("Milestone: " + $("#milestone").val());
-
-	var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + $("#repo").val() +
-	"/issues?state=all&milestone=" + $("#milestone").val();
-	return getIssuesUrl;
-}
-
-function buildProjectIssuesURL() {
-	// val() can be something like: https://github.hpe.com/api/v3/projects/2847,jens-markussen,hpsa,1
-	var projectInfo = $("#project").val();
-	
-	// Ower
-	var owner = projectInfo.split(',')[1];
-	var repo = projectInfo.split(',')[2];
-	var number = projectInfo.split(',')[3];
-	console.log("Project info: " + projectInfo + ", owner: " + owner + ", repo: " + repo + ", number: " + number);
-	
-	var projectLink = owner + "/";
-	if (repo != "") {
-		projectLink += repo + "/";
-	}
-	projectLink += number;
-	console.log("Project link: " + projectLink);
-	
-	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=type:issue+project:" + projectLink;
-	console.log("Issues url: " + getIssuesUrl);
-
-	return getIssuesUrl;
-}
-
 function startBurndown() {
-	if ($("#milestone").val() != "0") {
-		// Milestone based
-		console.log("Milestone based chart...");
-		var getIssuesUrl = buildMilestoneIssuesURL();
-		yoda.getLoop(getIssuesUrl, 1, [], burndown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});	
-	} else {
-		if ($("#project").val() != "0") {
-			console.log("Project based chart...");
-			var getIssuesUrl = buildProjectIssuesURL();
-			yoda.getLoop(getIssuesUrl, 1, [], function(data) {burndown(data[0].items);}, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});		
-		}
-	}
+	console.log("Milestone based chart...");
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, burndown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 function startTable() {
-	if ($("#milestone").val() != "0") {
-		// Milestone based
-		console.log("Milestone based table...");
-		var getIssuesUrl = buildMilestoneIssuesURL();
-		yoda.getLoop(getIssuesUrl, 1, [], makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});	
-	} else {
-		if ($("#project").val() != "0") {
-			console.log("Project based table...");
-			var getIssuesUrl = buildProjectIssuesURL();
-			yoda.getLoop(getIssuesUrl, 1, [], function(data) {makeTable(data[0].items);}, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});		
-		}
-	}
-}
-
-//this function is called if milestone or project argument has been given. In this case, we'll check
-//if draw argument has been given, and - if so - activate a burndown or table
-function checkDraw() {
-	if (yoda.decodeUrlParamBoolean(null, "draw") == "chart") {
-		startBurndown();
-	} else {
-		if (yoda.decodeUrlParamBoolean(null, "draw") == "table") {
-			startTable();
-		}
-	}
+	console.log("Milestone based table...");
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
-
-function openSprint() {
-	if ($("#milestone").val() != "0") {
-		var milestone = $("#milestone").val();
-		var gitHubUrl = yoda.getGithubUrlHtml() + $("#owner").val() + "/" + $("#repo").val() + "/milestone/" + milestone;
-		console.log("Open milestone.." + milestone + ", url: " + gitHubUrl);
-		window.open(gitHubUrl);
-	} else {
-		if ($("#project").val() != "0") {
-			var projectInfo = $("#project").val(); 
-			
-			var owner = projectInfo.split(',')[1];
-			var repo = projectInfo.split(',')[2];
-			var number = projectInfo.split(',')[3];
-			console.log("Project info: " + projectInfo + ", owner: " + owner + ", repo: " + repo + ", number: " + number);
-
-			var gitHubUrl = yoda.getGithubUrlHtml();
-			
-			if (repo != "") {
-				gitHubUrl += owner + "/" + repo + "/projects/" + number;
-			} else {
-				gitHubUrl += "orgs/" + owner + "/projects/" + number;
-			}
-			console.log("Open project using url: " + gitHubUrl);
-			window.open(gitHubUrl);
-		}
-	}
-}
-
-// --------------
 
 function githubAuth() {
 	yoda.gitAuth($("#user").val(), $("#token").val());
