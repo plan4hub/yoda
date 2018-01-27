@@ -723,6 +723,11 @@ function clearFields() {
 	$("#milestone_start").val("");
 	$("#milestone_due").val("");
 	$("#capacity").val("");
+	clearTable();
+	// Destroy old graph, if any
+	if (window.myMixedChart != null)
+		window.myMixedChart.destroy();
+	
 }
 
 // ------------------
