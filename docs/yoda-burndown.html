@@ -165,7 +165,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#tentative", "yoda.burndown.tentative");
 		yoda.getDefaultLocalStorage("#inprogress", "yoda.burndown.inprogress");
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.burndown.labelsplit");
-		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		
 		yoda.decodeUrlParam("#owner", "owner");

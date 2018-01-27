@@ -371,7 +371,7 @@ function makeTable(issues) {
 			console.log("  Remaining for isue " + issues[i].number + " = 0");
 			cell.innerHTML = "0";
 		} else {
-			var remaining = yoda.issueRemaining(issues[i], yoda.issueEstimate(issues[i]), issues[i]);
+			var remaining = yoda.issueRemainingMeta(issues[i], yoda.issueEstimate(issues[i]), issues[i]);
 			console.log("  Remaining for isue " + issues[i].number + " = " + remaining);
 			cell.innerHTML = remaining;
 			incrementCount(sums, "Grand Total", labelItem, assignee, "totalRemaining", remaining, issues[i]);
@@ -506,7 +506,8 @@ function burndown(issues) {
 			// Issue (estimate or count) will NOT be included.
 			// NOTE: This can be debated. Issue is after all in the milestone...
 		}  else {
-			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(date));
+			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);  // There is a problem here.... 
+//			var issueEstimateValue = yoda.issueEstimate(issues[i]);
 
 			if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + issueEstimateValue);
@@ -566,8 +567,8 @@ function burndown(issues) {
 	// Now for the - really - complex bit, namely handling of "> remaining (date) (number)" syntax
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
-			// First, let's get the estimate
-			var issueEstimate = yoda.getBodyEstimate(issues[i].body);
+			// First, let's get the estimate at start
+			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
 			if (issueEstimate != null) {
 				var issueWorkDoneBefore = 0;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
@@ -582,6 +583,7 @@ function burndown(issues) {
 					} else {
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
 					}
+					
 
 					// We also need to know if the issue has been closed. If so, we should only adjust up to the point of
 					// closure. The graph already has the effect of the closure (going to 0).
@@ -857,7 +859,7 @@ function showMilestoneData() {
 				}
 
 				var capacity = yoda.getMilestoneCapacity(milestone.description);
-				if (capacity != "") {
+				if (capacity != null) {
 					console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
 					totalCapacity += parseInt(capacity);
 				}

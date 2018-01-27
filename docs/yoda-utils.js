@@ -445,7 +445,7 @@ var yoda = (function() {
 					var remainingDate = remainingEntry.slice(0, 10);
 					remaining = remainingEntry.slice(11);
 					if (remainingDate < startdate) {
-						estimate = parseInt(remaining);
+						estimate = parseFloat(remaining);
 						console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 					} else {
 						console.log("NOT reducing initial estimate as after " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
