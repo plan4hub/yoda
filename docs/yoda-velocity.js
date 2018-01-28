@@ -152,7 +152,7 @@ function updateMilestones(repoIndex) {
 		var milestonesSelected = false;
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (firstMilestoneShow && milestoneListUrl.indexOf(commonMilestones[c]) != -1) { 
+			if (firstMilestoneShow && milestoneListUrl != null && milestoneListUrl.indexOf(commonMilestones[c]) != -1) { 
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
@@ -166,8 +166,7 @@ function updateMilestones(repoIndex) {
 		
 		if (firstMilestoneShow) {
 			firstMilestoneShow = false;
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "true" +
-					"") {
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
 				startChart();
 			}
 		}
