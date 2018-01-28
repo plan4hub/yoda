@@ -506,9 +506,7 @@ function burndown(issues) {
 			// Issue (estimate or count) will NOT be included.
 			// NOTE: This can be debated. Issue is after all in the milestone...
 		}  else {
-			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));  // There is a problem here....
-			// Consider alternative of including this calculation instead on the remaining algorithm further down!
-//			var issueEstimateValue = yoda.issueEstimate(issues[i]);
+			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));  
 
 			if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + issueEstimateValue);
@@ -571,7 +569,6 @@ function burndown(issues) {
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
 			// First, let's get the estimate at start
-//			var issueEstimate = yoda.issueEstimate(issues[i]);
 			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
 			if (issueEstimate != null) {
 				var issueWorkDoneBefore = 0;
@@ -586,11 +583,6 @@ function burndown(issues) {
 						var closedAtString = null;
 					} else {
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
-					}
-					
-					// Handle remaining entires BEFORE milestoneStart
-					if (remainingDate < labels[0]) {
-//
 					}
 					
 					
@@ -841,6 +833,7 @@ function addMilestoneFilter(repo) {
 var firstMilestoneShowData = true;
 function showMilestoneData() {
 	console.log("Updating milestone data.");
+	$("#capacity").val("");
 	
 	var selected = $("#milestonelist").val();
 	// First we have to find it all matching milestones within the list and add the capacity
@@ -849,8 +842,8 @@ function showMilestoneData() {
 	var totalCapacity = 0;
 	
 	// This is a bit tricky. We will look across all selected repos and consider matching milestones.
-	// We will pick up any capacity value and add to a total. The dates are are bit fluffy, we will assume
-	// that they are equally set, so will just pick up what is there.... Warnings could be another option... 
+	// We will pick up any capacity value and add to a total. We will assume that dates are set 
+	// equally, so will just pick up what is there.... Warnings could be another option... 
 	for (var r = 0; r < repoList.length; r++) {
 		for (var m = 0; m < repoMilestones[r].length; m++) {
 			var title = repoMilestones[r][m].title;

@@ -87,9 +87,9 @@ If you use estimates into labels, it is not possible to specify a remaining esti
 
 There are two options for representing sprints in GitHub, milestones or projects. Milestones reside at repository level and have a very tight issue integration, while projects have a more manual issue handling, but are sometimes preferred as they have the built-in Kanban board visualisation.  
 
-A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. Note, however, that Yoda includes a Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across issues. 
+A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. Yoda brings it's own Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across issues.  
 
-Yoda Burndown supports both approaches. Additonal sprint data must be added either to the milestone- or project- description, depending. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. Further it is possible to specify "> burndownduedate YYYY-MM-DD" as the end date of a milestone (optional, otherwise milestone due date is used). If using projects, this is mandatory.
+Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additonal sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. Further it is possible to specify "> burndownduedate YYYY-MM-DD" as the end date of a milestone (optional, otherwise milestone due date is used). 
 
 Finally, a capacity for the sprint (Story Points) can be set using the "> capacity (# of story points)" notation.
 
@@ -179,21 +179,23 @@ The report is available [here](yoda-time-stats.html).
 
 ## Burndown Report
 
-The burndown report will show progress in remaining work over the time of a sprint (milestone or project). For milestones, the due date is taken from the milestone in GitHub, while the startdate is assumed to come from the milestone or project description field. Use the following syntax "> startdate YYYY-MM-DD". Both start end end-dates may be explicitly set as well, either in the appropriate field, or using a paramter to the URL.
+The burndown report will show progress in remaining work over the time of a sprint. Work in a sprint is defined by all issues belonging to that milestone (as defined by the milestone name) into one or multiple repositories. 
 
-*Note*: It is possible to set another duedate for the burndown chart (e.g. if you are just estimating development tasks, and not estimating the final testphase before delivery of the milestone). Use "> burndownduedate YYYY-MM-DD" into the milestone description field in that case. For project, you *must* use this feature to set the due date (as no other due date is present for the project).
+The due date is taken from the milestone in GitHub, while the startdate is assumed to come from the milestone description field. Use the following syntax "> startdate YYYY-MM-DD". Both start end end-dates may be explicitly set as well, either in the appropriate field, or using a paramter to the URL.
+
+*Note*: It is possible to set another duedate for the burndown chart (e.g. if you are just estimating development tasks, and not estimating the final testphase before delivery of the milestone). Use "> burndownduedate YYYY-MM-DD" into the milestone description field in that case.
 
 The burndown chart will display total work remaining for a given day during the milestone - taking into consideration the issue state (closed = no work remaining), (open = estimate or relevant remaining value).
 
-An "ideal" line will be drawn between (total of estimates) on the first date, and 0 (all work done). on the last date. If the planner wants to work with a higher capacity, this may be specified in the milestone/project using "> capacity (number)" syntax, overridden in the corresponding field, or set by URL argument.
+An "ideal" line will be drawn between (total of estimates) on the first date, and 0 (all work done). on the last date. If the planner wants to work with a higher capacity, this may be specified in the milestone/project using "> capacity (number)" syntax, overridden in the corresponding field, or set by URL argument. When drawing burndown across several repositories, all present capacity values are added to form the starting point for the ideal line.
 
-As part of sprint planning, often tentative/stretch goals are used. Normally, in GitHub, this will be indicated by a special label. For SD, "P - Tentative" is used, so this is the default value. Issues with this label are added to a special yellow tentative bar above the committed green bar.
+As part of sprint planning, often tentative/stretch goals are used. Normally, in GitHub, this will be indicated by a special label. Default is "P - Tentative". Issues with this label are added to a special yellow tentative bar above the committed green bar.
 
 *Note*: The burndown report works from Story Points as given by "> estimate" tags into the issues. However, it is possible to build a burn down, considering simply the number of open issues. To do this, uncheck the "Estimate in Issues" checkbox.
 
 The burndown page also includes an option for displaying a table of all issues associated with a milestone, along with their estimates and remaning work. Just press "Show table". You may click on "Issue Id" in the table header to export the table to a CSV file, e.g. for importing to Excel. The open state will be shown in **bold** if a special "in progress label" is present. 
 
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, project.
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 
