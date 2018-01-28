@@ -506,7 +506,8 @@ function burndown(issues) {
 			// Issue (estimate or count) will NOT be included.
 			// NOTE: This can be debated. Issue is after all in the milestone...
 		}  else {
-			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);  // There is a problem here.... 
+			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));  // There is a problem here....
+			// Consider alternative of including this calculation instead on the remaining algorithm further down!
 //			var issueEstimateValue = yoda.issueEstimate(issues[i]);
 
 			if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
@@ -554,10 +555,12 @@ function burndown(issues) {
 				if (date < closedAt && closedAt < nextDay) {
 					if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 						console.log("Tentative Issue " + issues[i].number + " was closed: " + closedAt);
-						remainingTentative -= yoda.issueEstimate(issues[i]);
+//						remainingTentative -= yoda.issueEstimate(issues[i]);
+						remainingTentative -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)); 
 					} else {
 						console.log("Issue " + issues[i].number + " was closed: " + closedAt);
-						remaining -= yoda.issueEstimate(issues[i]);
+//						remaining -= yoda.issueEstimate(issues[i]);
+						remaining -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)); 
 					}
 				}
 			}
@@ -568,7 +571,8 @@ function burndown(issues) {
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
 			// First, let's get the estimate at start
-			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
+//			var issueEstimate = yoda.issueEstimate(issues[i]);
+			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
 			if (issueEstimate != null) {
 				var issueWorkDoneBefore = 0;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
@@ -584,7 +588,12 @@ function burndown(issues) {
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
 					}
 					
-
+					// Handle remaining entires BEFORE milestoneStart
+					if (remainingDate < labels[0]) {
+//
+					}
+					
+					
 					// We also need to know if the issue has been closed. If so, we should only adjust up to the point of
 					// closure. The graph already has the effect of the closure (going to 0).
 					for (var d = 0; d < labels.length; d++) {
@@ -597,15 +606,19 @@ function burndown(issues) {
 								
 								if (labels[e] > tomorrowString)
 									continue;
+								
+								var delta = (issueEstimate - remainingNumber - issueWorkDoneBefore);
+								console.log("Delta = " + delta);
 
 								console.log(" YYYY " + labels[e] + ", remaining: " + remainingArray[e]);
 								if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
-									remainingTentativeArray[e] -= (issueEstimate - remainingNumber - issueWorkDoneBefore);
+									remainingTentativeArray[e] -= delta;
 								} else {
-									remainingArray[e] -= (issueEstimate - remainingNumber - issueWorkDoneBefore);                                                               
+									remainingArray[e] -= delta;                                                               
 								}
 							}
 							issueWorkDoneBefore = issueEstimate - remainingNumber;
+							
 						}
 					}
 				}
