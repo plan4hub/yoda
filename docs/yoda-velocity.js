@@ -283,7 +283,7 @@ function getMilestoneData(milestones, index) {
 		}, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	} else {
 		// done
-		yoda.updateUrl(getUrlParams() + "&draw=chart");
+		yoda.updateUrl(getUrlParams() + "&draw=true");
 	}
 }
 
