@@ -240,7 +240,11 @@ function addMilestone(issues) {
 	var estimate = 0;
 	
 	for (i=0; i<issues.length; i++) {
-		var issueEstimate = yoda.issueEstimate(issues[i]);
+		if (milestoneStartdate != null)
+			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
+		else
+			var issueEstimate = yoda.issueEtimate(issues[i]);
+		
 		console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
 		estimate = estimate + issueEstimate;
 	}
