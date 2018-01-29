@@ -965,7 +965,7 @@ var yoda = (function() {
 			}
 
 			// Specific repo only. 
-			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter;
+			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter + "&direction=asc";
 			if (labelFilter != "") {
 				getIssuesUrl += "&labels=" + labelFilter; 
 			}
@@ -999,7 +999,7 @@ var yoda = (function() {
 			yoda_issues = [];
 			
 			// All issues into org.
-			var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter;
+			var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter + "&direction=asc";
 			
 			if (labelFilter != "") {
 				getIssuesUrl += "&labels=" + labelFilter; 
