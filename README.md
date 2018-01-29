@@ -4,7 +4,7 @@ Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting A
  
 Yoda main features:
 * Multi-repository sprint planning and tracking.
-* Highly configurable reports delivering issue statistic - ready to try on your GitHub projects. 
+* Highly configurable reports delivering issue statistic - ready to try on your GitHub data. 
 * Configurable GitHub issue exporter.
 * All data is stored in GitHub - no auxiliary database - single source of truth!
 * Tools for keeping milestone- and labels in sync betweeen repositories.
