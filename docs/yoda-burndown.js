@@ -785,6 +785,8 @@ function updateMilestones(repoIndex) {
 		commonMilestones.sort();
 		console.log("The common milestones are: " + commonMilestones);
 		var milestonesSelected = false;
+		
+		console.log("URL milestone: " + yoda.decodeUrlParam(null, "milestone"));
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
 			if (firstMilestoneShow && commonMilestones[c] == yoda.decodeUrlParam(null, "milestone")) { 
