@@ -240,8 +240,9 @@ function addMilestone(issues) {
 	var estimate = 0;
 	
 	for (i=0; i<issues.length; i++) {
-		console.log(" => adding: " + issues[i].number + ", estimate: " + (yoda.issueEstimate(issues[i])));
-		estimate = estimate + (yoda.issueEstimate(issues[i]));
+		var issueEstimate = yoda.issueEstimate(issues[i]);
+		console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
+		estimate = estimate + issueEstimate;
 	}
 	console.log("Total estimate: " + estimate);
 	
