@@ -4,9 +4,9 @@ Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting A
 
 Yoda consists of a number of individual Web pages (tools) interacting via the GitHub instance via the official [GitHub API](https://developer.github.com/v3/). 
 
-Yoda works *exclusively* of data stored in GitHub. It does not use any form of auxiliary database. Some of the Yoda tools require GitHub objects (issues, milestones and projects) to be annotated with extra data. The (very limited) extra data required is related to estimates and milestone/sprint dates.     
+Yoda works *exclusively* of data stored in GitHub. It does not use any form of auxiliary database. Some of the Yoda tools require GitHub objects (issues and milestones) to be annotated with extra data. The (very limited) extra data required is related to estimates and milestone/sprint dates.     
 
-Yoda works best if a consistent *labelling strategy* is used for issues. Yoda includes tools for aligning labels across repositories. 
+Yoda works best if a consistent *labeling strategy* is used for issues. Yoda includes tools for aligning labels across repositories. 
 
 [![Yoda Landing Page](yoda-size-matters-not.jpg "Landing page")][ss1]
 [ss1]: index.html
@@ -89,7 +89,7 @@ There are two options for representing sprints in GitHub, milestones or projects
 
 A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. Yoda brings it's own Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across issues.  
 
-Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additonal sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. Further it is possible to specify "> burndownduedate YYYY-MM-DD" as the end date of a milestone (optional, otherwise milestone due date is used). 
+Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additional sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. Further it is possible to specify "> burndownduedate YYYY-MM-DD" as the end date of a milestone (optional, otherwise milestone due date is used). 
 
 Finally, a capacity for the sprint (Story Points) can be set using the "> capacity (# of story points)" notation.
 
