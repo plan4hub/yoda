@@ -517,6 +517,8 @@ function burndown(issues) {
 	var date = new Date(milestoneStartdateString);
 
 	var dueDate = new Date(milestoneDuedateString);
+	// Add one to dueDate to ensure that we show entire sprint effort (as burndown is only shown the day after)
+	dueDate.setDate(dueDate.getDate() + 1);
 	console.log(milestoneDuedateString);
 	
 	var nextDay = new Date(date);
@@ -659,6 +661,7 @@ function burndown(issues) {
 		remainingIdealArray[0] = estimate;
 	}
 	remainingIdealArray[remainingIdealArray.length - 1] = 0;
+	
 
 //	console.log("Length of remainingArray: " + remainingArray.length);
 	
