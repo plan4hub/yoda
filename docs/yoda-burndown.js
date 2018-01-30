@@ -79,24 +79,40 @@ function prepareSums(sums, labelItem) {
 	}
 }
 
-// -----------
 
-function incrementCount(sums, l1, l2, l3, field, value, issue) {
+function splitValues(sums, assigneeList, field, subField, value) {
+	// Ok, we need to split the value, but not into too smart parts
+	var noAssignees = assigneeList.length;
+	var valueSplit = value / noAssignees;
+	
+	for (var as = 0; as < assigneeList.length; as++) {
+		sums[assigneeList[as]][subField][field] += valueSplit;
+	}
+}
+
+// -----------
+// Example call: 	incrementCount(sums, "Grand Total", labelItem, assignee, "totalEstimate", est, issues[i]);
+function incrementCount(sums, l1, l2, assigneeList, field, value, issue) {
 	sums[l1]["all"][field] += value;
 	sums[l2]["all"][field] += value;
-	sums[l3]["all"][field] += value;
+	splitValues(sums, assigneeList, field, "all", value);
 
 	sums[l1][issue.state][field] += value;
 	sums[l2][issue.state][field] += value;
-	sums[l3][issue.state][field] += value;
+	splitValues(sums, assigneeList, field, issue.state, value);
 	
 	// and maybe into inprogress state as well.
 	var inprogressLabel = $("#inprogress").val();
 	if (yoda.isLabelInIssue(issue, inprogressLabel)) {
 		sums[l1]["inprogress"][field] += value;
 		sums[l2]["inprogress"][field] += value;
-		sums[l3]["inprogress"][field] += value;
+		splitValues(sums, assigneeList, field, "inprogress", value);
 	}
+}
+
+function round(value, precision) {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
 }
 
 // ---
@@ -122,33 +138,33 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 	cell.innerHTML = c5;
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalEstimate + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalEstimate, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalRemaining + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalRemaining, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalTasks + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalTasks, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalCompletedTasks + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalCompletedTasks, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalTentative + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalTentative, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + sums[labelItem][issueState].totalIssues + "</b>";
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalIssues, 1) + "</b>";
 	cell.style.textAlign = "right";
 }
 
 function insertBlankRow(bodyRef, firstField) { 
 	var row = bodyRef.insertRow();
-	for (var i = 0; i < 10; i++) {
+	for (var i = 0; i < 11; i++) {
 		cell = row.insertCell();
 		if (i == 0 && firstField != undefined) {
 			cell.innerHTML = firstField;
@@ -183,7 +199,8 @@ function saveTableToCSV() {
 		};
 	
 	result = Papa.unparse(data, config);
-	var fileName = $("#owner").val() + "-" + $("#repo").val() + "-burndown.csv"; 
+	var repoName = String($("#repolist").val()).split(",").join("-");
+	var fileName = $("#owner").val() + "-" + repoName + "-burndown.csv"; 
 	yoda.downloadFile(result, fileName);
 }
 
@@ -318,15 +335,28 @@ function makeTable(issues) {
 		var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
 		cell.innerHTML = "<a href=\"" + issues[i].html_url + "\" target=\"_blank\">" + repository + "/" + issues[i].number + "</a>";
 		
-		var assignee = "unassigned";
-		console.log("Assignee: " + assignee);
+		var assigneeList = [];
+		var assigneeString = "";
 		cell = row.insertCell();
-		if (issues[i].assignee != null) {
-			assignee = issues[i].assignee.login;
-			cell.innerHTML = assignee;
+		if (issues[i].assignees.length > 0) {
+			for (var as = 0; as < issues[i].assignees.length; as++) {
+				var assignee = issues[i].assignees[as].login;
+				prepareSums(sums, assignee);
+				assigneeSet.add(assignee);
+				assigneeList.push(assignee);
+				if (assigneeString != "") 
+					assigneeString += ",<br>";
+				assigneeString += assignee;
+			}
+		} else {
+			var assignee = "unassigned";
+			assigneeString = assignee;
+			prepareSums(sums, assignee);
+			assigneeSet.add(assignee);
+			assigneeList.push(assignee);
 		}
-		prepareSums(sums, assignee);
-		assigneeSet.add(assignee);
+		cell.innerHTML = assigneeString;
+		console.log("Assignee: " + assignee);
 		
 		cell = row.insertCell();
 		if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
@@ -349,7 +379,7 @@ function makeTable(issues) {
 		cell.innerHTML = issues[i].title;
 
 		// # of issues
-		incrementCount(sums, "Grand Total", labelItem, assignee, "totalIssues", 1, issues[i]);
+		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalIssues", 1, issues[i]);
 		
 		// Estimate
 		cell = row.insertCell();
@@ -361,7 +391,7 @@ function makeTable(issues) {
 			var est = yoda.issueEstimate(issues[i]);
 			console.log("  Estimate for isue " + issues[i].number + " = " + est);
 			cell.innerHTML = est;
-			incrementCount(sums, "Grand Total", labelItem, assignee, "totalEstimate", est, issues[i]);
+			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalEstimate", est, issues[i]);
 		}
 		
 		// Remaining
@@ -374,21 +404,21 @@ function makeTable(issues) {
 			var remaining = yoda.issueRemainingMeta(issues[i], yoda.issueEstimate(issues[i]), issues[i]);
 			console.log("  Remaining for isue " + issues[i].number + " = " + remaining);
 			cell.innerHTML = remaining;
-			incrementCount(sums, "Grand Total", labelItem, assignee, "totalRemaining", remaining, issues[i]);
+			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalRemaining", remaining, issues[i]);
 		}
 		
 		// # tasks
 		cell = row.insertCell();
 		cell.style.textAlign = "right";
 		var noTasks = yoda.getbodyTasks(issues[i].body);
-		incrementCount(sums, "Grand Total", labelItem, assignee, "totalTasks", noTasks, issues[i]);
+		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalTasks", noTasks, issues[i]);
 		cell.innerHTML = noTasks;
 		
 		// # tasks completed
 		cell = row.insertCell();
 		cell.style.textAlign = "right";
 		var noCompletedTasks = yoda.getbodyCompletedTasks(issues[i].body);
-		incrementCount(sums, "Grand Total", labelItem, assignee, "totalCompletedTasks", noCompletedTasks, issues[i]);
+		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalCompletedTasks", noCompletedTasks, issues[i]);
 		cell.innerHTML = noCompletedTasks;
 		
 		// Tentative
@@ -397,7 +427,7 @@ function makeTable(issues) {
 		if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 			var remaining = yoda.issueRemaining(issues[i], yoda.issueEstimate(issues[i]));
 			cell.innerHTML = remaining;
-			incrementCount(sums, "Grand Total", labelItem, assignee, "totalTentative", remaining, issues[i]);
+			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalTentative", remaining, issues[i]);
 			console.log("For tentative issue: " + issues[i].number + " added remaining: " + remaining);
 		} else {
 			cell.innerHTML = "0";
@@ -527,6 +557,7 @@ function burndown(issues) {
 	// Now, run from milestone_startdate to milestone_duedate one day at a time...
 	console.log(milestoneStartdate);
 	for (; date <= dueDate; date.setDate(date.getDate() + 1)) {
+		console.log("Date: " + date);
 		nextDay.setDate(date.getDate() + 1);
 
 		// Push label (x-axis) and NaN for line.

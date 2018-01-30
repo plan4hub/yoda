@@ -159,8 +159,8 @@ function updateAssigneeList() {
 	issueAssigneesFiltered = []; 
 	
 	for (var i = 0; i < repoIssues.length; i++) {
-		if (repoIssues[i].assignee != null) {
-			assignee = repoIssues[i].assignee.login;
+		for (var as = 0; as < repoIssues[i].assignees.length; as++) {
+			assignee = repoIssues[i].assignees[as].login;
 			
 			if (issueAssignees.indexOf(assignee) == -1) {
 				issueAssignees.push(assignee);
@@ -233,12 +233,18 @@ function createCard(issue) {
 	
 	var repo = yoda.getUrlRepo(issue.repository_url);
 
-	if (issue.assignee == null) {
-		var assignText = "<i>unassigned</i>";
+	if (issue.assignees.length > 0) {
+		var assignText = "";
+		for (var as = 0; as < issue.assignees.length; as++) {
+			var assignee = issue.assignees[as].login;
+			if (assignText != "") 
+				assignText += " ";
+			assignText += '<a href="' + issue.assignees[as].html_url + '" target="_blank">' + issue.assignees[as].login + '</a>';
+		}
 	} else {
-		var assignText = '<a href="' + issue.assignee.html_url + '" target="_blank">' + issue.assignee.login + '</a>';
+		var assignText = "<i>unassigned</i>";
 	}
-	
+
 	// TODO: Enhance graphically.. 
 	var estimateText = "";
 	if (yoda.getEstimateInIssues() != "noissues") {
@@ -436,16 +442,21 @@ function drawKanban() {
 		if (!labelsMatch)
 			continue;
 
-		// Ok, labels ok. What about assigee?
+		// Ok, labels ok. What about assigee? Need to check full list....
+		var assigneeMatch = false;
 		var assignee = "unassigned";
-		if (repoIssues[ri].assignee != null) {
-			assignee = repoIssues[ri].assignee.login;
+		for (var as = 0; as < repoIssues[ri].assignees.length; as++) {
+			assignee = repoIssues[ri].assignees[as].login;
+
+			if (issueAssigneesFiltered.length == 0 || issueAssigneesFiltered.indexOf(assignee) != -1) {
+				assigneeMatch = true;
+				break;
+			}
 		}
-			
-		if (issueAssigneesFiltered.length == 0 || issueAssigneesFiltered.indexOf(assignee) != -1) {
-			// ok, add it
+		if (assigneeMatch) {
+			// Ok, push it.
 			issues.push(repoIssues[ri]);
-		}
+		} 
 	}
 	
 	// Ok, now we have into issues array the issues we would like to draw. Let's get them into appropriate columns.
