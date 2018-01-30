@@ -292,6 +292,8 @@ The exporter can export issues multiple repositories within the same organizatio
 
 In the end, the columns of the resulting CSV file is defined in the "Fields" input box as a comma-separated list. The default list of fields are: Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining.
 
+Further fields that may be added are: Body,Report Date, URL, Assignees. 
+
 Of these, "Issue Type", "Severity", "Estimate", and "Remaining" are special fields. 
 
 "Issue Type" and "Severity" are defined in the "Multi-label column definitions" box. Such definitions allow multiple labels (that should be mutually exclusive on each issue) to be merged into a single column. E.g. the defaults assume that issues are defined by a label prefixed by "T<1-9> - ".

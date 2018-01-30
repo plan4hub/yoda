@@ -154,6 +154,14 @@ function exportIssues(issues) {
 					el["Assignee"] = issues[i].assignee.login;
 				}
 				break;
+			case "Assignees":
+				el["Assignees"] = "";
+				for (var as = 0; as < issues[i].assignees.length; as++) {
+					if (el["Assignees"] != "")
+						el["Assignees"] += ",";
+					el["Assignees"] += issues[i].assignees[as].login;
+				}
+				break;
 			case "Milestone":
 				if (issues[i].milestone != undefined) {
 					el["Milestone"] = issues[i].milestone.title;
