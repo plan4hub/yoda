@@ -919,6 +919,8 @@ function showMilestoneData() {
 				var overrideDue = yoda.getMilestoneBurndownDuedate(milestone.description);
 				if (overrideDue != null) {
 					$("#burndown_due").val(overrideDue);
+				} else {
+					$("#burndown_due").val("");
 				}
 
 				var capacity = yoda.getMilestoneCapacity(milestone.description);
