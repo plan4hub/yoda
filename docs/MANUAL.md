@@ -89,7 +89,9 @@ There are two options for representing sprints in GitHub, milestones or projects
 
 A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. Yoda brings it's own Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across issues.  
 
-Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additional sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. Further it is possible to specify "> burndownduedate YYYY-MM-DD" as the end date of a milestone (optional, otherwise milestone due date is used). 
+Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additional sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. 
+
+Further it is possible to specify "> burndownduedate YYYY-MM-DD" as sprint date where all estimated activities (typically development) should have been finished. This is of course optional, otherwise milestone due date is used. 
 
 Finally, a capacity for the sprint (Story Points) can be set using the "> capacity (# of story points)" notation.
 

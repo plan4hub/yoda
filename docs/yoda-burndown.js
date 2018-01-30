@@ -560,6 +560,8 @@ function burndown(issues) {
 	// Start remaining at estimate, then decrease as issues are closed.
 	var remaining = estimate;
 	var remainingTentative = estimateTentative;
+	
+	var burndownDateIndex = -1;
 
 	// Now, run from milestone_startdate to milestone_duedate one day at a time...
 	console.log(milestoneStartdate);
@@ -567,10 +569,17 @@ function burndown(issues) {
 		console.log("Date: " + date);
 		nextDay.setDate(date.getDate() + 1);
 
-		// Push label (x-axis) and NaN for line.
 		var dateString = yoda.formatDate(date);
+		
+		// Burndown due date? If so, set index.
+		console.log("dateString: " + dateString + ", burndown_due: " + $("#burndown_due").val());
+		if (dateString == $("#burndown_due").val())
+			burndownDateIndex = labels.length; 
+
+		// Push label (x-axis) and NaN for line.
 		labels.push(dateString);
 		remainingIdealArray.push(NaN);
+		
 
 		// Make bar for day, but not if later than current date!
 		// BUT, we must have at least one entry if looking at a future sprint!
@@ -665,8 +674,11 @@ function burndown(issues) {
 	} else {
 		remainingIdealArray[0] = estimate;
 	}
-	remainingIdealArray[remainingIdealArray.length - 1] = 0;
-	
+	if (burndownDateIndex != -1)
+		remainingIdealArray[burndownDateIndex] = 0;
+	else
+		remainingIdealArray[remainingIdealArray.length - 1] = 0;
+
 
 //	console.log("Length of remainingArray: " + remainingArray.length);
 	
@@ -906,7 +918,7 @@ function showMilestoneData() {
 				// Override due date?
 				var overrideDue = yoda.getMilestoneBurndownDuedate(milestone.description);
 				if (overrideDue != null) {
-					$("#milestone_due").val(overrideDue);
+					$("#burndown_due").val(overrideDue);
 				}
 
 				var capacity = yoda.getMilestoneCapacity(milestone.description);
