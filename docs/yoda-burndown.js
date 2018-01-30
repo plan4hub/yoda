@@ -466,10 +466,12 @@ function makeTable(issues) {
 	
 	insertBlankRow(bodyRef, "<b>Assignee subtotals</b>");
 	assigneeSet.forEach(function(assignee) {
-		// "<a href=\"" + issues[i].html_url + "\" target=\"_blank\">" + repository + "/" + issues[i].number + "</a>";
-		// https://github.hpe.com/hpsd/hpsp/issues?utf8=%E2%9C%93&q=%20is%3Aissue%20assignee%3Aruben-rodriguez3%20milestone%3A%22SD%202.3.0%22%20
-		var assigneeLink = '<a href="' + yoda.getGithubUrlHtml() + 'issues?q= is:issue assignee:' + assignee + ' milestone:&quot;' + $("#milestonelist").val() +'&quot;" target="_blank">' + assignee + '</a>';
-		insertTotalsRow(bodyRef, sums, assignee, "<i>Subtotal</i>", assigneeLink, "", "", "");
+		if (assignee != "unassigned") {
+			var assigneeLink = '<a href="' + yoda.getGithubUrlHtml() + 'issues?q= is:issue assignee:' + assignee + ' milestone:&quot;' + $("#milestonelist").val() +'&quot;" target="_blank">' + assignee + '</a>';
+			insertTotalsRow(bodyRef, sums, assignee, "<i>Subtotal</i>", assigneeLink, "", "", "");
+		} else {
+			insertTotalsRow(bodyRef, sums, assignee, "<i>Subtotal</i>", assignee, "", "", "");
+		}
 	});
 	
 	yoda.updateUrl(getUrlParams() + "&draw=table");
