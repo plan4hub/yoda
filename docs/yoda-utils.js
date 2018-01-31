@@ -489,7 +489,7 @@ var yoda = (function() {
 			}
 		},
 		
-		issueRemainingMeta(issue, estimate) {
+		issueRemainingMeta: function(issue, estimate) {
 			if (issue.closed_at != null ) 
 				return 0;
 			
