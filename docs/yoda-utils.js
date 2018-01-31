@@ -93,6 +93,9 @@ var yoda = (function() {
 		if (index == undefined) {
 			index = 0;
 		}
+		if (body == null) {
+			return null;
+		}
 		var reg = new RegExp(start + data, 'mg');
 		var res = body.match(reg);
 		if (res != null) {
