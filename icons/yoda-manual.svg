@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="62mm"
+   height="44mm"
+   viewBox="0 0 62 44"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="yoda-manual.svg"
+   inkscape:export-filename="C:\workspace\yoda-icons\manual-icon.png"
+   inkscape:export-xdpi="61.310001"
+   inkscape:export-ydpi="61.310001">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="221.81084"
+     inkscape:cy="55.270176"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g8705"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1137"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:snap-others="false"
+     inkscape:snap-grids="false"
+     inkscape:snap-nodes="false"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Baggrund">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+       id="rect905"
+       width="62.140163"
+       height="44.901276"
+       x="-9.8488115e-008"
+       y="-0.099470317"
+       ry="6.0840784e-007" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-253)">
+    <rect
+       style="fill:#01a982;fill-opacity:1;stroke-width:0.26458332"
+       id="rect815"
+       width="62.140167"
+       height="6.8153729"
+       x="0"
+       y="253.03416" />
+    <g
+       transform="matrix(0.18809306,0,0,0.16393976,2.2758666,252.11329)"
+       id="g8705">
+      <path
+         style="fill-rule:evenodd;stroke-width:0.95441747"
+         inkscape:connector-curvature="0"
+         d="m 57.018294,227.18146 v -104.65 l 12.852067,0.086 -0.0246,-6.16 c 3.778466,-2.109 8.159045,-3.91 12.883949,-5.359 L 82.71605,96.813455 c 7.500455,-2.375 16.990343,-3.809 27.32009,-3.809 13.80944,0 26.22427,2.719 34.26945,6.676 8.04518,-3.957 20.23592,-6.551 34.04171,-6.551 10.3334,0 19.81964,1.434 27.31645,3.809 l -0.01,14.285005 c 4.72491,1.449 9.10549,3.25 12.88395,5.359 l -0.0246,6.16 12.85206,-0.086 v 104.65 l -174.348688,-0.125 z m 143.477856,-125.88 c -6.11314,-1.293 -13.67371,-2.383005 -22.03225,-2.383005 -13.0051,0 -24.40973,2.684005 -31.66515,5.668005 l -0.0783,93.156 c 7.97777,-3.406 19.23574,-5.621 31.62597,-5.621 8.07707,0 15.64584,0.871 22.14702,2.379 z m -90.4008,110.53 c -16.282561,0 -30.796132,3.809 -40.261426,9.723 l 0.03917,-93.145 -7.707232,0.086 v 93.067 l 164.055368,0.125 v -93.317 l -7.70723,-0.086 0.0392,93.395 c -9.4653,-5.914 -23.97978,-9.723 -40.26508,-9.723 -13.07706,0 -25.0009,2.25 -34.09546,6.274 -9.09819,-4.024 -21.02204,-6.399 -34.0991,-6.399 z m -22.203493,-17.449 c 6.504827,-1.512 14.069953,-2.383 22.147013,-2.383 12.39297,0 23.64821,2.219 31.62871,5.621 l -0.0811,-93.406 c -7.02405,-3.109 -18.54618,-5.543005 -31.54764,-5.543005 -8.23738,0 -15.866271,1.18 -22.147013,2.508005 z m 56.245213,9.551 c -6.55766,-3.668 -19.38878,-6.266 -34.0982,-6.266 -10.693198,0 -20.335208,1.328 -27.345592,3.457 l 0.06468,-84.289 c -2.893059,0.895 -5.451812,2.012 -7.932228,3.164 l 0.185827,92.93 c 9.656585,-4.227 21.843685,-6.77 35.087443,-6.77 12.79924,0 24.59465,2.231 34.09547,6.207 9.50081,-3.976 21.29622,-6.082 34.09546,-6.082 13.24376,0 25.42995,2.418 35.08743,6.645 l 0.18128,-92.805 c -2.47587,-1.156 -5.03461,-2.269 -7.92767,-3.164 l -0.0501,84.914 c -7.00947,-2.129 -16.53853,-4.082 -27.23082,-4.082 -14.71033,0 -27.6544,2.598 -34.21297,6.266"
+         id="path8687" />
+    </g>
+  </g>
+</svg>
