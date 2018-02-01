@@ -7,7 +7,7 @@ Yoda main features:
 * Highly configurable reports delivering issue statistic - ready to try on your GitHub data. 
 * Configurable GitHub issue exporter.
 * All data is stored in GitHub - no auxiliary database - single source of truth!
-* Tools for keeping milestone- and labels in sync betweeen repositories.
+* Tools for keeping milestones and labels in sync betweeen repositories.
 * No installation required.
  
 
