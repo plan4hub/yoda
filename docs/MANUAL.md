@@ -8,7 +8,7 @@ Yoda works *exclusively* of data stored in GitHub. It does not use any form of a
 
 Yoda works best if a consistent *labeling strategy* is used for issues. Yoda includes tools for aligning labels across repositories. 
 
-[![Yoda Landing Page](yoda-size-matters-not.jpg "Landing page")][ss1]
+[![Yoda Landing Page](yoda-landing-page.jpg "Landing page")][ss1]
 [ss1]: index.html
 
 _________
