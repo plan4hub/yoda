@@ -453,7 +453,7 @@ function drawKanban() {
 				break;
 			}
 		}
-		if (assigneeMatch || repoIssues[ri].assignees.length == 0) {
+		if (assigneeMatch || issueAssigneesFiltered.length == 0) {
 			// Ok, push it.
 			issues.push(repoIssues[ri]);
 		} else {
