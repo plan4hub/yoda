@@ -15,7 +15,7 @@ Yoda main features:
 
 To get started with Yoda is easy. There is no need to download or install it separately as you can run Yoda straight off GitHub via the [Yoda Landing Page](https://hewlettpackard.github.io/yoda/).
 
-![Landing Page Graphics](docs/yoda-size-matters-not.jpg?raw=true "Yoda Landing Page") 
+![Landing Page Graphics](docs/yoda-landing-page.jpg?raw=true "Yoda Landing Page") 
 
 In order to access issues in non-public repositories, you will need to set an appropriate personal GitHub Token. This is explained in the MANUAL linked via the landing page.
 
