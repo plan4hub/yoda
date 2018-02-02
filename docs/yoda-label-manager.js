@@ -74,6 +74,7 @@ function updateSrcRepos() {
 	
 	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#srcowner").val() + "/repos";
 	yoda.getLoop(getReposUrl, 1, [], showSrcRepos, null);
+	
 }
 
 // -------
@@ -89,6 +90,7 @@ function showDstRepos(repos) {
 	for (var r = 0; r < repos.length; r++) {
 		$("#dstrepolist").append($("<option></option>").attr("value", repos[r].name));
 	}
+	
 }
 
 function updateDstRepos() {

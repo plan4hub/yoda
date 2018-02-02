@@ -83,7 +83,6 @@ label, input {
 				<div class="flatfield">
 					<label># Labels</label> <input type="text" id="srclabelsnumber" size="8" readonly>
 				</div>
-				
 			</div>
 
 			<button id="copyall" class="gitbutton" style="background: grey;"
@@ -114,7 +113,6 @@ label, input {
 				<datalist id="dstrepolist">
 				</datalist>
 
-
 				<div class="flatfield">
 					<label># Labels</label> <input type="text" id="dstlabelsnumber" size="8" readonly>
 				</div>
@@ -129,7 +127,6 @@ label, input {
 			<p class="gitnote">Click label to delete it (only if no issues using them). Delete all button to do same for all</p>
 
 			<div class="gitlabelblock" id="dstlabels"></div>
-
 		</div>
 		<div id="snackbar">Some text some message..</div>
 	</div>
@@ -159,13 +156,11 @@ label, input {
 		githubAuth();
 		
 		$(document).ready(function() {
-			updateSrcRepos();
-			updateDstRepos();
-			getSrcLabels();
-			getDstLabels();
+			$.when(updateSrcRepos()).
+			done(function() {updateDstRepos();}).
+			done(function() {getDstLabels();}).
+			done(function() {getSrcLabels();});
 		});
-
-		
 	</script>
 </body>
 </html>
