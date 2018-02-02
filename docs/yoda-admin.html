@@ -184,6 +184,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 	</div>
 		
+	<div class="frame">
+		<div class="frameheader">
+			<h3>Label Manager defaults overwrites</h3>
+		</div>
+
+		<div class="field">
+			<label>Source Repo</label> <input type="text" id="srcrepo" size="15" value="" onchange="setLocalStorage('yoda.label.srcrepo', this.value)">
+			 <span class="tooltip">Default source repository for label manager</span>
+		</div>
+	</div>
+
 	<div id="snackbar">Some text some message..</div>
 
 	<script>
@@ -204,6 +215,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#burndown_labelsplit").val(localStorage.getItem("yoda.burndown.labelsplit"));
 			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));
 			$("#kanban_columns").val(localStorage.getItem("yoda.kanban.columns"));
+			$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));
 			if (yoda.getDefaultLocalStorageValue("yoda.estimate") == null)
 			     $('input[name=estimate][value=""]').attr('checked',true);
 			else
