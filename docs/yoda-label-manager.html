@@ -157,10 +157,15 @@ label, input {
 		$.ajaxSetup({ cache: false });
 		
 		githubAuth();
-		updateSrcRepos();
-		updateDstRepos();
-		getSrcLabels();
-		getDstLabels();
+		
+		$(document).ready(function() {
+			updateSrcRepos();
+			updateDstRepos();
+			getSrcLabels();
+			getDstLabels();
+		});
+
+		
 	</script>
 </body>
 </html>
