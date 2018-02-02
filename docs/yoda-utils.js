@@ -984,7 +984,7 @@ var yoda = (function() {
 				
 				if (repoList.length == 1) {
 					// Last call completed.
-					yoda.filterPullRequests(issues);
+					yoda.filterPullRequests(yoda_issues);
 					if (okFunc != null)
 						okFunc(yoda_issues);
 				} else {
