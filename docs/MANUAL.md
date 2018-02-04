@@ -46,25 +46,23 @@ If, on the other hand, you are looking for an all-in-one tool to keep track of a
 
 ## GitHub Token
 
-To access non-public repos, you need to set GitHub user-name and token. A token can be easily created by logging into GitHub, then select Settings, and Personal access tokens, Create new token. Copy your user name and the resulting token. 
+To access non-public repos, you need to set GitHub user-name and token. To retrieve your token, select *Settings/Developer Settings/Personal access tokens* in GitHub. Be sure to select all appropriate access rights for issues management; if in doubt, give all permissions.  
 
-To retrieve your token, select *Settings/Developer Settings/Personal access tokens* in GitHub. Be sure to select all appropriate access rights for issues management; if in doubt, give all permissions.  
-
-The token is set centrally for your browser by using [Yoda Admin](yoda-admin.html).
+The token is set centrally for Yoda in your browser by using [Yoda Admin](yoda-admin.html).
 
 *Note*: This feature uses the "localStorage" mechanism, which is not supported in earlier Internet Explorer versions.
 
 
 ## Estimates into issues
 
-In support of Yoda Burndown and Velocity reporting, issues must be annotated with estimates. The estimation unit is Story Points. How Story Points are calculated is a non-tool discussion (some teams may prefer to start with man days for Story Points). Note, that some teams try to use only certain distinct values (to indicate that precision cannot be expected into the higher numbers). One example is 1,2,3,5,8,13,21,40. 
+In support of Yoda Burndown and Velocity reporting, issues must be annotated with estimates. The estimation unit is Story Points. How Story Points are calculated is a non-tool discussion (some teams prefer to start with man days for Story Points). Note, that some teams try to use only certain distinct values (to indicate that precision cannot be expected into higher estimates). One example is Fibonacci-like sequence 1,2,3,5,8,13,21,40. 
 
-To include an estimate for an issue, put the text "> estimate (value)" **and nothing else** into a single line of the issue description (which is technically the first issue comment). Yoda will then pick up the estimate value. This notation makes the estimate appear as a MarkDown quote due to the initial bracket.
+To include an estimate for an issue, put the text "> estimate (value)" **and nothing else** into a single line of the issue body (which is technically the first issue comment). Yoda will then pick up the estimate value. This notation makes the estimate appear as a MarkDown quote due to the initial bracket.
 
 Example:
 > estimate 5
 
-Ideally, estimates should be small (less than 4-5 days). If it is difficult to break down tasks (issues) into smaller pieces, it may be necessary to use bigger estimates. To allow reporting of remaining work for such bigger issues, Yoda accepts to have remaining estimates reported. The format is "> remaining YYYY-MM-DD (number)" in the same field (description/first comment) as "> estimate". 
+Ideally, estimates should be small (less than 4-5 days). If it is difficult to break down tasks (issues) into smaller pieces, it may be necessary to use higher estimates. To allow reporting of remaining work for such issues, Yoda accepts to have remaining estimates reported. The format is "> remaining YYYY-MM-DD (number)" in the same field (description/first comment) as "> estimate". 
 
 Example:
 > estimate 22
@@ -76,20 +74,24 @@ Example:
 
 ### Estimate alternative (labels)
 
-Some people prefer to add story points into GitHub labels instead. Yoda support this as well. In this case, create labels **with just the numeric values as the text**. Often a fibonaccci-like number set is used (e.g. 1, 2, 3 5, 8, 13, 20, 40 100). The Burndown and Velocity reports will be able to feed of these numbers. 
-
-*Note*: When using story points into labels, no remaining function is available (e.g. open = full estimate is remaining, close = nothing is remaining).
+Some people prefer to add story points into GitHub labels instead. Yoda support this as well. In this case, create labels **with just the numeric values as the text**. Again, often a Fibonaccci-like number set is used (e.g. 1, 2, 3 5, 8, 13, 20, 40 100). The Burndown and Velocity reports will be able to feed of these numbers. 
 
 If you use estimates into labels, it is not possible to specify a remaining estimate. In this case remaining effort will be binary; either the full estimate (issue open) or zero (issue closed).
 
 
 ## Handling of milestones
 
-There are two options for representing sprints in GitHub, milestones or projects. Milestones reside at repository level and have a very tight issue integration, while projects have a more manual issue handling, but are sometimes preferred as they have the built-in Kanban board visualisation.  
+There are two options for representing sprints in GitHub, milestones or projects. Milestones reside at repository level and have a very tight issue integration, while projects have a more manual issue handling, but are sometimes preferred because of their Kanban board visualization.  
 
-A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. Yoda brings it's own Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across issues.  
+A further advantage of projects is that they can reside at the organisation level (which milestones cannot). If sprint planning is done across several components stored into different repositories, this is a great advantage. 
 
-Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. These , which and includes a milestone manager for keeping repository milestones in sync. Additional sprint data must be added either to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. 
+Yoda tools are able to work across repositories, so Yoda uses milestones (with identical names across repositories) to define sprints. 
+
+For example, Yoda add it's own Kanban tool that allows viewing and maintenance of issues across several repositories, including the ability to sum up estimates and remaining effort across all issues.  
+
+Also, Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. 
+
+A milestone manager helps to keeping repository milestones in sync. Additional sprint data must be added to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. 
 
 Further it is possible to specify "> burndownduedate YYYY-MM-DD" as sprint date where all estimated activities (typically development) should have been finished. This is of course optional, otherwise milestone due date is used. 
 
@@ -155,7 +157,7 @@ It is also possible to ask to have the bars stacked. In this case, the totals li
 
 Optionally, a title may be given. Otherwise a default title "GitHub Issues (owner)/(repo)" is used.
 
-Further options display, instead of # of open issues, issues opened or closed in the period, or the average duration for issues being open.
+Further options display, instead of # of open issues, issues opened or closed in the period, or the average duration for issues being open. When using these options a further checkbox, termed *Right total* comes into play. If checked, the right axis will show the number of open issues, as opposed to the default/unchecked mode where the right axis shows the total opened/closed during the period.
 
 All arguments may be supplied directly using the URL using default "parameter=<value>" notation with & between. The possible arguments are: owner, repolist, startdate, enddate, interval, labelfilter, labelsplit, other, title, user, token, count.
 
@@ -174,6 +176,8 @@ The report is available [here](yoda-time-stats.html).
 [Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repolist=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
 
 [Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
+
+[Example. Closed issues over time for typings repo - with right axis showing total # issues](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=closed&righttotal=true&draw=true)
 
 [Example. Multiple repos over time](yoda-time-stats.html?owner=typings&repolist=core,discussions,typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=repo&other=&draw=true)
 
