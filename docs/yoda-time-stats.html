@@ -34,7 +34,18 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
-
+<style>
+.miniframe {
+	display: block;
+	float: left;
+	font-size: 14px;
+	font-weight: bold;
+	color: white;
+}
+.miniframeelement {
+	float: top;
+}
+</style>
 </head>
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
@@ -77,7 +88,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
-			<label>Count</label><div id="countradio">
+			<label>Count</label>
+			<div id="countradio">
 				<label><input type="radio" name="count" value="noissues"  checked="checked">Issues</label> 
 				<label><input type="radio" name="count" value="durationopen">Days open</label> 
 				<label><input type="radio" name="count" value="opened">Opened</label> 
@@ -85,6 +97,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			</div>
 			<span class="tooltip">Issue display options..</span>
 		</div>
+		
 	</div>
 
 	<div class="frame">
@@ -130,6 +143,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Stack bars</span>
 		</div>
 
+		<div class="field">
+			<label>Right total</label>
+			<input type="checkbox" id="righttotal">
+			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed</span>
+		</div>
+
 		<div class="field" id="historyfield" hidden>
 			<label>History</label>
 			<input type="checkbox" id="history">
@@ -166,6 +185,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#other", "other");
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
+		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
 		yoda.decodeUrlParamBoolean("#history", "history");
 		yoda.decodeUrlParamRadio("count", "count");
 		

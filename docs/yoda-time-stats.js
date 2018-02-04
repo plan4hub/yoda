@@ -52,6 +52,9 @@ function getUrlParams() {
 	if ($('#history').is(":checked")) {
 		params += "&history=true";
 	}
+	if ($('#righttotal').is(":checked")) {
+		params += "&righttotal=true";
+	}
 	var countType = $("#countradio input[type='radio']:checked").val();
 	if (countType != "noissues") {
 		params += "&count=" + countType;
@@ -127,7 +130,13 @@ function createChart() {
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
-		
+	
+	if ($('#righttotal').is(":checked")) {
+		var rightTotal = true;
+	} else {
+		var rightTotal = false;
+	}
+	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
 	today.setHours(0);
@@ -163,7 +172,7 @@ function createChart() {
 	if (temp.length > 0) {
 	    var countType = temp.val();
 	}
-	console.log("Count type: " + countType);
+	console.log("Count type read: " + countType);
 
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
@@ -220,7 +229,8 @@ function createChart() {
 	// Data arrays for issues.
 	// 	Data array (two-dimentional) for issues matching the bar labels
 	// 	Other for issues not match
-	// 	Total for all issues (matching date interval)
+	// 	Total for all issues (matching date interval)'
+	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
 	var dateArray = [];
 	var dataArray = new Array(bars.length);
 	for (i = 0; i < dataArray.length; i++) {
@@ -228,6 +238,7 @@ function createChart() {
 	}
 	var otherArray = [];
 	var totalArray = [];
+	var totalAlwaysArray = [];
 	
 	// date loop
 	// Start at startDate
@@ -255,6 +266,7 @@ function createChart() {
 		var otherForDay = 0;
 		var totalForDay = 0;
 		var otherDurationOpenForDay = 0;
+		var totalAlways = 0;
 		
 		// Ok, now let's count issues
 		for (var i=0; i < issues.length; i++) {
@@ -272,18 +284,27 @@ function createChart() {
 			var closedString = issues[i].closed_at;
 			if (closedString != null) {
 				var closedDate = new Date(closedString);
+
+				// Check if open now, all cases.
+				if (closedDate > date)
+					totalAlways++;
+
 				// Don't want this issue if closed ahead of this
-				
 				if ((countType == "noissues" || countType == "durationopen") && closedDate <= date) {
 					continue;
 				}
 				
-				// TODO: validate
-				if (countType == "closed" && (closedDate <= previousDate || closedDate > date)) {
+				// Closed before previous date
+				if (countType == "closed" && closedDate <= previousDate) {
 					continue;
 			 	}
+					
+				// Closed later
+				if (countType == "closed" && closedDate > date) {
+					continue;
+				}
 			} else {
-				// still open
+				totalAlways++;
 				if (countType == "closed")
 					continue;
 			}
@@ -361,6 +382,7 @@ function createChart() {
 		
 //		console.log(dataArrayForDay);
 		totalArray.push(totalForDay);
+		totalAlwaysArray.push(totalAlways);
 	}
 	
 	// Ready, let's push the bars
@@ -388,18 +410,30 @@ function createChart() {
 			backgroundColor : 'rgb(191, 191, 191)' // grey'ish
 		});
 	}
-	
-	// Add line for total, but only if bars (and not stacked)
-	if (bars.length > 0 && stacked == false) {
+
+	// What should we put on right acis 
+	if (rightTotal) {
 		datasetArray.push({
 			type : 'line',
-			label : 'Total',
+			label : 'Total Open Issues',
 			borderWidth : 2,
 			fill : false,
 			yAxisID: "y-axis-right",
-			data : totalArray
-			
+			data : totalAlwaysArray
+
 		});
+	} else {	
+		// Add line for total, but only if bars (and not stacked)
+		if (bars.length > 0 && stacked == false) {
+			datasetArray.push({
+				type : 'line',
+				label : 'Total',
+				borderWidth : 2,
+				fill : false,
+				yAxisID: "y-axis-right",
+				data : totalArray
+			});
+		}
 	}
 	
 	// We will push data to a 
@@ -413,7 +447,7 @@ function createChart() {
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["opened"] = "No of issues opened";
 	leftLabel["closed"] = "No of issues closed";
-	
+
 	var chartScales = {
 			yAxes: [{
 				scaleLabel: {
@@ -435,9 +469,14 @@ function createChart() {
 	rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
-	rightLabel["opened"] = "Total issues opened";
-	rightLabel["closed"] = "Total issues closed";
-
+	if (rightTotal) { 
+		rightLabel["opened"] = "Noopen issues";
+		rightLabel["closed"] = "No open issues";
+	} else {
+		rightLabel["opened"] = "Total issues opened";
+		rightLabel["closed"] = "Total issues closed";
+	}
+	
 	// Add second axis.
 	if (bars.length > 0 && stacked == false) {
 		chartScales.yAxes.push({    
@@ -531,6 +570,7 @@ function startChart() {
 	} else {
 		stacked = false;
 	}
+	
 	if ($("#repolist").val() == "") 
 		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	else
