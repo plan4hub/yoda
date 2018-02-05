@@ -415,12 +415,12 @@ function createChart() {
 	if (rightTotal) {
 		datasetArray.push({
 			type : 'line',
-			label : 'Total Open Issues',
+			label : 'Total',
 			borderWidth : 2,
 			fill : false,
 			yAxisID: "y-axis-right",
-			data : totalAlwaysArray
-
+			data : totalAlwaysArray,
+			lineTension: 0
 		});
 	} else {	
 		// Add line for total, but only if bars (and not stacked)
@@ -431,7 +431,8 @@ function createChart() {
 				borderWidth : 2,
 				fill : false,
 				yAxisID: "y-axis-right",
-				data : totalArray
+				data : totalArray,
+				lineTension: 0
 			});
 		}
 	}
@@ -478,7 +479,7 @@ function createChart() {
 	}
 	
 	// Add second axis.
-	if (bars.length > 0 && stacked == false) {
+	if ((bars.length > 0 && stacked == false) || rightTotal) {
 		chartScales.yAxes.push({    
 			scaleLabel: {
 				display: true,
