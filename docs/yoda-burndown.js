@@ -564,6 +564,8 @@ function burndown(issues) {
 	var burndownDateIndex = -1;
 
 	// Now, run from milestone_startdate to milestone_duedate one day at a time...
+	// HACK1: We are running on purpose one day extra, in order to show the effects of burndown on the last day.
+	//        (as burndown happens AFTER the day a report is closed/a remaining update is given)
 	console.log(milestoneStartdate);
 	for (; date <= dueDate; date.setDate(date.getDate() + 1)) {
 		console.log("Date: " + date);
@@ -577,9 +579,12 @@ function burndown(issues) {
 			burndownDateIndex = labels.length; 
 
 		// Push label (x-axis) and NaN for line.
-		labels.push(dateString);
+		// HACK2: We don't print the label for the last entry, as this is technically the day after the sprint. 
+		if (date < dueDate)
+			labels.push(dateString);
+		else
+			labels.push("");
 		remainingIdealArray.push(NaN);
-		
 
 		// Make bar for day, but not if later than current date!
 		// BUT, we must have at least one entry if looking at a future sprint!
@@ -674,10 +679,12 @@ function burndown(issues) {
 	} else {
 		remainingIdealArray[0] = estimate;
 	}
-	if (burndownDateIndex != -1)
+	if (burndownDateIndex != -1) {
 		remainingIdealArray[burndownDateIndex] = 0;
-	else
-		remainingIdealArray[remainingIdealArray.length - 1] = 0;
+	} else {
+		// HACK3. Burndown to second to last day
+		remainingIdealArray[remainingIdealArray.length - 2] = 0;
+	}
 
 
 //	console.log("Length of remainingArray: " + remainingArray.length);

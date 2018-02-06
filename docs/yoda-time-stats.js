@@ -471,7 +471,7 @@ function createChart() {
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
 	if (rightTotal) { 
-		rightLabel["opened"] = "Noopen issues";
+		rightLabel["opened"] = "No open issues";
 		rightLabel["closed"] = "No open issues";
 	} else {
 		rightLabel["opened"] = "Total issues opened";
