@@ -40,6 +40,10 @@ function getUrlParams() {
 	if ($("#state").val() != "open") {
 		params += "&state=" + $("#state").val(); 
 	}
+	if ($('#exportevents').is(":checked")) {
+		params += "&exportevents=true";
+	}
+
 	return params;
 }
 
@@ -263,12 +267,104 @@ function exportIssues(issues) {
 			newline: "\r\n"
 		};
 
-	result = Papa.unparse(data, config);
-	yoda.downloadFile(result, outputFile);
-	logMessage("Info: Data succesfully exported.");
-	
+	if (!$('#exportevents').is(":checked")) {
+		// Normal case
+		result = Papa.unparse(data, config);
+		yoda.downloadFile(result, outputFile);
+		logMessage("Info: Issues succesfully exported.");
+	} else {
+		// Events case
+		// Ok, now we may want to continue doing the historic events per issue...
+		getIssuesEventStart(issues);
+	} 
+		
 	yoda.updateUrl(getUrlParams() + "&export=true");
 }
+
+// 
+var issuesEvents = []; // Here we will store events against each issue, indexed by the issue URL. So will be a double-linked list (url, {events})
+var issuesRemaining = []; // We will use this variable to store the remaining values. Otherwise we risk them becoming too big.
+function getIssuesEventStart(issues) {
+	issuesRemaining = [];
+	issuesEvents = [];
+	// First populate issuesRemaining list with urls. All we need to do to get events is then to append "/events" part.
+	for (var i = 0; i < issues.length; i++) {
+		issuesRemaining.push(issues[i].url);
+	}
+	getNextIssueEvent(null, null);
+}
+
+function storeEvents(storeUrl, events) {
+	// Filter and process the events we want to store.
+	for (var e = 0; e < events.length; e++) {
+		if (events[e].event == "milestoned" || events[e].event == "demilestoned") {
+			var expEvent = {};
+			// https://github.hpe.com/api/v3/repos/hpsd/yoda/issues/20
+			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
+			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
+			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
+			expEvent["TimeStamp"] = events[e].created_at;
+			expEvent["EventActor"] = events[e].actor.login;
+			expEvent["EventType"] = events[e].event;
+			expEvent["EventTarget"] = events[e].milestone.title;
+			console.log(expEvent);
+			issuesEvents.push(expEvent);
+		}
+		if (events[e].event == "labeled" || events[e].event == "unlabeled") {
+			var expEvent = {};
+			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
+			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
+			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
+			expEvent["TimeStamp"] = events[e].created_at;
+			expEvent["EventActor"] = events[e].actor.login;
+			expEvent["EventType"] = events[e].event;
+			expEvent["EventTarget"] = events[e].label.name;
+			console.log(expEvent);
+			issuesEvents.push(expEvent);
+		}
+	}
+}
+
+function getNextIssueEvent(storeUrl, events) {
+	if (storeUrl != null) {  // we have data to store
+//		console.log("Storing for " + storeUrl + " events");
+		console.log(events);
+		logMessage(" ... processed events for " + storeUrl);
+		storeEvents(storeUrl, events);
+	}
+	
+	if (issuesRemaining.length == 0) {
+		exportIssueEvents();
+	} else {
+		var issueUrl = issuesRemaining.pop();
+		var issueUrlEvents = issueUrl + "/events";
+		console.log("Issues event URL: " + issueUrlEvents);
+		yoda.getLoop(issueUrlEvents, 1, [], 
+				function(events) { getNextIssueEvent(issueUrl, events) }, 
+				function(errorText) { yoda.showSnackbarError("Error getting issue events: " + errorText, 3000);});
+	}
+}
+
+function exportIssueEvents() {
+	var csvDelimiter = $("#csvdelimiter").val();
+	var outputFile = $("#outputfile").val();
+
+	console.log("Done. Showing events collected.");
+	console.log(issuesEvents);
+
+	config = {
+			quotes: false,
+			quoteChar: '"',
+			delimiter: csvDelimiter,
+			header: true,
+			newline: "\r\n"
+		};
+
+	result = Papa.unparse(issuesEvents, config);
+	yoda.downloadFile(result, outputFile);
+	logMessage("Info: Events succesfully exported.");
+}
+
 
 // -------------------------------
 

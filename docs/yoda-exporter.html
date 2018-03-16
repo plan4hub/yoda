@@ -153,9 +153,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				size="25" value="issues.csv"> <span class="tooltip">Output
 				file name</span>
 		</div>
+		
+		<div class="field">
+			<label>Events (instead of issues)</label>
+			<input type="checkbox" id="exportevents">
+			<span class="tooltip">Export events instead of issues</span>
+		</div>
 
 		<button id="exportbutton" onclick="startExport()">Export</button>
 	</div>
+	
 	<br>
 	<div class="frame">
 		<div class="field">
@@ -183,7 +190,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#outputfile", "outputfile");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
-		
+		yoda.decodeUrlParamBoolean("#exportevents", "exportevents");
+	
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
 

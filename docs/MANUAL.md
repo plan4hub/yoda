@@ -316,6 +316,8 @@ Issues exporter is available [here](yoda-exporter.html).
 
 [Example](yoda-exporter.html?owner=HewlettPackard&repolist=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
+A further option is to export (certain types) of issue events. This is controlled by a checkbox. If you do this, a CSV file with all labelled, unlabelled, milestoned, or demilestoned events will be exported.
+
 
 ## Task Copier
 
