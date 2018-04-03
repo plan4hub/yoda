@@ -366,6 +366,9 @@ var yoda = (function() {
 		// Calculate a date two months earlier.
 		twoMonthsEarlier: function(interval, today) {
 			var startDate = new Date(today);
+			// Summer time. Be careful. Let's set hours to 10AM for calculations. Then set
+			var saveHours = startDate.getHours();
+			startDate.setHours(10);
 			if (interval.slice(-1) == 'm') {
 				// If interval is in months, then let's prepare to span default of 8 intervals 
 				startDate.addMonths(0-parseInt(interval)*8);
@@ -375,6 +378,7 @@ var yoda = (function() {
 				var dateOffset = (24*60*60*1000) * noIntervals * interval;
 				startDate.setTime(startDate.getTime() - dateOffset);
 			}
+			startDate.setHours(saveHours);
 			return startDate;
 		},
 		
