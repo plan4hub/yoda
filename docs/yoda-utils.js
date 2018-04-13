@@ -718,7 +718,8 @@ var yoda = (function() {
 		// Login to github. Accept block accepts experimental API features.
 		gitAuth: function (userId, accessToken, origin) {
 			var headers = [];
-			headers['Accept'] = 'application/vnd.github.inertia-preview+json';
+//	headers['Accept'] = 'application/vnd.github.inertia-preview+json';
+			headers['Accept'] = 'application/vnd.github.symmetra-preview+json';  
 			if (userId == "" || accessToken == "") {
 				console.log("Empty userId/accessToken.");
 			} else {

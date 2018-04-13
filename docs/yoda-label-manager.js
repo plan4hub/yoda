@@ -32,10 +32,14 @@ function showLabels(labelTag, labels, operationFunc) {
 	for (var l = 0; l < labels.length; l++) {
 		var operation =  operationFunc(labels[l]);
 		var foreground = yoda.bestForeground(labels[l].color);
+		var description = labels[l].description;
+		if (description == undefined)
+			description = "Description not set";
 		
 		console.log("Label: " + labels[l].id + ", name: " + labels[l].name + ", color: " + labels[l].color + ", operation: " + operation + ", foreground: " + foreground);
 		var html = "<button id=\"" + labels[l].id + "\" class=\"gitlabel\" style=\"background: #" + labels[l].color + "; color: " + foreground + "\" " + 
-				"onclick=\"" + operation + "\">" + labels[l].name + "</button>";
+				"onclick=\"" + operation + "\" title=\"" + description + "\">" + labels[l].name + "</button>";
+		console.log(html);
 		labelsHtml += html;
 	}
 	$("#" + labelTag).html(labelsHtml);
@@ -114,6 +118,7 @@ function copyLabels(nameColorArray) {
 	}
 	name = nameColorArray[0].name;
 	color = nameColorArray[0].color;
+	description = nameColorArray[0].description;
 	
 //	console.log("copyLabels. Name: " + name + ", color: " + color);
 	
@@ -121,13 +126,14 @@ function copyLabels(nameColorArray) {
 	for (var l = 0; l < globalLabels["dstlabels"].length; l++) {
 		if (name == globalLabels["dstlabels"][l].name) {
 			
-			if (color != globalLabels["dstlabels"][l].color) {
+			if (color != globalLabels["dstlabels"][l].color || description != globalLabels["dstlabels"][l].description) {
 				var patchLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
 				console.log("patchUrl: " + patchLabelUrl);
 
 				var urlData = {
 						"name": name,
-						"color": color
+						"color": color,
+						"description": description
 				};
 				
 				$.ajax({
@@ -153,7 +159,8 @@ function copyLabels(nameColorArray) {
 
 	var urlData = {
 			"name": name,
-			"color": color
+			"color": color,
+			"description": description
 	};
 	
 	$.ajax({
@@ -209,7 +216,8 @@ function copyAllLabels() {
 	for (var l = 0; l < globalLabels["srclabels"].length; l++) {
 		var nameColorEntry = {
 				name: globalLabels["srclabels"][l].name, 
-				color: globalLabels["srclabels"][l].color
+				color: globalLabels["srclabels"][l].color,
+				description: globalLabels["srclabels"][l].description
 		};
 		nameColorArray.push(nameColorEntry);
 	}
