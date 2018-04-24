@@ -401,7 +401,7 @@ function makeTable(issues) {
 				var labelName = issues[i].labels[l].name;
 				if (labelName.match(additionalReg) != null) {
 					if (addData != "")
-						addData = addData + "<br>";
+						addData = addData + ",<br>";
 					addData = addData + labelName;
 				}
 			}
