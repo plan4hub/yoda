@@ -34,6 +34,7 @@ function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
+	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");	
 	if ($("#milestonelist").val() != "") {
@@ -239,6 +240,19 @@ function makeTable(issues) {
 
 	var labelSplit = $("#labelsplit").val();
 	console.log("Label split: " + labelSplit);
+	
+	var additionalData = $("#additionaldata").val();
+	console.log("Additonal data: " + additionalData);
+	var additionalReg = "";
+	var additionalHL = "";
+	if (additionalData != "") {
+		var additionalSplit = additionalData.split(",");
+		if (additionalSplit.length == 2) {
+			additionalHL = additionalSplit[0];
+			additionalReg = new RegExp(additionalSplit[1]);
+			console.log("AdditonalReg: " + additionalReg);
+		}
+	}
 
 	// Start setting up sums array
 	var sums = [];
@@ -296,6 +310,11 @@ function makeTable(issues) {
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Type</b>";
+
+	if (additionalHL != "") {
+		var cell = headerRow.insertCell();
+		cell.innerHTML = "<b>" + additionalHL + "</b>";
+	}
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Issue Title</b>";
@@ -374,6 +393,22 @@ function makeTable(issues) {
 			}
 		}
 		cell.innerHTML = labelItem;
+		
+		// AdditionalData
+		if (additionalHL != "") {
+			var addData = "";
+			for (var l=0; l<issues[i].labels.length; l++) {
+				var labelName = issues[i].labels[l].name;
+				if (labelName.match(additionalReg) != null) {
+					if (addData != "")
+						addData = addData + "<br>";
+					addData = addData + labelName;
+				}
+			}
+
+			cell = row.insertCell();
+			cell.innerHTML = addData;
+		}
 		
 		cell = row.insertCell();
 		cell.innerHTML = issues[i].title;

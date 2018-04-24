@@ -84,6 +84,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" id="labelsplit" size="20" value="^T[1-9] -">
 			<span class="tooltip">Regular expression for doing subtotals</span>
 		</div>
+		
+		<div class="field">
+			<label>Additional Data</label>
+			<input type="text" id="additionaldata" size="20" value="Severity,^S[1-4] -">
+			<span class="tooltip">Headline and label regular expression separated by comma (blank to skip)</span>
+		</div>
  
 		<div class="field">
 			<label>Estimates</label><div id="estimateradio">
@@ -178,8 +184,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#tentative", "tentative");
 		yoda.decodeUrlParam("#inprogress", "inprogress");
 		yoda.decodeUrlParam("#labelsplit", "labelsplit");
+		yoda.decodeUrlParam("#additionaldata", "additionaldata");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
-
+		
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		
