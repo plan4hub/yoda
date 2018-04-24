@@ -39,8 +39,8 @@ function getUrlParams() {
 	if ($("#milestonelist").val() != "") {
 		params += "&milestone=" + $("#milestonelist").val(); 
 	}
-	if ($('#showclosed').is(":checked")) {
-		params += "&showclosed=true";
+	if (!$('#showclosed').is(":checked")) {
+		params += "&showclosed=false";
 	}
 	if ($('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=true";
