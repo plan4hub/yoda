@@ -984,6 +984,10 @@ function showMilestoneData() {
 		} else {
 			if (yoda.decodeUrlParamBoolean(null, "draw") == "table") {
 				startTable();
+			} else {
+				if (yoda.decodeUrlParamBoolean(null, "draw") == "rn") {
+					startRN();
+				}
 			}
 		}
 	}
@@ -996,23 +1000,36 @@ function formatIssueRN(issue) {
 	var textnode = document.createTextNode(titleLine);
 	node.appendChild(textnode);
 	
-	var issueRN = yoda.getBodyMultiLine(issue.body, '^> RN');
-	console.log(issueRN);
-	if (issueRN != null) {
+	var issueRNStart = issue.body.indexOf('> RN');
+	if (issueRNStart != -1) {
 		var entryRN = document.createElement("P");
 		entryRN.setAttribute('style', 'margin-left: 40px;');
-		
-		// split lines
-		var splitLines = issueRN.split('\n');
-		for (var l = 0; l < splitLines.length; l++) {
-			var t = document.createTextNode(splitLines[l]);
+		var lineStart = issueRNStart + 6;
+
+		do {
+			var lineEnd = issue.body.indexOf('\n', lineStart);
+			if (lineEnd == -1)
+				var line = issue.body.substr(lineStart);
+			else
+				var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
+			if (line.length == 0)
+				break;
+//			console.log("Line: " + line);
+			
+			// One line at a time.
+			var t = document.createTextNode(line);
 			entryRN.appendChild(t);
 			var lineBreak = document.createElement('BR');
 			entryRN.appendChild(lineBreak);
-		}
-		node.appendChild(entryRN);
+			node.appendChild(entryRN);
+			
+			if (lineEnd == -1)
+				break;
+			
+			lineStart = lineEnd + 1;
+		} while (true);
 	}
-	
+
 	return node;
 }
 
@@ -1051,6 +1068,8 @@ function makeRN(issues) {
 			}
 		}
 	}
+	
+	yoda.updateUrl(getUrlParams() + "&draw=rn");
 }
 
 
