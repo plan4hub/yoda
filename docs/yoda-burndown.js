@@ -1008,8 +1008,7 @@ function formatIssueRN(issue) {
 	
 	var issueRNStart = issue.body.indexOf('> RN');
 	if (issueRNStart != -1) {
-		var entryRN = document.createElement("P");
-		entryRN.setAttribute('style', 'margin-left: 10px;');
+		var entryRN = document.createElement("blockquote");
 		var lineStart = issueRNStart + 6;
 
 		var lineAdded = false;
