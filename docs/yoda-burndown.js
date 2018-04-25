@@ -142,6 +142,12 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 
 	var cell = row.insertCell();
 	cell.innerHTML = c5;
+	
+	// AdditonalData
+	if ($("#additionaldata").val() != "") {
+		var cell = row.insertCell();
+		cell.innerHTML = "";
+	}
 
 	var cell = row.insertCell();
 	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalEstimate, 1) + "</b>";
