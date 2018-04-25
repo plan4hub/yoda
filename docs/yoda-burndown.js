@@ -1009,9 +1009,10 @@ function formatIssueRN(issue) {
 	var issueRNStart = issue.body.indexOf('> RN');
 	if (issueRNStart != -1) {
 		var entryRN = document.createElement("P");
-		entryRN.setAttribute('style', 'margin-left: 40px;');
+		entryRN.setAttribute('style', 'margin-left: 10px;');
 		var lineStart = issueRNStart + 6;
 
+		var lineAdded = false;
 		do {
 			var lineEnd = issue.body.indexOf('\n', lineStart);
 			if (lineEnd == -1)
@@ -1023,12 +1024,16 @@ function formatIssueRN(issue) {
 //			console.log("Line: " + line);
 			
 			// One line at a time.
+			if (lineAdded) {
+				var lineBreak = document.createElement('BR');
+				entryRN.appendChild(lineBreak);
+			}
+			
 			var t = document.createTextNode(line);
 			entryRN.appendChild(t);
-			var lineBreak = document.createElement('BR');
-			entryRN.appendChild(lineBreak);
+			lineAdded = true;
+
 			node.appendChild(entryRN);
-			
 			if (lineEnd == -1)
 				break;
 			
@@ -1079,7 +1084,7 @@ function makeRN(issues) {
 	}
 	
 	// Copy to clipboard
-	copy_text('RN');
+	copy_text("RN");
 	yoda.updateUrl(getUrlParams() + "&draw=rn");
 }
 
@@ -1087,13 +1092,22 @@ function copy_text(element) {
     //Before we copy, we are going to select the text.
     var text = document.getElementById(element);
     var selection = window.getSelection();
+    selection.removeAllRanges();
     var range = document.createRange();
     range.selectNodeContents(text);
-    selection.removeAllRanges();
+
     selection.addRange(range);
-    //add to clipboard.
-    document.execCommand('copy');
-    // Remove selection
+
+    // Now that we've selected element, execute the copy command  
+    try {  
+        var successful = document.execCommand('copy');  
+        var msg = successful ? 'successful' : 'unsuccessful';  
+        console.log('Copy to clipboard command was ' + msg);  
+      } catch(err) {  
+        console.log('Oops, unable to copy to clipboard');  
+      }
+
+    // Remove selection. TBD: Remove, when copy works.
     // selection.removeAllRanges();
 }
 
