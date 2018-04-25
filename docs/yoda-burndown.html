@@ -153,11 +153,15 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<button id="drawbutton" onclick="startBurndown()">Draw chart</button>
 		<button id="tablebutton" onclick="startTable()">Show table</button>
+		<button id="rnbutton" onclick="startRN()">Show RN</button>
 	</div>
 
 	<br>
 	<div>
 		<table id="issuesTable"></table>
+	</div>
+	
+	<div id="RN">
 	</div>
 
 	<div style="width: 80%">
@@ -224,6 +228,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
+		}
+		
+		// RN is HPE/SD specific, so hide in general case.
+		if (window.location.hostname.indexOf("github.com") != -1) {
+			$('#rnbutton').hide();
 		}
 		
 	</script>

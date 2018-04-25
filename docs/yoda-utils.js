@@ -395,6 +395,21 @@ var yoda = (function() {
 			return getBodyField(label, start, ".*$");
 		},
 		
+		getBodyMultiLine: function(body, start) {
+			var data = '([^>]*)';
+			var reg = new RegExp(start + data, 'm');
+//			console.log("Regular exp: " + reg);
+			var res = body.match(reg);
+//			console.log("Body: " + body);
+//			console.log("Match: " + res);
+			var lines = null;
+			if (res != null) {
+				lines = res[1].trim();
+			}
+			console.log(lines);
+			return lines;
+		},
+		
 		// Extract "> estimate (value)" from body
 		getBodyEstimate: function(body) {
 			var estimate = getBodyField(body, '^> estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');

@@ -60,6 +60,11 @@ function clearTable() {
 	table.innerHTML = "";
 }
 
+function clearRN() {
+	var rn = document.getElementById("RN");
+	rn.innerHTML = "";
+}
+
 // -----------
 
 function prepareSums(sums, labelItem) {
@@ -184,7 +189,7 @@ function saveTableToCSV() {
 	} 
 
 	var tableRows = $("#issuesTable tbody")[0].rows;
-	for (var i=1; i<tableRows.length; i++) { 
+	for (var i=0; i<tableRows.length; i++) { 
 		var tableRow = tableRows[i]; var rowData = {}; 
 		for (var j=0; j<tableRow.cells.length; j++) { 
 			rowData[headers[j]] = tableRow.cells[j].innerHTML.replace(/<(?:.|\n)*?>/gm, ''); 
@@ -214,12 +219,7 @@ function makeTable(issues) {
 		var showClosed = false;
 	}
 
-	// Destroy graph if there.
-	if (window.myMixedChart != null)
-		window.myMixedChart.destroy();
-
-	// Clear table
-	clearTable();
+	clearAreas();
 	
 	// Filter out pull requests
 	yoda.filterPullRequests(issues);
@@ -516,11 +516,8 @@ function makeTable(issues) {
 // ---------------------------------------
 // Milestone issues have been retrieved. Time to analyse data and draw the chart.
 function burndown(issues) {
-	clearTable();
-	// Destroy old graph, if any
-	if (window.myMixedChart != null)
-		window.myMixedChart.destroy();
-
+	clearAreas();
+	
 	console.log("Creating burndown. No of issues retrieved: " + issues.length);
 	yoda.filterPullRequests(issues);
 	console.log("Creating burndown. No issues (after filtering out pull requests): " + issues.length);
@@ -813,16 +810,21 @@ function burndown(issues) {
 
 // ------------------
 
+
+function clearAreas() {
+	clearTable();
+	clearRN();
+	// Destroy old graph, if any
+	if (window.myMixedChart != null)
+		window.myMixedChart.destroy();
+}
+
 function clearFields() {
 	$("#milestonelist").empty();
 	$("#milestone_start").val("");
 	$("#milestone_due").val("");
 	$("#capacity").val("");
-	clearTable();
-	// Destroy old graph, if any
-	if (window.myMixedChart != null)
-		window.myMixedChart.destroy();
-	
+	clearAreas();
 }
 
 // ------------------
@@ -987,7 +989,72 @@ function showMilestoneData() {
 	}
 }
 
+// Create a List node to based on the given issue.
+function formatIssueRN(issue) {
+	var node = document.createElement("LI");
+	var titleLine = issue.title + " (#" + issue.number + ")";
+	var textnode = document.createTextNode(titleLine);
+	node.appendChild(textnode);
 	
+	var issueRN = yoda.getBodyMultiLine(issue.body, '^> RN');
+	console.log(issueRN);
+	if (issueRN != null) {
+		var entryRN = document.createElement("P");
+		entryRN.setAttribute('style', 'margin-left: 40px;');
+		
+		// split lines
+		var splitLines = issueRN.split('\n');
+		for (var l = 0; l < splitLines.length; l++) {
+			var t = document.createTextNode(splitLines[l]);
+			entryRN.appendChild(t);
+			var lineBreak = document.createElement('BR');
+			entryRN.appendChild(lineBreak);
+		}
+		node.appendChild(entryRN);
+	}
+	
+	return node;
+}
+
+function makeRN(issues) {
+	clearAreas();
+	var rn = document.getElementById("RN");
+	
+	// TODO: Need to iterate first by repo, then by type (Defect="Fixes", Enhancement="Changes")
+	
+	var repoList = $("#repolist").val();
+	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
+	var issueTypeHeading = ["Added Features", "Solved Issues"];
+	for (var r = 0; r < repoList.length; r++) {
+		var node = document.createElement("H1");
+		var textNode = document.createTextNode(repoList[r]);
+		node.appendChild(textNode);
+		rn.appendChild(node);
+		
+		for (var t = 0; t < issueTypeList.length; t++) {
+			var node = document.createElement("H2");
+			var textNode = document.createTextNode(issueTypeHeading[t]);
+			node.appendChild(textNode);
+			rn.appendChild(node);
+			
+			for (var i = 0; i < issues.length; i++) {
+				// Match repo?.
+				var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
+				if (repository != repoList[r])
+					continue;
+				
+				// Match issue type (in label)
+				if (!yoda.isLabelInIssue(issues[i], issueTypeList[t]))
+					continue;
+				
+				rn.appendChild(formatIssueRN(issues[i]));
+			}
+		}
+	}
+}
+
+
+
 //-------------- START FUNCTIONS ---
 
 function startBurndown() {
@@ -998,6 +1065,11 @@ function startBurndown() {
 function startTable() {
 	console.log("Milestone based table...");
 	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+}
+
+function startRN() {
+	console.log("Make RN...");
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeRN, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
