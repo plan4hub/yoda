@@ -1052,14 +1052,21 @@ function makeRN(issues) {
 	var repoList = $("#repolist").val();
 	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 	var issueTypeHeading = ["Added Features", "Solved Issues"];
+
+	// Headline
+	var node = document.createElement("H1");
+	var textNode = document.createTextNode("Release Notes for " + $("#milestonelist").val());
+	node.appendChild(textNode);
+	rn.appendChild(node);
+	
 	for (var r = 0; r < repoList.length; r++) {
-		var node = document.createElement("H1");
-		var textNode = document.createTextNode(repoList[r]);
+		var node = document.createElement("H2");
+		var textNode = document.createTextNode("Changes for " + repoList[r]);
 		node.appendChild(textNode);
 		rn.appendChild(node);
 		
 		for (var t = 0; t < issueTypeList.length; t++) {
-			var node = document.createElement("H2");
+			var node = document.createElement("H3");
 			var textNode = document.createTextNode(issueTypeHeading[t]);
 			node.appendChild(textNode);
 			rn.appendChild(node);
