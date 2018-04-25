@@ -1060,6 +1060,8 @@ function makeRN(issues) {
 			node.appendChild(textNode);
 			rn.appendChild(node);
 			
+			var listNode = document.createElement("UL");
+			
 			for (var i = 0; i < issues.length; i++) {
 				// Match repo?.
 				var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
@@ -1070,8 +1072,9 @@ function makeRN(issues) {
 				if (!yoda.isLabelInIssue(issues[i], issueTypeList[t]))
 					continue;
 				
-				rn.appendChild(formatIssueRN(issues[i]));
+				listNode.appendChild(formatIssueRN(issues[i]));
 			}
+			rn.appendChild(listNode);
 		}
 	}
 	
