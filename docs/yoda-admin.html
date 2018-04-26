@@ -158,6 +158,18 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" id="burndown_labelsplit" size="20" onchange="setLocalStorage('yoda.burndown.labelsplit', this.value)">
 			<span class="tooltip">Regular expression for doing subtotals</span>
 		</div>
+		
+		<div class="field">
+			<label>Additional Data</label>
+			<input type="text" id="burndown_additionaldata" size="20" onchange="setLocalStorage('yoda.burndown.additionaldata', this.value)">
+			<span class="tooltip">Overwrite definition of Additional Data Column. Format Headline,regular expression</span>
+		</div>
+		
+		<div class="field">
+			<label>Release Note Issue Types</label>
+			<input type="text" id="burndown_rnlabeltypes" size="20" onchange="setLocalStorage('yoda.burndown.rnlabeltypes', this.value)">
+			<span class="tooltip">Issue types (labels) to output to RN sections). Comma-separated list of Label|Header</span>
+		</div>
 	</div>		
  
 	<div class="frame">
@@ -213,6 +225,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#burndown_tentative").val(localStorage.getItem("yoda.burndown.tentative"));
 			$("#burndown_inprogress").val(localStorage.getItem("yoda.burndown.inprogress"));
 			$("#burndown_labelsplit").val(localStorage.getItem("yoda.burndown.labelsplit"));
+			$("#burndown_additionaldata").val(localStorage.getItem("yoda.burndown.additionaldata"));
+			$("#burndown_rnlabeltypes").val(localStorage.getItem("yoda.burndown.rnlabeltypes"));
 			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));
 			$("#kanban_columns").val(localStorage.getItem("yoda.kanban.columns"));
 			$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));

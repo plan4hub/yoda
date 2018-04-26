@@ -90,6 +90,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" id="additionaldata" size="20" value="Severity,^S[1-4] -">
 			<span class="tooltip">Headline and label regular expression separated by comma (blank to skip)</span>
 		</div>
+		
+		<div class="field">
+			<label>Release Note Issue Types</label>
+			<input type="text" id="rnlabeltypes" size="30" value="T2 - Enhancement|Added Features,T1 - Defect|Solved Issues">
+			<span class="tooltip">Issue types (labels) to output to RN sections). Comma-separated list of Label|Header</span>
+		</div>
  
 		<div class="field">
 			<label>Estimates</label><div id="estimateradio">
@@ -181,6 +187,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#tentative", "yoda.burndown.tentative");
 		yoda.getDefaultLocalStorage("#inprogress", "yoda.burndown.inprogress");
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.burndown.labelsplit");
+		yoda.getDefaultLocalStorage("#additionaldata", "yoda.burndown.additionaldata");
+		yoda.getDefaultLocalStorage("#rnlabeltypes", "yoda.burndown.rnlabeltypes");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		
@@ -189,6 +197,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#inprogress", "inprogress");
 		yoda.decodeUrlParam("#labelsplit", "labelsplit");
 		yoda.decodeUrlParam("#additionaldata", "additionaldata");
+		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
@@ -228,11 +237,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
-		}
-		
-		// RN is HPE/SD specific, so hide in general case.
-		if (window.location.hostname.indexOf("github.com") != -1) {
-			$('#rnbutton').hide();
 		}
 		
 	</script>

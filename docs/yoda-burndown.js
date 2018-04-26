@@ -35,6 +35,7 @@ function getUrlParams() {
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "additionaldata");
+	params = addIfNotDefault(params, "rnlabeltypes");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");	
 	if ($("#milestonelist").val() != "") {
@@ -144,6 +145,7 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 	cell.innerHTML = c5;
 	
 	// AdditonalData
+
 	if ($("#additionaldata").val() != "") {
 		var cell = row.insertCell();
 		cell.innerHTML = "";
@@ -1050,9 +1052,14 @@ function makeRN(issues) {
 	// TODO: Need to iterate first by repo, then by type (Defect="Fixes", Enhancement="Changes")
 	
 	var repoList = $("#repolist").val();
-	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
-	var issueTypeHeading = ["Added Features", "Solved Issues"];
-
+	
+	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
+	var rnLabelTypes = $("#rnlabeltypes").val();
+	var rnLabelTypesList = rnLabelTypes.split(",");
+	
+//	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
+//	var issueTypeHeading = ["Added Features", "Solved Issues"];
+	
 	// Headline
 	var node = document.createElement("H1");
 	var textNode = document.createTextNode("Release Notes for " + $("#milestonelist").val());
@@ -1065,9 +1072,9 @@ function makeRN(issues) {
 		node.appendChild(textNode);
 		rn.appendChild(node);
 		
-		for (var t = 0; t < issueTypeList.length; t++) {
+		for (var t = 0; t < rnLabelTypesList.length; t++) {
 			var node = document.createElement("H3");
-			var textNode = document.createTextNode(issueTypeHeading[t]);
+			var textNode = document.createTextNode(rnLabelTypesList[t].split("|")[1]);
 			node.appendChild(textNode);
 			rn.appendChild(node);
 			
@@ -1080,7 +1087,7 @@ function makeRN(issues) {
 					continue;
 				
 				// Match issue type (in label)
-				if (!yoda.isLabelInIssue(issues[i], issueTypeList[t]))
+				if (!yoda.isLabelInIssue(issues[i], rnLabelTypesList[t].split("|")[0]))
 					continue;
 				
 				listNode.appendChild(formatIssueRN(issues[i]));
