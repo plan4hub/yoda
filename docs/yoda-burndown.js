@@ -1057,6 +1057,9 @@ function makeRN(issues) {
 	var rnLabelTypes = $("#rnlabeltypes").val();
 	var rnLabelTypesList = rnLabelTypes.split(",");
 	
+	// Skip label
+	var rnSkipLabel = $("#rnskiplabel").val();
+	
 //	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 //	var issueTypeHeading = ["Added Features", "Solved Issues"];
 	
@@ -1091,7 +1094,7 @@ function makeRN(issues) {
 					continue;
 				
 				// Should issue be skipped
-				if (yoda.isLabelInIssue(issues[i], "Q - No RN"))
+				if (yoda.isLabelInIssue(issues[i], rnSkipLabel))
 					continue;
 				
 				listNode.appendChild(formatIssueRN(issues[i]));
