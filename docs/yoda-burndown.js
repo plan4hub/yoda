@@ -1091,7 +1091,7 @@ function makeRN(issues) {
 					continue;
 				
 				// Should issue be skipped
-				if (yoda.isLabelInIssue(issues[i], "Q - No changes"))
+				if (yoda.isLabelInIssue(issues[i], "Q - No RN"))
 					continue;
 				
 				listNode.appendChild(formatIssueRN(issues[i]));
