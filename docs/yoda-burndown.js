@@ -1004,7 +1004,20 @@ function showMilestoneData() {
 // Create a List node to based on the given issue.
 function formatIssueRN(issue) {
 	var node = document.createElement("LI");
-	var titleLine = issue.title + " (#" + issue.number + ")";
+	
+	var issueRNTStart = issue.body.indexOf('> RNT');
+	if (issueRNTStart != -1) {
+		var lineStart = issueRNTStart + 7;
+		var lineEnd = issue.body.indexOf('\n', lineStart);
+		if (lineEnd == -1)
+			var line = issue.body.substr(lineStart);
+		else
+			var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
+		var title = line;
+	} else {
+		var title = issue.title;
+	}
+	var titleLine = title + " (#" + issue.number + ")";
 	var textnode = document.createTextNode(titleLine);
 	node.appendChild(textnode);
 	
