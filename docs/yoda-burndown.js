@@ -1007,7 +1007,7 @@ function formatIssueRN(issue) {
 	
 	var issueRNTStart = issue.body.indexOf('> RNT');
 	if (issueRNTStart != -1) {
-		var lineStart = issueRNTStart + 7;
+		var lineStart = issue.body.indexOf('\n', issueRNTStart) + 1;
 		var lineEnd = issue.body.indexOf('\n', lineStart);
 		if (lineEnd == -1)
 			var line = issue.body.substr(lineStart);
@@ -1024,7 +1024,7 @@ function formatIssueRN(issue) {
 	var issueRNStart = issue.body.indexOf('> RN');
 	if (issueRNStart != -1) {
 		var entryRN = document.createElement("blockquote");
-		var lineStart = issueRNStart + 6;
+		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
 
 		var lineAdded = false;
 		do {
