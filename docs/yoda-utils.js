@@ -420,7 +420,7 @@ var yoda = (function() {
 		// Extract "> remaining (date) (value)" entries.
 		// Should be run in a loop with index = 0 first.  
 		getFirstRemaining: function(body, index) {
-			var remaining = getBodyField(body, '^> remaining ', '[ ]*2[0-9][0-9][0-9]-([0-1])?[0-9]-([0-3])?[0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
+			var remaining = getBodyField(body, '^> remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
 			return remaining;
 		},
 		
@@ -430,11 +430,10 @@ var yoda = (function() {
 			var remaining = estimate;
 			for (var index = 0; yoda.getFirstRemaining(issue.body, index) != null; index++) {
 				var remainingEntry = yoda.getFirstRemaining(issue.body, index);
-				// 	Ok, we now have a > remaining entry.
-				
-				var remainingDate = remainingEntry.split(" ")[0];
-				remaining = remainingEntry.split(" ")[1];
-				console.log("Remaining entry (" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining + ". RemainingEntry: " + remainingEntry);
+				// 	Ok, we now have a > remaining entry
+				var remainingDate = remainingEntry.slice(0, 10);
+				remaining = remainingEntry.slice(11);
+//				console.log("Remaining entry (" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 			}
 			
 //			console.log(" =>> last remaining: " + remaining);
