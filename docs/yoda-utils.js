@@ -397,7 +397,7 @@ var yoda = (function() {
 		
 		// Extract "> estimate (value)" from body
 		getBodyEstimate: function(body) {
-			var estimate = getBodyField(body, '^> estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');
+			var estimate = getBodyField(body, '^> estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
 			if (estimate == null) {
 				// Try old format as well
 				estimate = getBodyField(body, '^/estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');
