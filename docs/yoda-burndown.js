@@ -1024,7 +1024,7 @@ function formatIssueRN(issue) {
 	var textnode = document.createTextNode(titleLine);
 	node.appendChild(textnode);
 	
-	var issueRNStart = issue.body.indexOf('> RN');
+	var issueRNStart = issue.body.indexOf('> RN\r');
 	if (issueRNStart != -1) {
 		var entryRN = document.createElement("blockquote");
 		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
