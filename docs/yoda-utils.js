@@ -185,6 +185,11 @@ var yoda = (function() {
     // -----------------------------	
 	// Interface functions
 	return {
+		strip2Digits: function(number) {
+			places = 2;
+			return +(Math.round(number + "e+" + places)  + "e-" + places);
+		},
+		
 		// A mix of nice bar colors for bar charts. 
 		// The first 4 are not random. Idea is to match
 		// Severity Urgent, High, Medium, Low used in generating time issues statistics (time-stats.html)

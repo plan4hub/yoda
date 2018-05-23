@@ -625,8 +625,8 @@ function burndown(issues) {
 		// BUT, we must have at least one entry if looking at a future sprint!
 		if (date <= tomorrow || remainingArray.length == 0) {
 			console.log("Adding bar value for: " + dateString + ", value: " + remaining);
-			remainingArray.push(remaining);
-			remainingTentativeArray.push(remainingTentative);
+			remainingArray.push(yoda.strip2Digits(remaining));
+			remainingTentativeArray.push(yoda.strip2Digits(remainingTentative));
 		} else {
 			console.log("Skipping bar as in future: " + dateString);
 			remainingArray.push(NaN);
@@ -692,8 +692,11 @@ function burndown(issues) {
 								console.log(" YYYY " + labels[e] + ", remaining: " + remainingArray[e]);
 								if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 									remainingTentativeArray[e] -= delta;
+									// Precisionfix.
+									remainingTentativeArray[e] = yoda.strip2Digits(remainingTentativeArray[e]);
 								} else {
-									remainingArray[e] -= delta;                                                               
+									remainingArray[e] -= delta;                                                
+									remainingArray[e] = yoda.strip2Digits(remainingArray[e]);
 								}
 							}
 							issueWorkDoneBefore = issueEstimate - remainingNumber;
