@@ -1004,6 +1004,34 @@ function showMilestoneData() {
 	}
 }
 
+var entryRNId = 0;
+
+// Parse RN markdown to HTML (if any)
+function parseRNMarkdown(rnId) {
+	var oldRN = document.getElementById("RN#" + rnId);
+	if (oldRN == null) {
+		console.log("Markdown update complete");
+		yoda.showSnackbarOk("Succesfully generated Release Notes"); 
+		return;
+	}
+		
+	var markdownUrl = yoda.getGithubUrl() + "markdown";
+	console.log("markdownUrl: " + markdownUrl);
+
+	var urlData = {
+			"text": oldRN.innerHTML
+	};
+	
+	$.ajax({
+		url: markdownUrl,
+		type: 'POST',
+		data: JSON.stringify(urlData),
+		success: function(data) { document.getElementById("RN#" + rnId).innerHTML = data; },
+		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+		complete: function(jqXHR, textStatus) { parseRNMarkdown(rnId + 1); }
+	});
+}
+
 // Create a List node to based on the given issue.
 function formatIssueRN(issue) {
 	var node = document.createElement("LI");
@@ -1027,6 +1055,12 @@ function formatIssueRN(issue) {
 	var issueRNStart = issue.body.indexOf('> RN\r');
 	if (issueRNStart != -1) {
 		var entryRN = document.createElement("blockquote");
+
+		// Set ID for blockquote element. This will be used later for markdown updates.
+		// We will use a simple sequence number. Not so elegant, but hey...
+		entryRN.setAttribute("id", "RN#" + entryRNId);
+		entryRNId++;
+	
 		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
 
 		var lineAdded = false;
@@ -1062,6 +1096,7 @@ function formatIssueRN(issue) {
 }
 
 function makeRN(issues) {
+	entryRNId = 0;
 	clearAreas();
 	var rn = document.getElementById("RN");
 	
@@ -1076,6 +1111,7 @@ function makeRN(issues) {
 	// Skip label
 	var rnSkipLabel = $("#rnskiplabel").val();
 	
+//  Will be something like...
 //	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 //	var issueTypeHeading = ["Added Features", "Solved Issues"];
 	
@@ -1118,6 +1154,8 @@ function makeRN(issues) {
 			rn.appendChild(listNode);
 		}
 	}
+
+	parseRNMarkdown(0);
 	
 	// Copy to clipboard
 	copy_text("RN");
