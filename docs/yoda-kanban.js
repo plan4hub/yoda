@@ -511,6 +511,9 @@ function drawKanban() {
 					columnTotalNoIssues[c]++;
 					columnTotalEstimate[c] += estimate;
 					columnTotalRemaining[c] += remaining;
+					
+					columnTotalEstimate[c] = yoda.strip2Digits(columnTotalEstimate[c]);
+					columnTotalRemaining[c] = yoda.strip2Digits(columnTotalRemaining[c]);
 
 					switch (yoda.getEstimateInIssues()) {
 					case 'inbody':
