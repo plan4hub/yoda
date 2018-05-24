@@ -201,7 +201,9 @@ As part of sprint planning, often tentative/stretch goals are used. Normally, in
 
 The burndown page also includes an option for displaying a table of all issues associated with a milestone, along with their estimates and remaning work. Just press "Show table". You may click on "Issue Id" in the table header to export the table to a CSV file, e.g. for importing to Excel. The open state will be shown in **bold** if a special "in progress label" is present. A special "Additional Data" column may be customized. The default value is to include an issue severity based on a label convention where severity conform to an "S[1-4] - <severity text>" format.
 
-Finally, the Burndown report also allow generation of a Release note. The Release note is a list of all issues, grouped by their type (as defined by labels). Give it a try. It is possible to include into each issue further details to be extracted. This is done by putting a section into the issue beginning with a special "> RN" notatation. All lines below, until the next blank line, is included as extra details for that issue. The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title. 
+Finally, the Burndown report also allow generation of a Release note. The Release note is a list of all issues, grouped by their type (as defined by labels). Give it a try. It is possible to include into each issue further details to be extracted. This is done by putting a section into the issue beginning with a special "> RN" notatation. All lines below, until the next blank line, is included as extra details for that issue. It is possible to use markdown notation into the > RN field. 
+
+The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title. 
 
 URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, additionaldata, rnlabeltypes.
 
