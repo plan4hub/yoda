@@ -1202,6 +1202,12 @@ function startRN() {
 	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeRN, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
+function startRNKnown() {
+	console.log("Make RN Known Issues...");
+	$("#rnlabeltypes").val("T1 - Defect|Known Issues");
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "Q - Known Issue", "all", null, makeRN, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+}
+
 //--------------
 
 function githubAuth() {
