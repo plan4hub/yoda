@@ -998,6 +998,10 @@ function showMilestoneData() {
 			} else {
 				if (yoda.decodeUrlParamBoolean(null, "draw") == "rn") {
 					startRN();
+				} else {
+					if (yoda.decodeUrlParamBoolean(null, "draw") == "rnknown") {
+						startRNKnown();
+					}
 				}
 			}
 		}
@@ -1100,8 +1104,6 @@ function makeRN(issues) {
 	clearAreas();
 	var rn = document.getElementById("RN");
 	
-	// TODO: Need to iterate first by repo, then by type (Defect="Fixes", Enhancement="Changes")
-	
 	var repoList = $("#repolist").val();
 	
 	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
@@ -1162,6 +1164,49 @@ function makeRN(issues) {
 	yoda.updateUrl(getUrlParams() + "&draw=rn");
 }
 
+function makeRNKnown(issues) {
+	entryRNId = 0;
+	clearAreas();
+	var rn = document.getElementById("RN");
+	
+	var repoList = $("#repolist").val();
+	
+	// Headline
+	var node = document.createElement("H1");
+	var textNode = document.createTextNode("Release Note - Known Issues");
+	node.appendChild(textNode);
+	rn.appendChild(node);
+	
+	for (var r = 0; r < repoList.length; r++) {
+		var node = document.createElement("H2");
+		var textNode = document.createTextNode("Known Issues for " + repoList[r]);
+		node.appendChild(textNode);
+		rn.appendChild(node);
+		
+		var listNode = document.createElement("UL");
+
+		for (var i = 0; i < issues.length; i++) {
+			// Match repo?.
+			var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
+			if (repository != repoList[r])
+				continue;
+
+			// Match issue type (in label)
+			if (!yoda.isLabelInIssue(issues[i], "Q - Known Issue"))
+				continue;
+
+			listNode.appendChild(formatIssueRN(issues[i]));
+		}
+		rn.appendChild(listNode);
+	}
+
+	parseRNMarkdown(0);
+	
+	// Copy to clipboard
+	copy_text("RN");
+	yoda.updateUrl(getUrlParams() + "&draw=rnknown");
+}
+
 function copy_text(element) {
     //Before we copy, we are going to select the text.
     var text = document.getElementById(element);
@@ -1204,8 +1249,7 @@ function startRN() {
 
 function startRNKnown() {
 	console.log("Make RN Known Issues...");
-	$("#rnlabeltypes").val("T1 - Defect|Known Issues");
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "Q - Known Issue", "all", null, makeRN, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "Q - Known Issue", "all", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
