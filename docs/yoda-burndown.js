@@ -1168,7 +1168,6 @@ function makeRNKnown(issues) {
 	entryRNId = 0;
 	clearAreas();
 	var rn = document.getElementById("RN");
-	
 	var repoList = $("#repolist").val();
 	
 	// Headline
@@ -1176,8 +1175,6 @@ function makeRNKnown(issues) {
 	var textNode = document.createTextNode("Release Note - Known Issues");
 	node.appendChild(textNode);
 	rn.appendChild(node);
-	
-	var knownLabel = $("#rnknownlabel").val();
 	
 	for (var r = 0; r < repoList.length; r++) {
 		var node = document.createElement("H2");
@@ -1191,10 +1188,6 @@ function makeRNKnown(issues) {
 			// Match repo?.
 			var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
 			if (repository != repoList[r])
-				continue;
-
-			// Match issue type (in label)
-			if (!yoda.isLabelInIssue(issues[i], knownLabel))
 				continue;
 
 			listNode.appendChild(formatIssueRN(issues[i]));
@@ -1251,7 +1244,9 @@ function startRN() {
 
 function startRNKnown() {
 	console.log("Make RN Known Issues...");
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "Q - Known Issue", "all", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	console.log("rnknownlabel is: " + $("#rnknownlabel").val());
+	var knownLabel = $("#rnknownlabel").val();
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), knownLabel, "all", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
