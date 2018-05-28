@@ -205,7 +205,9 @@ Finally, the Burndown report also allow generation of a Release note. The Releas
 
 The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title. 
 
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, additionaldata, rnlabeltypes.
+A special "Known Issues" Release note list can also be generated (similar to the normal Release Note). What is special here is the selection of issues. Here issues are taken from all repository Milestone *if* they have a Known Issues Label set, default "Q - Known Issue".
+
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, additionaldata, rnlabeltypes, rnskiplabel, rnknownlabel.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 

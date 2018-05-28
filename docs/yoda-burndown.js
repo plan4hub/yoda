@@ -1177,6 +1177,8 @@ function makeRNKnown(issues) {
 	node.appendChild(textNode);
 	rn.appendChild(node);
 	
+	var knownLabel = $("#rnknownlabel").val();
+	
 	for (var r = 0; r < repoList.length; r++) {
 		var node = document.createElement("H2");
 		var textNode = document.createTextNode("Known Issues for " + repoList[r]);
@@ -1192,7 +1194,7 @@ function makeRNKnown(issues) {
 				continue;
 
 			// Match issue type (in label)
-			if (!yoda.isLabelInIssue(issues[i], "Q - Known Issue"))
+			if (!yoda.isLabelInIssue(issues[i], knownLabel))
 				continue;
 
 			listNode.appendChild(formatIssueRN(issues[i]));

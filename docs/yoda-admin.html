@@ -164,7 +164,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" id="burndown_additionaldata" size="20" onchange="setLocalStorage('yoda.burndown.additionaldata', this.value)">
 			<span class="tooltip">Overwrite definition of Additional Data Column. Format Headline,regular expression</span>
 		</div>
+	</div>
 		
+	<div class="frame">
+		<div class="frameheader">
+			<h3>Brundown RN defaults overwrites</h3>
+		</div>
+
 		<div class="field">
 			<label>Release Note Issue Types</label>
 			<input type="text" id="burndown_rnlabeltypes" size="20" onchange="setLocalStorage('yoda.burndown.rnlabeltypes', this.value)">
@@ -175,6 +181,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>Release Note Skip Label</label>
 			<input type="text" id="burndown_rnskiplabel" size="20" onchange="setLocalStorage('yoda.burndown.rnskiplabel', this.value)">
 			<span class="tooltip">Label value causing issue to be skipped into RN (default "Q - No RN")</span>
+		</div>
+		
+		<div class="field">
+			<label>Release Note Known Issue</label> <input type="text" id="burndown_rnknownlabel" size="20" onchange="setLocalStorage('yoda.burndown.rnknownlabel', this.value)">
+			<span class="tooltip">Label value causing issue to be listed into Known Issues RN (default "Q - Known Issue")</span>
 		</div>
 	</div>		
  
@@ -234,6 +245,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#burndown_additionaldata").val(localStorage.getItem("yoda.burndown.additionaldata"));
 			$("#burndown_rnlabeltypes").val(localStorage.getItem("yoda.burndown.rnlabeltypes"));
 			$("#burndown_rnskiplabel").val(localStorage.getItem("yoda.burndown.rnskiplabel"));
+			$("#burndown_rnknownlabel").val(localStorage.getItem("yoda.burndown.rnknownlabel"));
 			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));
 			$("#kanban_columns").val(localStorage.getItem("yoda.kanban.columns"));
 			$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));
