@@ -1246,7 +1246,7 @@ function startRNKnown() {
 	console.log("Make RN Known Issues...");
 	console.log("rnknownlabel is: " + $("#rnknownlabel").val());
 	var knownLabel = $("#rnknownlabel").val();
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), knownLabel, "all", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), knownLabel, "open", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
