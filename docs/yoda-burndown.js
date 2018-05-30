@@ -1056,7 +1056,10 @@ function formatIssueRN(issue) {
 	var textnode = document.createTextNode(titleLine);
 	node.appendChild(textnode);
 	
-	var issueRNStart = issue.body.indexOf('> RN\r');
+	var issueRNSearchStart = 0;
+	if (issueRNTStart != -1)
+		issueRNSearchStart = issueRNTStart + 1;
+	var issueRNStart = issue.body.indexOf('> RN', issueRNSearchStart);
 	if (issueRNStart != -1) {
 		var entryRN = document.createElement("blockquote");
 
