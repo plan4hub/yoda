@@ -47,6 +47,9 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "rnlabeltypes");
 	params = addIfNotDefault(params, "rnskiplabel");
 	params = addIfNotDefault(params, "rnknownlabel");
+	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
+	if (outputFormat != "html")
+		params += "&outputformat=" + outputFormat;
 
 	if ($('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=true";
@@ -79,6 +82,12 @@ function copy_text(element) {
 }
 
 // --------
+
+function getFormat(formatArray, index) {
+	var f = formatArray[index];
+	f = f.replace(/\\n/g, '\n');
+	return f;
+}
 
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
@@ -123,7 +132,7 @@ function formatIssueRN(issue) {
 		var title = issue.title;
 	}
 	var titleLine = title + " (#" + issue.number + ")";
-	issueText += titleFormat[0] + titleLine + titleFormat[1];
+	issueText += getFormat(titleFormat, 0) + titleLine + getFormat(titleFormat, 1);
 	
 	var issueRNSearchStart = 0;
 	if (issueRNTStart != -1)
@@ -144,7 +153,9 @@ function formatIssueRN(issue) {
 				break;
 //			console.log("Line: " + line);
 			
-			rnText += line + rnFormat[2];
+			if (rnText != "")
+				rnText += getFormat(rnFormat, 2);
+			rnText += line; 
 			lineAdded = true;
 			
 			if (lineEnd == -1) {
@@ -154,13 +165,13 @@ function formatIssueRN(issue) {
 			lineStart = lineEnd + 1;
 		} while (true);
 		if (lineAdded)
-			rnText += rnFormat[2];
+			rnText += getFormat(rnFormat, 2);
 		
 		// HTML?
 		if ($('input:radio[name="outputformat"]:checked').val()== "html") {
-			issueText += rnFormat[0] + parseRNMarkdown(rnText) + rnFormat[1];
+			issueText += getFormat(rnFormat, 0) + parseRNMarkdown(rnText) + getFormat(rnFormat, 1);
 		} else {
-			issueText += rnFormat[0] + rnText + rnFormat[1];
+			issueText += getFormat(rnFormat, 0) + rnText + getFormat(rnFormat, 1) ;
 		}
 	}
 
@@ -193,10 +204,10 @@ function makeRN() {
 	var listFormat = $("#listformat").val().split(",");
 
 	// Headline
-	rnText += hlFormat[0] + "Release Notes for " + $("#milestonelist").val() + hlFormat[1];
+	rnText += getFormat(hlFormat, 0) + "Release Notes for " + $("#milestonelist").val() + getFormat(hlFormat, 1);
 
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += sFormat[0] + "Changes for " + repoList[r] + sFormat[1];
+		rnText += getFormat(sFormat, 0) + "Changes for " + repoList[r] + getFormat(sFormat, 1);
 		
 		for (var t = 0; t < rnLabelTypesList.length; t++) {
 	
@@ -215,21 +226,19 @@ function makeRN() {
 				if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
 					continue;
 				
-				rnList += listFormat[2] + formatIssueRN(repoIssues[i]) + listFormat[3];
+				rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
 			}
 
 			if (rnList != "") {
 				// Put header and list, but only if non-empty.
-				rnText += ssFormat[0] + rnLabelTypesList[t].split("|")[1] + ssFormat[1];
-				rnText += listFormat[0] + rnList + listFormat[1];
+				rnText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
+				rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
 			}
 		}
 	}
 	
-	if ($('input:radio[name="outputformat"]:checked').val()== "html") {
+	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		rn.innerHTML = rnText;
-		parseRNMarkdown("RN");
-		
 	} else {
 		rn.innerHTML = "<pre>" + rnText + "</pre>";
 	}
@@ -471,21 +480,21 @@ function githubAuth() {
 function changeOutput(value) {
 	switch (value) {
 	case "html":
-		$("#hlformat").val("<H1>,</H1>\n");
-		$("#sformat").val("<H2>,</H2>\n");
-		$("#ssformat").val("<H3>,</H3>\n");
-		$("#listformat").val("<UL>\n,</UL>\n,<LI>\n,</LI>\n");
+		$("#hlformat").val("<H1>,</H1>\\n");
+		$("#sformat").val("<H2>,</H2>\\n");
+		$("#ssformat").val("<H3>,</H3>\\n");
+		$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
 		$("#titleformat").val(",\n");
-		$("#rnformat").val("<BLOCKQUOTE>\n,</BLOCKQUOTE>\n,\n");
+		$("#rnformat").val("<BLOCKQUOTE>\\n,</BLOCKQUOTE>\\n,\\n");
 		break;
 
 	case "md":
-		$("#hlformat").val("# ,\n\n");
-		$("#sformat").val("##,\n\n");
-		$("#ssformat").val("###,\n\n");
-		$("#listformat").val(",,\n-  ,");
-		$("#titleformat").val(",\n");
-		$("#rnformat").val("   ,\n,\n  ");
+		$("#hlformat").val("# ,\\n\\n");
+		$("#sformat").val("## ,\\n\\n");
+		$("#ssformat").val("### ,\\n\\n");
+		$("#listformat").val(",,-  ,");
+		$("#titleformat").val(",\\n\\n");
+		$("#rnformat").val("   ,\\n,\\n  ");
 		break;
 
 	case "rst":

@@ -178,8 +178,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div id="snackbar">Some text some message..</div>
 
 	<script>
-		changeOutput("html"); // default
-		
 		// Enable yodamenu
 		yoda.enableMenu();
 
@@ -196,6 +194,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
+		changeOutput($('input:radio[name="outputformat"]:checked').val());
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
