@@ -743,10 +743,10 @@ var yoda = (function() {
 		},
 		
 		// Download CSV data as file.
-		downloadFile: function(data, fileName) {
+		downloadFileWithType: function(fileType, data, fileName) {
 		    var csvData = data;
 		    var blob = new Blob([ csvData ], {
-		        type : "application/csv;charset=utf-8;"
+		        type : fileType
 		    });
 
 		    if (window.navigator.msSaveBlob) {
@@ -763,6 +763,11 @@ var yoda = (function() {
 		        link.click();
 		        document.body.removeChild(link);
 		    }
+		},
+		
+		// CSV version
+		downloadFile: function(data, fileName) {
+			yoda.downloadFileWithType("application/csv;charset=utf-8;", data, fileName);
 		},
 
 		// Collect various information from the API. URL gives the requested info, the function does the

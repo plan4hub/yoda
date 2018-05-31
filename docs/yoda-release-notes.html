@@ -81,6 +81,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Output file name prefix</label>
+			<input type="text" id="filename" size="20" value="ReleaseNotes"></input>
+			<span class="tooltip">Output filename. Output type will be appended</span>
+		</div>
+
+		<div class="field">
 			<label>Output Format</label><div id="outputformatradio">
 				<label><input type="radio" name="outputformat" onclick="changeOutput(this.value)" checked="checked" value="html">HTML</label> 
 				<label><input type="radio" name="outputformat" onclick="changeOutput(this.value)" value="md">Markdown</label> 
@@ -156,7 +162,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Label to force skipping issue into RN</span>
 		</div>
 		
-		<button id="drawbutton" onclick="startRN()">Generate RN</button>
+		<button id="drawRNbutton" onclick="startRN(false)">Show RN</button>
+		<button id="downloadRNbutton" onclick="startRN(true)">Download RN</button>
 	</div>
 
 	<div class="frame">
@@ -166,10 +173,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Label value causing issue to be listed into Known Issues RN (default "Q - Known Issue")</span>
 		</div>
  
-		<button id="drawbutton" onclick="startKnown()">Generate RN - Known Issues</button>
-	
+		<button id="drawKnownbutton" onclick="startKnown(false)">Show Known Issues</button>
+		<button id="downloadKnownbutton" onclick="startKnown(true)">Download Known Issues</button>
 	</div>
-	
 	
 	<div id="RN">
 	</div>
@@ -191,6 +197,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
 		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
 		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
+		
+		yoda.decodeUrlParam("#filename", "filename");
+		yoda.decodeUrlParam("#hlformat", "hlformat");
+		yoda.decodeUrlParam("#sformat", "sformat");
+		yoda.decodeUrlParam("#ssformat", "ssformat");
+		yoda.decodeUrlParam("#listformat", "listformat");
+		yoda.decodeUrlParam("#titleformat", "titleformat");
+		yoda.decodeUrlParam("#rnformat", "rnformat");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
@@ -231,9 +245,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				if (firstMilestoneShowData) {
 					firstMilestoneShowData = false;
 					if (yoda.decodeUrlParamBoolean(null, "draw") == "rn") {
-						startRN();
+						startRN(false);
 					} else if (yoda.decodeUrlParamBoolean(null, "draw") == "known") {
-						startKnown();
+						startKnown(false);
 					} 
 				}
 			});

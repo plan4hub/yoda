@@ -30,6 +30,8 @@ var milestoneListComplete = []; // selected milestones, full structure.
 
 var repoIssues = []; // List of issues. Full structure as returned from github.
 
+var download = false; // global - a bit of a hack.
+
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
 		return params + "&" + field + "=" + $("#" + field).val(); 
@@ -178,8 +180,6 @@ function formatIssueRN(issue) {
 	return issueText;
 }
 
-
-
 function makeRN() {
 	var rn = document.getElementById("RN");
 	
@@ -243,6 +243,16 @@ function makeRN() {
 		rn.innerHTML = "<pre>" + rnText + "</pre>";
 	}
 
+	// Download?
+	if (download) {
+		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
+		console.log("Downloading to " + fileName);
+		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
+		yoda.downloadFileWithType(appType, rnText, fileName);		
+	}
+
+
+	
 	// Copy to clipboard
 	copy_text("RN");
 	yoda.updateUrl(getUrlParams() + "&draw=rn");
@@ -291,8 +301,17 @@ function makeKnown() {
 	
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		rn.innerHTML = rnText;
+
 	} else {
 		rn.innerHTML = "<pre>" + rnText + "</pre>";
+	}
+	
+	// Download?
+	if (download) {
+		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
+		console.log("Downloading to " + fileName);
+		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
+		yoda.downloadFileWithType(appType, rnText, fileName);		
 	}
 
 	// Copy to clipboard
@@ -302,11 +321,13 @@ function makeKnown() {
 
 // -----------
 
-function startRN() {
+function startRN(_download) {
+	download = _download;
 	updateIssuesForRN();
 }
 
-function startKnown() {
+function startKnown(_download) {
+	download = _download;
 	updateIssuesKnown();
 }
 
