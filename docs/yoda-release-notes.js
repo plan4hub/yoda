@@ -250,6 +250,12 @@ function makeRN() {
 
 
 function makeKnown() {
+	// Get formatting
+	var hlFormat = $("#hlformat").val().split(",");
+	var sFormat = $("#sformat").val().split(",");
+	var ssFormat = $("#ssformat").val().split(",");
+	var listFormat = $("#listformat").val().split(",");
+
 	var rn = document.getElementById("RN");
 	
 	var repoList = $("#repolist").val();
@@ -259,11 +265,11 @@ function makeKnown() {
 	var rnSkipLabel = $("#rnskiplabel").val();
 	
 	// Headline
-	rnText += "# Known Issues" + "\n";
+	rnText += getFormat(hlFormat, 0) + "Known Issues" + getFormat(hlFormat, 1);
 	
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += "\n# " + "Known Issues for " + repoList[r] + "\n\n";
-
+		
+		var rnList = "";
 		for (var i = 0; i < repoIssues.length; i++) {
 			// Match repo?.
 			var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
@@ -274,17 +280,27 @@ function makeKnown() {
 			if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
 				continue;
 
-			rnText += formatIssueRN(repoIssues[i]);
+			rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
+		}
+		
+		if (rnList != "") {
+			rnText += getFormat(sFormat, 0) + "Known Issues for " + getFormat(sFormat, 1);
+			rnText += rnList;
 		}
 	}
 	
-	rn.innerHTML = "<pre>" + rnText + "</pre>";
+	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+		rn.innerHTML = rnText;
+	} else {
+		rn.innerHTML = "<pre>" + rnText + "</pre>";
+	}
 
 	// Copy to clipboard
 	copy_text("RN");
 	yoda.updateUrl(getUrlParams() + "&draw=known");
 }
 
+// -----------
 
 function startRN() {
 	updateIssuesForRN();
@@ -494,10 +510,17 @@ function changeOutput(value) {
 		$("#ssformat").val("### ,\\n\\n");
 		$("#listformat").val(",,-  ,");
 		$("#titleformat").val(",\\n\\n");
-		$("#rnformat").val("   ,\\n,\\n  ");
+		$("#rnformat").val("   ,\\n,\\n   ");
 		break;
 
 	case "rst":
+		// TODO: Update. For now, same as md
+		$("#hlformat").val("# ,\\n\\n");
+		$("#sformat").val("## ,\\n\\n");
+		$("#ssformat").val("### ,\\n\\n");
+		$("#listformat").val(",,-  ,");
+		$("#titleformat").val(",\\n\\n");
+		$("#rnformat").val("   ,\\n,\\n   ");
 		break;
 	}
 }
