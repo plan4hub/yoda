@@ -80,10 +80,36 @@ function copy_text(element) {
 
 // --------
 
+//Parse RN markdown to HTML (if any)
+function parseRNMarkdown(markdown) {
+	var markdownUrl = yoda.getGithubUrl() + "markdown";
+	console.log("markdownUrl: " + markdownUrl);
+
+	var urlData = {
+			"text": markdown
+	};
+	
+	var result = "";
+	$.ajax({
+		url: markdownUrl,
+		type: 'POST',
+		async: false, 
+		data: JSON.stringify(urlData),
+		success: function(data) { result = data;},
+		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+		complete: function(jqXHR, textStatus) { }
+	});
+	
+	return result;
+}
+
+
 //Create a List node to based on the given issue.
 function formatIssueRN(issue) {
+	var titleFormat = $("#titleformat").val().split(",");
+	var rnFormat = $("#rnformat").val().split(",");
+
 	var issueText = "";
-	
 	var issueRNTStart = issue.body.indexOf('> RNT');
 	if (issueRNTStart != -1) {
 		var lineStart = issue.body.indexOf('\n', issueRNTStart) + 1;
@@ -97,15 +123,15 @@ function formatIssueRN(issue) {
 		var title = issue.title;
 	}
 	var titleLine = title + " (#" + issue.number + ")";
-	issueText += "- " + titleLine + "\n";
+	issueText += titleFormat[0] + titleLine + titleFormat[1];
 	
 	var issueRNSearchStart = 0;
 	if (issueRNTStart != -1)
 		issueRNSearchStart = issueRNTStart + 1;
 	var issueRNStart = issue.body.indexOf('> RN', issueRNSearchStart);
 	if (issueRNStart != -1) {
-		issueText += "\n";
 		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
+		var rnText = "";
 
 		var lineAdded = false;
 		do {
@@ -118,21 +144,29 @@ function formatIssueRN(issue) {
 				break;
 //			console.log("Line: " + line);
 			
-			issueText += "   " + line + "\n";
+			rnText += line + rnFormat[2];
 			lineAdded = true;
 			
 			if (lineEnd == -1) {
-				if (lineAdded)
-					issueText += "\n";
 				break;
 			}
 			
 			lineStart = lineEnd + 1;
 		} while (true);
+		if (lineAdded)
+			rnText += rnFormat[2];
+		
+		// HTML?
+		if ($('input:radio[name="outputformat"]:checked').val()== "html") {
+			issueText += rnFormat[0] + parseRNMarkdown(rnText) + rnFormat[1];
+		} else {
+			issueText += rnFormat[0] + rnText + rnFormat[1];
+		}
 	}
 
 	return issueText;
 }
+
 
 
 function makeRN() {
@@ -152,15 +186,21 @@ function makeRN() {
 //	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 //	var issueTypeHeading = ["Added Features", "Solved Issues"];
 	
+	// Get formatting
+	var hlFormat = $("#hlformat").val().split(",");
+	var sFormat = $("#sformat").val().split(",");
+	var ssFormat = $("#ssformat").val().split(",");
+	var listFormat = $("#listformat").val().split(",");
+
 	// Headline
-	rnText += "# Release Notes for " + $("#milestonelist").val() + "\n\n";
-	
+	rnText += hlFormat[0] + "Release Notes for " + $("#milestonelist").val() + hlFormat[1];
+
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += "# " + "Changes for " + repoList[r] + "\n\n";
+		rnText += sFormat[0] + "Changes for " + repoList[r] + sFormat[1];
 		
 		for (var t = 0; t < rnLabelTypesList.length; t++) {
-			rnText += "## " + rnLabelTypesList[t].split("|")[1] + "\n\n";
-			
+	
+			var rnList = "";
 			for (var i = 0; i < repoIssues.length; i++) {
 				// Match repo?.
 				var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
@@ -175,8 +215,57 @@ function makeRN() {
 				if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
 					continue;
 				
-				rnText += formatIssueRN(repoIssues[i]);
+				rnList += listFormat[2] + formatIssueRN(repoIssues[i]) + listFormat[3];
 			}
+
+			if (rnList != "") {
+				// Put header and list, but only if non-empty.
+				rnText += ssFormat[0] + rnLabelTypesList[t].split("|")[1] + ssFormat[1];
+				rnText += listFormat[0] + rnList + listFormat[1];
+			}
+		}
+	}
+	
+	if ($('input:radio[name="outputformat"]:checked').val()== "html") {
+		rn.innerHTML = rnText;
+		parseRNMarkdown("RN");
+		
+	} else {
+		rn.innerHTML = "<pre>" + rnText + "</pre>";
+	}
+
+	// Copy to clipboard
+	copy_text("RN");
+	yoda.updateUrl(getUrlParams() + "&draw=rn");
+}
+
+
+function makeKnown() {
+	var rn = document.getElementById("RN");
+	
+	var repoList = $("#repolist").val();
+	var rnText = "";
+	
+	// Skip label
+	var rnSkipLabel = $("#rnskiplabel").val();
+	
+	// Headline
+	rnText += "# Known Issues" + "\n";
+	
+	for (var r = 0; r < repoList.length; r++) {
+		rnText += "\n# " + "Known Issues for " + repoList[r] + "\n\n";
+
+		for (var i = 0; i < repoIssues.length; i++) {
+			// Match repo?.
+			var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
+			if (repository != repoList[r])
+				continue;
+
+			// Should issue be skipped
+			if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
+				continue;
+
+			rnText += formatIssueRN(repoIssues[i]);
 		}
 	}
 	
@@ -184,7 +273,7 @@ function makeRN() {
 
 	// Copy to clipboard
 	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=rn");
+	yoda.updateUrl(getUrlParams() + "&draw=known");
 }
 
 
@@ -346,9 +435,60 @@ function updateIssuesForRN() {
 
 // --------------
 
+function updateIssuesKnownLoop(repoRemainList, issues) {
+	repoIssues = repoIssues.concat(issues);
+
+	console.log(repoRemainList);
+	if (repoRemainList.length == 0) {
+		makeKnown();
+		return;
+	}
+	
+	var repo = repoRemainList[0];
+	var newRemain = repoRemainList.slice(0);
+	newRemain.splice(0, 1);
+	console.log(newRemain);
+	
+	var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=open&labels=" + $("#rnknownlabel").val();
+	yoda.getLoop(getIssuesUrl, 1, [], function(data) {updateIssuesKnownLoop(newRemain, data)}, null);
+}
+
+function updateIssuesKnown() {
+	repoIssues = [];
+	
+	updateIssuesKnownLoop(repoList, []);
+} 
+
+// --------------
+
 function githubAuth() {
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
 }
 
 // --------------
+
+function changeOutput(value) {
+	switch (value) {
+	case "html":
+		$("#hlformat").val("<H1>,</H1>\n");
+		$("#sformat").val("<H2>,</H2>\n");
+		$("#ssformat").val("<H3>,</H3>\n");
+		$("#listformat").val("<UL>\n,</UL>\n,<LI>\n,</LI>\n");
+		$("#titleformat").val(",\n");
+		$("#rnformat").val("<BLOCKQUOTE>\n,</BLOCKQUOTE>\n,\n");
+		break;
+
+	case "md":
+		$("#hlformat").val("# ,\n\n");
+		$("#sformat").val("##,\n\n");
+		$("#ssformat").val("###,\n\n");
+		$("#listformat").val(",,\n-  ,");
+		$("#titleformat").val(",\n");
+		$("#rnformat").val("   ,\n,\n  ");
+		break;
+
+	case "rst":
+		break;
+	}
+}

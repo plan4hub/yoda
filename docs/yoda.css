@@ -86,16 +86,25 @@ select, input, label, textarea {
     float: left;
 }
 
- #estimateradio label {
+#estimateradio label {
 	display: inline;
     float: left;
 } 
 
- #estimateradio input {
+#estimateradio input {
 	display: inline;
     float: left;
 } 
 
+#outputformatradio label {
+	display: inline;
+    float: left;
+} 
+
+ #outputformatradio input {
+	display: inline;
+    float: left;
+} 
 .frame {
 	float: top;
 	display: flex;
