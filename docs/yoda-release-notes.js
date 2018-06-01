@@ -181,6 +181,11 @@ function formatIssueRN(issue) {
 		} else {
 			issueText += getFormat(rnFormat, 0) + rnText + getFormat(rnFormat, 1) ;
 		}
+	} else {
+		// No > RN, but if in table mode, we should still put start and end.
+		if ($('#tablelayout').is(":checked")) {
+			issueText += getFormat(rnFormat, 0) + getFormat(rnFormat, 1) ;
+		}
 	}
 
 	return issueText;
@@ -298,7 +303,7 @@ function makeKnown() {
 		}
 		
 		if (rnList != "") {
-			rnText += getFormat(sFormat, 0) + "Known Issues for " + getFormat(sFormat, 1);
+			rnText += getFormat(sFormat, 0) + "Known Issues for " + repoList[r] + getFormat(sFormat, 1);
 			rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
 		}
 	}
