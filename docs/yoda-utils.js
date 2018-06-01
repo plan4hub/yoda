@@ -1048,6 +1048,7 @@ var yoda = (function() {
 			$("#yodamenu").append('<a href="yoda-burndown.html">Burndown Report</a>');
 			$("#yodamenu").append('<a href="yoda-velocity.html">Velocity Report</a>');
 			$("#yodamenu").append('<a href="yoda-kanban.html">Kanban Board</a>');
+			$("#yodamenu").append('<a href="yoda-release-notes.html">Release Notes</a>');
 			$("#yodamenu").append('<a href="yoda-milestone-manager.html">Milestone Manager</a>');
 			$("#yodamenu").append('<a href="yoda-label-manager.html">Label Manager</a>');
 			$("#yodamenu").append('<a href="yoda-exporter.html">Issue Exporter</a>');

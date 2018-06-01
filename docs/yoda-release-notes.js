@@ -450,6 +450,21 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 		// Requested (and received all issues).
 		console.log("All issues (before filtering out pull requests): " + repoIssues.length);
 		yoda.filterPullRequests(repoIssues);
+		
+		// Let's sort issues on number. This may be required as we allow to retrieve issues from different milestones.
+		// Sort by repository, number
+		repoIssues.sort(function(a,b) {
+			if (a.repository_url == b.repository_url) {
+				return (a.number - b.number); 
+			}
+			if (a.repository_url > b.repository_url) {
+				return 1;
+			} else {
+				return -1;
+			}
+		});
+
+		
 		console.log("No issues (after filtering out pull requests): " + repoIssues.length);
 		yoda.showSnackbarOk("Succesfully retrived " + repoIssues.length + " issues.");
 		makeRN();

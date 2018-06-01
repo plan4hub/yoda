@@ -28,12 +28,14 @@ _________
 	- [Burndown Report](#burndown-report)
 	- [Velocity Report](#velocity-report)
 	- [CFD Chart](#cfd-chart)
+	- [Release Notes](#release-notes)
 - [Issue Tools](#issue-tools)
 	- [Kanban Board](#kanban-board)
 	- [Milestone Manager](#milestone-manager)
 	- [Label Manager](#label-manager)
 	- [Issue Exporter](#issue-exporter)
 	- [Task Copier](#task-copier)
+
 - [Embedding Reports into another Web Page](#embedding-reports-into-another-web-page)
 
 
@@ -201,13 +203,7 @@ As part of sprint planning, often tentative/stretch goals are used. Normally, in
 
 The burndown page also includes an option for displaying a table of all issues associated with a milestone, along with their estimates and remaning work. Just press "Show table". You may click on "Issue Id" in the table header to export the table to a CSV file, e.g. for importing to Excel. The open state will be shown in **bold** if a special "in progress label" is present. A special "Additional Data" column may be customized. The default value is to include an issue severity based on a label convention where severity conform to an "S[1-4] - <severity text>" format.
 
-Finally, the Burndown report also allow generation of a Release note. The Release note is a list of all issues, grouped by their type (as defined by labels). Give it a try. It is possible to include into each issue further details to be extracted. This is done by putting a section into the issue beginning with a special "> RN" notatation. All lines below, until the next blank line, is included as extra details for that issue. It is possible to use markdown notation into the > RN field. 
-
-The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title. 
-
-A special "Known Issues" Release note list can also be generated (similar to the normal Release Note). What is special here is the selection of issues. Here issues are taken from all repository Milestone *if* they have a Known Issues Label set, default "Q - Known Issue".
-
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, additionaldata, rnlabeltypes, rnskiplabel, rnknownlabel.
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, milestone, additionaldata.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 
@@ -247,6 +243,23 @@ As wit the Issue Statistics Report, multiple repositories may be specified.
 The report is available [here](yoda-cfd.html).
 
 [Example](yoda-cfd.html?owner=HewlettPackard&repolist=yoda-demo&interval=3&draw=cfd).  
+
+
+## Release Notes
+
+Yoda has a special reporting tool, that enables the automatic generation of Release Notes. Release Notes are generated based on issues across one of multiple repositories and milestones. The report is highly configurable. The default configuraton shows New Features and Solved Issues based on "T2 - Enhancement" and "T1 - Defect" labels, but this can be changed easily.
+
+For each issue, the issue number and issue title are reported. Further, a more detailed explanation of the issue can be added to the GitHub issue. This is done by adding a section in the issue description (the first comment) that starts with "> RN". All lines below, until the next blank line, is included as extra details for that issue. It is possible to use markdown notation into the > RN field. 
+
+The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title.
+
+A special "Known Issues" Release note list can also be generated (similar to the normal Release Note). What is special here is the selection of issues. Here issues are taken from all repository Milestone *if* they have a Known Issues Label set, default "Q - Known Issue".
+
+URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, rnlabeltypes, rnskiplabel, rnknownlabel.
+
+The report is available [here](yoda-release-notes.html).
+
+[Example](yoda-release-notes.html?owner=HewlettPackard&repolist=yoda-demo).  
 
 
 # Issue Tools
