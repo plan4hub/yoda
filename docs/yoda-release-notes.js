@@ -299,7 +299,7 @@ function makeKnown() {
 		
 		if (rnList != "") {
 			rnText += getFormat(sFormat, 0) + "Known Issues for " + getFormat(sFormat, 1);
-			rnText += rnList;
+			rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
 		}
 	}
 	
@@ -523,11 +523,12 @@ function changeOutput() {
 	switch (value) {
 	case "html":
 		if ($('#tablelayout').is(":checked")) {
+			// HPE SA format
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
-			$("#listformat").val("<table><thead><tr><th>Issue no.</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
-			$("#titleformat").val("<td>,</td>,<module>G#%n");
+			$("#listformat").val("<table><thead><tr><th>Number</th><th>Title</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
+			$("#titleformat").val(",,<td>#%n</td><td>%t</td>");
 			$("#rnformat").val("<td>\\n,</td>\\n,\\n");
 		} else {
 			$("#hlformat").val("<H1>,</H1>\\n");
@@ -540,22 +541,40 @@ function changeOutput() {
 		break;
 
 	case "md":
-		$("#hlformat").val("# ,\\n\\n");
-		$("#sformat").val("## ,\\n\\n");
-		$("#ssformat").val("### ,\\n\\n");
-		$("#listformat").val(",,-  ,");
-		$("#titleformat").val(",\\n\\n,%t (#%n)");
-		$("#rnformat").val("   ,\\n,\\n   ");
+		if ($('#tablelayout').is(":checked")) {
+			$("#hlformat").val("# ,\\n\\n");
+			$("#sformat").val("## ,\\n\\n");
+			$("#ssformat").val("### ,\\n\\n");
+			$("#listformat").val("| Number | Title | Description |\\n|--------|-------|-------------|\\n,\\n,| , |\\n");
+			$("#titleformat").val(",,%n | %t | ");
+			$("#rnformat").val(",,");
+		} else {
+			$("#hlformat").val("# ,\\n\\n");
+			$("#sformat").val("## ,\\n\\n");
+			$("#ssformat").val("### ,\\n\\n");
+			$("#listformat").val(",,-  ,");
+			$("#titleformat").val(",\\n\\n,%t (#%n)");
+			$("#rnformat").val("   ,\\n,\\n   ");
+		}
 		break;
 
 	case "rst":
 		// TODO: Update. For now, same as md
-		$("#hlformat").val("# ,\\n\\n");
-		$("#sformat").val("## ,\\n\\n");
-		$("#ssformat").val("### ,\\n\\n");
-		$("#listformat").val(",,-  ,");
-		$("#titleformat").val(",\\n\\n,%t (#%n)");
-		$("#rnformat").val("   ,\\n,\\n   ");
+		if ($('#tablelayout').is(":checked")) {
+			$("#hlformat").val("# ,\\n\\n");
+			$("#sformat").val("## ,\\n\\n");
+			$("#ssformat").val("### ,\\n\\n");
+			$("#listformat").val("| Number | Title | Description |\\n|--------|-------|-------------|\\n,\\n,| , |\\n");
+			$("#titleformat").val(",,%n | %t | ");
+			$("#rnformat").val(",,");
+		} else {
+			$("#hlformat").val("# ,\\n\\n");
+			$("#sformat").val("## ,\\n\\n");
+			$("#ssformat").val("### ,\\n\\n");
+			$("#listformat").val(",,-  ,");
+			$("#titleformat").val(",\\n\\n,%t (#%n)");
+			$("#rnformat").val("   ,\\n,\\n   ");
+		}
 		break;
 	}
 }
