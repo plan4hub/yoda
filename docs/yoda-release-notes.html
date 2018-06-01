@@ -27,7 +27,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  -->
 
 <title>GitHub Release Notes</title>
-<link rel="icon" href="time-stats-icon-32.png" type="image/png" />
+<link rel="icon" href="release-icon-32.png" type="image/png" />
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
@@ -88,12 +88,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Output Format</label><div id="outputformatradio">
-				<label><input type="radio" name="outputformat" onclick="changeOutput(this.value)" checked="checked" value="html">HTML</label> 
-				<label><input type="radio" name="outputformat" onclick="changeOutput(this.value)" value="md">Markdown</label> 
-  				<label><input type="radio" name="outputformat" onclick="changeOutput(this.value)" value="rst">reStructuredText</label> 
+				<label><input type="radio" name="outputformat" onclick="changeOutput()" checked="checked" value="html">HTML</label> 
+				<label><input type="radio" name="outputformat" onclick="changeOutput()" value="md">Markdown</label> 
+  				<label><input type="radio" name="outputformat" onclick="changeOutput()" value="rst">reStructuredText</label> 
 				</div>
 			<span class="tooltip">Output format</span>
 		</div>
+		
+		<div class="field">
+			<label>Table Layout</label>
+			<input type="checkbox" id="tablelayout" onchange="changeOutput()">
+			<span class="tooltip">Table Layout</span>
+		</div>
+		
 		
 	</div>
 
@@ -125,7 +132,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Title format</label>
 			<input type="text" id="titleformat" size="25"></input>
-			<span class="tooltip">Title formatting. Put pre-text (comma) post-text</span>
+			<span class="tooltip">Title formatting. Put pre-text (comma) post-text (comma) formatting. Use %t for title text, %n for number</span>
 		</div>
 		
 		<div class="field">
@@ -207,8 +214,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#rnformat", "rnformat");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
-		changeOutput($('input:radio[name="outputformat"]:checked').val());
+		changeOutput();
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
@@ -224,7 +232,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		// Login
 		githubAuth();
 		updateRepos();
-		
 		
 		var firstMilestoneShowData = true;
 		$(document).ready(function() {
@@ -254,6 +261,5 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		});
 		
 	</script>
-
 </body>
 </html>

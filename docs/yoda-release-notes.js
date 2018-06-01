@@ -56,6 +56,9 @@ function getUrlParams() {
 	if ($('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=true";
 	}
+	if ($('#tablelayout').is(":checked")) {
+		params += "&tablelayout=true";
+	}
 	
 	return params;
 }
@@ -133,7 +136,10 @@ function formatIssueRN(issue) {
 	} else {
 		var title = issue.title;
 	}
-	var titleLine = title + " (#" + issue.number + ")";
+	var titleLine = getFormat(titleFormat, 2);
+	// substitude into template, %t and %n
+	titleLine = titleLine.replace(/%t/, title);
+	titleLine = titleLine.replace(/%n/, issue.number);
 	issueText += getFormat(titleFormat, 0) + titleLine + getFormat(titleFormat, 1);
 	
 	var issueRNSearchStart = 0;
@@ -251,8 +257,6 @@ function makeRN() {
 		yoda.downloadFileWithType(appType, rnText, fileName);		
 	}
 
-
-	
 	// Copy to clipboard
 	copy_text("RN");
 	yoda.updateUrl(getUrlParams() + "&draw=rn");
@@ -433,7 +437,7 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 		var milestoneSearch = "&milestone=" + milestone.number;
 		console.log("milestone.number: " + milestone.number);
 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all" + milestoneSearch;
+		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all&direction=asc" + milestoneSearch;
 //		console.log(getIssuesUrl);
 		
 		yoda.getLoop(getIssuesUrl, 1, [], function(data) {storeIssues(data, milestoneIndex, myUpdateIssueActiveNo)}, null);
@@ -514,15 +518,25 @@ function githubAuth() {
 
 // --------------
 
-function changeOutput(value) {
+function changeOutput() {
+	value = $('input:radio[name="outputformat"]:checked').val();
 	switch (value) {
 	case "html":
-		$("#hlformat").val("<H1>,</H1>\\n");
-		$("#sformat").val("<H2>,</H2>\\n");
-		$("#ssformat").val("<H3>,</H3>\\n");
-		$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-		$("#titleformat").val(",\n");
-		$("#rnformat").val("<BLOCKQUOTE>\\n,</BLOCKQUOTE>\\n,\\n");
+		if ($('#tablelayout').is(":checked")) {
+			$("#hlformat").val("<H1>,</H1>\\n");
+			$("#sformat").val("<H2>,</H2>\\n");
+			$("#ssformat").val("<H3>,</H3>\\n");
+			$("#listformat").val("<table><thead><tr><th>Issue no.</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
+			$("#titleformat").val("<td>,</td>,<module>G#%n");
+			$("#rnformat").val("<td>\\n,</td>\\n,\\n");
+		} else {
+			$("#hlformat").val("<H1>,</H1>\\n");
+			$("#sformat").val("<H2>,</H2>\\n");
+			$("#ssformat").val("<H3>,</H3>\\n");
+			$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
+			$("#titleformat").val(",\n,%t (#%n)");
+			$("#rnformat").val("<BLOCKQUOTE>\\n,</BLOCKQUOTE>\\n,\\n");
+		}
 		break;
 
 	case "md":
@@ -530,7 +544,7 @@ function changeOutput(value) {
 		$("#sformat").val("## ,\\n\\n");
 		$("#ssformat").val("### ,\\n\\n");
 		$("#listformat").val(",,-  ,");
-		$("#titleformat").val(",\\n\\n");
+		$("#titleformat").val(",\\n\\n,%t (#%n)");
 		$("#rnformat").val("   ,\\n,\\n   ");
 		break;
 
@@ -540,7 +554,7 @@ function changeOutput(value) {
 		$("#sformat").val("## ,\\n\\n");
 		$("#ssformat").val("### ,\\n\\n");
 		$("#listformat").val(",,-  ,");
-		$("#titleformat").val(",\\n\\n");
+		$("#titleformat").val(",\\n\\n,%t (#%n)");
 		$("#rnformat").val("   ,\\n,\\n   ");
 		break;
 	}
