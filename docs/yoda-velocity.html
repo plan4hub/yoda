@@ -108,6 +108,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" size="20" id="splitother" value="Story points">
 			<span class="tooltip">Label to use for issues not matching split labels</span>
 		</div>
+		
+		<div class="field">
+			<label>Show Bar Percentages</label>
+			<input type="checkbox" id="showpercent">
+            <span class="tooltip">Show percentage values, instead of absolutes for story point</span>
+		</div>
+		
 	</div>
 
 	<div style="width: 80%">
@@ -132,6 +139,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#splitother", "splitother");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+		yoda.decodeUrlParamBoolean("#showpercent", "showpercent");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

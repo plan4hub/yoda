@@ -43,6 +43,9 @@ function getUrlParams() {
 	if (!$('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=false";
 	}
+	if ($('#showpercent').is(":checked")) {
+		params += "&showpercent=true";
+	}
 
 	return params;
 }
@@ -252,8 +255,17 @@ function addMilestone(issues) {
 	
 	// Update chart
 	window.myMixedChart.data.labels.push(milestoneTitle);
-	for (var b = 0; b < noStoryBars; b++)
-		window.myMixedChart.data.datasets[b].data.push(estimateArray[b]); 
+	for (var b = 0; b < noStoryBars; b++) {
+		if ($('#showpercent').is(":checked")) {
+			if (estimate == 0)
+				window.myMixedChart.data.datasets[b].data.push(0);
+			else
+				window.myMixedChart.data.datasets[b].data.push(Math.round(1000 * estimateArray[b] / estimate) / 10.0);
+		} else {
+			window.myMixedChart.data.datasets[b].data.push(estimateArray[b]);
+		}
+	}
+ 
 	window.myMixedChart.update();
 }
 
