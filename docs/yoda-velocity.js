@@ -319,6 +319,8 @@ function startChart() {
 	} else {
 		axis = "Story points";
 	}
+	if ($('#showpercent').is(":checked")) 
+		axis = "Story Point Relative Percentage";
 
 	// Push bars
 	var datasets = [];
