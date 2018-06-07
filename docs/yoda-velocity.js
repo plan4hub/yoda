@@ -21,6 +21,8 @@ var repoList = [];  // selected repos
 var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
 var commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
+var noStoryBars = 0;
+var splitLabels = [];
 
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
@@ -33,11 +35,13 @@ function addIfNotDefault(params, field) {
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
+	params = addIfNotDefault(params, "splitlabels");
+	params = addIfNotDefault(params, "splitother");
 	if ($("#milestonelist").val() != "") {
 		params += "&milestonelist=" + $("#milestonelist").val(); 
 	}
-	if ($('#closedmilestones').is(":checked")) {
-		params += "&closedmilestones=true";
+	if (!$('#closedmilestones').is(":checked")) {
+		params += "&closedmilestones=false";
 	}
 
 	return params;
@@ -48,46 +52,6 @@ function estimateClick(radio) {
 	yoda.setEstimateInIssues(radio.value);
 }
 
-// ---------------------------------------
-// Data has been retrieved. Time to analyse data and draw the chart.
-function addMilestone(milestoneTitle, milestoneStartdate, milestoneDuedate, milestoneCapacity, issues) {
-	console.log("Adding milestone. " + milestoneTitle + ", No of issues: " + issues.length + ", startDate: " + milestoneStartdate + 
-			", dueDate: " + milestoneDuedate + ", capacity: " + milestoneCapacity);
-	yoda.filterPullRequests(issues);
-	console.log("  No issues (after filtering out pull requests): " + issues.length);
-
-	var estimate = 0;
-	
-	for (i=0; i<issues.length; i++) {
-		console.log(" => adding: " + issues[i].number + ", estimate: " + (yoda.issueEstimate(issues[i])));
-		estimate = estimate + (yoda.issueEstimate(issues[i]));
-	}
-	console.log("Total estimate: " + estimate);
-	
-	// If both start and duedate are defined, we can work out esimate/per day
-	if (milestoneStartdate != "" && milestoneDuedate != "") {
-		var days = yoda.dateDiff(milestoneStartdate, milestoneDuedate);
-		console.log("Days = " + days);
-		var average = (estimate / days).toFixed(1);
-		window.myMixedChart.data.datasets[1].data.push(average);
-	} else {
-		window.myMixedChart.data.datasets[1].data.push(0); // We cannot work out estimate/day, put 0
-	}
-
-	// If we have a capacity number in the milestone, we may work out estimate/capacity
-	if (milestoneCapacity != null) {
-		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
-		console.log("Capacity factor = " + capacityFactor);
-		window.myMixedChart.data.datasets[2].data.push(capacityFactor);
-	} else {
-		window.myMixedChart.data.datasets[2].data.push(0); // We cannot work out estimate/day, put 0
-	}
-	
-	// Update chart
-	window.myMixedChart.data.labels.push(milestoneTitle);
-	window.myMixedChart.data.datasets[0].data.push(estimate);
-	window.myMixedChart.update();
-}
 
 // -------------------------------
 
@@ -237,6 +201,10 @@ function addMilestone(issues) {
 	console.log("Adding milestone. " + milestoneTitle + ", No of issues: " + issues.length + ", startDate: " + milestoneStartdate + 
 			", dueDate: " + milestoneDuedate + ", capacity: " + milestoneCapacity);
 
+	var estimateArray = [];
+	for (var b = 0; b < noStoryBars; b++) {
+		estimateArray.push(0);
+	}
 	var estimate = 0;
 	
 	for (i=0; i<issues.length; i++) {
@@ -246,7 +214,20 @@ function addMilestone(issues) {
 			var issueEstimate = yoda.issueEstimate(issues[i]);
 		
 		console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
-		estimate = estimate + issueEstimate;
+		
+		var foundBar = false;
+		for (var b = 0; b < noStoryBars - 1; b++) {
+			if (yoda.isLabelInIssue(issues[i], splitLabels[b])) {
+				foundBar = true;
+				estimateArray[b] += issueEstimate;
+				break;
+			}
+		}
+		if (!foundBar) {
+			estimateArray[noStoryBars - 1] += issueEstimate; 
+		}
+		
+		estimate += issueEstimate;
 	}
 	console.log("Total estimate: " + estimate);
 	
@@ -255,23 +236,24 @@ function addMilestone(issues) {
 		var days = yoda.dateDiff(milestoneStartdate, milestoneDuedate);
 		console.log("Days = " + days);
 		var average = (estimate / days).toFixed(1);
-		window.myMixedChart.data.datasets[1].data.push(average);
+		window.myMixedChart.data.datasets[noStoryBars].data.push(average);
 	} else {
-		window.myMixedChart.data.datasets[1].data.push(0); // We cannot work out estimate/day, put 0
+		window.myMixedChart.data.datasets[noStoryBars].data.push(0); // We cannot work out estimate/day, put 0
 	}
 
 	// If we have a capacity number in the milestone, we may work out estimate/capacity
 	if (milestoneCapacity != null) {
 		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
 		console.log("Capacity factor = " + capacityFactor);
-		window.myMixedChart.data.datasets[2].data.push(capacityFactor);
+		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
 	} else {
-		window.myMixedChart.data.datasets[2].data.push(0); // We cannot work out estimate/day, put 0
+		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(0); // We cannot work out estimate/day, put 0
 	}
 	
 	// Update chart
 	window.myMixedChart.data.labels.push(milestoneTitle);
-	window.myMixedChart.data.datasets[0].data.push(estimate);
+	for (var b = 0; b < noStoryBars; b++)
+		window.myMixedChart.data.datasets[b].data.push(estimateArray[b]); 
 	window.myMixedChart.update();
 }
 
@@ -296,10 +278,17 @@ function getMilestoneData(milestones, index) {
 
 
 // -------------------------
-
 function startChart() {
 	var milestones = $("#milestonelist").val();
 	console.log("Milestones: (" + milestones.length + "): " + milestones);
+	
+	splitLabels = [];
+	if ($("#splitlabels").val() != "") {
+		splitLabels = $("#splitlabels").val().split(",");
+	}
+	var splitOther = $("#splitother").val();
+	noStoryBars = splitLabels.length + 1; // Assume other bar always.
+	console.log("NoStoryBars = " + noStoryBars);
 	
 	// start Chart
 	// We will do here the start of the chart definition. Then the addMilestone function will add data for specific milestones dynamically
@@ -319,37 +308,63 @@ function startChart() {
 		axis = "Story points";
 	}
 
+	// Push bars
+	var datasets = [];
+	var labels = [];
+	for (var b = 0; b < noStoryBars - 1; b++) {
+		datasets.push({
+			stack: 'storyPoints',
+			type : 'bar',
+			label : splitLabels[b],
+			borderWidth : 2,
+			fill : false,
+			data : [],
+			yAxisID: "y-axis-left",
+			backgroundColor : yoda.barColors[b + 4]
+		});
+	}
+	datasets.push({
+		stack: 'storyPoints',
+		type : 'bar',
+		label : $("#splitother").val(),
+		borderWidth : 2,
+		fill : false,
+		data : [],
+		yAxisID: "y-axis-left",
+		backgroundColor : 'rgb(0, 155, 0, 0.6)'
+	});
+	
+	// Now remaining bars. First average
+	datasets.push({
+		type : 'bar',
+		stack : 'average',
+		label : axis + " per day",
+		borderWidth : 2,
+		fill : false,
+		data : [],
+		yAxisID: "y-axis-right",
+		backgroundColor : 'rgb(255, 102, 0)' 
+	});
+	labels.push("Average / day")
+	// Then vs. capacity
+	datasets.push({
+		type : 'bar',
+		stack : 'capacity',
+		label : 'Storypoints / capacity',
+		borderWidth : 2,
+		fill : false,
+		data : [],
+		yAxisID: "y-axis-right",
+		backgroundColor : 'rgb(255, 255, 26)' 
+	});
+	labels.push("Storypoints / capacity");
+	
+	var stacked = true; 
 	window.myMixedChart = new Chart(ctx, {
 		type : 'bar',	
 		data : {
 			labels : [],
-			datasets : [ {
-				type : 'bar',
-				label : axis,
-				borderWidth : 2,
-				fill : false,
-				data : [],
-				yAxisID: "y-axis-left",
-				backgroundColor : 'rgba(0,153,51,0.6)' 
-			},
-			{
-				type : 'bar',
-				label : axis + " per day",
-				borderWidth : 2,
-				fill : false,
-				data : [],
-				yAxisID: "y-axis-right",
-				backgroundColor : 'rgb(255, 102, 0)' 
-			},
-			{
-				type : 'bar',
-				label : 'Storypoints / capacity',
-				borderWidth : 2,
-				fill : false,
-				data : [],
-				yAxisID: "y-axis-right",
-				backgroundColor : 'rgb(255, 255, 26)' 
-			}]
+			datasets : datasets, 
 		},
 		options : {
 			responsive : true,
@@ -365,7 +380,8 @@ function startChart() {
 				yAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: axis
+						labelString: axis,
+						stacked: stacked
 					},
 					position: "left",
 					id: "y-axis-left",
@@ -382,7 +398,10 @@ function startChart() {
 					ticks: {
 						beginAtZero: true
 					}
-				}]
+				}],
+				xAxes: [{
+					stacked: stacked
+				}] 
 			},
 			tooltips: {
 				enabled: false
@@ -428,7 +447,10 @@ Chart.plugins.register({
 
                  var padding = 5;
                  var position = element.tooltipPosition();
-                 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);
+//                 if (dataset.label == $("#splitother").val())
+//                	 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);   // above bar
+//                 else
+                	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);   // inside bar
              });
          }
      });

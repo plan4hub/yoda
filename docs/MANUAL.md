@@ -223,6 +223,8 @@ Furthermore, the tool attempts to report the estimate/story points per day. If t
 
 Like the burndown report, the number of issues can be used instead of estimates/story points. Just select the appropriate radio button.
 
+It is furthermore possible to split the total estimate/story points by different labels, typically by the type or severity of the issue. Put a comma-separated list of labels intot he "Split Labels" field. Remaining issues will be put into a final bar, the legend of which is controlled by the "Split Other" fields. Per default, no splitting is done and all issues are put with the legend given by "Split Other" (Default "Story points").
+
 The report is available [here](yoda-velocity.html).
 
 [Example](yoda-velocity.html?owner=HewlettPackard&repo=yoda-demo).

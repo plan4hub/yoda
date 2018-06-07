@@ -87,14 +87,27 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Where to get estimates</span>
 		</div>
 
-
 		<div class="field">
 			<label>Closed milestones</label>
-			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()">
+			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()" checked>
             <span class="tooltip">Show closed milestones</span>
 		</div>
 
 		<button id="drawbutton" onclick="startChart()">Draw chart</button>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Split Story Point Labels</label>
+			<input type="text" size="30" id="splitlabels" value=""> <!--  value="T1 - Defect,T2 - Enhancement,T3 - Task"> -->
+			<span class="tooltip">Comma-separated list of labels to split Story Points by. Blank for no splitting</span>
+		</div>
+		
+		<div class="field">
+			<label>Split Story Points Other</label>
+			<input type="text" size="20" id="splitother" value="Story points">
+			<span class="tooltip">Label to use for issues not matching split labels</span>
+		</div>
 	</div>
 
 	<div style="width: 80%">
@@ -114,6 +127,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#repo", "repo");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
+		
+		yoda.decodeUrlParam("#splitlabels", "splitlabels");
+		yoda.decodeUrlParam("#splitother", "splitother");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		
