@@ -297,10 +297,13 @@ function makeTable(issues) {
 			console.log("Number of distinct labels: " + labels.length);
 		}
 	}
+	// Note, let's push a special phantom label for unknown type.
+	labels.push("Unknown Type");
 	console.log("Labels: " + labels);
 	for (var l = 0; l < labels.length; l++) {
 		prepareSums(sums, labels[l]);
 	}
+
 
 	// Find table
 	var table = document.getElementById("issuesTable");
@@ -401,6 +404,8 @@ function makeTable(issues) {
 			}
 		}
 		cell.innerHTML = labelItem;
+		if (labelItem == "")
+			labelItem = "Unknown Type";
 		
 		// AdditionalData
 		if (additionalHL != "") {
