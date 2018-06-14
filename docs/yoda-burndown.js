@@ -184,6 +184,9 @@ function insertBlankRow(bodyRef, firstField) {
 			cell.innerHTML = firstField;
 		}
 	}
+	if ($("#additionaldata").val() != "") {
+		row.insertCell();
+	}
 }
 
 // ----------
