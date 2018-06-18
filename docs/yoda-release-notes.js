@@ -547,7 +547,8 @@ function changeOutput() {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
-			$("#listformat").val("<table><thead><tr><th>Number</th><th>Title</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
+			$("#listformat").val('<table><thead><tr><th width="5%">Number</th><th width="45%">Title</th><th width="50%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
+//			$("#listformat").val("<table><thead><tr><th>Number</th><th>Title</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
 			$("#titleformat").val(",,<td>#%n</td><td>%t</td>");
 			$("#rnformat").val("<td>\\n,</td>\\n,\\n");
 		} else {
