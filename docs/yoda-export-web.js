@@ -58,12 +58,14 @@ function logMessage(message) {
 var issueZipRoot = null;
 var noIssuesActive = 0;
 var globIssues = null;
+var issueImages = [];
 function exportIssues(issues) {
 	// Prepare new run (zip, parallel#, etc.)
 	issueZipRoot = new JSZip();
 	addCSSFile();
 	noIssuesActive = 0;
 	globIssues = issues;
+	issueImages = [];
 	
 	console.log("Exporting issues. No issues: " + issues.length);
 	logMessage("Info: Received " + issues.length + " issues. Now getting detailed data and building ZIP file for download.");
@@ -87,15 +89,8 @@ var maxParallelIssues = 1;
 function issueProcessLoop() {
 	console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
 	if (noIssuesActive == 0 && globIssues.length == 0) {
-		// We are done, download ZIP file.
-		issueZipRoot.generateAsync({type:"blob"})
-		.then(function(content) {
-		    // see FileSaver.js
-			yoda.downloadFileWithType('application/zip', content, $("#outputfile").val());
-		});
-
-		logMessage("Succesfully downloaded ZIP file with issues.");
-		yoda.updateUrl(getUrlParams() + "&export=true");
+		// We are done with issues, now turn attention to download of images before downloading ZIP file.
+		downloadImages();
 		return;
 	}
 	
@@ -113,6 +108,36 @@ function issueProcessLoop() {
 		// NOP
 		return;
 	}
+}
+
+// STEP F1: Download images, call on to write ZIP
+function downloadImages() {
+	if (issueImages.length == 0) {
+		// Done
+		writeZip();
+	} else {
+		// Download file, then call recursive.
+		image = issueImages.pop();
+		console.log("Now downloading " + image.fullPath);
+		$.ajax({
+			  url: image.fullPath,
+			  success: function( data ) {
+				  issueZipRoot.file(image.path, data);
+				  downloadImages();
+			  }
+		});
+	}
+}
+
+// STEP F2: Write ZIP. Finalize things. 
+function writeZip() {
+	issueZipRoot.generateAsync({type:"blob"})
+	.then(function(content) {
+		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val());
+	});
+
+	logMessage("Succesfully downloaded ZIP file with issues.");
+	yoda.updateUrl(getUrlParams() + "&export=true");
 }
 
 // STEP 1: Get issue comments, then call on to step 2
@@ -248,7 +273,6 @@ function formatIssue(issue, comments, events) {
 	console.log("Extracting image references...");
 	var searchImg = '<img src="';
 	var imgRef = issueHTML.indexOf(searchImg, 0);
-	var issueImages = [];
 	var urlHack = document.createElement('a');
 
 	console.log(urlHack.pathname);
@@ -265,8 +289,6 @@ function formatIssue(issue, comments, events) {
 		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) 
 			issueImages.push(issueImage);
 	}
-	console.log("Images:");
-	console.log(issueImages);
 
 	// Next, let's replace the image strings.
 	for (var i = 0; i < issueImages.length; i++) {
@@ -277,7 +299,6 @@ function formatIssue(issue, comments, events) {
 	// HTML COMPLETE ----------------------
 	writeToZip(issue, issueHTML);
 }
-
 
 //STEP 5: Add to ZIP FILE. Then to step 0.
 function writeToZip(issue, issueHTML) {

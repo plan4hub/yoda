@@ -721,9 +721,9 @@ var yoda = (function() {
 		},
 		
 		// Login to github. Accept block accepts experimental API features.
-		gitAuth: function (userId, accessToken, origin) {
+		gitAuth: function (userId, accessToken, fullExport) {
 			var headers = [];
-			if (origin != undefined && origin == "fullExport") {
+			if (fullExport != undefined) {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
 			} else {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview+json';
@@ -737,12 +737,8 @@ var yoda = (function() {
 //				headers['PRIVATE-TOKEN'] = accessToken;  // Gitlab play. API is differnet anyhow
 			}
 			
-			if (origin != undefined && origin != "fullExport") {
-				headers["Access-Control-Allow-Origin"] = origin;
-			}
-			
 			$.ajaxSetup({
-				headers : headers 
+				headers : headers
 			});
 		},
 		
@@ -805,10 +801,6 @@ var yoda = (function() {
 					}
 				}
 			}
-			
-//			$.ajaxSetup({dataType: "application/vnd.github.v3.html+json"});
-
-			
 			
 			$.getJSON(url, function(response, status){
 				if (response.length == 100 && page != -1) {
