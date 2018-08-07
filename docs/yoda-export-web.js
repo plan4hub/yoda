@@ -30,7 +30,7 @@ function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
 	params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "outputfile");
-	params = addIfNotDefault(params, "outputfile");
+	params = addIfNotDefault(params, "downloadimages");
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#labelfilter").val() != "") 
 		params += "&labelfilter=" + $("#labelfilter").val();
@@ -252,6 +252,7 @@ function formatIssue(issue, comments, events) {
 	var urlHack = document.createElement('a');
 
 	console.log(urlHack.pathname);
+	downloadFilter = $("#downloadimages").val();
 	for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
 		// Get full path... will end with quote..
 		var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
@@ -260,9 +261,9 @@ function formatIssue(issue, comments, events) {
 		urlHack.href = fullPath;
 		
 		issueImage = { fullPath: fullPath, path: urlHack.pathname, localPath: "../.." + urlHack.pathname };
-		// We will store different paths into imageUrls
-		
-		issueImages.push(issueImage);
+
+		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) 
+			issueImages.push(issueImage);
 	}
 	console.log("Images:");
 	console.log(issueImages);
@@ -290,17 +291,14 @@ function writeToZip(issue, issueHTML) {
 
 
 function addCSSFile() {
-	// TODO: Maybe more this content to separate file that tool will get... 
 	var css = "";
 	css += '.issuelayout {width:75%;}\n';
-	css += '.issuetitle { margin:0px 0px 15px 15px; font-size:20px; font-weight:bold;}\n';
+	css += '.issuetitle { margin:15px 0px 15px 0px; font-size:20px; font-weight:bold;}\n';
 	css += '.issuebody { border-style:dotted; border-color:blue; border-width:2px; margin:15px 0 15px 0; padding:5px 15px 5px 15px;}\n';
-	css += '.issuebasefield { margin:0px 0px 15px 15px;}\n';
-	
+	css += '.issuebasefield { margin:15px 0px 15px 0px;}\n';
 	css += '.issueevent { margin:15px 0px 15px 0px;}\n';
 	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:5px 15px 5px 15px;}\n';
 	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:5px 15px 5px 15px;}\n';
-	
 	css += '.issuetime { font-weight:bold;}\n';
 	css += '.issueuser { color:darkblue; font-weight:bold;}\n';
 	css += '.issuefield { font-weight:bold;}\n';
@@ -343,7 +341,6 @@ function showRepos(repos) {
 	}
 }
 
-
 // -------------------------
 
 function startExport() {
@@ -360,7 +357,7 @@ function startExport() {
 // --------------
 function githubAuth() {
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val(), "fullExport");
 }
 
 // --------------

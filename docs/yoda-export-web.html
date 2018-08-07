@@ -106,6 +106,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				file name</span>
 		</div>
 		
+		<div class="field">
+			<label>Images to download (filter)</label> <input type="text" id="downloadimages"
+				size="25" value="media.hpe.com"> <span class="tooltip">Domain filter for images download</span>
+		</div>
+
 		<button id="exportbutton" onclick="startExport()">Export</button>
 	</div>
 	
@@ -129,6 +134,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#state", "state");
 		yoda.decodeUrlParam("#outputfile", "outputfile");
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
+		yoda.decodeUrlParam("#downloadimages", "downloadimages");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 	
