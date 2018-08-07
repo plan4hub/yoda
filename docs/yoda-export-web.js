@@ -73,7 +73,8 @@ function exportIssues(issues) {
 	// STEP 1: Get issue comments, then call on to step 2
 	// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 	// STEP 3: Get issue events, then call on to step 4
-	// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, when finished, add to ZIP FILE. Then to step 0.
+	// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
+	// STEP 5: Add to ZIP FILE. Then to step 0.
 	
 	issueProcessLoop();
 	
@@ -144,14 +145,15 @@ function issueEvents(issue, comments) {
 			function(errorText) { yoda.showSnackbarError("Error getting issue events: " + errorText, 3000);});
 }
 
-// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, when finished, add to ZIP FILE.
+// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
 function formatIssue(issue, comments, events) {
 	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
 	
 	// Let's prepare the issue HTML
 	var title = yoda.getUrlRepo(issue.repository_url) + '/' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
-	issueHTML += '<link rel="stylesheet" type="text/css" href="../../../css/issues.css"></head><body>';
+	issueHTML += '<link rel="stylesheet" type="text/css" href="../../../css/issues.css"></head>';
+	issueHTML += '<body class="issuelayout">';
 	
 	// Title
 	issueHTML += '<div class="issuetitle">' + title + '</div>';
@@ -159,22 +161,87 @@ function formatIssue(issue, comments, events) {
 	// Labels
 	// TBD
 	
-	// Assignee
-	// TBD
-	
 	// Creator, date
-	// TBD
+	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
+	
+	// Assignee(s)
+	issueHTML += '<div ="issuebasefield">' + "Assignee(s): ";
+	if (issue.assignees.length == 0) 
+		issueHTML += "none";
+	else {
+		assignees = "";
+		for (var as = 0; as < issue.assignees.length; as++) {
+			if (assignees != "")
+				assignees += ",";
+			assignees += formatUser(issue.assignees[as].login)
+		}
+		issueHTML += assignees;
+	}
+	issueHTML += '</div>';
 	
 	// Body
-	issueHTML += '<p>' + issue.body + '</p>';
-	issueHTML += "</body>";
+	issueHTML += '<div class="issuebody">' + issue.body + '</div>\n';
 	
-	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + "/issue.html";
-	issueZipRoot.file(fileName, issueHTML);
+	// Comments and events. To be sorted in date order.
+	var commentPtr = 0;
+	var eventPtr = 0;
 	
-	noIssuesActive--;
-	logMessage("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
-	issueProcessLoop();
+	while (commentPtr < comments.length || eventPtr < events.length) {
+//		console.log("commentPtr = " + commentPtr + ", comments.length = " + comments.length + ", eventPtr = " + eventPtr + ", events.length = " + events.length);
+		if ((commentPtr == comments.length) || (commentPtr < comments.length && eventPtr < events.length && events[eventPtr].created_at < comments[commentPtr].created_at) ) {
+			// We do the event.
+			switch (events[eventPtr].event) {
+			case "milestoned":
+				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' set milestone: ' + events[eventPtr].milestone.title + '</div>\n';
+				break;
+				
+			case "demilestoned":
+				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' removed milestone: ' + events[eventPtr].milestone.title + '</div>\n';
+				break;
+				
+			case "labeled":
+				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' added label: ' + events[eventPtr].label.name + '</div>\n';
+				break;
+
+			case "unlabeled":
+				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' removed label: ' + events[eventPtr].label.name + '</div>\n';
+				break;
+			}
+			eventPtr++;
+		} else {
+			// We do the comment.
+			issueHTML += '<div class="issuecommentblock">' + 'At ' + formatTime(comments[commentPtr].created_at) + ' ' + formatUser(comments[commentPtr].user.login) + " commented:";
+			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body + '</div></div>\n';
+			
+			commentPtr++;
+		}
+	}
+	
+	// Close off things.
+	issueHTML += "</body>\n";
+	
+	// HTML COMPLETE ----------------------
+	
+	writeToZip(issue, issueHTML);
+	
+//	// Now process any markdown and call on. THIS DOES NOT WORK. DSESTROYS HTML
+//	var markdownUrl = yoda.getGithubUrl() + "markdown";
+//	console.log("markdownUrl: " + markdownUrl);
+//
+//	var urlData = {
+//			"text": issueHTML
+//	};
+//	
+//	var result = "";
+//	$.ajax({
+//		url: markdownUrl,
+//		type: 'POST',
+//		async: false, 
+//		data: JSON.stringify(urlData),
+//		success: function(data) { writeToZip(issue, data)},
+//		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+//		complete: function(jqXHR, textStatus) { }
+//	});
 
 //		case "":
 //			// Never mind, not a field.
@@ -284,47 +351,44 @@ function formatIssue(issue, comments, events) {
 //	}
 ////	console.log(el);
 
+}
+
+
+//STEP 5: Add to ZIP FILE. Then to step 0.
+function writeToZip(issue, issueHTML) {
+	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + "/issue.html";
+	issueZipRoot.file(fileName, issueHTML);
 	
+	noIssuesActive--;
+	logMessage("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
+	issueProcessLoop();
 }
 
 
 function addCSSFile() {
+	// TODO: Maybe more this content to separate file that tool will get... 
 	var css = "";
-	css += ".issuetitle { float: left; box-sizing: border-box;  margin: 0 0 3px 0px;  position: relative;  display: inline-block; }";
+	css += '.issuelayout { width:75%;}\n';
+	css += '.issuetitle { margin:0px 0px 15px 15px; font-size:20px; font-weight:bold}\n';
+	css += '.issuebody { margin:0px 0px 15px 15px;}\n';
+	css += '.issuebasefield { margin:0px 0px 15px 15px;}\n';
+	
+	css += '.issueevent { margin:0px 0px 15px 15px;}\n';
+	css += '.issuecommentblock { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px;}\n';
+	css += '.issuecomment { padding:5px 5px 5px 5px;}\n';
+	
+	css += '.issuetime { color:blue;}\n';
+	css += '.issueuser { color:blue;}\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
 
+function formatTime(ts) {
+	return '<span class="issuetime">' + ts + '</span>';
+}
 
-function storeEvents(storeUrl, events) {
-	// Filter and process the events we want to store.
-	for (var e = 0; e < events.length; e++) {
-		if (events[e].event == "milestoned" || events[e].event == "demilestoned") {
-			var expEvent = {};
-			// https://github.hpe.com/api/v3/repos/hpsd/yoda/issues/20
-			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
-			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
-			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
-			expEvent["TimeStamp"] = events[e].created_at;
-			expEvent["EventActor"] = events[e].actor.login;
-			expEvent["EventType"] = events[e].event;
-			expEvent["EventTarget"] = events[e].milestone.title;
-			console.log(expEvent);
-			issuesEvents.push(expEvent);
-		}
-		if (events[e].event == "labeled" || events[e].event == "unlabeled") {
-			var expEvent = {};
-			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
-			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
-			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
-			expEvent["TimeStamp"] = events[e].created_at;
-			expEvent["EventActor"] = events[e].actor.login;
-			expEvent["EventType"] = events[e].event;
-			expEvent["EventTarget"] = events[e].label.name;
-			console.log(expEvent);
-			issuesEvents.push(expEvent);
-		}
-	}
+function formatUser(user) {
+	return '<span class="issueuser">' + user + '</span>';
 }
 
 // -------------------------------
