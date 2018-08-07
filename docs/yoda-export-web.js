@@ -152,23 +152,37 @@ function formatIssue(issue, comments, events) {
 	// Let's prepare the issue HTML
 	var title = yoda.getUrlRepo(issue.repository_url) + '/' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
-	issueHTML += '<link rel="stylesheet" type="text/css" href="../../../css/issues.css"></head>';
+	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
 	
 	// Title
 	issueHTML += '<div class="issuetitle">' + title + '</div>';
 	
+	// Creator, date
+	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
+
+	// State (open/closed)
+	issueHTML += '<div class="issuebasefield">' + 'Issue state: ' + formatField(issue.state) + '</div>\n';
+
 	// Labels
+	issueHTML += '<div class="issuebasefield">' + 'Labels: ';
+	var labels = "";
+	for (var l = 0; l < issue.labels.length; l++) {
+		if (labels != "")
+			labels += ", ";
+		labels += formatField(issue.labels[l].name);
+	}
+	issueHTML += labels + '</div>\n';
+	
 	// TBD
 	
 	// Milestone
-	// TBD
-	
-	// State (open/closed)
-	// TBD
-	
-	// Creator, date
-	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
+	issueHTML += '<div class="issuebasefield">' + 'Milestone: ';
+	if (issue.milestone != undefined) 
+		issueHTML += formatField(issue.milestone.title);
+	else	
+		issueHTML += formatField("no milestone set");
+	issueHTML += '</div>\n';
 	
 	// Assignee(s)
 	issueHTML += '<div class="issuebasefield">' + "Assignee(s): ";
@@ -198,25 +212,25 @@ function formatIssue(issue, comments, events) {
 			// We do the event.
 			switch (events[eventPtr].event) {
 			case "milestoned":
-				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' set milestone: ' + events[eventPtr].milestone.title + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' set milestone ' + formatField(events[eventPtr].milestone.title) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 				
 			case "demilestoned":
-				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' removed milestone: ' + events[eventPtr].milestone.title + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' removed milestone ' + formatField(events[eventPtr].milestone.title) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 				
 			case "labeled":
-				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' added label: ' + events[eventPtr].label.name + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' added label ' + formatField(events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 
 			case "unlabeled":
-				issueHTML += '<div class="issueevent">' + 'At ' + formatTime(events[eventPtr].created_at) + ' ' + formatUser(events[eventPtr].actor.login) + ' removed label: ' + events[eventPtr].label.name + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' removed label ' + formatField(events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 			}
 			eventPtr++;
 		} else {
 			// We do the comment.
-			issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + ':</div>\n';
+			issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + '</div>\n';
 			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div>\n';
 			
 			commentPtr++;
@@ -226,102 +240,47 @@ function formatIssue(issue, comments, events) {
 	// Close off things.
 	issueHTML += "</body>\n";
 	
+	// Replace any references to picture files. These are stored into e.g. 
+	// https://media.github.hpe.com/user/3552/files/01f4b4e0-3c7d-11e6-887a-845324166c0d  (HPE)
+	// For github.com:
+	// https://user-images.githubusercontent.com/35253007/43787869-50bc2ab4-9a6c-11e8-8f78-5bae137cdb0d.png
+	// Actually, we probablyl have full control over images, so why don't we just get all image files?
+	console.log("Extracting image references...");
+	var searchImg = '<img src="';
+	var imgRef = issueHTML.indexOf(searchImg, 0);
+	var issueImages = [];
+	var urlHack = document.createElement('a');
+
+	console.log(urlHack.pathname);
+	for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
+		// Get full path... will end with quote..
+		var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
+		var fullPath = issueHTML.substring(imgRef + searchImg.length, endQuote);
+		console.log("Full path is: " + fullPath);
+		urlHack.href = fullPath;
+		
+		issueImage = { fullPath: fullPath, path: urlHack.pathname, localPath: "../.." + urlHack.pathname };
+		// We will store different paths into imageUrls
+		
+		issueImages.push(issueImage);
+	}
+	console.log("Images:");
+	console.log(issueImages);
+
+	// Next, let's replace the image strings.
+	for (var i = 0; i < issueImages.length; i++) {
+		var re = new RegExp(issueImages[i].fullPath, "g");
+		issueHTML = issueHTML.replace(re, issueImages[i].localPath);
+	}
+	
 	// HTML COMPLETE ----------------------
-	
 	writeToZip(issue, issueHTML);
-	
-//	// Now process any markdown and call on. THIS DOES NOT WORK. DSESTROYS HTML NEED TO DO ONE COMMENT AT A TIME (SIGH)
-//	var markdownUrl = yoda.getGithubUrl() + "markdown";
-//	console.log("markdownUrl: " + markdownUrl);
-//
-//	var urlData = {
-//			"text": issueHTML
-//	};
-//	
-//	var result = "";
-//	$.ajax({
-//		url: markdownUrl,
-//		type: 'POST',
-//		async: false, 
-//		data: JSON.stringify(urlData),
-//		success: function(data) { writeToZip(issue, data)},
-//		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
-//		complete: function(jqXHR, textStatus) { }
-//	});
-
-//		case "":
-//			// Never mind, not a field.
-//			break;
-//		case "Owner":
-//			el["Owner"] = $("#owner").val();
-//			break;
-//		case "Repo":
-//			el["Repo"] = yoda.getUrlRepo(issues[i].repository_url);
-//			break;
-//		case "Number":
-//			el["Number"] = issues[i].number;
-//			break;
-//		case "URL":
-//			el["URL"] = issues[i].html_url;
-//			break;
-//		case "State":
-//			el["State"] = issues[i].state;
-//			break;
-//		case "Submitter":
-//			el["Submitter"] = issues[i].user.login;
-//			break;
-//		case "Assignee":
-//			el["Assignee"] = "";
-//			if (issues[i].assignee != null) {
-//				el["Assignee"] = issues[i].assignee.login;
-//			}
-//			break;
-//		case "Assignees":
-//			el["Assignees"] = "";
-//			for (var as = 0; as < issues[i].assignees.length; as++) {
-//				if (el["Assignees"] != "")
-//					el["Assignees"] += ",";
-//				el["Assignees"] += issues[i].assignees[as].login;
-//			}
-//			break;
-//		case "Milestone":
-//			if (issues[i].milestone != undefined) {
-//				el["Milestone"] = issues[i].milestone.title;
-//			} else {
-//				el["Milestone"] = "";
-//			}
-//			break;
-//		case "Created at":
-//			var date = new Date(issues[i].created_at)
-//			el["Created at"] = yoda.formatDate(date);
-//			break;
-//		case "Closed at":
-//			el["Closed at"] = "";
-//			if (issues[i].closed_at != null) {
-//				var date = new Date(issues[i].closed_at)
-//				el["Closed at"] = yoda.formatDate(date);
-//			}
-//			break;
-//		case "Title":
-//			el["Title"] = issues[i].title;
-//			break;
-//		case "Estimate":
-//			el["Estimate"] = yoda.issueEstimate(issues[i]);
-//			break;
-//		case "Remaining":
-//			el["Remaining"] = yoda.issueRemainingMeta(issues[i], yoda.issueEstimate(issues[i]));
-//			break;
-//		case "Body":
-//			el["Body"] = issues[i].body;
-//			break;
-//			// Syntethized fields
-
 }
 
 
 //STEP 5: Add to ZIP FILE. Then to step 0.
 function writeToZip(issue, issueHTML) {
-	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + "/issue.html";
+	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + ".html";
 	issueZipRoot.file(fileName, issueHTML);
 	
 	noIssuesActive--;
@@ -333,27 +292,33 @@ function writeToZip(issue, issueHTML) {
 function addCSSFile() {
 	// TODO: Maybe more this content to separate file that tool will get... 
 	var css = "";
-	css += '.issuelayout { width:75%;}\n';
+	css += '.issuelayout {width:75%;}\n';
 	css += '.issuetitle { margin:0px 0px 15px 15px; font-size:20px; font-weight:bold;}\n';
-	css += '.issuebody { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px; padding:5px 5px 5px 5px;}\n';
+	css += '.issuebody { border-style:dotted; border-color:blue; border-width:2px; margin:15px 0 15px 0; padding:5px 15px 5px 15px;}\n';
 	css += '.issuebasefield { margin:0px 0px 15px 15px;}\n';
 	
-	css += '.issueevent { margin:0px 0px 15px 15px;}\n';
-	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:15px 15px 15px 15px;}\n';
-	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:15px 15px 5px 5px;}\n';
+	css += '.issueevent { margin:15px 0px 15px 0px;}\n';
+	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:5px 15px 5px 15px;}\n';
+	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:5px 15px 5px 15px;}\n';
 	
-	css += '.issuetime { color:darkblue;}\n';
-	css += '.issueuser { color:darkblue;}\n';
+	css += '.issuetime { font-weight:bold;}\n';
+	css += '.issueuser { color:darkblue; font-weight:bold;}\n';
+	css += '.issuefield { font-weight:bold;}\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
 
 function formatTime(ts) {
-	return '<span class="issuetime">' + ts + '</span>';
+	var tsDate = new Date(ts);
+	return '<span class="issuetime">' + tsDate.toString().replace(/ \(.*\)/, "") + '</span>';
 }
 
 function formatUser(user) {
 	return '<span class="issueuser">' + user + '</span>';
+}
+
+function formatField(field) {
+	return '<span class="issuefield">' + field + '</span>';
 }
 
 // -------------------------------
