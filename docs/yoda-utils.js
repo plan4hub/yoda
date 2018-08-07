@@ -724,7 +724,8 @@ var yoda = (function() {
 		gitAuth: function (userId, accessToken, origin) {
 			var headers = [];
 //	headers['Accept'] = 'application/vnd.github.inertia-preview+json';
-			headers['Accept'] = 'application/vnd.github.symmetra-preview+json';  
+			headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
+
 			if (userId == "" || accessToken == "") {
 				console.log("Empty userId/accessToken.");
 			} else {
@@ -801,6 +802,10 @@ var yoda = (function() {
 					}
 				}
 			}
+			
+//			$.ajaxSetup({dataType: "application/vnd.github.v3.html+json"});
+
+			
 			
 			$.getJSON(url, function(response, status){
 				if (response.length == 100 && page != -1) {

@@ -118,7 +118,7 @@ function issueProcessLoop() {
 // STEP 1: Get issue comments, then call on to step 2
 function issueComments(issue) {
 	console.log("issueComments: " + issue.url);
-
+	
 	var issueUrlComments = issue.url + "/comments";
 	console.log("Issues Comments URL: " + issueUrlComments);
 	yoda.getLoop(issueUrlComments, 1, [], 
@@ -161,11 +161,14 @@ function formatIssue(issue, comments, events) {
 	// Labels
 	// TBD
 	
+	// Milestone
+	// TBD
+	
 	// Creator, date
 	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
 	
 	// Assignee(s)
-	issueHTML += '<div ="issuebasefield">' + "Assignee(s): ";
+	issueHTML += '<div class="issuebasefield">' + "Assignee(s): ";
 	if (issue.assignees.length == 0) 
 		issueHTML += "none";
 	else {
@@ -180,7 +183,7 @@ function formatIssue(issue, comments, events) {
 	issueHTML += '</div>';
 	
 	// Body
-	issueHTML += '<div class="issuebody">' + issue.body + '</div>\n';
+	issueHTML += '<div class="issuebody">' + issue.body_html + '</div>\n';
 	
 	// Comments and events. To be sorted in date order.
 	var commentPtr = 0;
@@ -211,7 +214,7 @@ function formatIssue(issue, comments, events) {
 		} else {
 			// We do the comment.
 			issueHTML += '<div class="issuecommentblock">' + 'At ' + formatTime(comments[commentPtr].created_at) + ' ' + formatUser(comments[commentPtr].user.login) + " commented:";
-			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body + '</div></div>\n';
+			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div></div>\n';
 			
 			commentPtr++;
 		}
@@ -224,7 +227,7 @@ function formatIssue(issue, comments, events) {
 	
 	writeToZip(issue, issueHTML);
 	
-//	// Now process any markdown and call on. THIS DOES NOT WORK. DSESTROYS HTML
+//	// Now process any markdown and call on. THIS DOES NOT WORK. DSESTROYS HTML NEED TO DO ONE COMMENT AT A TIME (SIGH)
 //	var markdownUrl = yoda.getGithubUrl() + "markdown";
 //	console.log("markdownUrl: " + markdownUrl);
 //
@@ -369,13 +372,13 @@ function addCSSFile() {
 	// TODO: Maybe more this content to separate file that tool will get... 
 	var css = "";
 	css += '.issuelayout { width:75%;}\n';
-	css += '.issuetitle { margin:0px 0px 15px 15px; font-size:20px; font-weight:bold}\n';
-	css += '.issuebody { margin:0px 0px 15px 15px;}\n';
+	css += '.issuetitle { margin:0px 0px 15px 15px; font-size:20px; font-weight:bold;}\n';
+	css += '.issuebody { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px; padding:5px 5px 5px 5px;}\n';
 	css += '.issuebasefield { margin:0px 0px 15px 15px;}\n';
 	
 	css += '.issueevent { margin:0px 0px 15px 15px;}\n';
-	css += '.issuecommentblock { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px;}\n';
-	css += '.issuecomment { padding:5px 5px 5px 5px;}\n';
+	css += '.issuecommentblock { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px; padding:5px 5px 5px 5px;}\n';
+	css += '.issuecomment { }\n';
 	
 	css += '.issuetime { color:blue;}\n';
 	css += '.issueuser { color:blue;}\n';
