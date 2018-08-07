@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<title>GitHub Export to Web Pages</title>
+<link rel="icon" href="export-icon-32.png" type="image/png" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.js"></script>
+<script src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
+<link rel="stylesheet" type="text/css" href="yoda.css">
+</head>
+
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-export-web.js"></script>
+	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
+		</div>
+
+		<div class="field">
+			<label>Owner</label> <input type="text" id="owner" size="15"
+				onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<span class="tooltip">GitHub organization or user</span>
+		</div>
+
+		<div class="field">
+			<label>Repositories</label> <select id="repolist"
+				style="width: 350px" class="select2" multiple></select> <span
+				class="tooltip">Repositories to show</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>GitHub user</label> <input type="text" size="20" id="user"
+				value="" onchange="githubAuth()"> <span class="tooltip">Your
+				GitHub user-id</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>GitHub token</label> <input type="password" size="30"
+				id="token" value="" onchange="githubAuth()"> <span
+				class="tooltip">GitHub personal token</span>
+		</div>
+
+		<div class="field">
+			<label>Label filter</label> <input type="text" size="37"
+				id="labelfilter" value=""> <span class="tooltip">Label
+				filter as comma separated list w/o spaces (AND)</span>
+		</div>
+	</div>
+
+
+	<div class="frame">
+		<div class="field">
+			<label>Issue state</label> <select id="state">
+				<option selected value="open">open</option>
+				<option value="closed">closed</option>
+				<option value="all">all</option>
+			</select> <span class="tooltip">Issues states to export</span>
+		</div>
+
+		<div class="field">
+			<label>Estimates</label>
+			<div id="estimateradio">
+				<label><input type="radio" name="estimate" value="noissues"
+					onclick="estimateClick(this)"># issues</label> <label><input
+					type="radio" name="estimate" value="inbody" checked="checked"
+					onclick="estimateClick(this)">In body</label> <label><input
+					type="radio" name="estimate" value="inlabels"
+					onclick="estimateClick(this)">In Labels</label>
+			</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
+
+		<div class="field">
+			<label>Output file name</label> <input type="text" id="outputfile"
+				size="25" value="issues.zip"> <span class="tooltip">Output
+				file name</span>
+		</div>
+		
+		<button id="exportbutton" onclick="startExport()">Export</button>
+	</div>
+	
+	<br>
+	<div class="frame">
+		<div class="field">
+			<label>Console</label>
+			<textarea cols="140" rows="15" id="console" readonly></textarea>
+		</div>
+	</div>
+	
+	<div id="snackbar">Message goes here</div>
+	
+	<script>
+		// Enable yodamenu
+		yoda.enableMenu();
+
+		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParam("#state", "state");
+		yoda.decodeUrlParam("#outputfile", "outputfile");
+		yoda.decodeUrlParam("#labelfilter", "labelfilter");
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
+	
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+				
+		githubAuth(); // if set already
+		
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+			// Should we draw directly? Only check this after the repo updates complete.
+			// Should we draw directly?
+			// Should we start export directly?
+			if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
+				startExport();
+			}
+		}, null);
+		
+		$(document).ready(function() {
+			$('#repolist').select2();
+		});
+		
+	</script>
+
+</body>
+</html>
