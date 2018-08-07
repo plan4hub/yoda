@@ -164,6 +164,9 @@ function formatIssue(issue, comments, events) {
 	// Milestone
 	// TBD
 	
+	// State (open/closed)
+	// TBD
+	
 	// Creator, date
 	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
 	
@@ -213,8 +216,8 @@ function formatIssue(issue, comments, events) {
 			eventPtr++;
 		} else {
 			// We do the comment.
-			issueHTML += '<div class="issuecommentblock">' + 'At ' + formatTime(comments[commentPtr].created_at) + ' ' + formatUser(comments[commentPtr].user.login) + " commented:";
-			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div></div>\n';
+			issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + ':</div>\n';
+			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div>\n';
 			
 			commentPtr++;
 		}
@@ -312,47 +315,6 @@ function formatIssue(issue, comments, events) {
 //			el["Body"] = issues[i].body;
 //			break;
 //			// Syntethized fields
-//		case "Report Date":
-//			el["Report Date"] = yoda.formatDate(today);
-//			break;
-//		case "Duration":
-//			var createdDate = yoda.formatDate(new Date(issues[i].created_at));
-//			if (issues[i].closed_at != null) {
-//				var closedDate = yoda.formatDate(new Date(issues[i].closed_at));
-//				el["Duration"] = yoda.dateDiff(createdDate, closedDate);
-//			} else {
-//				el["Duration"] = yoda.dateDiff(createdDate, todayDate);
-//			}
-//			break;
-//		default:
-//			// Let's search between sharedLabels.
-//			for (var s = 0; s < sharedLabels.length; s++) {
-//				if (sharedLabels[s].name == fName) {
-//					el[fName] = "";
-//					var splitReg = new RegExp(sharedLabels[s].regexp);
-//					for (var l=0; l<issues[i].labels.length; l++) {
-//						var labelName = issues[i].labels[l].name;
-//						var res = labelName.match(splitReg);
-////						console.log(issues[i].number + ", " + labelName + ", " + fName + ", " + res);
-//						if (res != null) {
-//							if (el[fName] != "") {
-//								// Ups. Value already set. Several labels matching expression
-//								logMessage("Warning: Issue " + issues[i].html_url + " has several labels matching '" + sharedLabels[s].regexp);
-//							}
-//							el[fName] = labelName;
-//						}
-//					}
-//				}
-//			}
-//			if (el[fName] == undefined) {
-//				if (fieldErrors.indexOf(fName) == -1) {
-//					logMessage("Error: Found no way to interpret field: " + fName);
-//					fieldErrors.push(fName);
-//				}
-//			}
-//		}
-//	}
-////	console.log(el);
 
 }
 
@@ -377,11 +339,11 @@ function addCSSFile() {
 	css += '.issuebasefield { margin:0px 0px 15px 15px;}\n';
 	
 	css += '.issueevent { margin:0px 0px 15px 15px;}\n';
-	css += '.issuecommentblock { border-style:dotted; border-color:blue; border-width:2px; margin:0 0 15px 15px; padding:5px 5px 5px 5px;}\n';
-	css += '.issuecomment { }\n';
+	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:15px 15px 15px 15px;}\n';
+	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:15px 15px 5px 5px;}\n';
 	
-	css += '.issuetime { color:blue;}\n';
-	css += '.issueuser { color:blue;}\n';
+	css += '.issuetime { color:darkblue;}\n';
+	css += '.issueuser { color:darkblue;}\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
