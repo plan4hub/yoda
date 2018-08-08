@@ -18,6 +18,59 @@
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+ /**
+ *
+ * jquery.binarytransport.js
+ *
+ * @description. jQuery ajax transport for making binary data type requests.
+ * @version 1.0 
+ * @author Henry Algus <henryalgus@gmail.com>
+ *
+ */
+
+// use this transport for "binary" data type
+$.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
+    // check for conditions and support for blob / arraybuffer response type
+    if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob)))))
+    {
+        return {
+            // create new XMLHttpRequest
+            send: function(headers, callback){
+		// setup all variables
+                var xhr = new XMLHttpRequest(),
+		url = options.url,
+		type = options.type,
+		async = options.async || true,
+		// blob or arraybuffer. Default is blob
+		dataType = options.responseType || "blob",
+		data = options.data || null,
+		username = options.username || null,
+		password = options.password || null;
+					
+                xhr.addEventListener('load', function(){
+			var data = {};
+			data[options.dataType] = xhr.response;
+			// make callback and send data
+			callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+                });
+
+                xhr.open(type, url, async, username, password);
+				
+		// setup custom headers
+		for (var i in headers ) {
+			xhr.setRequestHeader(i, headers[i] );
+		}
+				
+                xhr.responseType = dataType;
+                xhr.send(data);
+            },
+            abort: function(){
+                jqXHR.abort();
+            }
+        };
+    }
+});
+
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
 		return params + "&" + field + "=" + $("#" + field).val(); 
@@ -118,14 +171,28 @@ function downloadImages() {
 	} else {
 		// Download file, then call recursive.
 		image = issueImages.pop();
-		console.log("Now downloading " + image.fullPath);
+		
 		$.ajax({
-			  url: image.fullPath,
-			  success: function( data ) {
-				  issueZipRoot.file(image.path, data);
-				  downloadImages();
-			  }
-		});
+			url: image.fullPath,
+			type: "GET",
+			dataType: 'binary',
+			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
+			processData: false,
+			success: function(data){
+				console.log("Downloading " + image.fullPath + " to " + image.path);
+				issueZipRoot.file(image.path, data);
+				downloadImages();
+			}
+		}); 
+		
+//		$.ajax({
+//			url: image.fullPath,
+//			success: function( data ) {
+//				console.log("Downloading " + image.fullPath + " to " + image.path);
+//				issueZipRoot.file(image.path, data);
+//				downloadImages();
+//			}
+//		});
 	}
 }
 
@@ -284,7 +351,7 @@ function formatIssue(issue, comments, events) {
 		console.log("Full path is: " + fullPath);
 		urlHack.href = fullPath;
 		
-		issueImage = { fullPath: fullPath, path: urlHack.pathname, localPath: "../.." + urlHack.pathname };
+		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
 
 		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) 
 			issueImages.push(issueImage);
