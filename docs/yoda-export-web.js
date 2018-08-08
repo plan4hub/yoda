@@ -154,7 +154,7 @@ function buildIndex() {
 		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
 		indexHTML += '<body class="indexlayout">';
 		indexHTML += '<table class="indextable">';
-		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th align="left">Title</th></tr>';
+		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th width="20%" align="left">Labels</th><th width="65%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
 			issue = globIssues[i];
 			var issueRepo = yoda.getUrlRepo(issue.repository_url);
@@ -163,6 +163,13 @@ function buildIndex() {
 			indexHTML += '<tr class="indexrow">';
 			indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
 			indexHTML += '<td align="left">' + issue.state + '</td>';
+			var labels = "";
+			for (var l = 0; l < issue.labels.length; l++) {
+				if (labels != "")
+					labels += ", ";
+				labels += issue.labels[l].name;
+			}
+			indexHTML += '<td align="left">' + labels + '</td>';
 			indexHTML += '<td align="left">' + issue.title + '</td>';
 			indexHTML += '</tr>';
 		}
