@@ -28,47 +28,47 @@
  *
  */
 
-// use this transport for "binary" data type
+//use this transport for "binary" data type
 $.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
-    // check for conditions and support for blob / arraybuffer response type
-    if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob)))))
-    {
-        return {
-            // create new XMLHttpRequest
-            send: function(headers, callback){
-		// setup all variables
-                var xhr = new XMLHttpRequest(),
-		url = options.url,
-		type = options.type,
-		async = options.async || true,
-		// blob or arraybuffer. Default is blob
-		dataType = options.responseType || "blob",
-		data = options.data || null,
-		username = options.username || null,
-		password = options.password || null;
-					
-                xhr.addEventListener('load', function(){
-			var data = {};
-			data[options.dataType] = xhr.response;
-			// make callback and send data
-			callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
-                });
+	// check for conditions and support for blob / arraybuffer response type
+	if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob)))))
+	{
+		return {
+			// create new XMLHttpRequest
+			send: function(headers, callback){
+				// setup all variables
+				var xhr = new XMLHttpRequest(),
+				url = options.url,
+				type = options.type,
+				async = options.async || true,
+				// blob or arraybuffer. Default is blob
+				dataType = options.responseType || "blob",
+				data = options.data || null,
+				username = options.username || null,
+				password = options.password || null;
 
-                xhr.open(type, url, async, username, password);
-				
-		// setup custom headers
-		for (var i in headers ) {
-			xhr.setRequestHeader(i, headers[i] );
-		}
-				
-                xhr.responseType = dataType;
-                xhr.send(data);
-            },
-            abort: function(){
-                jqXHR.abort();
-            }
-        };
-    }
+				xhr.addEventListener('load', function(){
+					var data = {};
+					data[options.dataType] = xhr.response;
+					// make callback and send data
+					callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+				});
+
+				xhr.open(type, url, async, username, password);
+
+				// setup custom headers
+				for (var i in headers ) {
+					xhr.setRequestHeader(i, headers[i] );
+				}
+
+				xhr.responseType = dataType;
+				xhr.send(data);
+			},
+			abort: function(){
+				jqXHR.abort();
+			}
+		};
+	}
 });
 
 function addIfNotDefault(params, field) {
@@ -105,6 +105,8 @@ function logMessage(message) {
 	$('#console').scrollTop(bottom);
 }
 
+
+
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 // Global object for ZIP file.
@@ -123,18 +125,55 @@ function exportIssues(issues) {
 	console.log("Exporting issues. No issues: " + issues.length);
 	logMessage("Info: Received " + issues.length + " issues. Now getting detailed data and building ZIP file for download.");
 
-	// Now we are ready to iterator over the issues, yippee. For each issue will call call on to a number of extra processing steps:
-	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.  
+	// STEP I1: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
+	// We will build one overview page per respository and put into the root folder.
+	buildIndex();
+	
+	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.
 	// STEP 1: Get issue comments, then call on to step 2
 	// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 	// STEP 3: Get issue events, then call on to step 4
 	// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
 	// STEP 5: Add to ZIP FILE. Then to step 0.
+
+	// STEP F1: Download image files collected during the issue processing, call resursively self until no more images. Then call STEP F2
+	// STEP F2: Write/download zip file
 	
-	issueProcessLoop();
+
+}
+
+
+// STEP I1: Index generation, one file per repository
+function buildIndex() {
+	var repoList = $("#repolist").val();
+	console.log("List of repositories: " + repoList);
+	for (var repInd = 0; repInd < repoList.length; repInd++) {
+		console.log("Building index file for: " + repoList[repInd]);
+		var title = "Issue index for " + repoList[repInd];
+		var indexHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
+		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
+		indexHTML += '<body class="indexlayout">';
+		indexHTML += '<table class="indextable">';
+		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th align="left">Title</th></tr>';
+		for (var i = 0; i < globIssues.length; i++) {
+			issue = globIssues[i];
+			var issueRepo = yoda.getUrlRepo(issue.repository_url);
+			if (issueRepo != repoList[repInd])
+				continue; // Issue belongs to different repo;
+			indexHTML += '<tr class="indexrow">';
+			indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
+			indexHTML += '<td align="left">' + issue.state + '</td>';
+			indexHTML += '<td align="left">' + issue.title + '</td>';
+			indexHTML += '</tr>';
+		}
+		indexHTML += '</table></body>';
+		
+		fileName = repoList[repInd] + ".html";
+		issueZipRoot.file(fileName, indexHTML);
+	}
 	
-	// Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
-	// TBD
+	issueProcessLoop(); // Call STEP 0
+	
 }
 
 // STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
@@ -184,15 +223,6 @@ function downloadImages() {
 				downloadImages();
 			}
 		}); 
-		
-//		$.ajax({
-//			url: image.fullPath,
-//			success: function( data ) {
-//				console.log("Downloading " + image.fullPath + " to " + image.path);
-//				issueZipRoot.file(image.path, data);
-//				downloadImages();
-//			}
-//		});
 	}
 }
 
@@ -250,8 +280,6 @@ function formatIssue(issue, comments, events) {
 	// Title
 	issueHTML += '<div class="issuetitle">' + title + '</div>';
 	
-	// Creator, date
-	issueHTML += '<div class="issuebasefield">' + 'Created on ' + formatTime(issue.created_at) + ' by ' + formatUser(issue.user.login) + '</div>\n';
 
 	// State (open/closed)
 	issueHTML += '<div class="issuebasefield">' + 'Issue state: ' + formatField(issue.state) + '</div>\n';
@@ -266,7 +294,6 @@ function formatIssue(issue, comments, events) {
 	}
 	issueHTML += labels + '</div>\n';
 	
-	// TBD
 	
 	// Milestone
 	issueHTML += '<div class="issuebasefield">' + 'Milestone: ';
@@ -291,8 +318,11 @@ function formatIssue(issue, comments, events) {
 	}
 	issueHTML += '</div>';
 	
+	// Creator, date
+
 	// Body
-	issueHTML += '<div class="issuebody">' + issue.body_html + '</div>\n';
+	issueHTML += '<div class="issuecommentheader">' + formatUser(issue.user.login) + ' created issue on ' + formatTime(issue.created_at) + '</div>\n';
+	issueHTML += '<div class="issuecomment">' + issue.body_html + '</div>\n';
 	
 	// Comments and events. To be sorted in date order.
 	var commentPtr = 0;
@@ -380,9 +410,9 @@ function writeToZip(issue, issueHTML) {
 
 function addCSSFile() {
 	var css = "";
+	// Issue stuff
 	css += '.issuelayout {width:75%;}\n';
 	css += '.issuetitle { margin:15px 0px 15px 0px; font-size:20px; font-weight:bold;}\n';
-	css += '.issuebody { border-style:dotted; border-color:blue; border-width:2px; margin:15px 0 15px 0; padding:5px 15px 5px 15px;}\n';
 	css += '.issuebasefield { margin:15px 0px 15px 0px;}\n';
 	css += '.issueevent { margin:15px 0px 15px 0px;}\n';
 	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:5px 15px 5px 15px;}\n';
@@ -390,6 +420,12 @@ function addCSSFile() {
 	css += '.issuetime { font-weight:bold;}\n';
 	css += '.issueuser { color:darkblue; font-weight:bold;}\n';
 	css += '.issuefield { font-weight:bold;}\n';
+
+	// Index page stuff
+	css += '.indexlayout {width:75%;}\n';
+	css += '.indextable { border: 2px solid black;}\n';
+	css += '.indexheader { background-color: #f6f8fa;}\n';
+	css += '.indexrow { border: 2px solid black;}\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
