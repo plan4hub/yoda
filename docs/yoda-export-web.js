@@ -142,17 +142,17 @@ function exportIssues(issues) {
 
 }
 
-
 // STEP I1: Index generation, one file per repository
 function buildIndex() {
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
 		console.log("Building index file for: " + repoList[repInd]);
-		var title = "Issue index for " + repoList[repInd];
+		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
 		var indexHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
 		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
 		indexHTML += '<body class="indexlayout">';
+		indexHTML += '<div class="indextitle">' + title + '</div>';
 		indexHTML += '<table class="indextable">';
 		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th width="20%" align="left">Labels</th><th width="65%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
@@ -225,6 +225,7 @@ function downloadImages() {
 			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
 			processData: false,
 			success: function(data){
+				logMessage("Downloaded image file " + image.fullPath);
 				console.log("Downloading " + image.fullPath + " to " + image.path);
 				issueZipRoot.file(image.path, data);
 				downloadImages();
@@ -284,9 +285,13 @@ function formatIssue(issue, comments, events) {
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
 	
-	// Title
-	issueHTML += '<div class="issuetitle">' + title + '</div>';
-	
+	// State and Title
+	issueHTML += '<div>';
+	if (issue.state == "open")
+		issueHTML += '<span class="issueopen">Open</span>';
+	else
+		issueHTML += '<span class="issueclosed">Closed</span>';
+	issueHTML += '<span class="issuetitle">' + title + '</span></div>';
 
 	// State (open/closed)
 	issueHTML += '<div class="issuebasefield">' + 'Issue state: ' + formatField(issue.state) + '</div>\n';
@@ -390,8 +395,10 @@ function formatIssue(issue, comments, events) {
 		
 		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
 
-		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) 
+		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
+			logMessage("  Added " + fullPath + " to download path.");
 			issueImages.push(issueImage);
+		} 
 	}
 
 	// Next, let's replace the image strings.
@@ -418,21 +425,25 @@ function writeToZip(issue, issueHTML) {
 function addCSSFile() {
 	var css = "";
 	// Issue stuff
-	css += '.issuelayout {width:75%;}\n';
-	css += '.issuetitle { margin:15px 0px 15px 0px; font-size:20px; font-weight:bold;}\n';
+	css += '.issuelayout {width: 900px; margin-left: 100px;}\n';
+	css += '.issuetitle { margin:15px 0px 15px 20px; font-size:32px; font-weight:400;}\n';
+	css += '.issueopen { padding: 5px 10px 5px 10px; background-color: green; color: white; border-radius: 5px; font-size: 18px;}\n';
+	css += '.issueclosed { padding: 5px 10px 5px 10px; background-color: red; color: white; border-radius: 5px; font-size: 18px;}\n';
 	css += '.issuebasefield { margin:15px 0px 15px 0px;}\n';
-	css += '.issueevent { margin:15px 0px 15px 0px;}\n';
-	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:5px 15px 5px 15px;}\n';
-	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:5px 15px 5px 15px;}\n';
+	css += '.issueevent { margin:15px 0px 15px 15px;}\n';
+	css += '.issuecommentheader { color: #586069; border-style:solid; background-color: #f6f8fa; border-color: grey; border-width: thin; border-bottom: 1px solid #d1d5da; border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 15px; padding:5px 15px 5px 15px; line-height: 1.5;}\n';
+	css += '.issuecomment { line-height: 1.5; border-style:solid; border-color: grey; border-width: thin; word-wrap: break-word;margin-bottom:15px; padding:5px 15px 5px 15px; overflow: auto;}\n';
 	css += '.issuetime { font-weight:bold;}\n';
 	css += '.issueuser { color:darkblue; font-weight:bold;}\n';
 	css += '.issuefield { font-weight:bold;}\n';
 
 	// Index page stuff
-	css += '.indexlayout {width:75%;}\n';
-	css += '.indextable { border: 2px solid black;}\n';
-	css += '.indexheader { background-color: #f6f8fa;}\n';
-	css += '.indexrow { border: 2px solid black;}\n';
+	css += '.indexlayout {}\n';
+	css += '.indextitle { margin:15px 0px 15px 20px; font-size:32px; font-weight:400;}\n';
+	css += '.indextable { }\n';
+	css += '.indexheader { background-color: #f6f8fa; padding: 15px 0px 15px 0px;}\n';
+	css += '.indexrow { }\n';
+	css += 'td, th { border: 1px solid lightgrey; padding: 10px 5px 10px 5px;}\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
