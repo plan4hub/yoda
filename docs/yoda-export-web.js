@@ -114,6 +114,7 @@ var issueZipRoot = null;
 var noIssuesActive = 0;
 var globIssues = null;
 var issueImages = [];
+var globLabels = [];
 function exportIssues(issues) {
 	// Prepare new run (zip, parallel#, etc.)
 	issueZipRoot = new JSZip();
@@ -121,13 +122,16 @@ function exportIssues(issues) {
 	noIssuesActive = 0;
 	globIssues = issues;
 	issueImages = [];
+	globLabels = [];
 	
 	console.log("Exporting issues. No issues: " + issues.length);
 	logMessage("Info: Received " + issues.length + " issues. Now getting detailed data and building ZIP file for download.");
 
-	// STEP I1: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
-	// We will build one overview page per respository and put into the root folder.
-	buildIndex();
+	// STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step I2 when done.
+
+	// STEP I2: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
+	// We will build one overview page per respository and put into the root folder. When done on to STEP 0.
+
 	
 	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.
 	// STEP 1: Get issue comments, then call on to step 2
@@ -139,10 +143,36 @@ function exportIssues(issues) {
 	// STEP F1: Download image files collected during the issue processing, call resursively self until no more images. Then call STEP F2
 	// STEP F2: Write/download zip file
 	
+	// Call to get labels.
+	getLabels($("#repolist").val());
 
 }
 
-// STEP I1: Index generation, one file per repository
+//STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step 0 when done.
+function getLabels(repoLeft) {
+	if (repoLeft.length == 0) {
+		// Done. Call on
+		console.log("All labels retrieved.");
+		console.log(globLabels);
+		logMessage("Succesfully retrieved all repository labels ...");
+
+		// Call I2
+		buildIndex();
+		
+	} else {
+		var repo = repoLeft.pop();
+		var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/labels";
+		yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
+			console.log("Retrieve labels for " + repo);
+			globLabels[repo] = labels;
+			getLabels(repoLeft);
+		});
+	}
+	
+}
+
+
+// STEP I2: Index generation, one file per repository
 function buildIndex() {
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
@@ -165,9 +195,7 @@ function buildIndex() {
 			indexHTML += '<td align="left">' + issue.state + '</td>';
 			var labels = "";
 			for (var l = 0; l < issue.labels.length; l++) {
-				if (labels != "")
-					labels += ", ";
-				labels += issue.labels[l].name;
+				labels += formatLabel(issueRepo, issue.labels[l].name);
 			}
 			indexHTML += '<td align="left">' + labels + '</td>';
 			indexHTML += '<td align="left">' + issue.title + '</td>';
@@ -178,10 +206,11 @@ function buildIndex() {
 		fileName = repoList[repInd] + ".html";
 		issueZipRoot.file(fileName, indexHTML);
 	}
-	
-	issueProcessLoop(); // Call STEP 0
-	
+
+	// Call on.
+	issueProcessLoop();
 }
+
 
 // STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
 var maxParallelIssues = 1;
@@ -280,7 +309,8 @@ function formatIssue(issue, comments, events) {
 	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
 	
 	// Let's prepare the issue HTML
-	var title = yoda.getUrlRepo(issue.repository_url) + '/' + issue.number + ': ' + issue.title; 
+	var repo = yoda.getUrlRepo(issue.repository_url);
+	var title = repo + '/' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
@@ -297,12 +327,9 @@ function formatIssue(issue, comments, events) {
 	issueHTML += '<div class="issuebasefield">' + 'Labels: ';
 	var labels = "";
 	for (var l = 0; l < issue.labels.length; l++) {
-		if (labels != "")
-			labels += ", ";
-		labels += formatField(issue.labels[l].name);
+		labels += formatLabel(repo, issue.labels[l].name);
 	}
 	issueHTML += labels + '</div>\n';
-	
 	
 	// Milestone
 	issueHTML += '<div class="issuebasefield">' + 'Milestone: ';
@@ -351,11 +378,11 @@ function formatIssue(issue, comments, events) {
 				break;
 				
 			case "labeled":
-				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' added label ' + formatField(events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' added label ' + formatLabel(repo, events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 
 			case "unlabeled":
-				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' removed label ' + formatField(events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
+				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' removed label ' + formatLabel(repo, events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
 			}
 			eventPtr++;
@@ -456,6 +483,20 @@ function formatUser(user) {
 
 function formatField(field) {
 	return '<span class="issuefield">' + field + '</span>';
+}
+
+function formatLabel(repo, label) {
+	// TODO: no-break + margins.
+	
+	// Find the label
+	for (var l = 0; l < globLabels[repo].length; l++) {
+		if (globLabels[repo][l].name == label) {
+			var foreground = yoda.bestForeground(globLabels[repo][l].color);
+			// Got it.
+			return '<span style="background-color: #' + globLabels[repo][l].color + '; color:' + foreground + '; margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px;">' + label + '</span>'; 
+		}
+	}
+	return label; // Strange... 
 }
 
 // -------------------------------
