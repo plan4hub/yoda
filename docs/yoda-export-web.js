@@ -293,9 +293,6 @@ function formatIssue(issue, comments, events) {
 		issueHTML += '<span class="issueclosed">Closed</span>';
 	issueHTML += '<span class="issuetitle">' + title + '</span></div>';
 
-	// State (open/closed)
-	issueHTML += '<div class="issuebasefield">' + 'Issue state: ' + formatField(issue.state) + '</div>\n';
-
 	// Labels
 	issueHTML += '<div class="issuebasefield">' + 'Labels: ';
 	var labels = "";
@@ -396,7 +393,7 @@ function formatIssue(issue, comments, events) {
 		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
 
 		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
-			logMessage("  Added " + fullPath + " to download path.");
+			logMessage("  Added " + fullPath + " to download queue ...");
 			issueImages.push(issueImage);
 		} 
 	}
