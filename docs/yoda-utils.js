@@ -1053,6 +1053,7 @@ var yoda = (function() {
 			$("#yodamenu").append('<a href="yoda-label-manager.html">Label Manager</a>');
 			$("#yodamenu").append('<a href="yoda-exporter.html">Issue Exporter</a>');
 			$("#yodamenu").append('<a href="yoda-copy-tasks.html">Task Copier</a>');
+			$("#yodamenu").append('<a href="yoda-export-web.html">Export to Web Pages</a>');
 			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
 			$("#yodamenu").append('<a href="yoda-admin.html">Admin Settings</a>');
 
