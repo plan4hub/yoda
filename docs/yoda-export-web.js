@@ -310,7 +310,7 @@ function formatIssue(issue, comments, events) {
 	
 	// Let's prepare the issue HTML
 	var repo = yoda.getUrlRepo(issue.repository_url);
-	var title = repo + '/' + issue.number + ': ' + issue.title; 
+	var title = repo + '#' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
@@ -422,7 +422,9 @@ function formatIssue(issue, comments, events) {
 		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
 			logMessage("  Added " + fullPath + " to download queue ...");
 			issueImages.push(issueImage);
-		} 
+		}  else {
+			console.log("Skipping image: " + fullPath);
+		}
 	}
 
 	// Next, let's replace the image strings.
