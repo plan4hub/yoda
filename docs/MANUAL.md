@@ -34,6 +34,7 @@ _________
 	- [Milestone Manager](#milestone-manager)
 	- [Label Manager](#label-manager)
 	- [Issue Exporter](#issue-exporter)
+	- [Issue Web Exporter](#issue-web-exporter)
 	- [Task Copier](#task-copier)
 
 - [Embedding Reports into another Web Page](#embedding-reports-into-another-web-page)
@@ -340,6 +341,17 @@ Issues exporter is available [here](yoda-exporter.html).
 [Example](yoda-exporter.html?owner=HewlettPackard&repolist=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
 A further option is to export (certain types) of issue events. This is controlled by a checkbox. If you do this, a CSV file with all labelled, unlabelled, milestoned, or demilestoned events will be exported.
+
+
+## Issue Web Exporter
+
+Apart from the Issue Exporter, which is aimed at producing CSV files to use for external issue stats, Yoda also includes a tool to generate a static HTML snapshot of GitHub issues for given repo(s). Each issue will be exported into it's own HTML file placed in a directory structure comprised of the organization/owner and the repository. 
+
+Furthermore, the tool will download included images and place them in a parallel directory strucuture. Finally, Yoda will export a single ZIP with all of these files.
+
+*Notice:* In order to execute this tool, Yoda may need to request images from a different domain that what is serving the GitHub issues (e.g. `media.github.hpe.com` vs. `github.hpe.com`). This will cause the browser cross-origin security to kick in. To work around this, you'll need to install a browser extention. For Chrome, suggest `Allow-Control-Allow-Origin` extention.
+
+*Notice:* Some browser may complain upon ZIP download that this file could be dangerous / contain viruses. Of course, it does not, so you may have to manually accept the file.  
 
 
 ## Task Copier
