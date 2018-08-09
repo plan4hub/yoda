@@ -1060,7 +1060,8 @@ function formatIssueRN(issue) {
 	} else {
 		var title = issue.title;
 	}
-	var titleLine = title + " (#" + issue.number + ")";
+	var repo = yoda.getUrlRepo(issue.repository_url);	
+	var titleLine = title + " (" + repo + "#" + issue.number + ")";
 	var textnode = document.createTextNode(titleLine);
 	node.appendChild(textnode);
 	

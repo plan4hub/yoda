@@ -122,6 +122,7 @@ function parseRNMarkdown(markdown) {
 function formatIssueRN(issue) {
 	var titleFormat = $("#titleformat").val().split(",");
 	var rnFormat = $("#rnformat").val().split(",");
+	var repo = yoda.getUrlRepo(issue.repository_url);
 
 	var issueText = "";
 	var issueRNTStart = issue.body.indexOf('> RNT');
@@ -139,7 +140,7 @@ function formatIssueRN(issue) {
 	var titleLine = getFormat(titleFormat, 2);
 	// substitude into template, %t and %n
 	titleLine = titleLine.replace(/%t/, title);
-	titleLine = titleLine.replace(/%n/, issue.number);
+	titleLine = titleLine.replace(/%n/, repo + "#" + issue.number);
 	issueText += getFormat(titleFormat, 0) + titleLine + getFormat(titleFormat, 1);
 	
 	var issueRNSearchStart = 0;
@@ -549,14 +550,14 @@ function changeOutput() {
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val('<table><thead><tr><th width="5%">Number</th><th width="45%">Title</th><th width="50%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
 //			$("#listformat").val("<table><thead><tr><th>Number</th><th>Title</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
-			$("#titleformat").val(",,<td>#%n</td><td>%t</td>");
+			$("#titleformat").val(",,<td>%n</td><td>%t</td>");
 			$("#rnformat").val("<td>\\n,</td>\\n,\\n");
 		} else {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			$("#titleformat").val(",\n,%t (#%n)");
+			$("#titleformat").val(",\n,%t (%n)");
 			$("#rnformat").val("<BLOCKQUOTE>\\n,</BLOCKQUOTE>\\n,\\n");
 		}
 		break;
@@ -574,7 +575,7 @@ function changeOutput() {
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
 			$("#listformat").val(",,-  ,");
-			$("#titleformat").val(",\\n\\n,%t (#%n)");
+			$("#titleformat").val(",\\n\\n,%t (%n)");
 			$("#rnformat").val("   ,\\n,\\n   ");
 		}
 		break;
@@ -593,7 +594,7 @@ function changeOutput() {
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
 			$("#listformat").val(",,-  ,");
-			$("#titleformat").val(",\\n\\n,%t (#%n)");
+			$("#titleformat").val(",\\n\\n,%t (%n)");
 			$("#rnformat").val("   ,\\n,\\n   ");
 		}
 		break;
