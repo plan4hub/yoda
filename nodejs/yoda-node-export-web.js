@@ -287,30 +287,29 @@ function issueProcessLoop() {
 	}
 }
 
+function download (uri, filename, callback){
+	request.head(uri, function(err, res, body){    
+		request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+	});
+}
+
 //STEP F1: Download images, call on to write ZIP
 function downloadImages() {
 	if (issueImages.length == 0) {
 		// Done
 		finish();
 	} else {
+//		console.log(issueImages.pop());
+//		downloadImages();
+//		return;
+		
 		// Download file, then call recursive.
 		image = issueImages.pop();
-
-		request(image.fullPath).pipe(fs.createWriteStream(image.path));
+		fs.mkdirp(path.dirname(image.path));
 		
-//		$.ajax({
-//			url: image.fullPath,
-//			type: "GET",
-//			dataType: 'binary',
-//			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
-//			processData: false,
-//			success: function(data){
-//				console.log("Downloaded image file " + image.fullPath);
-//				console.log("Downloading " + image.fullPath + " to " + image.path);
-//				issueZipRoot.file(image.path, data);
-//				downloadImages();
-//			}
-//		}); 
+		download(image.fullPath, image.path, function(){
+			downloadImages();
+		});
 	}
 }
 
@@ -461,7 +460,7 @@ function formatIssue(issue, comments, events) {
 			console.log("  Full path is: " + fullPath);
 		}
 			
-		issueImage = { fullPath: fullPath, path: urlF.parse(fullPath).path, localPath: "../.." + urlF.parse(fullPath).path};
+		issueImage = { fullPath: fullPath, path: options['output-dir'] + '/' + urlF.parse(fullPath).path.substring(1), localPath: "../.." + urlF.parse(fullPath).path};
 
 		if (downloadFilter == "" || urlF.parse(fullPath).host.indexOf(downloadFilter) != -1) {
 			console.log("  Added " + fullPath + " to download queue ...");
