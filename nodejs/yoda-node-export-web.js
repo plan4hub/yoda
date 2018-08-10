@@ -654,7 +654,10 @@ if (options['output-dir'] == undefined) {
 }
 
 // Let's go....
-var url = gitHubApiBaseUrl + 'repos/' + options['owner'] + '/' + options['repo'] + '/issues';
+var url = gitHubApiBaseUrl + 'repos/' + options['owner'] + '/' + options['repo'] + '/issues?direction=asc&state=' + options['state'];
+if (options['label-filter'] != undefined) {
+	url += "&labels=" + options['label-filter'];
+}
 if (verbose)
 	console.log("Issue request URL: '" + url + "'");
 
