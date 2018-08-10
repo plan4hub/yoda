@@ -25,6 +25,8 @@ const commandLineArgs = require('command-line-args');
 const request = require('request');
 const fs = require('fs');
 const path = require('path');
+const urlF = require('url');
+
 
 //Command line defintions
 const optionDefinitions = [
@@ -191,7 +193,7 @@ function exportIssues(issues) {
 	// STEP F2: Write/download zip file
 
 	// Call to get labels.
-	getLabels($("#repolist").val());
+	getLabels([options['repo']]);
 
 }
 
@@ -208,8 +210,8 @@ function getLabels(repoLeft) {
 
 	} else {
 		var repo = repoLeft.pop();
-		var getLabelsUrl = gitHubApiBaseUrl + "repos/" + $("#owner").val() + "/" + repo + "/labels";
-		yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
+		var getLabelsUrl = gitHubApiBaseUrl + "repos/" + options['owner'] + "/" + repo + "/labels";
+		getLoop(getLabelsUrl, 1, [], function(labels) {
 			console.log("Retrieve labels for " + repo);
 			globLabels[repo] = labels;
 			getLabels(repoLeft);
@@ -221,11 +223,11 @@ function getLabels(repoLeft) {
 
 //STEP I2: Index generation, one file per repository
 function buildIndex() {
-	var repoList = $("#repolist").val();
+	var repoList = [options['repo']];
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
 		console.log("Building index file for: " + repoList[repInd]);
-		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
+		var title = "Issue index for " + options['owner'] + '/' + repoList[repInd];
 		var indexHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
 		indexHTML += '<body class="indexlayout">';
@@ -234,11 +236,11 @@ function buildIndex() {
 		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th width="20%" align="left">Labels</th><th width="65%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
 			issue = globIssues[i];
-			var issueRepo = yoda.getUrlRepo(issue.repository_url);
+			var issueRepo = getUrlRepo(issue.repository_url);
 			if (issueRepo != repoList[repInd])
 				continue; // Issue belongs to different repo;
 			indexHTML += '<tr class="indexrow">';
-			indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
+			indexHTML += '<td align="left">' + '<a href="' + options['owner'] + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
 			indexHTML += '<td align="left">' + issue.state + '</td>';
 			var labels = "";
 			for (var l = 0; l < issue.labels.length; l++) {
@@ -251,7 +253,7 @@ function buildIndex() {
 		indexHTML += '</table></body>';
 
 		fileName = repoList[repInd] + ".html";
-		issueZipRoot.file(fileName, indexHTML);
+		writeFile(fileName, indexHTML);
 	}
 
 	// Call on.
@@ -289,36 +291,33 @@ function issueProcessLoop() {
 function downloadImages() {
 	if (issueImages.length == 0) {
 		// Done
-		writeZip();
+		finish();
 	} else {
 		// Download file, then call recursive.
 		image = issueImages.pop();
 
-		$.ajax({
-			url: image.fullPath,
-			type: "GET",
-			dataType: 'binary',
-			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
-			processData: false,
-			success: function(data){
-				console.log("Downloaded image file " + image.fullPath);
-				console.log("Downloading " + image.fullPath + " to " + image.path);
-				issueZipRoot.file(image.path, data);
-				downloadImages();
-			}
-		}); 
+		request(image.fullPath).pipe(fs.createWriteStream(image.path));
+		
+//		$.ajax({
+//			url: image.fullPath,
+//			type: "GET",
+//			dataType: 'binary',
+//			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
+//			processData: false,
+//			success: function(data){
+//				console.log("Downloaded image file " + image.fullPath);
+//				console.log("Downloading " + image.fullPath + " to " + image.path);
+//				issueZipRoot.file(image.path, data);
+//				downloadImages();
+//			}
+//		}); 
 	}
 }
 
 //STEP F2: Write ZIP. Finalize things. 
-function writeZip() {
-	issueZipRoot.generateAsync({type:"blob"})
-	.then(function(content) {
-		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val());
-	});
-
-	console.log("Succesfully downloaded ZIP file with issues.");
-	yoda.updateUrl(getUrlParams() + "&export=true");
+function finish() {
+	console.log("Succesfully downloaded issues.");
+	process.exit(0);
 }
 
 //STEP 1: Get issue comments, then call on to step 2
@@ -327,9 +326,8 @@ function issueComments(issue) {
 
 	var issueUrlComments = issue.url + "/comments";
 	console.log("Issues Comments URL: " + issueUrlComments);
-	yoda.getLoop(issueUrlComments, 1, [], 
-			function(comments) { processComments(issue, comments); }, 
-			function(errorText) { yoda.showSnackbarError("Error getting issue comments: " + errorText, 3000);});
+	getLoop(issueUrlComments, 1, [], function(comments) { processComments(issue, comments); }); 
+
 }
 
 //STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
@@ -346,9 +344,9 @@ function processComments(issue, comments) {
 function issueEvents(issue, comments) {
 	var issueUrlEvents = issue.url + "/events";
 	console.log("Issues Events URL: " + issueUrlEvents);
-	yoda.getLoop(issueUrlEvents, 1, [], 
-			function(events) { formatIssue(issue, comments, events); }, 
-			function(errorText) { yoda.showSnackbarError("Error getting issue events: " + errorText, 3000);});
+	getLoop(issueUrlEvents, 1, [], 
+			function(events) { formatIssue(issue, comments, events); }); 
+	
 }
 
 //STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
@@ -356,7 +354,7 @@ function formatIssue(issue, comments, events) {
 	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
 
 	// Let's prepare the issue HTML
-	var repo = yoda.getUrlRepo(issue.repository_url);
+	var repo = getUrlRepo(issue.repository_url);
 	var title = repo + '#' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
@@ -453,20 +451,19 @@ function formatIssue(issue, comments, events) {
 	console.log("Extracting image references...");
 	var searchImg = '<img src="';
 	var imgRef = issueHTML.indexOf(searchImg, 0);
-	var urlHack = document.createElement('a');
-
-	console.log(urlHack.pathname);
-	downloadFilter = $("#downloadimages").val();
+	downloadFilter = options['image-filter'];
 	for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
 		// Get full path... will end with quote..
 		var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
 		var fullPath = issueHTML.substring(imgRef + searchImg.length, endQuote);
-		console.log("Full path is: " + fullPath);
-		urlHack.href = fullPath;
+		
+		if (verbose) {
+			console.log("  Full path is: " + fullPath);
+		}
+			
+		issueImage = { fullPath: fullPath, path: urlF.parse(fullPath).path, localPath: "../.." + urlF.parse(fullPath).path};
 
-		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
-
-		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
+		if (downloadFilter == "" || urlF.parse(fullPath).host.indexOf(downloadFilter) != -1) {
 			console.log("  Added " + fullPath + " to download queue ...");
 			issueImages.push(issueImage);
 		}  else {
@@ -481,13 +478,13 @@ function formatIssue(issue, comments, events) {
 	}
 
 	// HTML COMPLETE ----------------------
-	writeToZip(issue, issueHTML);
+	writeIssueToFile(issue, issueHTML);
 }
 
 //STEP 5: Add to ZIP FILE. Then to step 0.
-function writeToZip(issue, issueHTML) {
-	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + ".html";
-	issueZipRoot.file(fileName, issueHTML);
+function writeIssueToFile(issue, issueHTML) {
+	fileName = options['owner'] + "/" + getUrlRepo(issue.repository_url) + "/" + issue.number + ".html";
+	writeFile(fileName, issueHTML);
 
 	noIssuesActive--;
 	console.log("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
@@ -540,7 +537,7 @@ function formatLabel(repo, label) {
 	// Find the label
 	for (var l = 0; l < globLabels[repo].length; l++) {
 		if (globLabels[repo][l].name == label) {
-			var foreground = yoda.bestForeground(globLabels[repo][l].color);
+			var foreground = bestForeground(globLabels[repo][l].color);
 			// Got it.
 			return '<span style="background-color: #' + globLabels[repo][l].color + '; color:' + foreground + '; margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px;">' + label + '</span>'; 
 		}
