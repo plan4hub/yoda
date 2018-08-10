@@ -1,52 +1,185 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all copies or 
-// substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT.
-//
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
-// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
-// OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//Copyright 2018 Hewlett Packard Enterprise Development LP
 
+//Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+//and associated documentation files (the "Software"), to deal in the Software without restriction, 
+//including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+//and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all copies or 
+//substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+//PURPOSE AND NONINFRINGEMENT.
+
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+//OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+//OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+//API URL
+var gitHubApiBaseUrl = "https://github.hpe.com/api/v3/";
+//var gitHubApiBaseUrl = "https://api.github.com/";
+
+const commandLineArgs = require('command-line-args');
 const request = require('request');
-yoda = require('./yoda-utils.js');
+const fs = require('fs');
+const path = require('path');
+
+//Command line defintions
+const optionDefinitions = [
+	{
+		name: 'verbose',
+		alias: 'v',
+		type: Boolean,
+		description: 'Verbose mode.',
+		defaultValue: false
+	},
+	{ 
+		name: 'owner', 
+		alias: 'o', 
+		type: String, 
+		description: 'The owner (GitHub organization or user). Required.' 
+	},
+	{ 
+		name: 'repo',
+		alias: 'r',
+		type: String, 
+		description: 'Repository to scope. Required.'
+	},
+	{ 
+		name: 'user',
+		alias: 'u',
+		type: String,
+		description: 'The GitHub user name. Required.'
+	},
+	{
+		name: 'password',
+		alias: 'p',
+		type: String,
+		description: 'The GitHub password (typically a GitHub personal access token). Required.'
+	},
+	{
+		name: 'output-dir',
+		alias: 'd',
+		type: String,
+		description: 'The output directory where files should be placed. Will be created if non-existing. If not supplied, the value of owner will be used.'
+	},
+	{
+		name: 'label-filter',
+		alias: 'f',
+		type: String,
+		defaultValue: '',
+		description: 'Issue label filter to apply.'
+	},
+	{
+		name: 'state',
+		alias: 's',
+		type: String,
+		defaultValue: 'open',
+		description: "Issue state to scope. Either 'open' (default), 'closed', or 'all'" 
+	},
+	{
+		name: 'image-filter',
+		alias: 'i',
+		type: String,
+		defaultValue: 'media.github.hpe.com',
+		description: "Download images that match this pattern."
+	}];
+
+const options = commandLineArgs(optionDefinitions);
+verbose = options['verbose'];
+if (verbose)
+	console.log(options);
+
+//Determine best foreground color, given background. For use in label coloring.
+function bestForeground(color, whiteColor, blackColor) {
+	if (whiteColor == undefined)
+		whiteColor = 'rgb(255, 255,255)';
+	if (blackColor == undefined)
+		blackColor = 'rgb(0,0,0)';
+	if (color == undefined) 
+		return blackColor;
+
+	if (color[0] == 'r') {
+		// assume rgb format
+		colorsOnly = color.substring(color.indexOf('(') + 1, color.lastIndexOf(')')).split(/,\s*/);
+		var r = colorsOnly[0];
+		var g = colorsOnly[1];
+		var b = colorsOnly[2];
 
 
-// ---------------------------------------
-// Issues have been retrieved. Time to analyse data and draw the chart.
-// Global object for ZIP file.
-var issueZipRoot = null;
+	} else {
+		var hex  = color.replace(/#/, '');
+		var r  = parseInt(hex.substr(0, 2), 16);
+		var g = parseInt(hex.substr(2, 2), 16);
+		var b = parseInt(hex.substr(4, 2), 16);
+	}
+
+	var a = 1.0 - (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+	if (a < 0.45) {
+		return blackColor;
+	} else {
+		return whiteColor;
+	}
+};
+
+//get repo from url
+function getUrlRepo(url) {
+	return (url.split("/").slice(-1)[0]);
+};
+
+
+fs.isDir = function(dpath) {
+    try {
+        return fs.lstatSync(dpath).isDirectory();
+    } catch(e) {
+        return false;
+    }
+};
+fs.mkdirp = function(dirname) {
+    dirname = path.normalize(dirname).split(path.sep);
+    dirname.forEach((sdir,index)=>{
+        var pathInQuestion = dirname.slice(0,index+1).join(path.sep);
+        if((!fs.isDir(pathInQuestion)) && pathInQuestion) fs.mkdirSync(pathInQuestion);
+    });
+};
+
+// Write a file. Will write a file to the file system. fileName supplies the name relative to the --output-dir. 
+// The contents will be written.
+// fileName may contain directories. If there are not present, they will be automatically created.
+function writeFile(fileName, contents) {
+	fullFileName = options['output-dir'] + '/' + fileName;
+	if (verbose)
+		console.log("Full fill name to be created: " + fullFileName);
+	fs.mkdirp(path.dirname(fullFileName));
+	
+	// Now write file
+	fs.writeFileSync(fullFileName, contents);
+}
+
+//---------------------------------------
+//Issues have been retrieved. Time to analyse data and draw the chart.
 var noIssuesActive = 0;
 var globIssues = null;
 var issueImages = [];
 var globLabels = [];
 function exportIssues(issues) {
 	// Prepare new run (zip, parallel#, etc.)
-	issueZipRoot = new JSZip();
 	addCSSFile();
 	noIssuesActive = 0;
 	globIssues = issues;
 	issueImages = [];
 	globLabels = [];
-	
-	console.log("Exporting issues. No issues: " + issues.length);
-	console.log("Info: Received " + issues.length + " issues. Now getting detailed data and building ZIP file for download.");
+
+	console.log("Received " + issues.length + " issues. Now getting and dumping detailed data.");
 
 	// STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step I2 when done.
 
 	// STEP I2: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
 	// We will build one overview page per respository and put into the root folder. When done on to STEP 0.
 
-	
+
 	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.
 	// STEP 1: Get issue comments, then call on to step 2
 	// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
@@ -56,7 +189,7 @@ function exportIssues(issues) {
 
 	// STEP F1: Download image files collected during the issue processing, call resursively self until no more images. Then call STEP F2
 	// STEP F2: Write/download zip file
-	
+
 	// Call to get labels.
 	getLabels($("#repolist").val());
 
@@ -72,28 +205,28 @@ function getLabels(repoLeft) {
 
 		// Call I2
 		buildIndex();
-		
+
 	} else {
 		var repo = repoLeft.pop();
-		var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/labels";
+		var getLabelsUrl = gitHubApiBaseUrl + "repos/" + $("#owner").val() + "/" + repo + "/labels";
 		yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 			console.log("Retrieve labels for " + repo);
 			globLabels[repo] = labels;
 			getLabels(repoLeft);
 		});
 	}
-	
+
 }
 
 
-// STEP I2: Index generation, one file per repository
+//STEP I2: Index generation, one file per repository
 function buildIndex() {
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
 		console.log("Building index file for: " + repoList[repInd]);
 		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
-		var indexHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
+		var indexHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
 		indexHTML += '<body class="indexlayout">';
 		indexHTML += '<div class="indextitle">' + title + '</div>';
@@ -116,7 +249,7 @@ function buildIndex() {
 			indexHTML += '</tr>';
 		}
 		indexHTML += '</table></body>';
-		
+
 		fileName = repoList[repInd] + ".html";
 		issueZipRoot.file(fileName, indexHTML);
 	}
@@ -126,7 +259,7 @@ function buildIndex() {
 }
 
 
-// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
+//STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
 var maxParallelIssues = 1;
 function issueProcessLoop() {
 	console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
@@ -135,7 +268,7 @@ function issueProcessLoop() {
 		downloadImages();
 		return;
 	}
-	
+
 	if (noIssuesActive < maxParallelIssues && globIssues.length > 0) {
 		// Let's do some work!
 		noIssuesActive++;
@@ -144,7 +277,7 @@ function issueProcessLoop() {
 		issueComments(issue);
 		return issueProcessLoop();
 	}
-	
+
 	if (noIssuesActive > 0 && globIssues.length == 0) {
 		console.log("We just need to wait for the remaining to complete...");
 		// NOP
@@ -152,7 +285,7 @@ function issueProcessLoop() {
 	}
 }
 
-// STEP F1: Download images, call on to write ZIP
+//STEP F1: Download images, call on to write ZIP
 function downloadImages() {
 	if (issueImages.length == 0) {
 		// Done
@@ -160,7 +293,7 @@ function downloadImages() {
 	} else {
 		// Download file, then call recursive.
 		image = issueImages.pop();
-		
+
 		$.ajax({
 			url: image.fullPath,
 			type: "GET",
@@ -177,7 +310,7 @@ function downloadImages() {
 	}
 }
 
-// STEP F2: Write ZIP. Finalize things. 
+//STEP F2: Write ZIP. Finalize things. 
 function writeZip() {
 	issueZipRoot.generateAsync({type:"blob"})
 	.then(function(content) {
@@ -188,10 +321,10 @@ function writeZip() {
 	yoda.updateUrl(getUrlParams() + "&export=true");
 }
 
-// STEP 1: Get issue comments, then call on to step 2
+//STEP 1: Get issue comments, then call on to step 2
 function issueComments(issue) {
 	console.log("issueComments: " + issue.url);
-	
+
 	var issueUrlComments = issue.url + "/comments";
 	console.log("Issues Comments URL: " + issueUrlComments);
 	yoda.getLoop(issueUrlComments, 1, [], 
@@ -199,17 +332,17 @@ function issueComments(issue) {
 			function(errorText) { yoda.showSnackbarError("Error getting issue comments: " + errorText, 3000);});
 }
 
-// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
+//STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 function processComments(issue, comments) {
 	console.log("issueComments for: " + issue.url + ", no of comments: " + comments.length);
 
 	// Download images.
-	
+
 	issueEvents(issue, comments);
-	
+
 }
 
-// STEP 3: Get issue events, then call on to step 4
+//STEP 3: Get issue events, then call on to step 4
 function issueEvents(issue, comments) {
 	var issueUrlEvents = issue.url + "/events";
 	console.log("Issues Events URL: " + issueUrlEvents);
@@ -218,17 +351,17 @@ function issueEvents(issue, comments) {
 			function(errorText) { yoda.showSnackbarError("Error getting issue events: " + errorText, 3000);});
 }
 
-// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
+//STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
 function formatIssue(issue, comments, events) {
 	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
-	
+
 	// Let's prepare the issue HTML
 	var repo = yoda.getUrlRepo(issue.repository_url);
 	var title = repo + '#' + issue.number + ': ' + issue.title; 
-	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
+	var issueHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
-	
+
 	// State and Title
 	issueHTML += '<div>';
 	if (issue.state == "open")
@@ -244,7 +377,7 @@ function formatIssue(issue, comments, events) {
 		labels += formatLabel(repo, issue.labels[l].name);
 	}
 	issueHTML += labels + '</div>\n';
-	
+
 	// Milestone
 	issueHTML += '<div class="issuebasefield">' + 'Milestone: ';
 	if (issue.milestone != undefined) 
@@ -252,7 +385,7 @@ function formatIssue(issue, comments, events) {
 	else	
 		issueHTML += formatField("no milestone set");
 	issueHTML += '</div>\n';
-	
+
 	// Assignee(s)
 	issueHTML += '<div class="issuebasefield">' + "Assignee(s): ";
 	if (issue.assignees.length == 0) 
@@ -267,17 +400,17 @@ function formatIssue(issue, comments, events) {
 		issueHTML += assignees;
 	}
 	issueHTML += '</div>';
-	
+
 	// Creator, date
 
 	// Body
 	issueHTML += '<div class="issuecommentheader">' + formatUser(issue.user.login) + ' created issue on ' + formatTime(issue.created_at) + '</div>\n';
 	issueHTML += '<div class="issuecomment">' + issue.body_html + '</div>\n';
-	
+
 	// Comments and events. To be sorted in date order.
 	var commentPtr = 0;
 	var eventPtr = 0;
-	
+
 	while (commentPtr < comments.length || eventPtr < events.length) {
 //		console.log("commentPtr = " + commentPtr + ", comments.length = " + comments.length + ", eventPtr = " + eventPtr + ", events.length = " + events.length);
 		if ((commentPtr == comments.length) || (commentPtr < comments.length && eventPtr < events.length && events[eventPtr].created_at < comments[commentPtr].created_at) ) {
@@ -286,11 +419,11 @@ function formatIssue(issue, comments, events) {
 			case "milestoned":
 				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' set milestone ' + formatField(events[eventPtr].milestone.title) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
-				
+
 			case "demilestoned":
 				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' removed milestone ' + formatField(events[eventPtr].milestone.title) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
-				
+
 			case "labeled":
 				issueHTML += '<div class="issueevent">' + formatUser(events[eventPtr].actor.login) + ' added label ' + formatLabel(repo, events[eventPtr].label.name) + ' on ' + formatTime(events[eventPtr].created_at) + '</div>\n';
 				break;
@@ -304,14 +437,14 @@ function formatIssue(issue, comments, events) {
 			// We do the comment.
 			issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + '</div>\n';
 			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div>\n';
-			
+
 			commentPtr++;
 		}
 	}
-	
+
 	// Close off things.
 	issueHTML += "</body>\n";
-	
+
 	// Replace any references to picture files. These are stored into e.g. 
 	// https://media.github.hpe.com/user/3552/files/01f4b4e0-3c7d-11e6-887a-845324166c0d  (HPE)
 	// For github.com:
@@ -330,7 +463,7 @@ function formatIssue(issue, comments, events) {
 		var fullPath = issueHTML.substring(imgRef + searchImg.length, endQuote);
 		console.log("Full path is: " + fullPath);
 		urlHack.href = fullPath;
-		
+
 		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
 
 		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
@@ -346,7 +479,7 @@ function formatIssue(issue, comments, events) {
 		var re = new RegExp(issueImages[i].fullPath, "g");
 		issueHTML = issueHTML.replace(re, issueImages[i].localPath);
 	}
-	
+
 	// HTML COMPLETE ----------------------
 	writeToZip(issue, issueHTML);
 }
@@ -355,7 +488,7 @@ function formatIssue(issue, comments, events) {
 function writeToZip(issue, issueHTML) {
 	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + ".html";
 	issueZipRoot.file(fileName, issueHTML);
-	
+
 	noIssuesActive--;
 	console.log("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
 	issueProcessLoop();
@@ -385,7 +518,7 @@ function addCSSFile() {
 	css += '.indexrow { }\n';
 	css += 'td, th { border: 1px solid lightgrey; padding: 10px 5px 10px 5px;}\n';
 
-	console.log(issueZipRoot.file("css/issues.css", css));
+	writeFile("css/issues.css", css);
 }
 
 function formatTime(ts) {
@@ -403,7 +536,7 @@ function formatField(field) {
 
 function formatLabel(repo, label) {
 	// TODO: no-break + margins.
-	
+
 	// Find the label
 	for (var l = 0; l < globLabels[repo].length; l++) {
 		if (globLabels[repo][l].name == label) {
@@ -415,63 +548,29 @@ function formatLabel(repo, label) {
 	return label; // Strange... 
 }
 
-// -------------------------------
+//-------------------------------
 
-// TODO: Enhance this
+//TODO: Enhance this
 function errorFunc(errorText) {
 	alert("ERROR: " + errorText);
 }
 
-// ----------------
+//----------------
 
 
-// -------------------------
-
-function startExport() {
-	$("#console").val("");
-	
-	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-
-	console.log("Info: Initiated Github request.");
-}
-
-// --------------
+//-------------------------
 
 
-// --------------
 
-// Ok, let's try request interface to make a github API call.
-
-// 		headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
+//--------------
 
 
-request(
-		{ method: 'GET'
-			, uri: 'https://github.hpe.com/api/v3/repos/hpsd/hpsp/issues'
-			, auth: {
-				'user': 'jens-markussen',
-				'pass': '6b2579de3917ac35213ab8662a040a397644a9a8',
-				'sendImmediately': true
-			}
-			, headers: {
-				Accept: 'application/vnd.github.symmetra-preview.full+json'
-			}
-		}
-		, function (error, response, body) {
-			console.log('error:', error); // Print the error if one occurred
-			console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-			console.log('body:', body); 
-		}
-);
+//--------------
 
-
-// Collect various information from the API. URL gives the requested info, the function does the
-// collection and concatenation, calling in the end the final function. 
-// Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
-function getLoop(url, page, collector, finalFunc, errorFunc) {
+//Collect various information from the API. URL gives the requested info, the function does the
+//collection and concatenation, calling in the end the final function. 
+//Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
+function getLoop(url, page, collector, finalFunc) {
 	if (page != -1) {
 		var oldIndex = url.indexOf("per_page=100&page=");
 		if (oldIndex != -1) { 
@@ -485,29 +584,32 @@ function getLoop(url, page, collector, finalFunc, errorFunc) {
 			}
 		}
 	}
-	
 
 	request(
-			{ method: 'GET'
-				, uri: url
-				, auth: {
-					'user': 'jens-markussen',
-					'pass': '6b2579de3917ac35213ab8662a040a397644a9a8',
+			{ 
+				method: 'GET',
+				uri: url, 
+				auth: {
+					'user': options['user'],
+					'pass': options['password'],
 					'sendImmediately': true
-				}
-				, headers: {
+				},
+				headers: 
+				{
 					Accept: 'application/vnd.github.symmetra-preview.full+json'
 				}
-			}
-			, function (error, response, body) {
-				console.log('error:', error); // Print the error if one occurred
+			},
+			function (error, response, body) {
+				if (error != null) {
+					console.log("Error received: " + error);
+					process.exit(1);
+				}
 				console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-				
+
 				var obj = JSON.parse(body);
-				console.log('body length:', obj.length); 
-				
+
 				if (obj.length == 100 && page != -1) {
-					getLoop(url, page + 1, collector.concat(obj), finalFunc, errorFunc);
+					getLoop(url, page + 1, collector.concat(obj), finalFunc);
 				} else {
 					finalFunc(collector.concat(obj));
 				}
@@ -516,71 +618,54 @@ function getLoop(url, page, collector, finalFunc, errorFunc) {
 }
 
 
-getLoop('https://github.hpe.com/api/v3/repos/hpsd/hpsp/issues', 1, [], function(result) {console.log("YYYYY"); console.log("# issues:" + result.length);},
-		null);
-
-	
-	
-
-// Note, that we can stream directly to file... We will use this for picture download
-
-// We need to consider command line argument processing. Use "--" format.
-	
 
 
-//request
-//.get('http://google.com/img.png')
-//.on('response', function(response) {
-//  console.log(response.statusCode) // 200
-//  console.log(response.headers['content-type']) // 'image/png'
-//})
-//.pipe(request.put('http://mysite.com/img.png'))
 
-//
-//var options = {
-//		
-//		  url: 'https://api.github.com/repos/request/request',
-//		  headers: {
-//		    'User-Agent': 'request'
-//		  }
-//		};
-//		 
-//		function callback(error, response, body) {
-//		  if (!error && response.statusCode == 200) {
-//		    var info = JSON.parse(body);
-//		    console.log(info.stargazers_count + " Stars");
-//		    console.log(info.forks_count + " Forks");
-//		  }
-//		}
-//		 
-//request(options, callback);
-//		
-//		
-//
-////Login to github. Accept block accepts experimental API features.
-//exports.gitAuth = function (userId, accessToken, fullExport) {
-//	var headers = [];
-//	if (fullExport != undefined) {
-//		headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
-//	} else {
-//		headers['Accept'] = 'application/vnd.github.symmetra-preview+json';
-//	}
-//
-//	if (userId == "" || accessToken == "") {
-//		console.log("Empty userId/accessToken.");
-//	} else {
-//		var authdata = base64_encode(userId  + ':' + accessToken);
-//		headers['Authorization'] = 'Basic ' + authdata;
-//	}
-//
-//	$.ajaxSetup({
-//		headers : headers
-//	});
-//};
-//
-//
-//
-////githubAuth("jens-markussen", "6b2579de3917ac35213ab8662a040a397644a9a8");
-//
-//console.log(process.argv);
-//
+//Note, that we can stream directly to file... We will use this for picture download
+
+
+//---------- "main"
+
+var error = false;
+if (options['owner'] == undefined) {
+	console.log("No --owner or -o given");
+	error = true;
+}
+
+if (options['repo'] == undefined) {
+	console.log("No --repo or -r given");
+	error = true;
+}
+
+if (options['user'] == undefined) {
+	console.log("No --user or -u given");
+	error = true;
+}
+
+if (options['password'] == undefined) {
+	console.log("No --password or -p given");
+	error = true;
+}
+
+if (error) {
+	console.log("Exiting");
+	process.exit(1);
+}
+
+if (options['output-dir'] == undefined) {
+	console.log("No --output-dir supplied. Defaulting to '" + options['owner'] + "'.");
+	options['output-dir'] = options['owner'];
+}
+
+// Let's go....
+var url = gitHubApiBaseUrl + 'repos/' + options['owner'] + '/' + options['repo'] + '/issues';
+if (verbose)
+	console.log("Issue request URL: '" + url + "'");
+
+// Call!
+getLoop(url, -1, [], exportIssues);
+
+
+console.log("Info: Initiated Github request for issues.");
+
+

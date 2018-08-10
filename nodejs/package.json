@@ -5,6 +5,7 @@
   "main": "yoda-export-web.js",
   "dependencies": {
     "command-line-args": "^5.0.2",
+    "command-line-usage": "^5.0.5",
     "request": "^2.87.0"
   },
   "devDependencies": {},
