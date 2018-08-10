@@ -179,7 +179,7 @@ function buildIndex() {
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
 		console.log("Building index file for: " + repoList[repInd]);
 		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
-		var indexHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
+		var indexHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
 		indexHTML += '<body class="indexlayout">';
 		indexHTML += '<div class="indextitle">' + title + '</div>';
@@ -311,7 +311,7 @@ function formatIssue(issue, comments, events) {
 	// Let's prepare the issue HTML
 	var repo = yoda.getUrlRepo(issue.repository_url);
 	var title = repo + '#' + issue.number + ': ' + issue.title; 
-	var issueHTML = '<!DOCTYPE html><html><head><meta charset="ISO-8859-1"><title>' + title + '</title>';
+	var issueHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
 	issueHTML += '<body class="issuelayout">';
 	
