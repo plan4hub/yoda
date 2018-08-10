@@ -1,0 +1,21 @@
+{
+  "name": "yoda-export-web",
+  "version": "1.0.0",
+  "description": "Yoda Issue Exporter to Web Pages",
+  "main": "yoda-export-web.js",
+  "dependencies": {
+    "command-line-args": "^5.0.2",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "yuda",
+    "export",
+    "web"
+  ],
+  "author": "Jens Vedel Markussen",
+  "license": "ISC"
+}
