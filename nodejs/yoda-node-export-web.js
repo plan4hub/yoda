@@ -27,7 +27,6 @@ const fs = require('fs');
 const path = require('path');
 const urlF = require('url');
 
-
 //Command line defintions
 const optionDefinitions = [
 	{
@@ -551,16 +550,6 @@ function errorFunc(errorText) {
 	alert("ERROR: " + errorText);
 }
 
-//----------------
-
-
-//-------------------------
-
-
-
-//--------------
-
-
 //--------------
 
 //Collect various information from the API. URL gives the requested info, the function does the
@@ -613,13 +602,6 @@ function getLoop(url, page, collector, finalFunc) {
 	);
 }
 
-
-
-
-
-//Note, that we can stream directly to file... We will use this for picture download
-
-
 //---------- "main"
 
 var error = false;
@@ -663,7 +645,6 @@ if (verbose)
 
 // Call!
 getLoop(url, -1, [], exportIssues);
-
 
 console.log("Info: Initiated Github request for issues.");
 
