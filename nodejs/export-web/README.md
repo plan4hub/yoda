@@ -18,6 +18,7 @@ Defaults:
 	user: none/required
 	token: none/required
 	output-dir: owner
+	label-filter: empty/none
 	state: open
 	image-filter: media.github.hpe.com
 
