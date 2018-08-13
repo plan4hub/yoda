@@ -88,7 +88,16 @@ const optionDefinitions = [
 		description: "Download images that match this pattern."
 	}];
 
-const options = commandLineArgs(optionDefinitions);
+var options;
+try {
+	options = commandLineArgs(optionDefinitions);
+}
+catch(err) {
+    console.log("Usage:");
+	console.log("node yoda-node-export-web.js --owner [owner] --repo [repository] --user [GitHub user name] --token [GitHub password or personal token] --output-dir [root directory for output] --label-filter [filter] --state [open|closed|all] --image-filter [host name filter]");
+	process.exit(1);
+}
+
 verbose = options['verbose'];
 if (verbose)
 	console.log(options);
@@ -200,9 +209,10 @@ function exportIssues(issues) {
 function getLabels(repoLeft) {
 	if (repoLeft.length == 0) {
 		// Done. Call on
-		console.log("All labels retrieved.");
-		console.log(globLabels);
-		console.log("Succesfully retrieved all repository labels ...");
+		if (verbose) {
+			console.log("Labels:");
+			console.log(globLabels);
+		}
 
 		// Call I2
 		buildIndex();
@@ -263,7 +273,9 @@ function buildIndex() {
 //STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
 var maxParallelIssues = 1;
 function issueProcessLoop() {
-	console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
+	if (verbose)
+		console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
+	
 	if (noIssuesActive == 0 && globIssues.length == 0) {
 		// We are done with issues, now turn attention to download of images before downloading ZIP file.
 		downloadImages();
@@ -280,7 +292,8 @@ function issueProcessLoop() {
 	}
 
 	if (noIssuesActive > 0 && globIssues.length == 0) {
-		console.log("We just need to wait for the remaining to complete...");
+		if (verbose)
+			console.log("We just need to wait for the remaining to complete...");
 		// NOP
 		return;
 	}
@@ -320,28 +333,30 @@ function finish() {
 
 //STEP 1: Get issue comments, then call on to step 2
 function issueComments(issue) {
-	console.log("issueComments: " + issue.url);
 
 	var issueUrlComments = issue.url + "/comments";
-	console.log("Issues Comments URL: " + issueUrlComments);
+	if (verbose)
+		console.log("Issues Comments URL: " + issueUrlComments);
 	getLoop(issueUrlComments, 1, [], function(comments) { processComments(issue, comments); }); 
 
 }
 
 //STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 function processComments(issue, comments) {
-	console.log("issueComments for: " + issue.url + ", no of comments: " + comments.length);
+	if (verbose)
+		console.log("issueComments for: " + issue.url + ", no of comments: " + comments.length);
 
 	// Download images.
 
 	issueEvents(issue, comments);
-
 }
 
 //STEP 3: Get issue events, then call on to step 4
 function issueEvents(issue, comments) {
 	var issueUrlEvents = issue.url + "/events";
-	console.log("Issues Events URL: " + issueUrlEvents);
+	if (verbose)
+		console.log("Issues Events URL: " + issueUrlEvents);
+	
 	getLoop(issueUrlEvents, 1, [], 
 			function(events) { formatIssue(issue, comments, events); }); 
 	
@@ -349,7 +364,8 @@ function issueEvents(issue, comments) {
 
 //STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
 function formatIssue(issue, comments, events) {
-	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
+	if (verbose)
+		console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
 
 	// Let's prepare the issue HTML
 	var repo = getUrlRepo(issue.repository_url);
@@ -446,7 +462,6 @@ function formatIssue(issue, comments, events) {
 	// For github.com:
 	// https://user-images.githubusercontent.com/35253007/43787869-50bc2ab4-9a6c-11e8-8f78-5bae137cdb0d.png
 	// Actually, we probablyl have full control over images, so why don't we just get all image files?
-	console.log("Extracting image references...");
 	var searchImg = '<img src="';
 	var imgRef = issueHTML.indexOf(searchImg, 0);
 	downloadFilter = options['image-filter'];
@@ -488,7 +503,6 @@ function writeIssueToFile(issue, issueHTML) {
 	console.log("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
 	issueProcessLoop();
 }
-
 
 function addCSSFile() {
 	var css = "";
@@ -589,7 +603,8 @@ function getLoop(url, page, collector, finalFunc) {
 					console.log("Error received: " + error);
 					process.exit(1);
 				}
-				console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+				if (verbose)
+					console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
 
 				var obj = JSON.parse(body);
 
@@ -647,5 +662,3 @@ if (verbose)
 getLoop(url, -1, [], exportIssues);
 
 console.log("Info: Initiated Github request for issues.");
-
-

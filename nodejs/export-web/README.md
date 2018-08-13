@@ -1,13 +1,6 @@
-# Export all issues from a given repo
+# Issue Web Exporter
 
-Before use, make sure that you have a valid settings.json file. Copy from settings-template.json and insert personal access token, which you can generate from github.hpe.com/profile/settings.
-
-Remember to adjust settings.json with your personal token (as obtained via github).
-
-nodejs is a prerequesite. Install by:
-
-	(Linux) yum install nodejs 
-	(Windows) download from [https://nodejs.org/en/download/]
+Issue Web Exporter is a nodejs script capable of exporting GitHub issues to static web pages. It is a nodejs variant of the similar Yoda browser-based tool.
 
 The necessary nodejs modules are installed by calling:
 
@@ -15,33 +8,19 @@ The necessary nodejs modules are installed by calling:
 	
 The script is run by executing:
 
-	node ExportOrgIssues.js <owner> <state open/closed/all> <outputFile>
-	
+	node yoda-node-export-web.js --owner [owner] --repo [repository] --user [GitHub user name] --token [GitHub password or personal token] 
+		  --output-dir [root directory for output] --label-filter [filter] --state [open|closed|all] --image-filter [host name filter] 
+
+Defaults:
+
+	owner: none/required
+	repo: none/required
+	user: none/required
+	token: none/required
+	output-dir: owner
+	state: open
+	image-filter: media.github.hpe.com
+
 Example: 
 
-	node ExportOrgIssues.js hpsd open true issues.csv
-	
-Another script ExportOrgIssuesALM.js creates a report (with hpsd handling) similar to ALM csv report
-
-	node ExportOrgIssuesALM.js <owner> <state open/closed/all> <outputFile>
-	
-Example: 
-
-	node ExportOrgIssuesALM.js hpsd open issues.csv
-	
-A more generic script - at repo level - is ExportRepoIssues.js
-
-	node ExportRepoIssues.js cms-delivery emea-infrastructure all issues.csv
-
-Example:
-
-	node ExportRepoIssues.js cms-delivery emea-infrastructure all issues.csv
-
-
-# Excel Wrappers
-	
-GetGithubIssuesMulti.xlsm  
-Contains a macro which based on a Parameters table calls any set of scripts and concatenates the resulting data to an existing table. In this way Issues from a set of repos can be fetched repeatedly using ExportRepoIssues.js or ExportOrgIssues.js.    
-
-
-
+	node yoda-node-export-web.js --owner hpsd --repo yoda --output-dir yoda-issues --state all --label-filter "T2 - Enhancement" --user jens-markussen --password <token>
