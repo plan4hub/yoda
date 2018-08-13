@@ -884,7 +884,7 @@ var yoda = (function() {
 			yoda_repoList = [];
 
 			if (user == true)
-				var getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
+				var getReposUrl = yoda.getGithubUrl() + "user/repos?affiliation=owner";  // NOTE: The users/<username>/repos API call does not return private repos. This is an API error.
 			else 
 				var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
 			
