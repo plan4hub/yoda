@@ -311,13 +311,12 @@ function downloadImages() {
 		// Done
 		finish();
 	} else {
-//		console.log(issueImages.pop());
-//		downloadImages();
-//		return;
 		
 		// Download file, then call recursive.
 		image = issueImages.pop();
 		fs.mkdirp(path.dirname(image.path));
+
+		console.log("Downloading image: " + image.fullPath);
 		
 		download(image.fullPath, image.path, function(){
 			downloadImages();

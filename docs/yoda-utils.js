@@ -49,6 +49,8 @@ var yoda = (function() {
 	
 	var yoda_firstRepoUpdate = true;
 	
+	var yoda_userId = null;
+	
 	// GitHub call control variable. New calls will cancel existing calls.
 	var yoda_gitHubCallNo = 0;
 	
@@ -722,6 +724,8 @@ var yoda = (function() {
 		
 		// Login to github. Accept block accepts experimental API features.
 		gitAuth: function (userId, accessToken, fullExport) {
+			yoda_userId = userId;
+			
 			var headers = [];
 			if (fullExport != undefined) {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
@@ -740,6 +744,10 @@ var yoda = (function() {
 			$.ajaxSetup({
 				headers : headers
 			});
+		},
+		
+		getAuthUser: function() {
+			return yoda_userId;
 		},
 		
 		// Download CSV data as file.
@@ -883,10 +891,17 @@ var yoda = (function() {
 		updateRepos: function(owner, okFunc, failFunc, user) {
 			yoda_repoList = [];
 
-			if (user == true)
-				var getReposUrl = yoda.getGithubUrl() + "user/repos?affiliation=owner";  // NOTE: The users/<username>/repos API call does not return private repos. This is an API error.
-			else 
+			if (user == true) {
+				// Ok, this is getting tricky. Ideally we would like to use the /users/:user/repos endpoint. However, this only returns the public repos.
+				// IF we are indeed targetting our own repos, then we need to use instead the /user/repos end point with affiliation=owner set.
+				if ($("#owner").val() == yoda.getAuthUser()) 				
+					var getReposUrl = yoda.getGithubUrl() + "user/repos?affiliation=owner"; 
+				else
+					var getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
+			}
+			else { 
 				var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
+			}
 			
 			yoda.getLoop(getReposUrl, 1, [],
 				// Ok func
