@@ -584,6 +584,9 @@ function getLoop(url, page, collector, finalFunc) {
 		}
 	}
 
+	if (verbose)
+		console.log("getLoop. page=" + page + ", url: " + url);
+	
 	request(
 			{ 
 				method: 'GET',
@@ -652,13 +655,13 @@ if (options['output-dir'] == undefined) {
 
 // Let's go....
 var url = gitHubApiBaseUrl + 'repos/' + options['owner'] + '/' + options['repo'] + '/issues?direction=asc&state=' + options['state'];
-if (options['label-filter'] != undefined) {
+if (options['label-filter'] != "") {
 	url += "&labels=" + options['label-filter'];
 }
 if (verbose)
 	console.log("Issue request URL: '" + url + "'");
 
 // Call!
-getLoop(url, -1, [], exportIssues);
+getLoop(url, 1, [], exportIssues);
 
 console.log("Info: Initiated Github request for issues.");
