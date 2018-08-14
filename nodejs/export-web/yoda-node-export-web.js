@@ -472,10 +472,10 @@ function formatIssue(issue, comments, events) {
 		if (verbose) {
 			console.log("  Full path is: " + fullPath);
 		}
-			
-		issueImage = { fullPath: fullPath, path: options['output-dir'] + '/' + urlF.parse(fullPath).path.substring(1), localPath: "../.." + urlF.parse(fullPath).path};
 
-		if (downloadFilter == "" || (urlF.parse(fullPath).host != undefined && urlF.parse(fullPath).host.indexOf(downloadFilter)) != -1) {
+		issueImage = { fullPath: fullPath, path: options['output-dir'] + '/' + urlF.parse(fullPath).path.substring(1), localPath: "../.." + urlF.parse(fullPath).path};
+		
+		if (downloadFilter == "" || (urlF.parse(fullPath).host != null && urlF.parse(fullPath).host.indexOf(downloadFilter)) != -1) {
 			console.log("  Added " + fullPath + " to download queue ...");
 			issueImages.push(issueImage);
 		}  else {
