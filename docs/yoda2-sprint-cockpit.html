@@ -210,6 +210,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		// Rather complex updating of the defaults repos. 
 		yodaUI.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
 			// Potential automatic startup actions can go here.
+			var getIssuesUrl = yodaBase.getGitHubUrl() + "repos/hpsd/hpsp/issues";
+			yodaBase.getLoop(getIssuesUrl, function(data) {console.log(data);}, null);
+
 		}, null);
 
 		$('#repolist').on('change.select2', function (e) {
@@ -222,6 +225,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			// Update start-date + due-date/burndown-date + capacity (sum)
 			showMilestoneData();
 		});
+
 
 
 		

@@ -297,7 +297,7 @@ var yodaUI = (function() {
 				var getReposUrl = yodaBase.getGitHubUrl() + "orgs/" + $("#owner").val() + "/repos";
 			}
 			
-			yodaBase.getLoop(getReposUrl, 1, [],
+			yodaBase.getLoop(getReposUrl, 
 				// Ok func
 				function(data) {
 					// Sort and store repos.

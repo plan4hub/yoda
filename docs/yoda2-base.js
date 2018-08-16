@@ -81,6 +81,27 @@ var yodaBase = (function() {
 		}
 	};
 	
+	function parse_link_header(header) {
+		if (header == undefined || header == null)
+			return {};
+
+	    // Split parts by comma
+	    var parts = header.split(',');
+	    var links = {};
+	    // Parse each part into a named link
+	    for(var i=0; i<parts.length; i++) {
+	        var section = parts[i].split(';');
+	        if (section.length !== 2) {
+	            throw new Error("section could not be split on ';'");
+	        }
+	        var url = section[0].replace(/<(.*)>/, '$1').trim();
+	        var name = section[1].replace(/rel="(.*)"/, '$1').trim();
+	        links[name] = url;
+	    }
+	    return links;
+	};
+	
+	
 	// Remove reg
 	function removeFromBody(body, regexp) {
 		var reg = new RegExp(regexp, 'mg');
@@ -147,7 +168,61 @@ var yodaBase = (function() {
 	//Either "noissues", "inbody", "inlabels". Default is "inbody", ie. estimate is given by an "> estimate (number)" line.
 	var estimateInIssues = "inbody";
 
-    // -----------------------------	
+	// Collect various information from the API.  
+	function getLoopInternal(url, collector, finalFunc, partFunc, errorFunc, callNo) {
+		// First call?
+		if (callNo == undefined) {
+			yoda_busy_func();
+			yoda_gitHubCallNo++;
+			callNo = yoda_gitHubCallNo;
+			console.log("getLoop: Starting call no " + callNo + " with URL: " + url);
+			if (url.indexOf('?') == -1)
+				url += "?per_page=100";
+			else	
+				url += "&per_page=100";
+		} else {
+			console.log("getLoop: Continuing call no " + callNo + " with URL: " + url);
+			// Check if someone started a newer call. Then we will cancel. Is this really necessary ???
+			if ((callNo != -1) && (callNo) < yoda_gitHubCallNo) {
+				console.log("getLoop: detected newer call (" + yoda_gitHubCallNo + " > " + callNo + "). Cancelling.");
+				return;
+			}
+		}
+		
+		$.ajax({
+			type: 'GET',
+			url: url,
+			success: function(response, status, request){
+				var parsedLink = parse_link_header(request.getResponseHeader('link'));
+
+				if (parsedLink.next == undefined) {
+					// Done!
+					yoda_ready_func();
+					
+					if (partFunc == null) {
+						console.log("getLoop: Done with call no " + callNo + ", no of results: " + (collector.length + response.length));
+						finalFunc(collector.concat(response));
+					} else {
+						console.log("getLoop: Done with call no " + callNo + " (partial callbacks)");
+						finalFunc();
+					}
+				} else {
+					if (partFunc != null) {
+						partFunc(response);
+						getLoopInternal(parsedLink.next, [], finalFunc, partFunc, errorFunc, callNo);
+					} else {
+						getLoopInternal(parsedLink.next, collector.concat(response), finalFunc, partFunc, errorFunc, callNo);
+					}
+				}
+			},
+			error: function (response, status, errorThrown) {
+				yoda_ready_func();
+				errorFunc(errorThrown);
+			}
+		});
+	};
+
+	// -----------------------------	
 	// Exposed functions/variables.
 	return {
 		strip2Digits: function(number) {
@@ -501,57 +576,15 @@ var yodaBase = (function() {
 			});
 		},
 		
+		// Return authorized user (as given to last gitAuth call)
 		getAuthUser: function() {
 			return yoda_userId;
 		},
 		
 		// Collect various information from the API. URL gives the requested info, the function does the
 		// collection and concatenation, calling in the end the final function. 
-		// Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
-		getLoop: function(url, page, collector, finalFunc, errorFunc, callNo) {
-			// First call?
-			if (callNo == undefined) {
-				yoda_busy_func();
-				yoda_gitHubCallNo++;
-				callNo = yoda_gitHubCallNo;
-				console.log("Starting loop call no " + callNo + " with URL: " + url);
-			} else {
-				// Check if someone started a newer call. Then we will cancel.
-				if ((callNo != -1) && (callNo) < yoda_gitHubCallNo) {
-					console.log("getLoop detected newer call (" + yoda_gitHubCallNo + " > " + callNo + "). Cancelling.");
-					return;
-				}
-			}
-			
-			if (page != -1) {
-				var oldIndex = url.indexOf("per_page=100&page=");
-				if (oldIndex != -1) { 
-					url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
-				} else {
-					// Do we have a ?
-					if (url.indexOf("?") == -1) {
-						url = url + "?per_page=100&page=" + page;
-					} else {
-						url = url + "&per_page=100&page=" + page;
-					}
-				}
-			}
-			
-			$.getJSON(url, function(response, status){
-				if (response.length == 100 && page != -1) {
-					yodaBase.getLoop(url, page + 1, collector.concat(response), finalFunc, errorFunc, callNo);
-				} else {
-					yoda_ready_func();
-					finalFunc(collector.concat(response));
-				}
-			}).done(function() { /* One call succeeded */ })
-			.fail(function(jqXHR, textStatus, errorThrown) { 
-				yoda_ready_func();
-				if (errorFunc != null) {
-					errorFunc(errorThrown + " " + jqXHR.status);
-				}
-				})
-			.always(function() { /* One call ended */ });;          
+		getLoop: function(url, finalFunc, errorFunc) {
+			getLoopInternal(url, [], finalFunc, null, errorFunc);
 		},
 		
 		// Collect various information from the API. URL gives the requested info, the function calls repeatedly
@@ -560,38 +593,8 @@ var yodaBase = (function() {
 		// Set page = 1 for first page, or set to -1 for get calls where per_page / page is not used.
 		// No cursor changes.
 		// Note, we are not using the callNo cancellation... 
-		getLoopIterative: function(url, page, partFunc, finalFunc, errorFunc) {
-			if (page != -1) {
-				var oldIndex = url.indexOf("per_page=100&page=");
-				if (oldIndex != -1) { 
-					url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
-				} else {
-					// Do we have a ?
-					if (url.indexOf("?") == -1) {
-						url = url + "?per_page=100&page=" + page;
-					} else {
-						url = url + "&per_page=100&page=" + page;
-					}
-				}
-			}
-			
-			console.log("Iterative call URL: " + url);
-			$.getJSON(url, function(response, status){
-				if (partFunc != null)
-					partFunc(response);
-				
-				if (response.length == 100 && page != -1) {
-					yodaBase.getLoopIterative(url, page + 1, partFunc, finalFunc, errorFunc);
-				} else {
-					finalFunc();
-				}
-			}).done(function() { /* One call succeeded */ })
-			.fail(function(jqXHR, textStatus, errorThrown) { 
-				if (errorFunc != null) {
-					errorFunc(errorThrown + " " + jqXHR.status);
-				}
-				})
-			.always(function() { /* One call ended */ });;          
+		getLoopIterative: function(url, partFunc, finalFunc, errorFunc) {
+			getLoopInternal(url, [], finalFunc, partFunc, errorFunc);
 		},
 		
 		// Filter out pull requests. Don't want them.
@@ -640,7 +643,7 @@ var yodaBase = (function() {
 			}
 
 			console.log("Get Issues URL:" + getIssuesUrl);
-			yodaBase.getLoop(getIssuesUrl, 1, [], function(issues) {
+			yodaBase.getLoop(getIssuesUrl, function(issues) {
 				yoda_issues = yoda_issues.concat(issues);
 				
 				if (repoList.length == 1) {
@@ -669,7 +672,7 @@ var yodaBase = (function() {
 				getIssuesUrl += "&labels=" + labelFilter; 
 			}
 			console.log("Get Issues URL:" + getIssuesUrl);
-			yodaBase.getLoop(getIssuesUrl, 1, [], function(issues) {
+			yodaBase.getLoop(getIssuesUrl, function(issues) {
 				yodaBase.filterPullRequests(issues);
 				yoda_issues = issues;
 

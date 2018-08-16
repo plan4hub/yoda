@@ -859,14 +859,14 @@ function updateMilestones(repoIndex) {
 	
 	if (repoIndex < repoList.length) {
 		if ($('#closedmilestones').is(":checked")) {
-			var getMilestonesUrl = yodaBase.getGitHubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
+			var getMilestonesUrl = yodaBase.getGitHubUrl() + "repos/" + repoList[repoIndex] + "/milestones?state=all";
 		} else {
-			var getMilestonesUrl = yodaBase.getGitHubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
+			var getMilestonesUrl = yodaBase.getGitHubUrl() + "repos/" + repoList[repoIndex] + "/milestones?state=open";
 		}
 
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
-		yodaBase.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
+		yodaBase.getLoop(getMilestonesUrl, function(data) {storeMilestones(data, repoIndex);}, null);
 	} else {
 		console.log("Read all milestones:");
 		console.log(repoMilestones);
