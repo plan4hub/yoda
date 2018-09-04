@@ -445,9 +445,14 @@ function formatIssue(issue, comments, events) {
 			}
 			eventPtr++;
 		} else {
-			// We do the comment.
-			issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + '</div>\n';
-			issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div>\n';
+			// Let's see if the comment should be skipped. This is the case if the comments starts with "> private" annotation.
+			if (comments[commentPtr].body.indexOf("> private") == 0) {
+				console.log("  Skipping comment as marked private...");
+			} else {
+				// We do the comment.
+				issueHTML += '<div class="issuecommentheader">' + formatUser(comments[commentPtr].user.login) + ' commented on ' + formatTime(comments[commentPtr].created_at) + '</div>\n';
+				issueHTML += '<div class="issuecomment">' + comments[commentPtr].body_html + '</div>\n';
+			}
 
 			commentPtr++;
 		}
