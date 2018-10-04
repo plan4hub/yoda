@@ -106,7 +106,12 @@ var yoda = (function() {
 			}
 			// Return the match requested. 
 			// Now we have to look at just the data part..
+			
 			var newString = res[index];
+			var quoteStart = start.indexOf(">");
+			if (quoteStart != -1)
+				newString = res[index].substr(start.substr(quoteStart).length);
+			
 			var reg2 = new RegExp(data);
 			var res2 = newString.match(reg2);
 			return res2[0].trim();
@@ -421,6 +426,7 @@ var yoda = (function() {
 			res = removeFromBody(description, "^> startdate .*$");
 			res = removeFromBody(res, "^> burndownduedate .*$");
 			res = removeFromBody(res, "^> capacity .*$");
+			res = removeFromBody(res, "^> info .*$");
 			return res;
 		},
 		
@@ -565,7 +571,14 @@ var yoda = (function() {
 		getMilestoneBurndownDuedate: function(description) {
 			return getBodyField(description, '> burndownduedate ', '[ ]*20[0-9][0-9]-[01][0-9]-[0-3][0-9]');
 		},
-
+		
+		getMilestoneInfo: function(description) {
+			var info = getBodyField(description, '> info ', '[A-Za-z0-9].*$');   
+			if (info == null)
+				info = "";
+			return info;
+		},
+		
 		// Format date as YYYY-MM-DD
 		formatDate: function(date) {
 			var result = date.getFullYear() + "-";

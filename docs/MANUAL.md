@@ -94,11 +94,13 @@ For example, Yoda add it's own Kanban tool that allows viewing and maintenance o
 
 Also, Yoda Burndown and Velocity Reports support planning across repositories based on sprint milestones. 
 
-A milestone manager helps to keeping repository milestones in sync. Additional sprint data must be added to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notatation. 
+A milestone manager helps to keeping repository milestones in sync. Additional sprint data must be added to the milestone description. The additional data is the sprint start date using the a "> startdate YYYY-MM-DD" notation. 
 
 Further it is possible to specify "> burndownduedate YYYY-MM-DD" as sprint date where all estimated activities (typically development) should have been finished. This is of course optional, otherwise milestone due date is used. 
 
-Finally, a capacity for the sprint (Story Points) can be set using the "> capacity (# of story points)" notation.
+Also, a capacity for the sprint (Story Points) can be set using the "> capacity (# of story points)" notation.
+
+Finally, an additional piece of data (maybe a version number or alternative name that the component(s) in the repository delivers) may be set using a "> info *text*" format. The milestone managers allows this to be set easily.
 
 Example:
 

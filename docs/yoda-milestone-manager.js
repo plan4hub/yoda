@@ -181,8 +181,11 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
-function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state) {
+function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info) {
 	var urlData = {};
+	
+	if ((info != "") && (info != null))
+		description += "\n> info " + info;
 	
 	if ((startdate != "") && (startdate != null))
 		description += "\n> startdate " + startdate;
@@ -200,6 +203,7 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 	
 	if (state != undefined)
 		urlData["state"] = state;
+	
 
 	return urlData;
 }
@@ -213,15 +217,16 @@ function updateMilestoneData(index) {
 	var burndownduedate = $('#burndownduedate' + index).val();
 	var capacity = $('#capacity' + index).val();
 	var state = $('#state' + index).val();
+	var info = $('#info' + index).val();
 	
 	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + 
-			capacity + ", state:" + state);
+			capacity + ", state:" + state + ", info:" + info);
 	
 	// Ok, let's prepare a PATCH request to update the data.
 	var updateMilestoneUrl = milestone.url;
 	console.log("updateUrl: " + updateMilestoneUrl);
 
-	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state);
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info);
 	
 	$.ajax({
 		url: updateMilestoneUrl,
@@ -270,7 +275,7 @@ function replicateMilestone(index) {
 		} else {
 			var capacity = null;
 		}
-		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state);
+		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, "");
 		console.log(urlData);
 
 		// Ok, let's see. Does milestone already exist
@@ -323,6 +328,9 @@ function displayRepoMilestones() {
 	
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Description</b>";
+	
+	var cell = headerRow.insertCell();
+	cell.innerHTML = "<b>Info</b>";
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Start Date</b>";
@@ -355,8 +363,11 @@ function displayRepoMilestones() {
 	cell.innerHTML = "";
 
 	cell = row.insertCell();
-	cell.innerHTML = '<input type="text" id="newdescription" size="60">';
+	cell.innerHTML = '<input type="text" id="newdescription" size="30">';
 	
+	cell = row.insertCell();
+	cell.innerHTML = "";
+
 	cell = row.insertCell();
 	cell.innerHTML = '<input type="text" id="newstartdate" size="10" value="">';
 
@@ -390,9 +401,13 @@ function displayRepoMilestones() {
 		$('#state' + m ).val(milestone.state);
 	
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="text" id="description' + m + '" size="60" onchange="updateMilestoneData(' + m + ')" value="' + 
-			yoda.getPureDescription(milestone.description) + '">';;
+		cell.innerHTML = '<input type="text" id="description' + m + '" size="30" onchange="updateMilestoneData(' + m + ')" value="' + 
+			yoda.getPureDescription(milestone.description) + '">';
 
+		cell = row.insertCell();
+		cell.innerHTML = '<input type="text" id="info' + m + '" size="30" onchange="updateMilestoneData(' + m + ')" value="' + 
+			yoda.getMilestoneInfo(milestone.description) + '">';
+			
 		var startdate = yoda.getMilestoneStartdate(milestone.description);
 		if (startdate == null)
 			startdate = "";
