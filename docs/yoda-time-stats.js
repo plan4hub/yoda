@@ -179,6 +179,7 @@ function createChart() {
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
 	bars = [];
 	barsIds = [];
+	var labelSplitUsingRegExp = false;
 	
 	// Special handling for "repo"
 	if (labelSplit == "repo") {
@@ -199,6 +200,7 @@ function createChart() {
 		} else {
 			// Regular expression
 			if (labelSplit != "") {
+				labelSplitUsingRegExp = true;
 				var splitReg = new RegExp(labelSplit);
 				if (labelSplit != "") {
 					for (i=0; i<issues.length; i++) {
@@ -388,9 +390,17 @@ function createChart() {
 	// Ready, let's push the bars
 	var datasetArray = [];
 	for (var b = 0; b < bars.length; b++) {
+		// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
+		actualBar = bars[b];
+		if (labelSplitUsingRegExp && labelSplit.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
+			var splitReg = new RegExp(labelSplit);
+			actualBar = bars[b].replace(splitReg, '$1');
+		}
+//		console.log("actualBar = '" + actualBar + "'");
+		
 		datasetArray.push({
 			type : 'bar',
-			label : bars[b],
+			label : actualBar,
 			borderWidth : 2,
 			fill : false,
 			data : dataArray[b],

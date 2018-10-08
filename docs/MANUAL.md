@@ -150,9 +150,11 @@ Per default, all issues in the selected repos are considered. It is possible to 
 
 For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labeling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
 
-Instead of a regular expression, it is also possible to split issues into bars by simply specifying a comma-separate list of labels. Example: "bug, feature".
+Instead of a regular expression, it is also possible to split issues into bars by simply specifying a comma-separate list of labels. Example: "bug, feature". 
 
 *Note*: A special value is available for Label Bar Splitting, namely "repo". This value will split the issues by their repository.
+
+*Note*: It is possible to control the legend displayed for the bar the a given label. If you want to do this, put the desired label as the first positional expression in the regular expression. Example: "^S[1-4] - (.*)$" will make legends "Urgent", "High", "Medium", "Low" skipping the S bit..
 
 Issues without labels matching the expression/list will be put into a special "Others" bar. This may be suppressed by putting a blank value in the Others field.
 
