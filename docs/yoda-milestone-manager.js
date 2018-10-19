@@ -251,7 +251,7 @@ function replicateMilestone(index) {
 	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", state:" + state);
 	
 	// Need to loop through selected repos, and look for milestone (based on title).
-	// If it exists, we do a PATCH request to update description and dates (not capacity!)
+	// If it exists, we do a PATCH request to update description and dates (not capacity! and not info!)
 	// If it does not exists, we will do a POST request to create milestone.
 	var noCalls = 0;
 	for (var r = 0; r < repoList.length; r++) {
@@ -272,10 +272,12 @@ function replicateMilestone(index) {
 		// Need to keep capacity
 		if (existingIndex != -1) {
 			var capacity = yoda.getMilestoneCapacity(milestoneListComplete[m].description);
+			var info = yoda.getMilestoneInfo(milestoneListComplete[m].description);
 		} else {
 			var capacity = null;
+			var info = null;
 		}
-		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, "");
+		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info);
 		console.log(urlData);
 
 		// Ok, let's see. Does milestone already exist
