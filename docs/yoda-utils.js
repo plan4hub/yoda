@@ -965,13 +965,15 @@ var yoda = (function() {
 						} else {
 							// No values into either URLId or (repo), let's check the localStorage
 							if (yoda.getDefaultLocalStorageValue(localStorageId) != null) {
-								selectRepos = yoda.getDefaultLocalStorageValue(localStorageId);
+								selectRepos = yoda.getDefaultLocalStorageValue(localStorageId).split(",");
 							}
 						} 
 					}
 				}
 			
 				var reposSelected = false;
+				console.log("SelectRepos: " + selectRepos);
+				
 				for (var r = 0; r < yoda_repoList.length; r++) {
 					var selectRepo = false;
 					if (selectRepos.indexOf(yoda_repoList[r].name) != -1) {
