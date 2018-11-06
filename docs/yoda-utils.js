@@ -740,8 +740,10 @@ var yoda = (function() {
 			yoda_userId = userId;
 			
 			var headers = [];
-			if (fullExport != undefined) {
+			if (fullExport == "fullExport" ) {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
+			} else if (fullExport == "textMatch") {
+				headers['Accept'] = 'application/vnd.github.symmetra-preview.text-match+json';
 			} else {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview+json';
 			}
@@ -823,8 +825,8 @@ var yoda = (function() {
 				}
 			}
 			
-			$.getJSON(url, function(response, status){
-				if (response.length == 100 && page != -1) {
+			$.getJSON(url, function(response, status) {
+				if ((response.items != undefined && response.items.length == 100 && page != -1) || (response.length == 100 && page != -1)) {
 					yoda.getLoop(url, page + 1, collector.concat(response), finalFunc, errorFunc, callNo);
 				} else {
 					$("*").css("cursor", "default");
