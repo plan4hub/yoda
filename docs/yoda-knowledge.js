@@ -33,8 +33,6 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
-	if ($("#repolist").val() != "")
-		params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "kmlabel");
 	
 	return params;
@@ -82,16 +80,18 @@ function formatIssueKM(issue) {
 
 function makeKM(result) {
 	console.log(result);
-	var rn = document.getElementById("KM");
 	var issues = result[0].items;
 	console.log("Finally " + issues.length + " issues");
 	console.log(issues);
-	return;
 
+	for (var i = 0; i < issues.length; i++) {
+		var card = createCard(issues[i]);
+		$("#KM").append(card);
+	}
 
 	// Copy to clipboard
-	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=rn");
+//	copy_text("RN");
+	yoda.updateUrl(getUrlParams() + "&action=search");
 }
 
 // Collect various information from the API. URL gives the requested info, the function does the
@@ -129,22 +129,74 @@ function getLoop(url, page, collector, finalFunc, errorFunc, callNo) {
 	.always(function() { /* One call ended */ });;          
 };
 
+//Create the HTML card representation for a given issue.
+function createCard(issue) {
+//	console.log(issue);
+	var card = $('<div class="card"></div>');
+	card.attr("url", issue.url);
+//	if (issue.closed_at != null) {
+//		var cardRef = $('<a class="cardlink" style="text-decoration: line-through;" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');		
+//	} else {
+		var cardRef = $('<a class="cardlink" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');
+//	}
+	card.append(cardRef);
+	
+	var owner = yoda.getUrlOwner(issue.repository_url);
+	var repo = yoda.getUrlRepo(issue.repository_url);
+
+	if (issue.assignees.length > 0) {
+		var assignText = "";
+		for (var as = 0; as < issue.assignees.length; as++) {
+			var assignee = issue.assignees[as].login;
+			if (assignText != "") 
+				assignText += " ";
+			assignText += '<a href="' + issue.assignees[as].html_url + '" target="_blank">' + issue.assignees[as].login + '</a>';
+		}
+	} else {
+		var assignText = "<i>unassigned</i>";
+	}
+
+	issueRef = '<a href="' + issue.html_url + '" target="_blank">' + owner + "/" + repo + "#" + issue.number + '</a>';
+	
+//	var smallRef = $('<small>' + issueRef + ' ' + getMilestoneTitle(issue) + ' ' + assignText + '</small>');
+	var smallRef = $('<small>' + issueRef + ' ' +  assignText + ' ' + '</small>');
+	card.append(smallRef);
+
+	var cardLabels = $('<span class="cardlabels"></span>');
+	
+	for (var l = 0; l < issue.labels.length; l++) {
+		var cardLabel = $('<span class="cardlabel">' + issue.labels[l].name + '</span>');
+		cardLabel.css('background', '#' + issue.labels[l].color);  
+		cardLabel.css('color', yoda.bestForeground(issue.labels[l].color));
+		cardLabels.append(cardLabel);
+	}
+	card.append(cardLabels);
+	
+	// Extract KM line(s) from body and show nicely.... 
+	var kmLine = $('<small>' + yoda.getLabelMatch(issue.body, "> KM") + '</small>');
+	card.append(kmLine);
+	
+	return card;
+}
 
 
 function startKM(_download) {
 	download = _download;	
 	repoIssues = [];
+	$("#KM").html("");
 	
 	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=";
 	if ($("#kmsearch").val() != "")
 		getIssuesUrl += $("#kmsearch").val();
-	if ($("#owner").val() != "") 
-		getIssuesUrl += "+org:" + $("#owner").val();
 	if ($("kmlabel").val() != "")
 		getIssuesUrl += "+" + $("#kmlabel").val();
 	getIssuesUrl += "+type:issue";
+	var saveUrl = getIssuesUrl;
+	if ($("#owner").val() != "") 
+		getIssuesUrl += "+org:" + $("#owner").val();
+
 //	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=" + $("#kmsearch").val() + "+org:" + $("#owner").val() + "+type:issue+label:" + $("#kmlabel").val();
-	yoda.getLoop(getIssuesUrl, 1, [], function(data) {makeKM(data)}, null);
+	yoda.getLoop(getIssuesUrl, 1, [], function(data) { makeKM(data)}, null);
 }
 
 // --------------

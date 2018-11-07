@@ -692,6 +692,11 @@ var yoda = (function() {
 			}
 		},
 		
+		// get owner from url
+		getUrlOwner: function(url) {
+			return (url.split("/").slice(-2)[0]);
+		},
+		
 		// get repo from url
 		getUrlRepo: function(url) {
 			return (url.split("/").slice(-1)[0]);
