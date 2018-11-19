@@ -245,12 +245,12 @@ function addMilestone(issues) {
 	}
 
 	// If we have a capacity number in the milestone, we may work out estimate/capacity
-	if (milestoneCapacity != null) {
-		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
+	if (milestoneCapacity != null && yoda.getEstimateInIssues() != "noissues") {
+ 		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
 		console.log("Capacity factor = " + capacityFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
 	} else {
-		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(0); // We cannot work out estimate/day, put 0
+		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(0); // We cannot work out estimate/capacity, put 0
 	}
 	
 	// Update chart
@@ -299,6 +299,7 @@ function startChart() {
 		splitLabels = $("#splitlabels").val().split(",");
 	}
 	var splitOther = $("#splitother").val();
+	
 	noStoryBars = splitLabels.length + 1; // Assume other bar always.
 	console.log("NoStoryBars = " + noStoryBars);
 	
@@ -340,7 +341,7 @@ function startChart() {
 	datasets.push({
 		stack: 'storyPoints',
 		type : 'bar',
-		label : $("#splitother").val(),
+		label : axis,
 		borderWidth : 2,
 		fill : false,
 		data : [],
@@ -359,7 +360,8 @@ function startChart() {
 		yAxisID: "y-axis-right",
 		backgroundColor : 'rgb(255, 102, 0)' 
 	});
-	labels.push("Average / day")
+	labels.push("Average / day");
+	
 	// Then vs. capacity
 	datasets.push({
 		type : 'bar',
