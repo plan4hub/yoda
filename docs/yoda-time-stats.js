@@ -63,14 +63,6 @@ function getUrlParams() {
 	return params;
 }
 
-function advanceDate(date, interval) {
-	if (interval.slice(-1) == 'm') {
-		// Assume month
-		date.addMonths(parseInt(interval));
-	} else {
-		date.setDate(date.getDate() + parseInt(interval));
-	}
-}
 
 // Helper functions for analyzing issues. These are introduced to be able to have an abstraction for
 // using - or not using - history issue information based on events information.
@@ -246,8 +238,9 @@ function createChart() {
 	// Start at startDate
 	
 	// Need to consider previous date, so that we can observe interval.
-	var previousDate = new Date(startDate);
-	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), advanceDate(date, interval)) {
+    var previousDate = new Date(startDate);
+    var startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
+	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
 		console.log("Date: " + date + ", previousDate: " + previousDate);
 		date.setHours(23);
 		date.setMinutes(59);

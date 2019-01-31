@@ -341,7 +341,17 @@ var yoda = (function() {
 			var baseUrl = window.location.pathname;
 			console.log("Updating URL to " + baseUrl + "?" + searchParams);
 			window.history.replaceState(null, null, baseUrl + "?" + searchParams);
-		},
+        },
+        
+        advanceDate: function (date, interval, startDay) {
+            if (interval.slice(-1) == 'm') {
+                // Assume month
+                date.addMonths(parseInt(interval));
+                date.setDate(Math.min(startDay, date.getDaysInMonth()));
+            } else {
+                date.setDate(date.getDate() + parseInt(interval));
+            }
+        },
 		
 		// Look at date field. Here a "+/- # of days vs current date" notation is allowed.
 		// Also +/-(m) notation for adding/subtracting months.
