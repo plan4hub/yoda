@@ -39,22 +39,12 @@ function getUrlParams() {
 	return params;
 }
 
-function advanceDate(date, interval) {
-//	console.log('AdvancedDate 1: ' + date + ", interval: " + interval);
-	if (interval.slice(-1) == 'm') {
-		// Assume month
-		date.addMonths(parseInt(interval));
-	} else {
-		date.setDate(date.getDate() + parseInt(interval));
-	}
-//	console.log('AdvancedDate 2: ' + date + ", interval: " + interval);
-}
-
 function determineStartAndInterval(firstIssueDate, interval) {
 	var today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
-	today.setSeconds(0);
+    today.setSeconds(0);
+    var startDay = today.getDate();
 	
 	var days = (today - firstIssueDate) / (24*60*60*1000);
 	console.log("Days: " + days);
@@ -66,7 +56,9 @@ function determineStartAndInterval(firstIssueDate, interval) {
 	}
 	
 	// Ok, let's determine startdate
-	for (var startDate = today; startDate >= firstIssueDate; advanceDate(startDate, '-' + interval));
+	for (var startDate = today; startDate >= firstIssueDate; yoda.advanceDate(startDate, '-' + interval, startDay)) {
+        // NOP
+    };
 
 	return {
 		startDate: startDate,
@@ -170,7 +162,8 @@ function createChartLT(issues) {
 	var leadTimeArray = [];
 	var dateArray = [];
 
-	for (var date = new Date(startDate); date <= endDate; advanceDate(date, interval)) {
+    var startDay = new Date(startDate).getDate();
+	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
 		var endOfDate = new Date(date);
 		endOfDate.setHours(23);
 		endOfDate.setMinutes(59);
@@ -361,8 +354,9 @@ function createChartCFD(issues) {
 	// date loop
 	// Start at startDate
 	
-	// Need to consider previous date, so that we can observe interval.
-	for (var date = new Date(startDate); date <= endDate; advanceDate(date, interval)) {
+    // Need to consider previous date, so that we can observe interval.
+    var startDay = new Date(startDate).getDate();
+	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
 //		console.log('date: ' +  date + ", enddate: " + endDate );
 		var endOfDate = new Date(date);
 		endOfDate.setHours(23);
