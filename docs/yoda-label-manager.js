@@ -133,8 +133,9 @@ function copyLabels(nameColorArray) {
 				var urlData = {
 						"name": name,
 						"color": color,
-						"description": description
-				};
+                };
+                if (description != null)
+                    urlData["description"] = description;
 				
 				$.ajax({
 					url: patchLabelUrl,
@@ -160,8 +161,9 @@ function copyLabels(nameColorArray) {
 	var urlData = {
 			"name": name,
 			"color": color,
-			"description": description
 	};
+    if (description != null)
+        urlData["description"] = description;
 	
 	$.ajax({
 		url: createLabelUrl,
