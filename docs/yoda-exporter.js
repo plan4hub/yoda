@@ -204,6 +204,8 @@ function exportIssues(issues) {
             case "MilestoneDate":
 				if (issues[i].milestone != undefined && issues[i].milestone.due_on != null) {
                     el["MilestoneDate"] = yoda.formatDate(new Date(issues[i].milestone.due_on));
+                } else {
+                    el["MilestoneDate"] = "";
                 }
                 break;
             case "DurationMilestone": 
@@ -211,6 +213,8 @@ function exportIssues(issues) {
                     var createdDate = yoda.formatDate(new Date(issues[i].created_at));
                     var milestoneDate = yoda.formatDate(new Date(issues[i].milestone.due_on));
                     el["DurationMilestone"] = yoda.dateDiff(createdDate, milestoneDate);
+                } else {
+                    el["DurationMilestone"] = "";
                 }
                 break;
             case "Duration":
