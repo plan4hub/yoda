@@ -169,7 +169,7 @@ function exportIssues(issues) {
 				break;
 			case "Milestone":
 				if (issues[i].milestone != undefined) {
-					el["Milestone"] = issues[i].milestone.title;
+                    el["Milestone"] = issues[i].milestone.title;
 				} else {
 					el["Milestone"] = "";
 				}
@@ -200,8 +200,20 @@ function exportIssues(issues) {
 				// Syntethized fields
 			case "Report Date":
 				el["Report Date"] = yoda.formatDate(today);
-				break;
-			case "Duration":
+                break;
+            case "MilestoneDate":
+				if (issues[i].milestone != undefined && issues[i].milestone.due_on != null) {
+                    el["MilestoneDate"] = yoda.formatDate(new Date(issues[i].milestone.due_on));
+                }
+                break;
+            case "DurationMilestone": 
+				if (issues[i].milestone != undefined && issues[i].state == "closed" && issues[i].milestone.due_on != null) {
+                    var createdDate = yoda.formatDate(new Date(issues[i].created_at));
+                    var milestoneDate = yoda.formatDate(new Date(issues[i].milestone.due_on));
+                    el["DurationMilestone"] = yoda.dateDiff(createdDate, milestoneDate);
+                }
+                break;
+            case "Duration":
 				var createdDate = yoda.formatDate(new Date(issues[i].created_at));
 				if (issues[i].closed_at != null) {
 					var closedDate = yoda.formatDate(new Date(issues[i].closed_at));
