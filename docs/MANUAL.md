@@ -324,7 +324,7 @@ Yoda includes a powerful issues exporter, which can output issues to CSV files, 
 
 The exporter can export issues multiple repositories within the same organization or - if repo field is left blank - then all organization repos will be scoped for export.
 
-In the end, the columns of the resulting CSV file is defined in the "Fields" input box as a comma-separated list. The default list of fields are: Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,Created at,Closed at,Duration,Title,Estimate,Remaining.
+In the end, the columns of the resulting CSV file is defined in the "Fields" input box as a comma-separated list. The default list of fields are: Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,MilestoneDate,Created at,Closed at,Duration,DurationMilestone,Title,Estimate,Remaining.
 
 Further fields that may be added are: Body,Report Date, URL, Assignees. 
 

@@ -225,8 +225,10 @@ function addMilestone(issues) {
 				estimateArray[b] += issueEstimate;
 				break;
 			}
-		}
-		if (!foundBar) {
+        }
+        
+
+		if (!foundBar && $("#splitother").val() != "") {
 			estimateArray[noStoryBars - 1] += issueEstimate; 
 		}
 		
