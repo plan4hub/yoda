@@ -286,6 +286,13 @@ function replicateMilestone(index) {
 			var operation = 'POST';
 			var milestoneUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/milestones";
 			urlData["title"] = milestone.title;
+			
+			// Note, if the milestone we are replicating FROM is closed, do NOT create new repositories in the other repos.
+			if (state == 'closed') {
+				yoda.showSnackbarError("Skipping milestone creation in " + repoList[r] + " as milestone closed.");
+				console.log("Skipping milestone creation in " + repoList[r] + " as milestone closed.");
+				continue;
+			}
 		} else {
 			console.log("Need to update existing milestone " + milestone.title + " in " + repoList[r] + " repository.");
 			var milestoneUrl = milestoneListComplete[existingIndex].url;
