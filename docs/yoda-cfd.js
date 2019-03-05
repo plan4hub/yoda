@@ -33,6 +33,9 @@ function getUrlParams() {
 	if ($("#labelfilter").val() != "") {
 		params += "&labelfilter=" + $("#labelfilter").val(); 
 	}
+	if ($("#milestonefilter").val() != "") {
+		params += "&milestonefilter=" + $("#milestonefilter").val(); 
+	}
 	if ($("#title").val() != "") {
 		params += "&title=" + $("#title").val(); 
 	}
@@ -83,7 +86,7 @@ function createChartLT(issues) {
 		else 
 			return 1;
 	});
-
+	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
 	today.setHours(0);
@@ -487,6 +490,29 @@ function errorFunc(errorText) {
 // ----------------
 var _chartType = "";
 function storeIssuesThenCreateChart(issues) {
+	// Filter out issues not matching specified milestonefilter, if any.
+	if ($("#milestonefilter").val() != "") {
+		mFilter = $("#milestonefilter").val().split(",");
+		console.log(mFilter);
+
+		milestonedIssues = [];
+		for (var i = 0; i < issues.length; i++) {
+			foundMilestone = false;
+			for (var j = 0; j < mFilter.length; j++) {
+				if (issues[i].milestone == null)
+					continue;
+				if (issues[i].milestone.title != mFilter[j])
+					continue;
+				foundMilestone = true;
+			}
+			
+			if (foundMilestone)
+				milestonedIssues.push(issues[i]);
+		}
+		
+		issues = milestonedIssues;
+	}
+	
 	if (_chartType == "CFD") {
 		createChartCFD(issues);
 	} else {

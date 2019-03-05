@@ -247,7 +247,7 @@ If you do not specify a start date, Yoda will set the start date at the time the
 
 For more details on specifying interval, start date and end date, consult the Issues Statistics Report.
 
-As wit the Issue Statistics Report, multiple repositories may be specified. 
+As wit the Issue Statistics Report, multiple repositories may be specified. It is also possible to specify label and/or milestone filtering.  
 
 The report is available [here](yoda-cfd.html).
 
