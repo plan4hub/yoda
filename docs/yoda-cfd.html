@@ -77,6 +77,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="text" size="40" id="labelfilter" value="">
 			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
 		</div>
+		
+		<div class="field">
+			<label>Milestone filter</label>
+			<input type="text" size="40" id="milestonefilter" value="">
+			<span class="tooltip">Milestone filter as comma separated list w/o spaces (OR)</span>
+		</div>
+		
 	</div>
 
 	<div class="frame">
@@ -126,6 +133,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamDate("#enddate", "enddate");
 		yoda.decodeUrlParam("#interval", "interval");
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
+		yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
 		yoda.decodeUrlParam("#title", "title");
 		
 		// Local storage
