@@ -165,10 +165,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 		<div class="field">
 			<label>Release Note Skip Label</label>
-			<input type="text" id="rnskiplabel" size="25" value="Q - No RN">
+			<input type="text" id="rnskiplabel" size="20" value="Q - No RN">
 			<span class="tooltip">Label to force skipping issue into RN</span>
 		</div>
 		
+		<div class="field">
+			<label>Release Note Meta Label</label>
+			<input type="text" id="rnmetalabel" size="20" value="T9 - MetaIssue">
+			<span class="tooltip">Label to indicate that a Meta issue</span>
+		</div>
+
 		<button id="drawRNbutton" onclick="startRN(false)">Show RN</button>
 		<button id="downloadRNbutton" onclick="startRN(true)">Download RN</button>
 	</div>
@@ -198,11 +204,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
 		yoda.getDefaultLocalStorage("#rnlabeltypes", "yoda.burndown.rnlabeltypes");
 		yoda.getDefaultLocalStorage("#rnskiplabel", "yoda.burndown.rnskiplabel");
+		yoda.getDefaultLocalStorage("#rnmetalabel", "yoda.burndown.rnmetalabel");
 		yoda.getDefaultLocalStorage("#rnknownlabel", "yoda.burndown.rnknownlabel");
 		
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
 		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
+		yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");
 		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
 		
 		yoda.decodeUrlParam("#filename", "filename");
