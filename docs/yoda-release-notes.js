@@ -489,10 +489,13 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 				var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
 				
 				var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
-				var issuesRawList = metaLine.split(",");
+				var issuesRawList = metaLine.split(/\s+/);
+				console.log(issuesRawList);
 				
 				for (var j = 0; j < issuesRawList.length; j++) {
-					var ref = issuesRawList[j].trim().replace(/#/g, "");   	
+					if (issuesRawList[j].indexOf("#") == -1)
+						continue;
+					var ref = issuesRawList[j].trim().replace(/#/g, "");
 					var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
 					metaIssuesList.push(urlRef);
 				}
