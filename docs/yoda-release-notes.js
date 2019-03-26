@@ -48,6 +48,7 @@ function getUrlParams() {
 		params += "&milestonelist=" + $("#milestonelist").val();
 	params = addIfNotDefault(params, "rnlabeltypes");
 	params = addIfNotDefault(params, "rnskiplabel");
+	params = addIfNotDefault(params, "rnmetalabel");
 	params = addIfNotDefault(params, "rnknownlabel");
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
@@ -204,7 +205,7 @@ function makeRN() {
 	
 	// Skip label
 	var rnSkipLabel = $("#rnskiplabel").val();
-	
+
 //  Will be something like...
 //	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 //	var issueTypeHeading = ["Added Features", "Solved Issues"];
@@ -427,6 +428,30 @@ function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 	updateIssueLoop(milestoneIndex + 1, myUpdateIssueActiveNo);
 }
 
+function updateMetaIssuesThenRN(metaIssuesList) {
+	if (metaIssuesList.length > 0) {
+		var getIssueUrl = metaIssuesList[0];
+		yoda.getLoop(getIssueUrl, -1, [], function(data) {repoIssues = repoIssues.concat(data); metaIssuesList.splice(0, 1); updateMetaIssuesThenRN(metaIssuesList);}, null);
+	} else {
+		// Let's sort issues on number. This may be required as we allow to retrieve issues from different milestones.
+		// Sort by repository, number
+		repoIssues.sort(function(a,b) {
+			if (a.repository_url == b.repository_url) {
+				return (a.number - b.number); 
+			}
+			if (a.repository_url > b.repository_url) {
+				return 1;
+			} else {
+				return -1;
+			}
+		});
+	
+		console.log("No issues (after filtering out pull requests): " + repoIssues.length);
+		yoda.showSnackbarOk("Succesfully retrived " + repoIssues.length + " issues.");
+		makeRN();
+	}
+}
+
 var updateIssueActiveNo = 0;
 function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	if (myUpdateIssueActiveNo < updateIssueActiveNo) {
@@ -452,23 +477,28 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 		console.log("All issues (before filtering out pull requests): " + repoIssues.length);
 		yoda.filterPullRequests(repoIssues);
 		
-		// Let's sort issues on number. This may be required as we allow to retrieve issues from different milestones.
-		// Sort by repository, number
-		repoIssues.sort(function(a,b) {
-			if (a.repository_url == b.repository_url) {
-				return (a.number - b.number); 
+		// Is this a good place to handle Meta-issues?
+		var metaIssuesList = [];
+		var rnMetaLabel = $("#rnmetalabel").val();
+		for (var i = 0; i < repoIssues.length; i++) {
+			// Meta issue? Special handling required
+			if (yoda.isLabelInIssue(repoIssues[i], rnMetaLabel)) {
+				console.log("Meta issue: " + repoIssues[i].number);
+			
+				var metaStart = repoIssues[i].body.indexOf('> META ');
+				var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
+				
+				var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
+				var issuesRawList = metaLine.split(",");
+				
+				for (var j = 0; j < issuesRawList.length; j++) {
+					var ref = issuesRawList[j].trim().replace(/#/g, "");   	
+					var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
+					metaIssuesList.push(urlRef);
+				}
 			}
-			if (a.repository_url > b.repository_url) {
-				return 1;
-			} else {
-				return -1;
-			}
-		});
-
-		
-		console.log("No issues (after filtering out pull requests): " + repoIssues.length);
-		yoda.showSnackbarOk("Succesfully retrived " + repoIssues.length + " issues.");
-		makeRN();
+		}
+		updateMetaIssuesThenRN(metaIssuesList);
 	}
 }
 
