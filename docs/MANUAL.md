@@ -262,9 +262,11 @@ For each issue, the issue number and issue title are reported. Further, a more d
 
 The title of the issue used in the release note may be optionally overwritten using another special "> RNT" notation. In this case, the next line is taken instead as the issue title.
 
+Sometimes it is necessary to generate a patch which includes issues already delivered as part of another milestone. In this case, it is possible to create a special *MetaIssue* (default label `T9 - MetaIssue`) referring to such issues. This is achieved by putting `> META (list of issue references)`, e.g. `> META #2342, #123, #12`. In this case, those 3 issues will be picked up in the same way as if they would have been associated with the milestone and included in the Release Notes.
+
 A special "Known Issues" Release note list can also be generated (similar to the normal Release Note). What is special here is the selection of issues. Here issues are taken from all repository Milestone *if* they have a Known Issues Label set, default "Q - Known Issue".
 
-URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, rnlabeltypes, rnskiplabel, rnknownlabel.
+URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, rnlabeltypes, rnskiplabel, rnmetalabel, rnknownlabel.
 
 The report is available [here](yoda-release-notes.html).
 
