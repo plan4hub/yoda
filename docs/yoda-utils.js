@@ -100,17 +100,19 @@ var yoda = (function() {
 		}
 		var reg = new RegExp(start + data, 'mg');
 		var res = body.match(reg);
+
 		if (res != null) {
 			if (index >= res.length) {
 				return null;
 			}
-			// Return the match requested. 
-			// Now we have to look at just the data part..
 			
-			var newString = res[index];
-			var quoteStart = start.indexOf(">");
-			if (quoteStart != -1)
-				newString = res[index].substr(start.substr(quoteStart).length);
+			// Return the match requested. First lets find out how long the start part is
+			var regStart = new RegExp(start);
+			var resStart = res[index].match(regStart);
+			if (resStart.length == 0)
+				return null; // strange.
+			// And extract the remaining part.
+			newString = res[index].substr(resStart[0].length);
 			
 			var reg2 = new RegExp(data);
 			var res2 = newString.match(reg2);
@@ -419,7 +421,7 @@ var yoda = (function() {
 		
 		// Extract "> estimate (value)" from body
 		getBodyEstimate: function(body) {
-			var estimate = getBodyField(body, '^> estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
+			var estimate = getBodyField(body, '^>[ ]?estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
 			if (estimate == null) {
 				// Try old format as well
 				estimate = getBodyField(body, '^/estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');
@@ -443,7 +445,7 @@ var yoda = (function() {
 		// Extract "> remaining (date) (value)" entries.
 		// Should be run in a loop with index = 0 first.  
 		getFirstRemaining: function(body, index) {
-			var remaining = getBodyField(body, '^> remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
+			var remaining = getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
 			return remaining;
 		},
 		

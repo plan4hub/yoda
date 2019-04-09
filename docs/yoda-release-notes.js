@@ -127,6 +127,9 @@ function formatIssueRN(issue) {
 
 	var issueText = "";
 	var issueRNTStart = issue.body.indexOf('> RNT');
+	if (issueRNTStart == -1)
+		issueRNTStart = issue.body.indexOf('>RNT');
+	
 	if (issueRNTStart != -1) {
 		var lineStart = issue.body.indexOf('\n', issueRNTStart) + 1;
 		var lineEnd = issue.body.indexOf('\n', lineStart);
@@ -148,6 +151,8 @@ function formatIssueRN(issue) {
 	if (issueRNTStart != -1)
 		issueRNSearchStart = issueRNTStart + 1;
 	var issueRNStart = issue.body.indexOf('> RN', issueRNSearchStart);
+	if (issueRNStart == -1)
+		issueRNStart = issue.body.indexOf('>RN', issueRNSearchStart);
 	if (issueRNStart != -1) {
 		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
 		var rnText = "";
@@ -486,18 +491,22 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 				console.log("Meta issue: " + repoIssues[i].number);
 			
 				var metaStart = repoIssues[i].body.indexOf('> META ');
-				var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
-				
-				var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
-				var issuesRawList = metaLine.split(/\s+/);
-				console.log(issuesRawList);
-				
-				for (var j = 0; j < issuesRawList.length; j++) {
-					if (issuesRawList[j].indexOf("#") == -1)
-						continue;
-					var ref = issuesRawList[j].trim().replace(/#/g, "");
-					var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
-					metaIssuesList.push(urlRef);
+				if (metaStart == -1) {
+					console.log("Could not find META tag????");
+				} else {
+					var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
+
+					var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
+					var issuesRawList = metaLine.split(/\s+/);
+					console.log(issuesRawList);
+
+					for (var j = 0; j < issuesRawList.length; j++) {
+						if (issuesRawList[j].indexOf("#") == -1)
+							continue;
+						var ref = issuesRawList[j].trim().replace(/#/g, "");
+						var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
+						metaIssuesList.push(urlRef);
+					}
 				}
 			}
 		}
