@@ -81,6 +81,13 @@ const optionDefinitions = [
 		description: "Issue state to scope. Either 'open' (default), 'closed', or 'all'" 
 	},
 	{
+		name: 'milestonesort',
+		alias: 'm',
+		type: Boolean,
+		defaultValue: false,
+		description: "Sort issues on milestones rather than on issue number (default)." 
+	},
+	{
 		name: 'image-filter',
 		alias: 'i',
 		type: String,
@@ -94,7 +101,7 @@ try {
 }
 catch(err) {
     console.log("Usage:");
-	console.log("node yoda-node-export-web.js --owner [owner] --repo [repository] --user [GitHub user name] --token [GitHub password or personal token] --output-dir [root directory for output] --label-filter [filter] --state [open|closed|all] --image-filter [host name filter]");
+	console.log("node yoda-node-export-web.js --owner [owner] --repo [repository] --user [GitHub user name] --token [GitHub password or personal token] --output-dir [root directory for output] --label-filter [filter] --state [open|closed|all] --image-filter [host name filter] --milestonesort ");
 	process.exit(1);
 }
 
@@ -229,9 +236,25 @@ function getLabels(repoLeft) {
 
 }
 
-
 //STEP I2: Index generation, one file per repository
 function buildIndex() {
+	if (options['milestonesort'] == true) {
+		globIssues.sort(function(a, b) {
+			if (a.milestone == null && b.milestone == null)
+				return (a.number - b.number); 
+			if (a.milestone == null)
+				return -1;
+			if (b.milestone == null)
+				return 1;
+			if (a.milestone.title == b.milestone.title)
+				return (a.number - b.number);
+			if (a.milestone.title < b.milestone.title)
+				return -1;
+			else
+				return 1;
+		});
+	}
+	
 	var repoList = [options['repo']];
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
