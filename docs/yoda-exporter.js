@@ -419,6 +419,68 @@ function startExport() {
 	logMessage("Info: Initiated Github request.");
 }
 
+//-------------------------
+
+
+function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
+	console.log(lastOrgId);
+	if (lastOrgId != -1) {
+		var oldIndex = url.indexOf("since=");
+		if (oldIndex != -1) { 
+			url = url.substring(0, oldIndex) + "per_page=100&since=" + lastOrgId;
+		} else {
+			// Do we have a ?
+			if (url.indexOf("?") == -1) {
+				url = url + "?per_page=100&since=" + lastOrgId;
+			} else {
+				url = url + "&per_page=100&since=" + lastOrgId;
+			}
+		}
+	}
+	
+	$.getJSON(url, function(response, status) {
+		console.log(response);
+		if (response != undefined && response.length > 0) {
+			getLoopOrg(url, response[response.length - 1].id, collector.concat(response), finalFunc, errorFunc, callNo);
+		} else {
+			$("*").css("cursor", "default");
+			finalFunc(collector.concat(response));
+		}
+	}).done(function() { /* One call succeeded */ })
+	.fail(function(jqXHR, textStatus, errorThrown) { 
+		$("*").css("cursor", "default");
+		if (errorFunc != null) {
+			errorFunc(errorThrown + " " + jqXHR.status);
+		}
+	})
+	.always(function() { /* One call ended */ });;          
+}
+
+function startExportOrg() {
+	$("#console").val("");
+	
+	// Specific repo only. 
+	var getOrganizationsUrl = yoda.getGithubUrl() + "organizations";
+	getLoopOrg(getOrganizationsUrl, -1, [], function(orgs) {
+		for (var o = 0; o < orgs.length; o++) {
+			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
+		}
+		var csvDelimiter = $("#csvdelimiter").val();
+		var outputFile = $("#outputfile").val();
+
+		config = {
+				quotes: false,
+				quoteChar: '"',
+				delimiter: csvDelimiter,
+				header: true,
+				newline: "\r\n"
+			};
+
+		result = Papa.unparse(orgs, config);
+		yoda.downloadFile(result, outputFile);
+	}, null);
+}
+
 // --------------
 function githubAuth() {
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());

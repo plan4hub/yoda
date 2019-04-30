@@ -162,6 +162,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<button id="exportbutton" onclick="startExport()">Export</button>
 	</div>
+
+	<div class="frame" id="exportorgframe" style="display:none">
+		<button id="exportorgbutton" onclick="startExportOrg()">Export Organizations</button>
+	</div>
+
 	
 	<br>
 	<div class="frame">
@@ -176,6 +181,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<script>
 		// Enable yodamenu
 		yoda.enableMenu();
+		
+		if (yoda.decodeUrlParamBoolean(null, "exportorg") == "true") {
+			$("#exportorgframe").show();
+		} else {
+			$("#exportorgframe").hide();
+		}
 
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
