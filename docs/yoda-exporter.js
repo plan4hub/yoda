@@ -463,6 +463,9 @@ function startExportOrg() {
 		for (var o = 0; o < orgs.length; o++) {
 			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
 		}
+		
+		// Get number of repos for each org.
+		
 		var csvDelimiter = $("#csvdelimiter").val();
 		var outputFile = $("#outputfile").val();
 

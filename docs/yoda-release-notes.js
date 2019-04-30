@@ -495,6 +495,8 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 					console.log("Could not find META tag????");
 				} else {
 					var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
+					if (lineEnd == -1)
+						lineEnd = repoIssues[i].body.length;
 
 					var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
 					var issuesRawList = metaLine.split(/\s+/);
