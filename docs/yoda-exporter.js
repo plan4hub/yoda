@@ -423,7 +423,6 @@ function startExport() {
 
 
 function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
-	console.log(lastOrgId);
 	if (lastOrgId != -1) {
 		var oldIndex = url.indexOf("since=");
 		if (oldIndex != -1) { 
@@ -439,7 +438,6 @@ function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
 	}
 	
 	$.getJSON(url, function(response, status) {
-		console.log(response);
 		if (response != undefined && response.length > 0) {
 			getLoopOrg(url, response[response.length - 1].id, collector.concat(response), finalFunc, errorFunc, callNo);
 		} else {
