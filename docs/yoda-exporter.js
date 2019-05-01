@@ -454,18 +454,21 @@ function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
 	.always(function() { /* One call ended */ });;          
 }
 
-function startExportOrg() {
-	$("#console").val("");
-	
-	// Specific repo only. 
-	var getOrganizationsUrl = yoda.getGithubUrl() + "organizations";
-	getLoopOrg(getOrganizationsUrl, -1, [], function(orgs) {
-		for (var o = 0; o < orgs.length; o++) {
-			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
+
+var orgsGlob = [];
+function countOrgRepos(orgRepos) {
+	if (orgRepos.length > 0) {
+		console.log(orgRepos[0][1]);
+		yoda.getLoop(orgRepos[0][1], 1, [], 
+				function(data) { orgsGlob[orgRepos[0][0]].number_repos = data.length; countOrgRepos(orgRepos.slice(1)); }, 
+				function(errorText) { yoda.showSnackbarError("Error getting repositories: " + errorText, 3000);}
+				);
+	} else {
+		for (var o = 0; o < orgsGlob.length; o++) {
+			logMessage((o + 1) + ":" + orgsGlob[o].id + " / " + orgsGlob[o].login + " / " + orgsGlob[o].number_repos + " / " + orgsGlob[o].description);
 		}
 		
 		// Get number of repos for each org.
-		
 		var csvDelimiter = $("#csvdelimiter").val();
 		var outputFile = $("#outputfile").val();
 
@@ -477,8 +480,24 @@ function startExportOrg() {
 				newline: "\r\n"
 			};
 
-		result = Papa.unparse(orgs, config);
+		result = Papa.unparse(orgsGlob, config);
 		yoda.downloadFile(result, outputFile);
+	}
+}
+
+function startExportOrg() {
+	$("#console").val("");
+	orgsRepos = [];
+
+	// Specific repo only. 
+	var getOrganizationsUrl = yoda.getGithubUrl() + "organizations";
+	getLoopOrg(getOrganizationsUrl, -1, [], function(orgs) {
+		orgsGlob = orgs;
+		for (var o = 0; o < orgs.length; o++) {
+// 			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
+			orgsRepos.push([o, orgs[o].repos_url]);
+		}
+		countOrgRepos(orgsRepos);
 	}, null);
 }
 
