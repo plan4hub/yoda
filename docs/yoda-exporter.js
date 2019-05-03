@@ -459,8 +459,8 @@ var orgsGlob = [];
 function countOrgRepos(orgRepos) {
 	if (orgRepos.length > 0) {
 		console.log(orgRepos[0][1]);
-		yoda.getLoop(orgRepos[0][1], 1, [], 
-				function(data) { orgsGlob[orgRepos[0][0]].number_repos = data.length; countOrgRepos(orgRepos.slice(1)); }, 
+		yoda.getLoop(orgRepos[0][1], -1, [], 
+				function(data) { orgsGlob[orgRepos[0][0]] = data[0]; countOrgRepos(orgRepos.slice(1)); }, 
 				function(errorText) { yoda.showSnackbarError("Error getting repositories: " + errorText, 3000);}
 				);
 	} else {
@@ -495,7 +495,7 @@ function startExportOrg() {
 		orgsGlob = orgs;
 		for (var o = 0; o < orgs.length; o++) {
 // 			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
-			orgsRepos.push([o, orgs[o].repos_url]);
+			orgsRepos.push([o, orgs[o].url]);
 		}
 		countOrgRepos(orgsRepos);
 	}, null);
