@@ -513,6 +513,15 @@ function storeIssuesThenCreateChart(issues) {
 		issues = milestonedIssues;
 	}
 	
+	// Check for no issues
+	if (issues.length == 0) {
+		var ctx = document.getElementById("canvas").getContext("2d");
+		if (window.myMixedChart != null)
+			window.myMixedChart.destroy();
+		yoda.showSnackbarError("No issues.");
+		return;
+	}
+	
 	if (_chartType == "CFD") {
 		createChartCFD(issues);
 	} else {
