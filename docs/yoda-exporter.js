@@ -339,6 +339,18 @@ function storeEvents(storeUrl, events) {
 			console.log(expEvent);
 			issuesEvents.push(expEvent);
 		}
+		if (events[e].event == "closed" || events[e].event == "reopened" || events[e].event == "assigned" || events[e].event == "unassigned") {
+			var expEvent = {};
+			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
+			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
+			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
+			expEvent["TimeStamp"] = events[e].created_at;
+			expEvent["EventActor"] = events[e].actor.login;
+			expEvent["EventType"] = events[e].event;
+// 			expEvent["EventTarget"] = events[e].label.name;
+			console.log(expEvent);
+			issuesEvents.push(expEvent);
+		}
 	}
 }
 
@@ -464,6 +476,9 @@ function countOrgRepos(orgRepos) {
 				function(errorText) { yoda.showSnackbarError("Error getting repositories: " + errorText, 3000);}
 				);
 	} else {
+		// Sort
+		orgsGlob.sort(function(a, b) {return Object.keys(a).length > Object.keys(b).length;});
+		
 		for (var o = 0; o < orgsGlob.length; o++) {
 			logMessage((o + 1) + ":" + orgsGlob[o].id + " / " + orgsGlob[o].login + " / " + orgsGlob[o].number_repos + " / " + orgsGlob[o].description);
 		}
