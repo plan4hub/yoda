@@ -97,6 +97,11 @@ function getFormat(formatArray, index) {
 
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
+	// Remove trailing newline first
+	if (markdown.charAt(markdown.length - 1) == '\n')
+		markdown = markdown.slice(0, -1);
+	markdown = markdown.replace(/\n/g, "<br>");
+	
 	var markdownUrl = yoda.getGithubUrl() + "markdown";
 	console.log("markdownUrl: " + markdownUrl);
 
