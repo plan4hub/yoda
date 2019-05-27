@@ -614,9 +614,8 @@ function changeOutput() {
 			$("#hlformat").val("# ,\\n\\n");
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val(",,-  ,");
-			$("#titleformat").val(",\\n\\n,%t (%n)");
-			$("#rnformat").val("   ,\\n,\\n   ");
+			$("#listformat").val(",,-  ,\\n");
+			$("#rnformat").val("%t (%n)%x");
 		}
 		break;
 	}
