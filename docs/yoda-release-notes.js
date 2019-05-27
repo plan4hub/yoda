@@ -188,10 +188,11 @@ function formatIssueRN(issue) {
 	issueText = rnFormat;
 	issueText = issueText.replace(/%t/, title);
 	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
-	if (rnText != "") {
-		issueText = issueText.replace(/%r/, rnText);
+	issueText = issueText.replace(/%r/, rnText);
+	if (rnText != "") 
 		issueText = issueText.replace(/%x/, newLine + newLine + rnText);
-	}
+	else 
+		issueText = issueText.replace(/%x/, "");
 	
 	return issueText;
 }
