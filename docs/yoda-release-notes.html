@@ -130,18 +130,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Title format</label>
-			<input type="text" id="titleformat" size="25"></input>
-			<span class="tooltip">Title formatting. Put pre-text (comma) post-text (comma) formatting. Use %t for title text, %n for number</span>
+			<label>Issue RN format</label>
+			<input type="text" id="rnformat" size="50"></input>
+			<span class="tooltip">Formatting for issue. Special fields are issue id (%d), title (%t) and RN (%r). Use %x for RN starting with two newlines (in same table)</span>
 		</div>
-		
-		<div class="field">
-			<label>Note format</label>
-			<input type="text" id="rnformat" size="25"></input>
-			<span class="tooltip">Note formatting (from "> RN"). Put pre-text (comma) post-text (comma) new-line</span>
-		</div>
-		
-		
 	</div>
 
 	<div class="frame">
@@ -218,7 +210,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#sformat", "sformat");
 		yoda.decodeUrlParam("#ssformat", "ssformat");
 		yoda.decodeUrlParam("#listformat", "listformat");
-		yoda.decodeUrlParam("#titleformat", "titleformat");
 		yoda.decodeUrlParam("#rnformat", "rnformat");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");

@@ -97,11 +97,6 @@ function getFormat(formatArray, index) {
 
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
-	// Remove trailing newline first
-	if (markdown.charAt(markdown.length - 1) == '\n')
-		markdown = markdown.slice(0, -1);
-	markdown = markdown.replace(/\n/g, "<br>");
-	
 	var markdownUrl = yoda.getGithubUrl() + "markdown";
 	console.log("markdownUrl: " + markdownUrl);
 
@@ -126,10 +121,14 @@ function parseRNMarkdown(markdown) {
 
 //Create a List node to based on the given issue.
 function formatIssueRN(issue) {
-	var titleFormat = $("#titleformat").val().split(",");
-	var rnFormat = $("#rnformat").val().split(",");
+	var rnFormat = $("#rnformat").val();
 	var repo = yoda.getUrlRepo(issue.repository_url);
-
+	
+	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
+		var newLine = "<br>";
+	else
+		var newLine = "&lt;br&gt;";
+	
 	var issueText = "";
 	var issueRNTStart = issue.body.indexOf('> RNT');
 	if (issueRNTStart == -1)
@@ -146,11 +145,8 @@ function formatIssueRN(issue) {
 	} else {
 		var title = issue.title;
 	}
-	var titleLine = getFormat(titleFormat, 2);
-	// substitude into template, %t and %n
-	titleLine = titleLine.replace(/%t/, title);
-	titleLine = titleLine.replace(/%n/, repo + "#" + issue.number);
-	issueText += getFormat(titleFormat, 0) + titleLine + getFormat(titleFormat, 1);
+
+	var rnText = "";
 	
 	var issueRNSearchStart = 0;
 	if (issueRNTStart != -1)
@@ -160,9 +156,8 @@ function formatIssueRN(issue) {
 		issueRNStart = issue.body.indexOf('>RN', issueRNSearchStart);
 	if (issueRNStart != -1) {
 		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
-		var rnText = "";
+		rnText = "";
 
-		var lineAdded = false;
 		do {
 			var lineEnd = issue.body.indexOf('\n', lineStart);
 			if (lineEnd == -1)
@@ -171,35 +166,33 @@ function formatIssueRN(issue) {
 				var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
 			if (line.length == 0)
 				break;
-//			console.log("Line: " + line);
-			
-			if (rnText != "")
-				rnText += getFormat(rnFormat, 2);
-			rnText += line; 
-			lineAdded = true;
-			
+
+			if (rnText != "") 
+				rnText += newLine;
+			rnText += line;
+
 			if (lineEnd == -1) {
 				break;
 			}
-			
+
 			lineStart = lineEnd + 1;
 		} while (true);
-		if (lineAdded)
-			rnText += getFormat(rnFormat, 2);
-		
+
 		// HTML?
 		if ($('input:radio[name="outputformat"]:checked').val()== "html") {
-			issueText += getFormat(rnFormat, 0) + parseRNMarkdown(rnText) + getFormat(rnFormat, 1);
-		} else {
-			issueText += getFormat(rnFormat, 0) + rnText + getFormat(rnFormat, 1) ;
-		}
-	} else {
-		// No > RN, but if in table mode, we should still put start and end.
-		if ($('#tablelayout').is(":checked")) {
-			issueText += getFormat(rnFormat, 0) + getFormat(rnFormat, 1) ;
+			rnText = parseRNMarkdown(rnText);
 		}
 	}
 
+	// substitude into template, %t, %n, %r, %x
+	issueText = rnFormat;
+	issueText = issueText.replace(/%t/, title);
+	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
+	if (rnText != "") {
+		issueText = issueText.replace(/%r/, rnText);
+		issueText = issueText.replace(/%x/, newLine + newLine + rnText);
+	}
+	
 	return issueText;
 }
 
@@ -597,47 +590,25 @@ function changeOutput() {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
-			$("#listformat").val('<table><thead><tr><th width="5%">Number</th><th width="45%">Title</th><th width="50%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
-//			$("#listformat").val("<table><thead><tr><th>Number</th><th>Title</th><th>Description</th></tr></thead><tbody>\\n,</tbody></table>\\n,<tr>\\n,</tr>\\n");
-			$("#titleformat").val(",,<td>%n</td><td>%t</td>");
-			$("#rnformat").val("<td>\\n,</td>\\n,\\n");
+			$("#listformat").val('<table><thead><tr><th width="10%">Number</th><th width="90%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
+			$("#rnformat").val("<td>%n</td><td>%t%x");
 		} else {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			$("#titleformat").val(",\n,%t (%n)");
-			$("#rnformat").val("<BLOCKQUOTE>\\n,</BLOCKQUOTE>\\n,\\n");
+			$("#rnformat").val("%t (%n)<BLOCKQUOTE>%r</BLOCKQUOTE>");
 		}
 		break;
 
 	case "md":
+	case "rst":  // Note: for now same as md
 		if ($('#tablelayout').is(":checked")) {
 			$("#hlformat").val("# ,\\n\\n");
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val("| Number | Title | Description |\\n|--------|-------|-------------|\\n,\\n,| , |\\n");
-			$("#titleformat").val(",,%n | %t | ");
-			$("#rnformat").val(",,");
-		} else {
-			$("#hlformat").val("# ,\\n\\n");
-			$("#sformat").val("## ,\\n\\n");
-			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val(",,-  ,");
-			$("#titleformat").val(",\\n\\n,%t (%n)");
-			$("#rnformat").val("   ,\\n,\\n   ");
-		}
-		break;
-
-	case "rst":
-		// TODO: Update. For now, same as md
-		if ($('#tablelayout').is(":checked")) {
-			$("#hlformat").val("# ,\\n\\n");
-			$("#sformat").val("## ,\\n\\n");
-			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val("| Number | Title | Description |\\n|--------|-------|-------------|\\n,\\n,| , |\\n");
-			$("#titleformat").val(",,%n | %t | ");
-			$("#rnformat").val(",,");
+			$("#listformat").val("Number | Description\\n--------|-------------\\n,\\n,,\\n");
+			$("#rnformat").val("%n | %t%x");
 		} else {
 			$("#hlformat").val("# ,\\n\\n");
 			$("#sformat").val("## ,\\n\\n");
