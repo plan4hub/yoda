@@ -205,17 +205,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");
 		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
 		
+		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
+		yoda.decodeUrlParamRadio("outputformat", "outputformat");
 		yoda.decodeUrlParam("#filename", "filename");
+
+		changeOutput(); // this will set defaults. Now they may be overwritten below
 		yoda.decodeUrlParam("#hlformat", "hlformat");
 		yoda.decodeUrlParam("#sformat", "sformat");
 		yoda.decodeUrlParam("#ssformat", "ssformat");
 		yoda.decodeUrlParam("#listformat", "listformat");
 		yoda.decodeUrlParam("#rnformat", "rnformat");
-		
-		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
-		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
-		yoda.decodeUrlParamRadio("outputformat", "outputformat");
-		changeOutput();
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

@@ -33,8 +33,15 @@ var repoIssues = []; // List of issues. Full structure as returned from github.
 var download = false; // global - a bit of a hack.
 
 function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
+	var defaultValue = $("#" + field).prop('defaultValue');
+	// Hack. Make sure no real newlines into default value.
+	defaultValue = defaultValue.replace(/\n/g, "");
+	var value = $("#" + field).val();
+	
+	if (value != defaultValue) {
+		console.log("value: " + value);
+		console.log("defa : " + defaultValue);
+		return params + "&" + field + "=" + value; 
 	} else {
 		return params;
 	}
@@ -50,6 +57,13 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "rnskiplabel");
 	params = addIfNotDefault(params, "rnmetalabel");
 	params = addIfNotDefault(params, "rnknownlabel");
+	
+	params = addIfNotDefault(params, "hlformat");
+	params = addIfNotDefault(params, "sformat");
+	params = addIfNotDefault(params, "ssformat");
+	params = addIfNotDefault(params, "listformat");
+	params = addIfNotDefault(params, "rnformat");
+	
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;
@@ -90,7 +104,7 @@ function copy_text(element) {
 // --------
 
 function getFormat(formatArray, index) {
-	var f = formatArray[index];
+	var f = formatArray[index]; 
 	f = f.replace(/\\n/g, '\n');
 	return f;
 }
@@ -591,40 +605,47 @@ function githubAuth() {
 
 // --------------
 
+
+function setDefaultAndValue(id, value) {
+	element = document.getElementById(id);
+	element.defaultValue = value;
+	element.value = value;
+}
+
 function changeOutput() {
 	value = $('input:radio[name="outputformat"]:checked').val();
 	switch (value) {
 	case "html":
 		if ($('#tablelayout').is(":checked")) {
 			// HPE SA format
-			$("#hlformat").val("<H1>,</H1>\\n");
-			$("#sformat").val("<H2>,</H2>\\n");
-			$("#ssformat").val("<H3>,</H3>\\n");
-			$("#listformat").val('<table><thead><tr><th width="10%">Number</th><th width="90%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
-			$("#rnformat").val("<td>%d</td><td>%t%r");
+			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
+			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
+			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
+			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
+			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r")
 		} else {
-			$("#hlformat").val("<H1>,</H1>\\n");
-			$("#sformat").val("<H2>,</H2>\\n");
-			$("#ssformat").val("<H3>,</H3>\\n");
-			$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			$("#rnformat").val("%t (%d)<BLOCKQUOTE>%r</BLOCKQUOTE>");
+			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
+			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
+			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
+			setDefaultAndValue("listformat", "<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
+			setDefaultAndValue("rnformat", "%t (%d)<BLOCKQUOTE>%r</BLOCKQUOTE>");
 		}
 		break;
 
 	case "md":
 	case "rst":  // Note: for now same as md
 		if ($('#tablelayout').is(":checked")) {
-			$("#hlformat").val("# ,\\n\\n");
-			$("#sformat").val("## ,\\n\\n");
-			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val("Number | Description\\n--------|-------------\\n,\\n,,\\n");
-			$("#rnformat").val("%d | %t%x");
+			setDefaultAndValue("hlformat", "# ,\\n\\n");
+			setDefaultAndValue("sformat", "## ,\\n\\n");
+			setDefaultAndValue("ssformat", "### ,\\n\\n");
+			setDefaultAndValue("listformat", "Number | Description\\n--------|-------------\\n,\\n,,\\n");
+			setDefaultAndValue("rnformat", "%d | %t%x");
 		} else {
-			$("#hlformat").val("# ,\\n\\n");
-			$("#sformat").val("## ,\\n\\n");
-			$("#ssformat").val("### ,\\n\\n");
-			$("#listformat").val(",,-  ,\\n");
-			$("#rnformat").val("%t (%d)%x");
+			setDefaultAndValue("hlformat", "# ,\\n\\n");
+			setDefaultAndValue("sformat", "## ,\\n\\n");
+			setDefaultAndValue("ssformat", "### ,\\n\\n");
+			setDefaultAndValue("listformat", ",,-  ,\\n");
+			setDefaultAndValue("rnformat", "%t (%d)%x");
 		}
 		break;
 	}

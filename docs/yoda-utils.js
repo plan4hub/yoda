@@ -341,6 +341,7 @@ var yoda = (function() {
 		updateUrl: function(searchParams) {
 //			var baseUrl = window.location.origin + window.location.pathname;
 			var baseUrl = window.location.pathname;
+			searchParams = searchParams.replace(/%/g, "%25");
 			console.log("Updating URL to " + baseUrl + "?" + searchParams);
 			window.history.replaceState(null, null, baseUrl + "?" + searchParams);
         },
