@@ -185,6 +185,8 @@ function formatIssueRN(issue) {
 	}
 
 	// substitude into template, %t, %n, %r, %x
+	
+	console.log(":" + rnText + ":");
 	issueText = rnFormat;
 	issueText = issueText.replace(/%t/, title);
 	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
@@ -192,7 +194,7 @@ function formatIssueRN(issue) {
 
 	if (rnText != "") {
 		if ($('input:radio[name="outputformat"]:checked').val()== "html") 
-			issueText = issueText.replace(/%x/, "<p>" + rnText + "</p>");
+			issueText = issueText.replace(/%x/, rnText);
 		else
 			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
 	} else { 
@@ -597,7 +599,7 @@ function changeOutput() {
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val('<table><thead><tr><th width="10%">Number</th><th width="90%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
-			$("#rnformat").val("<td>%n</td><td>%t%x");
+			$("#rnformat").val("<td>%n</td><td>%t%r");
 		} else {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
