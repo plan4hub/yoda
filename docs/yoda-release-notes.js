@@ -189,10 +189,15 @@ function formatIssueRN(issue) {
 	issueText = issueText.replace(/%t/, title);
 	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
 	issueText = issueText.replace(/%r/, rnText);
-	if (rnText != "") 
-		issueText = issueText.replace(/%x/, newLine + newLine + rnText);
-	else 
+
+	if (rnText != "") {
+		if ($('input:radio[name="outputformat"]:checked').val()== "html") 
+			issueText = issueText.replace(/%x/, "<p>" + rnText + "</p>");
+		else
+			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
+	} else { 
 		issueText = issueText.replace(/%x/, "");
+	}
 	
 	return issueText;
 }
