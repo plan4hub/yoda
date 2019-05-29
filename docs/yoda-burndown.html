@@ -92,24 +92,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Release Note Issue Types</label>
-			<input type="text" id="rnlabeltypes" size="30" value="T2 - Enhancement|Added Features,T1 - Defect|Solved Issues">
-			<span class="tooltip">Issue types (labels) to output to RN sections). Comma-separated list of Label|Header</span>
-		</div>
- 
-		<div class="field" style="display: none;">
-			<label>Release Note Skip Label</label>
-			<input type="text" id="rnskiplabel" size="15" value="Q - No RN">
-			<span class="tooltip">Label to force skipping issue into RN</span>
-		</div>
-		
-		<div class="field" style="display: none;">
-			<label>Release Note Known Issue</label> 
-			<input type="text" id="rnknownlabel" size="15" value="Q - Known Issue">
-			<span class="tooltip">Label value causing issue to be listed into Known Issues RN (default "Q - Known Issue")</span>
-		</div>
- 
-		<div class="field">
 			<label>Estimates</label><div id="estimateradio">
 				<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
 				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label> 
@@ -171,8 +153,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<button id="drawbutton" onclick="startBurndown()">Draw chart</button>
 		<button id="tablebutton" onclick="startTable()">Show table</button>
-		<button id="rnbutton" onclick="startRN()">RN</button>
-		<button id="rnbutton" onclick="startRNKnown()">Known Issues</button>
 	</div>
 
 	<br>
@@ -180,9 +160,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<table id="issuesTable"></table>
 	</div>
 	
-	<div id="RN">
-	</div>
-
 	<div style="width: 80%">
 		<canvas id="canvas"></canvas>
 	</div>
@@ -201,9 +178,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#inprogress", "yoda.burndown.inprogress");
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.burndown.labelsplit");
 		yoda.getDefaultLocalStorage("#additionaldata", "yoda.burndown.additionaldata");
-		yoda.getDefaultLocalStorage("#rnlabeltypes", "yoda.burndown.rnlabeltypes");
-		yoda.getDefaultLocalStorage("#rnskiplabel", "yoda.burndown.rnskiplabel");
-		yoda.getDefaultLocalStorage("#rnknownlabel", "yoda.burndown.rnknownlabel");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		
@@ -212,9 +186,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#inprogress", "inprogress");
 		yoda.decodeUrlParam("#labelsplit", "labelsplit");
 		yoda.decodeUrlParam("#additionaldata", "additionaldata");
-		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
-		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
-		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");

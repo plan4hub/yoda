@@ -35,7 +35,6 @@ function getUrlParams() {
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "additionaldata");
-	params = addIfNotDefault(params, "rnlabeltypes");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");	
 	if ($("#milestonelist").val() != "") {
@@ -59,11 +58,6 @@ function estimateClick(radio) {
 function clearTable() {
 	var table = document.getElementById("issuesTable");
 	table.innerHTML = "";
-}
-
-function clearRN() {
-	var rn = document.getElementById("RN");
-	rn.innerHTML = "";
 }
 
 // -----------
@@ -832,7 +826,6 @@ function burndown(issues) {
 
 function clearAreas() {
 	clearTable();
-	clearRN();
 	// Destroy old graph, if any
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
@@ -1016,203 +1009,6 @@ function showMilestoneData() {
 	}
 }
 
-var entryRNId = 0;
-
-// Parse RN markdown to HTML (if any)
-function parseRNMarkdown(rnId) {
-	var oldRN = document.getElementById("RN#" + rnId);
-	if (oldRN == null) {
-		console.log("Markdown update complete");
-		yoda.showSnackbarOk("Succesfully generated Release Notes"); 
-		return;
-	}
-		
-	var markdownUrl = yoda.getGithubUrl() + "markdown";
-	console.log("markdownUrl: " + markdownUrl);
-
-	var urlData = {
-			"text": oldRN.innerHTML
-	};
-	
-	$.ajax({
-		url: markdownUrl,
-		type: 'POST',
-		data: JSON.stringify(urlData),
-		success: function(data) { document.getElementById("RN#" + rnId).innerHTML = data; },
-		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
-		complete: function(jqXHR, textStatus) { parseRNMarkdown(rnId + 1); }
-	});
-}
-
-// Create a List node to based on the given issue.
-function formatIssueRN(issue) {
-	var node = document.createElement("LI");
-	
-	var issueRNTStart = issue.body.indexOf('> RNT');
-	if (issueRNTStart != -1) {
-		var lineStart = issue.body.indexOf('\n', issueRNTStart) + 1;
-		var lineEnd = issue.body.indexOf('\n', lineStart);
-		if (lineEnd == -1)
-			var line = issue.body.substr(lineStart);
-		else
-			var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
-		var title = line;
-	} else {
-		var title = issue.title;
-	}
-	var repo = yoda.getUrlRepo(issue.repository_url);	
-	var titleLine = title + " (" + repo + "#" + issue.number + ")";
-	var textnode = document.createTextNode(titleLine);
-	node.appendChild(textnode);
-	
-	var issueRNSearchStart = 0;
-	if (issueRNTStart != -1)
-		issueRNSearchStart = issueRNTStart + 1;
-	var issueRNStart = issue.body.indexOf('> RN', issueRNSearchStart);
-	if (issueRNStart != -1) {
-		var entryRN = document.createElement("blockquote");
-
-		// Set ID for blockquote element. This will be used later for markdown updates.
-		// We will use a simple sequence number. Not so elegant, but hey...
-		entryRN.setAttribute("id", "RN#" + entryRNId);
-		entryRNId++;
-	
-		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
-
-		var lineAdded = false;
-		do {
-			var lineEnd = issue.body.indexOf('\n', lineStart);
-			if (lineEnd == -1)
-				var line = issue.body.substr(lineStart);
-			else
-				var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
-			if (line.length == 0)
-				break;
-//			console.log("Line: " + line);
-			
-			// One line at a time.
-			if (lineAdded) {
-				var lineBreak = document.createElement('BR');
-				entryRN.appendChild(lineBreak);
-			}
-			
-			var t = document.createTextNode(line);
-			entryRN.appendChild(t);
-			lineAdded = true;
-
-			node.appendChild(entryRN);
-			if (lineEnd == -1)
-				break;
-			
-			lineStart = lineEnd + 1;
-		} while (true);
-	}
-
-	return node;
-}
-
-function makeRN(issues) {
-	entryRNId = 0;
-	clearAreas();
-	var rn = document.getElementById("RN");
-	
-	var repoList = $("#repolist").val();
-	
-	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
-	var rnLabelTypes = $("#rnlabeltypes").val();
-	var rnLabelTypesList = rnLabelTypes.split(",");
-	
-	// Skip label
-	var rnSkipLabel = $("#rnskiplabel").val();
-	
-//  Will be something like...
-//	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
-//	var issueTypeHeading = ["Added Features", "Solved Issues"];
-	
-	// Headline
-	var node = document.createElement("H1");
-	var textNode = document.createTextNode("Release Notes for " + $("#milestonelist").val());
-	node.appendChild(textNode);
-	rn.appendChild(node);
-	
-	for (var r = 0; r < repoList.length; r++) {
-		var node = document.createElement("H2");
-		var textNode = document.createTextNode("Changes for " + repoList[r]);
-		node.appendChild(textNode);
-		rn.appendChild(node);
-		
-		for (var t = 0; t < rnLabelTypesList.length; t++) {
-			var node = document.createElement("H3");
-			var textNode = document.createTextNode(rnLabelTypesList[t].split("|")[1]);
-			node.appendChild(textNode);
-			rn.appendChild(node);
-			
-			var listNode = document.createElement("UL");
-			
-			for (var i = 0; i < issues.length; i++) {
-				// Match repo?.
-				var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
-				if (repository != repoList[r])
-					continue;
-				
-				// Match issue type (in label)
-				if (!yoda.isLabelInIssue(issues[i], rnLabelTypesList[t].split("|")[0]))
-					continue;
-				
-				// Should issue be skipped
-				if (yoda.isLabelInIssue(issues[i], rnSkipLabel))
-					continue;
-				
-				listNode.appendChild(formatIssueRN(issues[i]));
-			}
-			rn.appendChild(listNode);
-		}
-	}
-
-	parseRNMarkdown(0);
-	
-	// Copy to clipboard
-	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=rn");
-}
-
-function makeRNKnown(issues) {
-	entryRNId = 0;
-	clearAreas();
-	var rn = document.getElementById("RN");
-	var repoList = $("#repolist").val();
-	
-	// Headline
-	var node = document.createElement("H1");
-	var textNode = document.createTextNode("Release Note - Known Issues");
-	node.appendChild(textNode);
-	rn.appendChild(node);
-	
-	for (var r = 0; r < repoList.length; r++) {
-		var node = document.createElement("H2");
-		var textNode = document.createTextNode("Known Issues for " + repoList[r]);
-		node.appendChild(textNode);
-		rn.appendChild(node);
-		
-		var listNode = document.createElement("UL");
-
-		for (var i = 0; i < issues.length; i++) {
-			// Match repo?.
-			var repository = issues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
-			if (repository != repoList[r])
-				continue;
-
-			listNode.appendChild(formatIssueRN(issues[i]));
-		}
-		rn.appendChild(listNode);
-	}
-
-	parseRNMarkdown(0);
-	
-	// Copy to clipboard
-	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=rnknown");
-}
 
 function copy_text(element) {
     //Before we copy, we are going to select the text.
@@ -1247,18 +1043,6 @@ function startBurndown() {
 function startTable() {
 	console.log("Milestone based table...");
 	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-}
-
-function startRN() {
-	console.log("Make RN...");
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeRN, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-}
-
-function startRNKnown() {
-	console.log("Make RN Known Issues...");
-	console.log("rnknownlabel is: " + $("#rnknownlabel").val());
-	var knownLabel = $("#rnknownlabel").val();
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), knownLabel, "open", null, makeRNKnown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------
