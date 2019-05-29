@@ -184,10 +184,11 @@ function formatIssueRN(issue) {
 		}
 	}
 
-	// substitude into template, %t, %n, %r, %x
+	// substitude into template
 	issueText = rnFormat;
 	issueText = issueText.replace(/%t/, title);
-	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
+	issueText = issueText.replace(/%d/, repo + "#" + issue.number);
+	issueText = issueText.replace(/%n/, issue.number);
 	issueText = issueText.replace(/%r/, rnText);
 	
 	if (rnText != "") {
@@ -600,13 +601,13 @@ function changeOutput() {
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val('<table><thead><tr><th width="10%">Number</th><th width="90%">Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n');
-			$("#rnformat").val("<td>%n</td><td>%t%r");
+			$("#rnformat").val("<td>%d</td><td>%t%r");
 		} else {
 			$("#hlformat").val("<H1>,</H1>\\n");
 			$("#sformat").val("<H2>,</H2>\\n");
 			$("#ssformat").val("<H3>,</H3>\\n");
 			$("#listformat").val("<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			$("#rnformat").val("%t (%n)<BLOCKQUOTE>%r</BLOCKQUOTE>");
+			$("#rnformat").val("%t (%d)<BLOCKQUOTE>%r</BLOCKQUOTE>");
 		}
 		break;
 
@@ -617,13 +618,13 @@ function changeOutput() {
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
 			$("#listformat").val("Number | Description\\n--------|-------------\\n,\\n,,\\n");
-			$("#rnformat").val("%n | %t%x");
+			$("#rnformat").val("%d | %t%x");
 		} else {
 			$("#hlformat").val("# ,\\n\\n");
 			$("#sformat").val("## ,\\n\\n");
 			$("#ssformat").val("### ,\\n\\n");
 			$("#listformat").val(",,-  ,\\n");
-			$("#rnformat").val("%t (%n)%x");
+			$("#rnformat").val("%t (%d)%x");
 		}
 		break;
 	}
