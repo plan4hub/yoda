@@ -185,20 +185,21 @@ function formatIssueRN(issue) {
 	}
 
 	// substitude into template, %t, %n, %r, %x
-	
-	console.log(":" + rnText + ":");
 	issueText = rnFormat;
 	issueText = issueText.replace(/%t/, title);
 	issueText = issueText.replace(/%n/, repo + "#" + issue.number);
 	issueText = issueText.replace(/%r/, rnText);
-
+	
 	if (rnText != "") {
-		if ($('input:radio[name="outputformat"]:checked').val()== "html") 
+		issueText = issueText.replace(/%y/, rnText);
+		if ($('input:radio[name="outputformat"]:checked').val()== "html") { 
 			issueText = issueText.replace(/%x/, rnText);
-		else
+		} else {
 			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
+		}
 	} else { 
 		issueText = issueText.replace(/%x/, "");
+		issueText = issueText.replace(/%y/, title);
 	}
 	
 	return issueText;
