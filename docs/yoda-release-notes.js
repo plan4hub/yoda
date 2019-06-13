@@ -111,7 +111,6 @@ function uniqueArray(arr, field) {
 // Add issues, making sure to avoid duplicates.
 function addIssues(oldIssues, newIssues) {
 	var allIssues = oldIssues.concat(newIssues);
-	console.log(allIssues);
 	return uniqueArray(allIssues, "url");
 }
 
