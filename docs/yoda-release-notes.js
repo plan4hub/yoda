@@ -101,7 +101,19 @@ function copy_text(element) {
     // selection.removeAllRanges();
 }
 
+// Remove elements in array that have duplicates based on a given field.
+function uniqueArray(arr, field) {
+	return arr.filter(function(element, index, array, thisArg) {return array.findIndex(function(e, i, a, t) 
+			{if (index != i && element[field] == e[field]) return true; else return false;}) == -1;});
+}
+
 // --------
+// Add issues, making sure to avoid duplicates.
+function addIssues(oldIssues, newIssues) {
+	var allIssues = oldIssues.concat(newIssues);
+	console.log(allIssues);
+	return uniqueArray(allIssues, "url");
+}
 
 function getFormat(formatArray, index) {
 	var f = formatArray[index]; 
@@ -180,7 +192,6 @@ function formatIssueRN(issue) {
 				var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
 			if (line.length == 0)
 				break;
-
 			if (rnText != "") 
 				rnText += newLine;
 			rnText += line;
@@ -443,6 +454,8 @@ function updateMilestones(repoIndex) {
 
 // -------------
 
+
+
 function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 	if (myUpdateIssueActiveNo < updateIssueActiveNo) {
 		console.log("Update is not latest. Cancelling...");
@@ -450,7 +463,8 @@ function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 		return;
 	}
 	
-	repoIssues = repoIssues.concat(issues);
+//	repoIssues = repoIssues.concat(issues);
+	repoIssues = addIssues(repoIssues, issues);
 	console.log("total number of issues now: "  + repoIssues.length);
 	updateIssueLoop(milestoneIndex + 1, myUpdateIssueActiveNo);
 }
@@ -458,7 +472,7 @@ function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 function updateMetaIssuesThenRN(metaIssuesList) {
 	if (metaIssuesList.length > 0) {
 		var getIssueUrl = metaIssuesList[0];
-		yoda.getLoop(getIssueUrl, -1, [], function(data) {repoIssues = repoIssues.concat(data); metaIssuesList.splice(0, 1); updateMetaIssuesThenRN(metaIssuesList);}, null);
+		yoda.getLoop(getIssueUrl, -1, [], function(data) {repoIssues = addIssues(repoIssues, data); metaIssuesList.splice(0, 1); updateMetaIssuesThenRN(metaIssuesList);}, null);
 	} else {
 		// Let's sort issues on number. This may be required as we allow to retrieve issues from different milestones.
 		// Sort by repository, number
@@ -573,7 +587,8 @@ function updateIssuesForRN() {
 // --------------
 
 function updateIssuesKnownLoop(repoRemainList, issues) {
-	repoIssues = repoIssues.concat(issues);
+//	repoIssues = repoIssues.concat(issues);
+	repoIssues = addIssues(repoIssues, issues);
 
 	console.log(repoRemainList);
 	if (repoRemainList.length == 0) {
