@@ -154,6 +154,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Not Codefreeze Label</label>
+			<input type="text" id="burndown_notcodefreeze" size="13" onchange="setLocalStorage('yoda.burndown.notcodefreeze', this.value)">
+			<span class="tooltip">Label indicating work is not needed for code freeze</span>
+		</div>
+		
+		<div class="field">
 			<label>Label subtotals</label>
 			<input type="text" id="burndown_labelsplit" size="20" onchange="setLocalStorage('yoda.burndown.labelsplit', this.value)">
 			<span class="tooltip">Regular expression for doing subtotals</span>
@@ -241,6 +247,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#time_other").val(localStorage.getItem("yoda.time.other"));
 			$("#burndown_tentative").val(localStorage.getItem("yoda.burndown.tentative"));
 			$("#burndown_inprogress").val(localStorage.getItem("yoda.burndown.inprogress"));
+			$("#burndown_notcodefreeze").val(localStorage.getItem("yoda.burndown.notcodefreeze"));
 			$("#burndown_labelsplit").val(localStorage.getItem("yoda.burndown.labelsplit"));
 			$("#burndown_additionaldata").val(localStorage.getItem("yoda.burndown.additionaldata"));
 			$("#burndown_rnlabeltypes").val(localStorage.getItem("yoda.burndown.rnlabeltypes"));

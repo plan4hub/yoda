@@ -110,8 +110,7 @@ function uniqueArray(arr, field) {
 // --------
 // Add issues, making sure to avoid duplicates.
 function addIssues(oldIssues, newIssues) {
-	var allIssues = oldIssues.concat(newIssues);
-	return uniqueArray(allIssues, "url");
+	return uniqueArray(oldIssues.concat(newIssues), "url");
 }
 
 function getFormat(formatArray, index) {

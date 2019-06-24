@@ -533,23 +533,27 @@ function burndown(issues) {
 	console.log("Creating burndown. No issues (after filtering out pull requests): " + issues.length);
 	
 	var tentativeLabel = $("#tentative").val();
+	var notcodefreezeLabel = $("#notcodefreeze").val();
 
 	// 3 arrays we will create. 
 	// Labels (x axis - days)
 	var labels = [];
-	// Remaining array are values for the bar chart. 
+	// Remaining array are values for the bar chart.
 	var remainingArray = [];
+	var remainingNoFreezeArray = [];
 	var remainingTentativeArray = [];
 	
 	// Data for the ideal line. This will actually only hold initial and final value, rest will be NaN.
 	// Tool will draw a straight line between these two points.
 	var remainingIdealArray = [];
+	var remainingIdealFullArray = [];
 
 	// sort issues by closed_date
 	issues.sort(yoda.SortDates);
 	
 	// Will hold total estimate (sum of > estimate, or # of issues)
 	var estimate = 0;
+	var estimateNoFreeze = 0;
 	var estimateTentative = 0;
 	
 	// Work on dates
@@ -591,16 +595,23 @@ function burndown(issues) {
 				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + issueEstimateValue);
 				estimateTentative = estimateTentative + issueEstimateValue;
 			} else {
-				console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimateValue);
-				estimate = estimate + issueEstimateValue;
+				if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
+					console.log(" => adding NOFREEZE: " + issues[i].number + ", estimate: " + issueEstimateValue);
+					estimateNoFreeze = estimateNoFreeze + issueEstimateValue;
+				} else {
+					console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimateValue);
+					estimate = estimate + issueEstimateValue;
+				}
 			}
 		}
 	}
-	console.log("Total estimate: " + estimate + ", Total tentative: " + estimateTentative);
+	
+	console.log("Total estimate: " + estimate + ", Total nofreeze: " + estimateNoFreeze + ", Total tentative: " + estimateTentative);
 	
 	
 	// Start remaining at estimate, then decrease as issues are closed.
 	var remaining = estimate;
+	var remainingNoFreeze = estimateNoFreeze;
 	var remainingTentative = estimateTentative;
 	
 	var burndownDateIndex = -1;
@@ -622,16 +633,19 @@ function burndown(issues) {
 
 		labels.push(dateString);
 		remainingIdealArray.push(NaN);
+		remainingIdealFullArray.push(NaN);
 
 		// Make bar for day, but not if later than current date!
 		// BUT, we must have at least one entry if looking at a future sprint!
 		if (date <= tomorrow || remainingArray.length == 0) {
 			console.log("Adding bar value for: " + dateString + ", value: " + remaining);
 			remainingArray.push(yoda.strip2Digits(remaining));
+			remainingNoFreezeArray.push(yoda.strip2Digits(remainingNoFreeze));
 			remainingTentativeArray.push(yoda.strip2Digits(remainingTentative));
 		} else {
 			console.log("Skipping bar as in future: " + dateString);
 			remainingArray.push(NaN);
+			remainingNoFreezeArray.push(NaN);
 			remainingTentativeArray.push(NaN);
 		}
 
@@ -640,14 +654,18 @@ function burndown(issues) {
 			if (issues[i].closed_at != null) {
 				var closedAt = new Date(issues[i].closed_at);
 				if (date < closedAt && closedAt < nextDay) {
+					
 					if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 						console.log("Tentative Issue " + issues[i].number + " was closed: " + closedAt);
-//						remainingTentative -= yoda.issueEstimate(issues[i]);
 						remainingTentative -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)); 
 					} else {
-						console.log("Issue " + issues[i].number + " was closed: " + closedAt);
-//						remaining -= yoda.issueEstimate(issues[i]);
-						remaining -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)); 
+						if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
+							console.log("Issue " + issues[i].number + " was closed: " + closedAt);
+							remainingNoFreeze -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
+						} else {
+							console.log("Issue " + issues[i].number + " was closed: " + closedAt);
+							remaining -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
+						}
 					}
 				}
 			}
@@ -674,7 +692,6 @@ function burndown(issues) {
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
 					}
 					
-					
 					// We also need to know if the issue has been closed. If so, we should only adjust up to the point of
 					// closure. The graph already has the effect of the closure (going to 0).
 					for (var d = 0; d < labels.length; d++) {
@@ -692,13 +709,18 @@ function burndown(issues) {
 								console.log("Delta = " + delta);
 
 								console.log(" YYYY " + labels[e] + ", remaining: " + remainingArray[e]);
+								
 								if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 									remainingTentativeArray[e] -= delta;
-									// Precisionfix.
 									remainingTentativeArray[e] = yoda.strip2Digits(remainingTentativeArray[e]);
 								} else {
-									remainingArray[e] -= delta;                                                
-									remainingArray[e] = yoda.strip2Digits(remainingArray[e]);
+									if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
+										remainingNoFreezeArray[e] -= delta;                                                
+										remainingNoFreezeArray[e] = yoda.strip2Digits(remainingNoFreezeArray[e]);
+									} else {
+										remainingArray[e] -= delta;                                                
+										remainingArray[e] = yoda.strip2Digits(remainingArray[e]);
+									}
 								}
 							}
 							issueWorkDoneBefore = issueEstimate - remainingNumber;
@@ -713,14 +735,22 @@ function burndown(issues) {
 	labels.splice(-1);
 	labels.unshift("Estimate");
 
-	// remaining_ideal_array needs some values. The start point for the ideal line will either
+	// remainingIdealArray & remainingIdealFullArray needs values.
+	// remainingIdealArray will always start at estimate
+	
+	// The start point for the ideal line will either
 	// start at the total estimate OR overridden by the capacity field (which in turn may have 
 	// been retrieved from the milestone description field).
+	
+	remainingIdealArray[0] = estimate;
+	remainingIdealFullArray[0] = estimateNoFreeze;
+	
 	if ($("#capacity").val() != "") {
-		remainingIdealArray[0] = parseInt($("#capacity").val());
-	} else {
-		remainingIdealArray[0] = estimate;
+//		remainingIdealArray[0] = parseInt($("#capacity").val());
+		remainingIdealFullArray[0] = parseInt($("#capacity").val() - estimate);
 	}
+
+	remainingIdealFullArray[remainingIdealArray.length - 1] = 0;
 	if (burndownDateIndex != -1) {
 		remainingIdealArray[burndownDateIndex] = 0;
 	} else {
@@ -754,6 +784,30 @@ function burndown(issues) {
 				spanGaps: true
 			}]
 	};
+	
+	// 
+	// If there was nofreeze data, need to add extra data series
+//	if (estimateNoFreeze > 0) {
+		chartData.datasets.push({
+			type : 'bar',
+			label : 'NotCodeFreeze',
+			borderWidth : 2,
+			fill : false,
+			data : remainingNoFreezeArray,
+			backgroundColor : 'rgb(0, 100, 38, 0.6)'  // some color - TODO
+		});
+		
+		chartData.datasets.push({
+			type : 'line',
+			label : 'Ideal Full Sprint',
+			borderWidth : 2,
+			fill : false,
+			data : remainingIdealFullArray,
+			borderColor: '#004d1a',
+			pointRadius: 0,
+			spanGaps: true
+		});
+//	}
 	
 	// If there were tentative data, need to add extra data series
 	if (estimateTentative > 0) {

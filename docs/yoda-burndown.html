@@ -80,6 +80,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Not Codefreeze Label</label>
+			<input type="text" id="notcodefreeze" size="13" value="Q - NotCodeFreeze">
+			<span class="tooltip">Label indicating work is not needed for code freeze</span>
+		</div>
+		
+		<div class="field">
 			<label>Label subtotals</label>
 			<input type="text" id="labelsplit" size="20" value="^T[1-9] -">
 			<span class="tooltip">Regular expression for doing subtotals</span>
@@ -176,6 +182,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		yoda.getDefaultLocalStorage("#tentative", "yoda.burndown.tentative");
 		yoda.getDefaultLocalStorage("#inprogress", "yoda.burndown.inprogress");
+		yoda.getDefaultLocalStorage("#notcodefreeze", "yoda.burndown.notcodefreeze");
+		
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.burndown.labelsplit");
 		yoda.getDefaultLocalStorage("#additionaldata", "yoda.burndown.additionaldata");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
