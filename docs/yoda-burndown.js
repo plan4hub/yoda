@@ -242,6 +242,7 @@ function makeTable(issues) {
 	});
 	var tentativeLabel = $("#tentative").val();
 	var inprogressLabel = $("#inprogress").val();
+	var notcodefreezeLabel = $("#notcodefreeze").val();
 
 	var labelSplit = $("#labelsplit").val();
 	console.log("Label split: " + labelSplit);
@@ -483,9 +484,15 @@ function makeTable(issues) {
 			cell.innerHTML = "closed";
 		} else {
 			if (yoda.isLabelInIssue(issues[i], inprogressLabel)) {
-				cell.innerHTML = "<b>open</b>";
+				if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) 
+					cell.innerHTML = "<b><i>open</i></b>";
+				else
+					cell.innerHTML = "<b>open</b>";
 			} else {
-				cell.innerHTML = "open";
+				if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) 
+					cell.innerHTML = "<i>open</i>";
+				else
+					cell.innerHTML = "open";
 			}
 		}
 	}
