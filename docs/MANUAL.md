@@ -1,3 +1,7 @@
+---
+title: Yoda Manual
+---
+
 # Yoda
 
 Yoda is a lightweight extention to GitHub (Cloud or Enterprise) for supporting Agile Project Management using GitHub issues. Yoda was developed as an internal tool inside Hewlett Packard Enterprise (HPE) and OpenSources using an MIT license in spring of 2018.
@@ -8,8 +12,7 @@ Yoda works *exclusively* of data stored in GitHub. It does not use any form of a
 
 Yoda works best if a consistent *labeling strategy* is used for issues. Yoda includes tools for aligning labels across repositories. 
 
-[![Yoda Landing Page](yoda-landing-page.jpg "Landing page")][ss1]
-[ss1]: index.html
+[![Yoda Landing Page]({{ site.github.url }}/yoda/yoda-landing-page.jpg "Landing page")]({{ site.github.url }}/yoda/)
 
 _________
 
