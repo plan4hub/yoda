@@ -532,7 +532,7 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 					if (lineEnd == -1)
 						lineEnd = repoIssues[i].body.length;
 
-					var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd - 8);
+					var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd);
 					var issuesRawList = metaLine.split(/\s+/);
 					console.log(issuesRawList);
 
