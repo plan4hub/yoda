@@ -46,6 +46,9 @@ function getUrlParams() {
 	if ($('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=true";
 	}
+	if ($('#trendline').is(":checked")) {
+		params += "&trendline=true";
+	}
 
 	return params;
 }
@@ -554,6 +557,7 @@ function burndown(issues) {
 	// Tool will draw a straight line between these two points.
 	var remainingIdealArray = [];
 	var remainingIdealFullArray = [];
+	var remainingTrendArray = [];
 
 	// sort issues by closed_date
 	issues.sort(yoda.SortDates);
@@ -641,6 +645,7 @@ function burndown(issues) {
 		labels.push(dateString);
 		remainingIdealArray.push(NaN);
 		remainingIdealFullArray.push(NaN);
+		remainingTrendArray.push(NaN);
 
 		// Make bar for day, but not if later than current date!
 		// BUT, we must have at least one entry if looking at a future sprint!
@@ -749,12 +754,14 @@ function burndown(issues) {
 	// start at the total estimate OR overridden by the capacity field (which in turn may have 
 	// been retrieved from the milestone description field).
 	
+	console.log("estimateNoFreeze = " + estimateNoFreeze + ", estimate = " + estimate);
+
 	remainingIdealArray[0] = estimate;
-	remainingIdealFullArray[0] = estimateNoFreeze;
+	remainingIdealFullArray[0] = estimateNoFreeze + estimate;	
 	
 	if ($("#capacity").val() != "") {
 //		remainingIdealArray[0] = parseInt($("#capacity").val());
-		remainingIdealFullArray[0] = parseInt($("#capacity").val() - estimate);
+		remainingIdealFullArray[0] = parseInt($("#capacity").val());
 	}
 
 	remainingIdealFullArray[remainingIdealArray.length - 1] = 0;
@@ -764,7 +771,10 @@ function burndown(issues) {
 		// Burndown to second to last day
 		remainingIdealArray[remainingIdealArray.length - 1] = 0;
 	}
-
+	console.log("RemainingIdealArray = ");
+	console.log(remainingIdealArray);
+	console.log("RemainingIdealFullArray = ");
+	console.log(remainingIdealFullArray);
 
 //	console.log("Length of remainingArray: " + remainingArray.length);
 	
@@ -788,7 +798,8 @@ function burndown(issues) {
 				data : remainingIdealArray,
 				borderColor: '#004d1a',
 				pointRadius: 0,
-				spanGaps: true
+				spanGaps: true,
+				yAxisID: "axis-lines"
 			}]
 	};
 	
@@ -812,7 +823,8 @@ function burndown(issues) {
 			data : remainingIdealFullArray,
 			borderColor: '#004d1a',
 			pointRadius: 0,
-			spanGaps: true
+			spanGaps: true,
+			yAxisID: "axis-lines"
 		});
 //	}
 	
@@ -825,6 +837,57 @@ function burndown(issues) {
 			fill : false,
 			data : remainingTentativeArray,
 			backgroundColor : 'rgb(255, 255, 51)'  // Yellow
+		});
+	}
+
+	// Let's add an trendline for burndown using remaining estimates (not considering burndownData / notforcodefreeze), so simply remainingArray
+	if ($('#trendline').is(":checked")) {
+		console.log("Calculating trendline. remainingArray (length " + remainingArray.length + ") = " + remainingArray);
+		
+		// Ok, we will assume that first point is correct as a starting point. We want to then place a line with the best linear regression
+		// (least sum of squares) of the errors for all available points.
+		var leastSquareSum = -1;
+		var leastSquareIndex = -1;
+		remainingTrendArray[0] = remainingArray[0];
+		
+		console.log("Startinmg at " + remainingTrendArray[0]);
+		
+	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). That is next step
+		for (tryIndex = 1; tryIndex < remainingArray.length; tryIndex++) {
+			
+			// Ok, let's pretend that this was the burndown date.
+			var average = remainingArray[0] / tryIndex;
+			
+			// Ok, let's see what sum of squares this results in... 
+			var squareSum = 0;
+			for (sumIndex = 1; sumIndex < remainingArray.length && !isNaN(remainingArray[sumIndex]); sumIndex++) {
+				var squareValue = Math.pow(remainingArray[sumIndex] - (remainingArray[0] - average * sumIndex), 2);
+				squareSum += squareValue;
+			}
+			console.log("  tryIndex = " + tryIndex + ", value = " + remainingArray[tryIndex] + ", average = " + average + ", squareSum = " + squareSum);
+			
+			if (squareSum < leastSquareSum || leastSquareSum == -1) {
+				leastSquareSum = squareSum;
+				leastSquareIndex = tryIndex;
+			}
+		}
+
+		console.log("Best end index/date: " + leastSquareIndex + " / " + labels[leastSquareIndex]);
+		remainingTrendArray[leastSquareIndex] = 0;
+		
+		console.log(remainingTrendArray);
+		
+		chartData.datasets.push({
+			type : 'line',
+			label : 'Trendline',
+			borderWidth : 2,
+			borderColor: '#414d8a',
+			borderDash: [15, 5],
+			fill : false,
+			data : remainingTrendArray,
+			pointRadius: 0,
+			spanGaps: true,
+			yAxisID: "axis-lines"
 		});
 	}
 
@@ -863,9 +926,22 @@ function burndown(issues) {
 					},
 					stacked: true,
 					ticks: {
-						beginAtZero: true
+						beginAtZero: true,
+						min: 0,
+						max: 200
 					}
 				
+				},{		
+					id: "axis-lines",
+					stacked: false,
+					display: false, //optional if both yAxes use the same scale
+					ticks: {
+						beginAtZero: true,
+						min: 0,
+						max: 200
+					},
+//				  type: 'linear'
+
 				}],
 				xAxes: [{
 					barPercentage: 1,

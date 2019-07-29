@@ -157,6 +157,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Sprint capacity (story points)</span>
 		</div>
 		
+		<div class="field">
+			<label>Trendline</label>
+			<input type="checkbox" id="trendline">
+            <span class="tooltip">Draw a burndown trendline</span>
+		</div>
+		
 		<button id="drawbutton" onclick="startBurndown()">Draw chart</button>
 		<button id="tablebutton" onclick="startTable()">Show table</button>
 	</div>
@@ -198,6 +204,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+		
+		yoda.decodeUrlParamBoolean("#trendline", "trendline");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

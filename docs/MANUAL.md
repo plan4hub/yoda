@@ -205,7 +205,7 @@ The burndown chart will display total work remaining for a given day during the 
 
 An "ideal" line will be drawn between (total of estimates) on the first date, and 0 (all work done). on the last date. If the planner wants to work with a higher capacity, this may be specified in the milestone/project using "> capacity (number)" syntax, overridden in the corresponding field, or set by URL argument. When drawing burndown across several repositories, all present capacity values are added to form the starting point for the ideal line.
 
-A further "ideal" line will be drawn for issues that must be completed before a supplied burndown date.
+A further "ideal" line will be drawn for issues that must be completed before a supplied burndown date. Even further, a trendline may be drawn using linear regression; simply select the "TrendLine" box.
 
 As part of sprint planning, often tentative/stretch goals are used. Normally, in GitHub, this will be indicated by a special label. Default is "P - Tentative". Issues with this label are added to a special yellow tentative bar above the committed green bar.
 
@@ -213,7 +213,7 @@ As part of sprint planning, often tentative/stretch goals are used. Normally, in
 
 The burndown page also includes an option for displaying a table of all issues associated with a milestone, along with their estimates and remaning work. Just press "Show table". You may click on "Issue Id" in the table header to export the table to a CSV file, e.g. for importing to Excel. The open state will be shown in **bold** if a special "in progress label" is present. A special "Additional Data" column may be customized. The default value is to include an issue severity based on a label convention where severity conform to an "S[1-4] - <severity text>" format.
 
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata.
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata, trendline.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 
