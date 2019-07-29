@@ -852,8 +852,9 @@ function burndown(issues) {
 		
 		console.log("Startinmg at " + remainingTrendArray[0]);
 		
-	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). That is next step
-		for (tryIndex = 1; tryIndex < remainingArray.length; tryIndex++) {
+	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). 
+		// Let's accept to couble the duration
+		for (tryIndex = 1; tryIndex < (remainingArray.length * 2); tryIndex++) {
 			
 			// Ok, let's pretend that this was the burndown date.
 			var average = remainingArray[0] / tryIndex;
@@ -870,16 +871,27 @@ function burndown(issues) {
 				leastSquareSum = squareSum;
 				leastSquareIndex = tryIndex;
 			}
+			
 		}
 
-		console.log("Best end index/date: " + leastSquareIndex + " / " + labels[leastSquareIndex]);
+		// Add the trendLine end date (the tryIndex) to trendline legend, if later than duedate
+
+		var trendLabel = "TrendLine";
+		var trendDate = new Date(dueDate);
+		for (var lateIndex = leastSquareIndex; lateIndex > remainingArray.length; lateIndex--) {
+			trendDate.setDate(trendDate.getDate() + 1);
+			console.log(" ... " + lateIndex + ", " + trendDate);
+			trendLabel = "TrendLine (" + yoda.formatDate(trendDate) + ")";
+		}
+		
+		console.log("Best end index/date: " + leastSquareIndex + " / " + labels[leastSquareIndex] + ", trendLabel = " + trendLabel + ", length of remainingArray = " + remainingArray.length);
 		remainingTrendArray[leastSquareIndex] = 0;
 		
 		console.log(remainingTrendArray);
 		
 		chartData.datasets.push({
 			type : 'line',
-			label : 'Trendline',
+			label : trendLabel,
 			borderWidth : 2,
 			borderColor: '#414d8a',
 			borderDash: [15, 5],
