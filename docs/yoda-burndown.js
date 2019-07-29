@@ -865,7 +865,7 @@ function burndown(issues) {
 				var squareValue = Math.pow(remainingArray[sumIndex] - (remainingArray[0] - average * sumIndex), 2);
 				squareSum += squareValue;
 			}
-			console.log("  tryIndex = " + tryIndex + ", value = " + remainingArray[tryIndex] + ", average = " + average + ", squareSum = " + squareSum);
+//			console.log("  tryIndex = " + tryIndex + ", value = " + remainingArray[tryIndex] + ", average = " + average + ", squareSum = " + squareSum);
 			
 			if (squareSum < leastSquareSum || leastSquareSum == -1) {
 				leastSquareSum = squareSum;
