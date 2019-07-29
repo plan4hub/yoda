@@ -903,6 +903,13 @@ function burndown(issues) {
 	var titleText = "Burndown chart for ";
 	if ($("#milestonelist").val() != "") 
 		titleText +=  $("#owner").val() + "/" + $("#repolist").val() + " for milestone " + $("#milestonelist").val();
+	
+	// Find yMaxValue
+	var yMaxValue = -1;
+	if ($("#capacity").val() != "") {
+		yMaxValue = parseInt($("#capacity").val());
+	}
+	yMaxValue = Math.max(yMaxValue, (estimateNoFreeze + estimate + estimateTentative));
 
 	var ctx = document.getElementById("canvas").getContext("2d");
 	window.myMixedChart = new Chart(ctx, {
@@ -928,7 +935,7 @@ function burndown(issues) {
 					ticks: {
 						beginAtZero: true,
 						min: 0,
-						max: 200
+						max: yMaxValue 
 					}
 				
 				},{		
@@ -938,7 +945,7 @@ function burndown(issues) {
 					ticks: {
 						beginAtZero: true,
 						min: 0,
-						max: 200
+						max: yMaxValue 
 					},
 //				  type: 'linear'
 
