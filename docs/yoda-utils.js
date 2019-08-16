@@ -648,6 +648,15 @@ var yoda = (function() {
 			return false;
 		},
 		
+		// search all issue labels look for one of the labels in a list.
+		isAnyLabelInIssue: function(issue, labelList) {
+			for (l = 0; l < labelList.length; l++) {
+				if (yoda.isLabelInIssue(issue, labelList[l]))
+					return true;
+			}
+			return false;
+		},
+		
 		sortDates: function(issue_1, issue_2) {
 			if (issue_1.closed_at == null || issue_2.closed_at == null) 
 				return 0;
