@@ -650,8 +650,8 @@ var yoda = (function() {
 		
 		// search all issue labels look for one of the labels in a list.
 		isAnyLabelInIssue: function(issue, labelList) {
-			for (l = 0; l < labelList.length; l++) {
-				if (yoda.isLabelInIssue(issue, labelList[l]))
+			for (ll = 0; ll < labelList.length; ll++) {
+				if (yoda.isLabelInIssue(issue, labelList[ll]))
 					return true;
 			}
 			return false;
