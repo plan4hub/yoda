@@ -130,7 +130,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Issue RN format</label>
+			<label>Issue format</label>
 			<input type="text" id="rnformat" size="40"></input>
 			<span class="tooltip">Formatting for issue. Special fields are issue nummer (%n), id (repo and number) (%d), title (%t)<br>and RN (%r). Use %x for RN under title in table, use %y to use RN if not empty, otherwise title</span>
 		</div>
@@ -150,21 +150,27 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Release Note Issue Types</label>
+			<label>Issue Types</label>
 			<input type="text" id="rnlabeltypes" size="30" value="T2 - Enhancement|Added Features,T1 - Defect|Solved Issues">
 			<span class="tooltip">Issue types (labels) to output to RN sections). Comma-separated list of Label|Header</span>
 		</div>
 	
 		<div class="field">
-			<label>Release Note Skip Label</label>
-			<input type="text" id="rnskiplabel" size="20" value="Q - No RN">
+			<label>Skip Label</label>
+			<input type="text" id="rnskiplabel" size="15" value="Q - No RN">
 			<span class="tooltip">Label to force skipping issue into RN</span>
 		</div>
 		
 		<div class="field">
-			<label>Release Note Meta Label</label>
-			<input type="text" id="rnmetalabel" size="20" value="T9 - MetaIssue">
+			<label>Meta Label</label>
+			<input type="text" id="rnmetalabel" size="15" value="T9 - MetaIssue">
 			<span class="tooltip">Label to indicate that a Meta issue</span>
+		</div>
+		
+		<div class="field">
+			<label>Label filter</label>
+			<input type="text" size="20" id="labelfilter" value="">
+			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
 		</div>
 
 		<button id="drawRNbutton" onclick="startRN(false)">Show RN</button>
@@ -200,6 +206,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#rnknownlabel", "yoda.burndown.rnknownlabel");
 		
 		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParam("#labelfilter", "labelfilter");
 		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
 		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
 		yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");

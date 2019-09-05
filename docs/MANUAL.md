@@ -271,7 +271,7 @@ Sometimes it is necessary to generate a patch which includes issues already deli
 
 A special "Known Issues" Release note list can also be generated (similar to the normal Release Note). What is special here is the selection of issues. Here issues are taken from all repository Milestone *if* they have a Known Issues Label set, default "Q - Known Issue".
 
-URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, rnlabeltypes, rnskiplabel, rnmetalabel, rnknownlabel.
+URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, rnlabeltypes, rnskiplabel, rnmetalabel, rnknownlabel, labelfilter.
 
 The report is available [here](yoda-release-notes.html).
 

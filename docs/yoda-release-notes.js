@@ -53,11 +53,11 @@ function getUrlParams() {
 		params += "&repolist=" + $("#repolist").val();
 	if ($("#milestonelist").val() != "")
 		params += "&milestonelist=" + $("#milestonelist").val();
+	params = addIfNotDefault(params, "labelfilter");	
 	params = addIfNotDefault(params, "rnlabeltypes");
 	params = addIfNotDefault(params, "rnskiplabel");
 	params = addIfNotDefault(params, "rnmetalabel");
 	params = addIfNotDefault(params, "rnknownlabel");
-	
 	params = addIfNotDefault(params, "hlformat");
 	params = addIfNotDefault(params, "sformat");
 	params = addIfNotDefault(params, "ssformat");
@@ -506,8 +506,13 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	
 		var milestoneSearch = "&milestone=" + milestone.number;
 		console.log("milestone.number: " + milestone.number);
+		
+		var filterSearch = "";
+		if  ($("#labelfilter").val() != "") {
+			filterSearch = "&labels=" + $("#labelfilter").val();
+		}
 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all&direction=asc" + milestoneSearch;
+		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all&direction=asc" + milestoneSearch + filterSearch;
 //		console.log(getIssuesUrl);
 		
 		yoda.getLoop(getIssuesUrl, 1, [], function(data) {storeIssues(data, milestoneIndex, myUpdateIssueActiveNo)}, null);
