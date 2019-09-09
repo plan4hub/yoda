@@ -81,7 +81,7 @@ function createChartLT(issues) {
 	// Issue analysis loop.
 	// First, let's sort issues by submit date
 	issues.sort(function(issue_1, issue_2) {
-		if (issue_1.created_at < issue_2.created_at)
+		if (yoda.createDate(issue_1) < yoda.createDate(issue_2))
 			return -1;
 		else 
 			return 1;
@@ -99,7 +99,7 @@ function createChartLT(issues) {
 	var startDateString = $("#startdate").val();
 	if (startDateString == "") {
 		// If blank, makes sense to start with the date of the first issue.
-		var firstIssueDate = new Date(issues[0].created_at); 
+		var firstIssueDate = new Date(yoda.createDate(issues[0])); 
 		var update = determineStartAndInterval(firstIssueDate, interval);
 		interval = update.interval;
 		var startDate = update.startDate;
@@ -124,9 +124,9 @@ function createChartLT(issues) {
 	
 	
 	// Then, let's loop the dates.
-	var firstIssueDate = issues[0].created_at;
+	var firstIssueDate = yoda.createDate(issues[0]);
 	console.log("first: " + firstIssueDate);
-	var lastIssueDate = issues.slice(-1)[0].created_at;
+	var lastIssueDate = yoda.createDate(issues.slice(-1)[0]);
 	console.log("last: " + lastIssueDate);
 	var endIssueDate = new Date(lastIssueDate);
 	
@@ -142,12 +142,12 @@ function createChartLT(issues) {
 	
 	for (var i = 0; i < issues.length; i++) {
 		// Add to open and/or closed item.
-		var createdAt = issues[i].created_at;
+		var createdAt = yoda.createDate(issues[i]);
 		var dTemp = new Date(createdAt);
 		var d = yoda.formatDate(dTemp);
 		openArray[d]++;
 		
-		var closedAt = issues[i].closed_at;
+		var closedAt = yoda.closeDate(issues[i]);
 		if (closedAt != null) {
 			var dTemp = new Date(closedAt);
 			var d = yoda.formatDate(dTemp);
@@ -184,7 +184,7 @@ function createChartLT(issues) {
 			// We count all issues. Just a matter of splitting them into either one of the data pools.
 			// closed => index 0
 			// open => index 1
-			var submitDateString = issues[i].created_at;
+			var submitDateString = yoda.createDate(issues[i]);
 			var submitDate = new Date(submitDateString);
 			
 			if (submitDate > endOfDate) {
@@ -193,7 +193,7 @@ function createChartLT(issues) {
 			}
 			
 			// Closed, and closed before OR DURING date?
-			var closedString = issues[i].closed_at;
+			var closedString = yoda.closeDate(issues[i]);
 			if (closedString != null) {
 				var closedDate = new Date(closedString);
 
@@ -311,7 +311,7 @@ function createChartCFD(issues) {
 	
 	// First, let's sort issues by submit date
 	issues.sort(function(issue_1, issue_2) {
-		if (issue_1.created_at < issue_2.created_at)
+		if (yoda.createDate(issue_1) < yoda.createDate(issue_2))
 			return -1;
 		else 
 			return 1;
@@ -323,7 +323,7 @@ function createChartCFD(issues) {
 	var startDateString = $("#startdate").val();
 	if (startDateString == "") {
 		// If blank, makes sense to start with the date of the first issue.
-		var firstIssueDate = new Date(issues[0].created_at); 
+		var firstIssueDate = new Date(yoda.createDate(issues[0])); 
 		var update = determineStartAndInterval(firstIssueDate, interval);
 		interval = update.interval;
 		var startDate = update.startDate;
@@ -380,7 +380,7 @@ function createChartCFD(issues) {
 			// We count all issues. Just a matter of splitting them into either one of the data pools.
 			// closed => index 0
 			// open => index 1
-			var submitDateString = issues[i].created_at;
+			var submitDateString = yoda.createDate(issues[i]);
 			var submitDate = new Date(submitDateString);
 			
 			if (submitDate > endOfDate) {
@@ -389,7 +389,7 @@ function createChartCFD(issues) {
 			}
 			
 			// Closed, and closed before OR DURING date?
-			var closedString = issues[i].closed_at;
+			var closedString = yoda.closeDate(issues[i]);
 			if (closedString != null) {
 				var closedDate = new Date(closedString);
 

@@ -71,6 +71,9 @@ function issueState(issue, date) {
 	// TBD
 } 
 
+
+
+
 // Global array. Issue URL (API style) is the key
 var labelEventsReceived = false;
 var labelEvents = [];
@@ -267,7 +270,7 @@ function createChart() {
 		for (var i=0; i < issues.length; i++) {
 			// We must consider issues which have been opened BEFORE date, but  
 			// NOT closed before date
-			var submitDateString = issues[i].created_at;
+			var submitDateString = yoda.createDate(issues[i]);    
 			var submitDate = new Date(submitDateString);
 			
 			if (submitDate > date) {
@@ -276,7 +279,7 @@ function createChart() {
 			}
 			
 			// Closed, and closed before OR DURING date?
-			var closedString = issues[i].closed_at;
+			var closedString = yoda.closeDate(issues[i]); 
 			if (closedString != null) {
 				var closedDate = new Date(closedString);
 

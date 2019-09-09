@@ -1136,6 +1136,42 @@ var yoda = (function() {
 		menuClick: function() {
 			document.getElementById("yodamenu").classList.toggle("show");
 		},
+		
+		// Helper function for Jira/ALM migrated issues
+		//Finds an entry in an existing body. Returns null is not present
+		extractFieldFromBodyTable: function(body, key) {
+			var fieldStart = body.indexOf("**" + key + "**");
+			if (fieldStart == -1)
+				return null;
+			
+			var valueStart = body.indexOf("|", fieldStart);
+			var valueEnd = body.indexOf("\n", fieldStart);
+			return body.substring(valueStart + 1, valueEnd);
+		},
+
+		// Helper function. Create date (to taken into account as well migrated issues from other systems.
+		// For now, hacking and hard-coding "Jira Migrated"..
+		createDate: function(issue) {
+			if (yoda.isLabelInIssue(issue, "Jira Migrated")) {
+				// Created	2019-09-05T06:52:20.096+0000
+				return yoda.extractFieldFromBodyTable(issue.body, "Created");
+			} else {
+				return issue.created_at;
+			}
+		},
+
+		//Helper function for delete date (to taken into account as well migrated issues from other systems.
+		//For now, hacking and hard-coding "Jira Migrated"..
+		closeDate: function(issue) {
+			if (issue.state == "open")
+				return null;
+			
+			if (yoda.isLabelInIssue(issue, "Jira Migrated")) {
+				return yoda.extractFieldFromBodyTable(issue.body, "Updated");  // This may be a simplification
+			} else {	
+				return issue.closed_at;
+			}
+		}
 	}
 
 })();
