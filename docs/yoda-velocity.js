@@ -247,7 +247,7 @@ function addMilestone(issues) {
 	}
 
 	// If we have a capacity number in the milestone, we may work out estimate/capacity
-	if (milestoneCapacity != null && yoda.getEstimateInIssues() != "noissues") {
+	if (milestoneCapacity != null && milestoneCapacity > 0&& yoda.getEstimateInIssues() != "noissues") {
  		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
 		console.log("Capacity factor = " + capacityFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
