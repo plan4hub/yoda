@@ -443,10 +443,61 @@ var yoda = (function() {
 			return res;
 		},
 		
+		
+		// get date part of remaining entry.
+		getDateFromEntry: function(remainingEntry) {
+			var dateEnd = remainingEntry.indexOf(" ");
+			if (dateEnd == -1) {
+				console.log("ERROR: Cannot interpret remaining entry: " + remainingEntry);
+				return "2000-00-00";
+			} 
+			var remainingDate = remainingEntry.slice(0, dateEnd);
+			
+			// Date checks + make the date perfectly formatted as YYYY-MM-DD
+			var firstDash = remainingDate.indexOf("-");
+			if (firstDash != 4) {
+				console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
+				return "2000-00-00";
+			}
+			var secondDash = remainingDate.indexOf("-", firstDash + 1);
+			if (secondDash != 7 && secondDash != 6) {
+				console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
+				return "2000-00-00";
+			}
+			
+			if (secondDash == 6) {
+				// Month < 10
+				remainingDate = remainingDate.slice(0, firstDash + 1) + "0" + remainingDate.slice(firstDash + 1);
+				secondDash = remainingDate.indexOf("-", firstDash + 1);
+//				console.log("Adjusted date (month < 10): '" + remainingDate + "'");
+			}
+			
+			if (remainingDate.length == 9) {
+				// Day < 10
+				remainingDate = remainingDate.slice(0, secondDash + 1) + "0" + remainingDate.slice(secondDash + 1);
+//				console.log("Adjusted date (day < 10): '" + remainingDate + "'");
+			}
+			
+			console.log("remainingEntry='" + remainingEntry + "' dateEnd = " + dateEnd + ", reaminingDate='" + remainingDate + "' firstDash = " + firstDash + ", secondDash=" + secondDash);
+			return remainingDate;
+		},
+		
+		// get estimate part from remaining entry.
+		getRemainingFromEntry: function(remainingEntry) {
+			var dateEnd = remainingEntry.indexOf(" ");
+			if (dateEnd == -1) {
+				console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
+				return 0;
+			}
+			remaining = remainingEntry.slice(dateEnd + 1);
+//			console.log("remainingEntry='" + remainingEntry + "' dateEnd = " + dateEnd + ", reamining='" + remaining + "'");
+			return parseFloat(remaining);
+		},
+		
 		// Extract "> remaining (date) (value)" entries.
 		// Should be run in a loop with index = 0 first.  
 		getFirstRemaining: function(body, index) {
-			var remaining = getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
+			var remaining = getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ][0-9][0-9]*(\.[0-9])?[ ]*$', index);
 			return remaining;
 		},
 		
@@ -456,9 +507,8 @@ var yoda = (function() {
 			var remaining = estimate;
 			for (var index = 0; yoda.getFirstRemaining(issue.body, index) != null; index++) {
 				var remainingEntry = yoda.getFirstRemaining(issue.body, index);
-				// 	Ok, we now have a > remaining entry
-				var remainingDate = remainingEntry.slice(0, 10);
-				remaining = remainingEntry.slice(11);
+				var remainingDate = yoda.getDateFromEntry(remainingEntry);
+				var remaining = yoda.getRemainingFromEntry(remainingEntry);
 //				console.log("Remaining entry (" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 			}
 			
@@ -474,9 +524,8 @@ var yoda = (function() {
 				// We need to work on potential remaining.
 				for (var index = 0; yoda.getFirstRemaining(issue.body, index) != null; index++) {
 					var remainingEntry = yoda.getFirstRemaining(issue.body, index);
-					// 	Ok, we now have a > remaining entry
-					var remainingDate = remainingEntry.slice(0, 10);
-					remaining = remainingEntry.slice(11);
+					var remainingDate = yoda.getDateFromEntry(remainingEntry);
+					var remaining = yoda.getRemainingFromEntry(remainingEntry);
 					if (remainingDate < startdate) {
 						estimate = parseFloat(remaining);
 						console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);

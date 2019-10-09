@@ -579,9 +579,10 @@ function burndown(issues) {
 	var date = new Date(milestoneStartdateString);
 
 	var dueDate = new Date(milestoneDuedateString);
+	console.log("initial dueDate = " + dueDate);
 	// Add one to dueDate to ensure that we show entire sprint effort (as burndown is only shown the day after)
 	dueDate.setDate(dueDate.getDate() + 1);
-	console.log(milestoneDuedateString);
+	console.log("adjusted dueDate = " + dueDate);
 	
 	var nextDay = new Date(date);
 	var today = new Date();
@@ -693,9 +694,9 @@ function burndown(issues) {
 				var issueWorkDoneBefore = 0;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
 					var remainingEntry = yoda.getFirstRemaining(issues[i].body, index);
-					//      Ok, we now have a /remaining entry
-					var remainingDate = remainingEntry.slice(0, 10);
-					var remainingNumber = remainingEntry.slice(11);
+					var remainingDate = yoda.getDateFromEntry(remainingEntry);
+					var remainingNumber = yoda.getRemainingFromEntry(remainingEntry);
+					
 					console.log("Remaining entry (" + index + ") for issue: " + issues[i].number + ": " + remainingDate + ", " + remainingNumber);
 
 					if (issues[i].closed_at == null) {
