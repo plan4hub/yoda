@@ -20,6 +20,7 @@
 
 // Global variable controlling whether bars should be stacked or not.
 // If stacked, then tool will not do a "totals" line and a corresponding right axis.
+var ALL_MILESTONES = -1;
 
 var repoList = [];  // selected repos
 var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
@@ -507,6 +508,10 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 		var milestoneSearch = "&milestone=" + milestone.number;
 		console.log("milestone.number: " + milestone.number);
 		
+		// Special situaton for milestone -1 (all milestones)
+		if (milestone.number == ALL_MILESTONES)
+			milestoneSearch = "";
+		
 		var filterSearch = "";
 		if  ($("#labelfilter").val() != "") {
 			filterSearch = "&labels=" + $("#labelfilter").val();
@@ -563,17 +568,27 @@ function updateIssuesForRN() {
 	// We will get issues for all selected milestones for all selected repos.
 	milestoneListComplete = [];
 	
-	for (var m = 0; m < milestoneList.length; m++) {
-//		console.log("Updating issues for milestone: " + milestoneList[m]);
-
+	// Handle situation where no milestones are specified, but we do have a labelFilter. In this case, we will take all issues based on the filter
+	if (milestoneList.length == 0 && $("#labelfilter").val() != "") {
+		console.log("No milestones selected, but filter present. Getting all issues based on filter only.");
 		for (var r = 0; r < repoList.length; r++) {
 //			console.log("  For repo: " + repoList[r]);
-			// Need to find the milestone (the number)..
-			for (var m1 = 0; m1 < repoMilestones[r].length; m1++) {
-//				console.log(repoMilestones[r][m1].title);
-				if (repoMilestones[r][m1].title == milestoneList[m]) {
-					console.log("Need to get issues for " + repoList[r] + ", " + milestoneList[m] + ", which has number: " + repoMilestones[r][m1].number);
-					milestoneListComplete.push(repoMilestones[r][m1]);
+			milestoneListComplete.push({number: ALL_MILESTONES, url:  yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/milestone/-1"}); // Dummy value
+		}
+	} else {
+		// Normal handling
+		for (var m = 0; m < milestoneList.length; m++) {
+//			console.log("Updating issues for milestone: " + milestoneList[m]);
+
+			for (var r = 0; r < repoList.length; r++) {
+//				console.log("  For repo: " + repoList[r]);
+				// Need to find the milestone (the number)..
+				for (var m1 = 0; m1 < repoMilestones[r].length; m1++) {
+//					console.log(repoMilestones[r][m1].title);
+					if (repoMilestones[r][m1].title == milestoneList[m]) {
+						console.log("Need to get issues for " + repoList[r] + ", " + milestoneList[m] + ", which has number: " + repoMilestones[r][m1].number);
+						milestoneListComplete.push(repoMilestones[r][m1]);
+					}
 				}
 			}
 		}
