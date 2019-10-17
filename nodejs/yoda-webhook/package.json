@@ -1,0 +1,20 @@
+{
+  "name": "yoda-webhook",
+  "version": "1.0.0",
+  "description": "yoda webhook service",
+  "main": "yoda-webhook.js",
+  "scripts": {
+    "start": "node yoda-webhook.js"
+  },
+  "author": "Jens Vedel Markussen",
+  "license": "MIT",
+  "dependencies": {
+    "eventsource": "",
+    "log4js": "",
+    "http": "",
+    "command-line-args": "",
+    "command-line-usage": "",
+    "@octokit/rest": "",
+    "@octokit/webhooks": ""
+  }
+}
