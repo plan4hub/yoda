@@ -6,7 +6,6 @@ configuration.parseOptions();
 const log4js = require('log4js');
 var logger = log4js.getLogger();
 
-
 logger.info("Server starting ...");
 
 const yodaRefModule = require('./issue-references.js');
@@ -17,25 +16,30 @@ const webhooks = new WebhooksApi({
   secret: 'mysecret'
 })
 
-// Testing using smee.io
 const EventSource = require('eventsource');
-const webhookProxyUrl = 'https://smee.io/VPLzPA2WsdskT29M' // replace with your own Webhook Proxy URL
-const source = new EventSource(webhookProxyUrl)
-source.onmessage = (event) => {
-  const webhookEvent = JSON.parse(event.data)
-  webhooks.verifyAndReceive({
-    id: webhookEvent['x-request-id'],
-    name: webhookEvent['x-github-event'],
-    signature: webhookEvent['x-hub-signature'],
-    payload: webhookEvent.body
-  }).catch(console.error)
+var source;
+// Testing using web proxy smee.io
+if (configuration.getOption('webhookproxy') != undefined) {
+	logger.info('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
+	source = new EventSource(configuration.getOption('webhookproxy')); // , {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
+	source.onmessage = (event) => {
+		logger.trace("Event received.");
+		const webhookEvent = JSON.parse(event.data)
+		webhooks.verifyAndReceive({
+			id: webhookEvent['x-request-id'],
+			name: webhookEvent['x-github-event'],
+			signature: webhookEvent['x-hub-signature'],
+			payload: webhookEvent.body
+		});
+	};
 }
+console.log(source);
 
 webhooks.on('issues', ({id, name, payload}) => {
 	yodaRefModule.checkEvent(id, name, payload);
 });
 
-require('http').createServer(webhooks.middleware).listen(3000)
+require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
 // can now receive webhook events at port 3000
 
 logger.info("Server running ...");

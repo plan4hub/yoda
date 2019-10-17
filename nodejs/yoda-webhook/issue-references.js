@@ -3,19 +3,23 @@ module.exports = {checkEvent};
 var log4js = require('log4js');
 var logger = log4js.getLogger();
 
+const configuration = require('./configuration.js');
+
 const Octokit = require('@octokit/rest');
 
+var authString = "token " + configuration.getOption('password');
 const octokit = new Octokit({
 	userAgent: 'yoda-webhook',
 	baseUrl: 'https://github.hpe.com/api/v3',
-	log: logger
+	log: logger,
+	auth: authString
 });
 
-octokit.authenticate({
-	type: 'token',
-	username: 'jens-markussen',
-	token: "8dd4d417cb9121d6eb802199f181560752920e5f",
-});
+//octokit.authenticate({
+//	type: 'token',
+//	username: 'jens-markussen',
+//	token: "8dd4d417cb9121d6eb802199f181560752920e5f",
+//});
 
 // Keep track of modified issues (in order to ignore events received from those.
 var issuesEdited = [];

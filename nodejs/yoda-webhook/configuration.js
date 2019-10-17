@@ -1,4 +1,4 @@
-module.exports = {parseOptions, options};
+module.exports = {parseOptions, getOption};
 
 // Main options array
 var options;
@@ -30,6 +30,17 @@ const optionDefinitions = [
 		alias: 'p',
 		type: String,
 		description: 'The GitHub password (a GitHub personal access token). Required.'
+	},
+	{
+		name: 'port',
+		type: Number,
+		description: 'The port to listen to (default 8181).',
+		defaultValue: 8181
+	},
+	{
+		name: 'webhookproxy',
+		type: String,
+		description: 'Development mode. Use an external services (smee.io is good) for proxying GitHub events. Give the URL. Optional.'
 	},
 	{
 		name: 'help',
@@ -96,10 +107,13 @@ function parseOptions() {
 		app: { type: 'dateFile', filename: 'yoda-webhook.log', daysToKeep: 7 }
 	  },
 	  categories: {
-		default: { appenders: [ 'out', 'app' ], level: 'debug' }
+		default: { appenders: [ 'out', 'app' ], level: options['loglevel'] }
 	  }
 	});
 
 	logger.debug(options);
+}
 
+function getOption(option) {
+	return options[option];
 }
