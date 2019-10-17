@@ -11,6 +11,17 @@ Then run the following command in order to understand the options:
 
 `node yoda-webhook.js`
 
+
+## Configuration your GitHub webhook
+
+You may lace GitHub webhook either at repository or organisation layer. You find the setup under *Settings/Hooks*. Fill in fields as follows:
+
+Payload URL: `http://(server:port)`
+Content Type: `application/json`
+Secret: (secret)
+
+Select event(s). Most relevant is `Issues`. 
+
 ## Running Yoda webhook in docker
 
 A `Dockerfile` is delivered in order to build a docker image. Simply run:

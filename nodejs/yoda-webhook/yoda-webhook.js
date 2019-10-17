@@ -13,7 +13,7 @@ const yodaRefModule = require('./issue-references.js');
 // install with: npm install @octokit/webhooks
 const WebhooksApi = require('@octokit/webhooks')
 const webhooks = new WebhooksApi({
-  secret: 'mysecret'
+  secret: configuration.getOption('secret')
 })
 
 const EventSource = require('eventsource');
@@ -37,11 +37,6 @@ if (configuration.getOption('webhookproxy') != undefined) {
 webhooks.on('issues', ({id, name, payload}) => {
 	yodaRefModule.checkEvent(id, name, payload);
 });
-
-webhooks.on('*', ({id, name, payload}) => {
-	logger.trace("Event received: " + id + ", " + name);
-});
-
 
 require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
 

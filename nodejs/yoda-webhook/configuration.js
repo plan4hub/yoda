@@ -38,6 +38,13 @@ const optionDefinitions = [
 		defaultValue: 8181
 	},
 	{
+		name: 'secret',
+		alias: 's',
+		type: String,
+		description: 'The GitHub webhook secret. Default mysecret',
+		defaultValue: 'mysecret'
+	},
+	{
 		name: 'webhookproxy',
 		type: String,
 		description: 'Development mode. Use an external services (smee.io is good) for proxying GitHub events. Give the URL. Optional.'

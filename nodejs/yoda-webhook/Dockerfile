@@ -6,7 +6,8 @@ FROM node:10-alpine
 EXPOSE 8181
 
 WORKDIR /usr/app
-COPY . .
+COPY package.json .
 RUN npm install
+COPY . .
 
 CMD ["node", "yoda-webhook.js"]
