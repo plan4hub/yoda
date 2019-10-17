@@ -3,13 +3,10 @@
 FROM node:10-alpine
 
 # replace this with your application's default port
-EXPOSE 3000
+EXPOSE 8181
 
 WORKDIR /usr/app
-COPY package.json .
+COPY . .
 RUN npm install
 
-COPY . .
-
 CMD ["node", "yoda-webhook.js"]
-

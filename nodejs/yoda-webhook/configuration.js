@@ -91,13 +91,12 @@ function parseOptions() {
 		}
 
 		if (error) {
+			logger.error(usage);
 			process.exit(1);
 		}
 	}
 	catch(err) {
-		console.error(usage);
 		logger.error(usage);
-
 	}
 
 	// Initialize logging
