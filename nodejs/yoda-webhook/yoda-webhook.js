@@ -16,6 +16,8 @@ const webhooks = new WebhooksApi({
   secret: configuration.getOption('secret')
 });
 
+
+// Use EventSource trick for dev purposes, i.e. where direct webhook from GitHub to server not possibly for example for own laptop.
 const EventSource = require('eventsource');
 var source;
 // Testing using web proxy smee.io
@@ -33,16 +35,17 @@ if (configuration.getOption('webhookproxy') != undefined) {
 		});
 	};
 }
-
+ 
 webhooks.on('issues', ({id, name, payload}) => {
 	yodaRefModule.checkEvent(id, name, payload);
 });
 
 const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
+logger.trace(server);
 
 // Be prepared for shutdown
 process.on('SIGINT', () => {
-	logger.info('Received SIGINT.');
+	logger.info('Received SIGINT. Shutting down.');
 	server.close(function() {process.exit(0)});
 });
 
