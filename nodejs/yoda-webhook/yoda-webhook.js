@@ -21,7 +21,7 @@ var source;
 // Testing using web proxy smee.io
 if (configuration.getOption('webhookproxy') != undefined) {
 	logger.info('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
-	source = new EventSource(configuration.getOption('webhookproxy')); // , {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
+	source = new EventSource(configuration.getOption('webhookproxy')); //, {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
 	source.onmessage = (event) => {
 		logger.trace("Event received.");
 		const webhookEvent = JSON.parse(event.data)
@@ -33,13 +33,16 @@ if (configuration.getOption('webhookproxy') != undefined) {
 		});
 	};
 }
-console.log(source);
 
 webhooks.on('issues', ({id, name, payload}) => {
 	yodaRefModule.checkEvent(id, name, payload);
 });
 
+webhooks.on('*', ({id, name, payload}) => {
+	logger.trace("Event received: " + id + ", " + name);
+});
+
+
 require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
-// can now receive webhook events at port 3000
 
 logger.info("Server running ...");
