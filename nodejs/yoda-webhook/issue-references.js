@@ -29,6 +29,7 @@ function checkEvent(id, name, payload) {
 	var issueAction = payload.action;
 	
 	logger.info("Checking issues event (" + issueAction + ") with id " + id + " for " + issueUrl);
+	logger.trace(payload);
 	
 	// Check actions from list: assigned, closed, deleted, demilestoned, edited, labeled, locked, milestoned, opened, pinned, reopened, transferred, unassigned, unlabeled, unlocked, unpinned
 	

@@ -14,7 +14,7 @@ const yodaRefModule = require('./issue-references.js');
 const WebhooksApi = require('@octokit/webhooks')
 const webhooks = new WebhooksApi({
   secret: configuration.getOption('secret')
-})
+});
 
 const EventSource = require('eventsource');
 var source;
@@ -38,6 +38,12 @@ webhooks.on('issues', ({id, name, payload}) => {
 	yodaRefModule.checkEvent(id, name, payload);
 });
 
-require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
+const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
+
+// Be prepared for shutdown
+process.on('SIGINT', () => {
+	logger.info('Received SIGINT.');
+	server.close(function() {process.exit(0)});
+});
 
 logger.info("Server running ...");

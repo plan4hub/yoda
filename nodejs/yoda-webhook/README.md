@@ -28,6 +28,12 @@ A `Dockerfile` is delivered in order to build a docker image. Simply run:
 
 `docker build -t yoda-webhook .`
 
+or (if npm install hangs and you are in HPE network):
+
+```
+docker build -t yoda-webhook --build-arg HTTP_PROXY=http://web-proxy.sdc.hpecorp.net:8080 --build-arg HTTPS_PROXY=http://web-proxy.sdc.hpecorp.net:8080 --build-arg http_proxy=http://web-proxy.sdc.hpecorp.net:8080 --build-arg https_proxy=http://web-proxy.sdc.hpecorp.net:8080 .
+```
+
 To run the image, you need to give the start-up arguments in a special environment variable `YODA_WEBHOOK_OPTIONS`. See example:
 
 ```
