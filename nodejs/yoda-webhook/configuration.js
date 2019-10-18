@@ -5,7 +5,7 @@ var options;
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
-logger.level = "INFO"; // To be sure we get some tracing during options parsing.
+logger.level = "INFO"; // To be sure we get some tracing during options parsing and final log level setting.
 
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
@@ -23,7 +23,7 @@ const optionDefinitions = [
 		name: 'user',
 		alias: 'u',
 		type: String,
-		description: 'The GitHub user name. Required.'
+		description: 'The GitHub user name. Required. We are assuming that this is a non-standard user. Events received from this user are ignored.'
 	},
 	{
 		name: 'password',
@@ -43,6 +43,23 @@ const optionDefinitions = [
 		type: String,
 		description: 'The GitHub webhook secret. Default mysecret',
 		defaultValue: 'mysecret'
+	},
+	{
+		name: 'url',
+		type: String,
+		description: 'An optional GitHub Issue URL to trigger execution. In this case no service will be started and processing will terminate after handling the issue.'
+	},
+	{
+		name: 'issuelist',
+		type: String,
+		description: 'The regular expression that will preceed a list of references to child issues. Default "> contains".',
+		defaultValue: "> contains"
+	},
+	{
+		name: 'issueref',
+		type: String,
+		description: 'The regular expression that will preceed a references to containing (parent) issue. Default "> partof".',
+		defaultValue: "> partof"
 	},
 	{
 		name: 'webhookproxy',
@@ -104,6 +121,7 @@ function parseOptions() {
 	}
 	catch(err) {
 		logger.error(usage);
+		process.exit(1);
 	}
 
 	// Initialize logging
