@@ -230,7 +230,7 @@ function processIssue(issue) {
 		logger.debug("Parent references: ");
 		logger.debug(parentRefs);
 		processParentRefIssues(issueRef, parentRefs, false).then(() => {
-			logger.info("Done processing issues references by issue: " + issue.url);
+			logger.info("Done processing issues referenced by issue: " + issue.url);
 			processIssueAsParent(issueRef, [], []).then(() => {
 				logger.info("Done processing issue: " + issue.url);
 				resolve();
