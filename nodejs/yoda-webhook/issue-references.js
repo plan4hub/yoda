@@ -19,9 +19,49 @@ const octokit = new Octokit({
 
 
 // Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
-// as given by parentIssue.
+// as given by parentIssue. childIssue contains the full (current) issue.
 function updatePartOfRef(childRef, childIssue, parentIssue) {
 	logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to ensure pointing to " + parentIssue.url);
+	
+	var parentIssueRef = yoda.getRefFromUrl(parentIssue.url);
+	var parentRefs = yoda.getParentRefs(parentIssueRef, childIssue.body);
+	
+	var parentIndex = yoda.findRefIndex(parentRefs, parentIssueRef);
+	
+	var shortRef = yoda.getShortRef(childRef, parentIssueRef);
+	var refLine = configuration.getOption("issueref") + " " + shortRef;
+	var issueType = yoda.getMatchingLabels(parentIssue, '^T[1-9] -');
+	if (issueType != "")
+		refLine += " " + issueType + " ";
+	refLine += "*" + parentIssue.title + "*\r\n";
+	logger.debug(refLine);
+		
+	var parentRefLine = configuration.getOption("issueref") + " ";
+	var newBody = childIssue.body;
+	if (parentIndex == -1) {
+		logger.debug("Issue reference not found. Inserting in beginning...");
+		newBody = refLine + childIssue.body;
+	} else {
+		logger.debug("Issue reference found.");
+		logger.debug(parentRefs[parentIndex]);
+		var blockStart = parentRefs[parentIndex].index;
+		var blockLength = parentRefs[parentIndex].length;
+		newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 1);
+	}
+	
+	if (newBody != childIssue.body) {
+		logger.debug("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
+		// update it.
+		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
+		octokit.issues.update(childUpdate).then((result) => {
+			logger.debug("Updated " + yoda.getFullRef(childRef));
+		}).catch((err) => {
+			logger.error(err);
+		});
+	} else {
+		logger.debug("Child issue reference already correct. Skipping update..");
+	}
+	
 }
 
 
@@ -141,8 +181,9 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	if (oldIssue.body == newBody) {
 		logger.debug("Skipping update as body is already correct.");
 	} else {
+		var update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
 
-		octokit.issues.update(issueRef).then((result) => {
+		octokit.issues.update(update).then((result) => {
 			logger.trace(result);
 		}).catch((err) => {
 			logger.error(err);

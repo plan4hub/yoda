@@ -1,4 +1,4 @@
-module.exports = {getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex};
+module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -190,7 +190,7 @@ function makeChildBlock(ownRef, childIssues) {
 		var shortRef = getShortRef(ownRef, issueRefs[i]);
 		var refLine = "";
 		if (issueRefs[i].issue == null) {
-			refLine = " - [ ] " + shortRef + " **Unable to get issue details - non-existing issue?**";
+			refLine = "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue?**";
 		} else {
 			var refLine = "- [";
 
@@ -292,6 +292,7 @@ function getParentRefs(ownRef, body) {
 			var refEntry = getRefFromShortRef(ownRef, ref);
 			refEntry.data = data;
 			refEntry.index = res.index;
+			refEntry.length = res[0].length;
 			issueRefs.push(refEntry);
 		}
 	} while (res != null);
@@ -311,7 +312,7 @@ function getChildren(ownRef, body) {
 	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-	var refLineReg = '^- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+	var refLineReg = '^[ ]*- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
