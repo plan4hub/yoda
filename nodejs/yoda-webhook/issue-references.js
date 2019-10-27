@@ -46,11 +46,19 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 		logger.debug(parentRefs[parentIndex]);
 		var blockStart = parentRefs[parentIndex].index;
 		var blockLength = parentRefs[parentIndex].length;
-		newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 1);
+		newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 2);
 	}
 	
 	if (newBody != childIssue.body) {
-		logger.trace("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
+		logger.debug("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
+		
+		for (var i = 0; i < newBody.length; i++) {
+			if (newBody[i] != childIssue.body[i])
+				logger.debug(i + " " + newBody.charCodeAt(i) + " " + childIssue.body.charCodeAt(i));
+			
+		}
+		
+		
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
