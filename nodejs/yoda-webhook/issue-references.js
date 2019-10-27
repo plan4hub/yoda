@@ -80,7 +80,8 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 				logger.trace(updatedChildren);
 				
 				// Now we are ready to update the issue itself
-				updateParentIssue(issueRef, updatedChildren, response.data); // Note. Not waiting to complete.
+				// Note. Not waiting to complete.
+				updateParentIssue(issueRef, updatedChildren, response.data); 
 				
 				resolve();
 			});
@@ -175,13 +176,14 @@ function processParentRefIssues(issueRef, pList, exclude, index) {
 //The issue is assumed to be loaded and available in issue, coming either from a get call or the (new) issue part of an event.
 function processIssue(issue) {
 	return new Promise(function(resolve, reject) {
+		var issueRef = yoda.getRefFromUrl(issue.url);
 		// First handle issue as a child issue, i.e. examining any "> partof" lines, and doing appropriate updates to the referred parent issues.
-		var parentRefs = yoda.getParentRefs(yoda.getRefFromUrl(issue.url), issue.body);
+		var parentRefs = yoda.getParentRefs(issueRef, issue.body);
 		logger.debug("Parent references: ");
 		logger.debug(parentRefs);
-		processParentRefIssues(issue, parentRefs, false).then(() => {
+		processParentRefIssues(issueRef, parentRefs, false).then(() => {
 			logger.info("Done processing issues references by issue: " + issue.url);
-			processIssueAsParent(issue, [], []).then(() => {
+			processIssueAsParent(issueRef, [], []).then(() => {
 				logger.info("Done processing issue: " + issue.url);
 				resolve();
 			});
@@ -198,8 +200,8 @@ function checkEvent(id, name, payload) {
 	var issueAction = payload.action;
 	var issueRef = yoda.getRefFromUrl(issueUrl);
 
-	logger.info("Checking issues event (" + issueAction + ") with id " + id + " for " + issueUrl);
-	logger.debug(issueRef);
+	logger.info("Checking issues event (" + issueAction + ") with id " + id + " by " + payload.sender.login + " for " + issueUrl);
+	logger.trace(issueRef);
 	logger.trace(payload);
 
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.

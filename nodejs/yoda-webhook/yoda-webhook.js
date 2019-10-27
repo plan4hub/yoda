@@ -6,7 +6,6 @@ configuration.parseOptions();
 const log4js = require('log4js');
 var logger = log4js.getLogger();
 
-logger.info("Server starting ...");
 
 const yodaRefModule = require('./issue-references.js');
 
@@ -15,6 +14,8 @@ if (configuration.getOption('url') != undefined) {
 	logger.info("Processing url: " + configuration.getOption('url'));
 	yodaRefModule.processIssueUrl(configuration.getOption('url'));
 } else {
+	logger.info("Server starting ...");
+
 	//	install with: npm install @octokit/webhooks
 	const WebhooksApi = require('@octokit/webhooks')
 	const webhooks = new WebhooksApi({
