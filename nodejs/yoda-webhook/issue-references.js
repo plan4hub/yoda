@@ -34,7 +34,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	if (issueType != "")
 		refLine += " " + issueType + " ";
 	refLine += "*" + parentIssue.title + "*\r\n";
-	logger.debug(refLine);
+	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
 	var newBody = childIssue.body;
@@ -50,18 +50,17 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	}
 	
 	if (newBody != childIssue.body) {
-		logger.debug("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
+		logger.trace("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
-			logger.debug("Updated " + yoda.getFullRef(childRef));
+			logger.debug("Succesfuully updated " + yoda.getFullRef(childRef));
 		}).catch((err) => {
 			logger.error(err);
 		});
 	} else {
 		logger.debug("Child issue reference already correct. Skipping update..");
 	}
-	
 }
 
 
@@ -184,6 +183,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 		var update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
 
 		octokit.issues.update(update).then((result) => {
+			logger.debug("Succesfully updated " + yoda.getFullRef(issueRef) + " with child block.");
 			logger.trace(result);
 		}).catch((err) => {
 			logger.error(err);
