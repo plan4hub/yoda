@@ -18,7 +18,14 @@ const octokit = new Octokit({
 });
 
 
-function readSingleChildAndUpdatePartOf(issueRefs, index) {
+// Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
+// as given by parentIssue.
+function updatePartOfRef(childRef, childIssue, parentIssue) {
+	logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to ensure pointing to " + parentIssue.url);
+}
+
+
+function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Reading issue # " + index);
 		// Let's see about getting the issue.
@@ -27,7 +34,7 @@ function readSingleChildAndUpdatePartOf(issueRefs, index) {
 			issueRefs[index].issue = result.data;
 			
 			// TODO: Check/update > partof. NOte. we don't need to wait for the result here.
-			
+			updatePartOfRef(issueRefs[index], result.data, parentIssue);
 
 			resolve();
 		}).catch((err) => {
@@ -40,11 +47,11 @@ function readSingleChildAndUpdatePartOf(issueRefs, index) {
 
 //Helper function to query a list of issues, as given by their reference. The issue data will be populated in the issues field.
 //If there is a problem, issue will be set to null, and a warning logger.
-function readChildIssuesAndUpdatePartOf(childRefs) {
+function readChildIssuesAndUpdatePartOf(childRefs, parentIssue) {
 	return new Promise((resolve, reject) => {
 		var childPromises = [];
 		for (var i = 0; i < childRefs.issueRefs.length; i++) {
-			childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i));
+			childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue));
 		}
 		// Wait for all children to complete reading and updating.
 		Promise.all(childPromises).then(() => {
@@ -75,7 +82,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 			logger.trace(children.issueRefs);
 			
 			// Now, lets read all issues that we are referring to... 
-			readChildIssuesAndUpdatePartOf(children).then((updatedChildren) => {
+			readChildIssuesAndUpdatePartOf(children, response.data).then((updatedChildren) => {
 				logger.trace("Done reading and updating child issues");
 				logger.trace(updatedChildren);
 				
@@ -216,7 +223,7 @@ function checkEvent(id, name, payload) {
 	if (issueAction == "edited" && payload.changes != undefined && payload.changes.body != undefined) {
 		logger.debug("Found earlier body: " + payload.changes.body.from);
 
-		// TODO: Handle deletions...... 
+		// Handle deletions...... 
 		var oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
 		var newParentRefs = yoda.getParentRefs(issueRef, payload.issue.body);
 		var deletedParentRefs = yoda.getRefsDiff(oldParentRefs, newParentRefs);
