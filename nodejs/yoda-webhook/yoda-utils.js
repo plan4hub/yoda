@@ -218,7 +218,9 @@ function makeChildBlock(ownRef, childIssues) {
 			var estimate = getEstimate(issueRefs[i].issue);
 			totalEstimate += estimate;
 			var remaining = getRemaining(issueRefs[i].issue);
-			totalRemaining += remaining;
+			
+			if (issueRefs[i].issue.state == "open")
+				totalRemaining += remaining;
 			
 			// If no estimate given, forget about estimates.
 			if (estimate != 0)
