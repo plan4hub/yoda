@@ -34,6 +34,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	if (issueType != "")
 		refLine += " " + issueType + " ";
 	refLine += "*" + parentIssue.title + "*\r\n";
+//	refLine += "*" + parentIssue.title + "*\n";
 	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
@@ -52,13 +53,13 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	if (newBody != childIssue.body) {
 		logger.debug("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
 		
-		for (var i = 0; i < newBody.length; i++) {
-			if (newBody[i] != childIssue.body[i])
-				logger.debug(i + " " + newBody.charCodeAt(i) + " " + childIssue.body.charCodeAt(i));
-			
-		}
-		
-		
+//		for (var i = 0; i < newBody.length; i++) {
+//			if (newBody[i] != childIssue.body[i])
+//				logger.debug(i + " " + newBody.charCodeAt(i) + " " + childIssue.body.charCodeAt(i));
+//			
+//		}
+//		
+//		
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
@@ -162,20 +163,16 @@ function updateParentIssue(issueRef, children, oldIssue) {
 			logger.debug("No child block before and no issues now. Not doing anything..");
 			return;
 		}
-		
-		logger.debug("No block before, but we need one. Let's put at beginning");
-		blockStart = 0;
 	}
 	
 	var block = yoda.makeChildBlock(issueRef, children); 
 	logger.debug(block); 
 
-
 	logger.trace("BlockStart: " + blockStart + ", blockLength: " + blockLength);
 	
 	// Careful... we may not have an existing block!
-	if (blockStart == undefined) {
-		newBody = block + oldIssue.body;
+	if (blockStart == undefined || blockStart == -1) {
+		newBody = block + '\n' + oldIssue.body;
 	} else {
 		newBody = oldIssue.body.slice(0, blockStart) + block + oldIssue.body.slice(blockStart + blockLength + 1);		
 	}
