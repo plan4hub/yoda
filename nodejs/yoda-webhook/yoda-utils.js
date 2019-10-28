@@ -215,9 +215,9 @@ function makeChildBlock(ownRef, childIssues) {
 			
 			// If no estimate given, forget about estimates.
 			if (estimate != 0)
-				refLine += "(" +  estimate + " / " + remaining + ") ";
+				refLine += "(" +  estimate + " / " + remaining + ")";
 
-			refLine += "*" + issueRefs[i].issue.title + "*";
+			refLine += " *" + issueRefs[i].issue.title + "*";
 		}
 		logger.debug("refline: " + refLine);
 		issueRefs[i].refLine = refLine;
