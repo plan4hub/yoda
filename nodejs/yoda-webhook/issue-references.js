@@ -44,8 +44,8 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	var newBody = childIssue.body;
 	if (parentIndex == -1) {
 		if (includeOrExclude) {
-			logger.debug("Issue reference not found. Inserting in beginning...");
-			newBody = refLine + childIssue.body;
+			logger.debug("Issue reference not found. Inserting in beginning");
+			newBody = refLine + childIssue.body + '\n';
 		}
 	} else {
 		logger.debug("Issue reference found.");
