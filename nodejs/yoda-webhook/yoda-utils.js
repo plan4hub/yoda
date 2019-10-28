@@ -312,7 +312,8 @@ function getChildren(ownRef, body) {
 	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-	var refLineReg = '^[ ]*- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+//	var refLineReg = '^[ ]*- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+	var refLineReg = '^[ ]*-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
@@ -340,8 +341,8 @@ function getChildren(ownRef, body) {
 		var res = reg.exec(block);
 		logger.trace(res);
 		if (res != null) {
-			var ref = res[2];
-			var data = res[5];
+			var ref = res[3];
+			var data = res[6];
 			logger.trace("Reference: " + ref + ", data: " + data);
 
 			var refEntry = getRefFromShortRef(ownRef, ref);
