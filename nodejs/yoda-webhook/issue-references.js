@@ -20,8 +20,12 @@ const octokit = new Octokit({
 
 // Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
 // as given by parentIssue. childIssue contains the full (current) issue.
-function updatePartOfRef(childRef, childIssue, parentIssue) {
-	logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to ensure pointing to " + parentIssue.url);
+//Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
+function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
+	if (includeOrExclude)
+		logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to ensure pointing to " + parentIssue.url);
+	else
+		logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to remove any pointer to " + parentIssue.url);
 	
 	var parentIssueRef = yoda.getRefFromUrl(parentIssue.url);
 	var parentRefs = yoda.getParentRefs(parentIssueRef, childIssue.body);
@@ -34,20 +38,26 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	if (issueType != "")
 		refLine += " " + issueType + " ";
 	refLine += "*" + parentIssue.title + "*\r\n";
-//	refLine += "*" + parentIssue.title + "*\n";
 	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
 	var newBody = childIssue.body;
 	if (parentIndex == -1) {
-		logger.debug("Issue reference not found. Inserting in beginning...");
-		newBody = refLine + childIssue.body;
+		if (includeOrExclude) {
+			logger.debug("Issue reference not found. Inserting in beginning...");
+			newBody = refLine + childIssue.body;
+		}
 	} else {
 		logger.debug("Issue reference found.");
 		logger.debug(parentRefs[parentIndex]);
 		var blockStart = parentRefs[parentIndex].index;
 		var blockLength = parentRefs[parentIndex].length;
-		newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 2);
+		
+		if (includeOrExclude) {
+			newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 2);
+		} else {
+			newBody = childIssue.body.slice(0, blockStart) + childIssue.body.slice(blockStart + blockLength + 2);
+		}
 	}
 	
 	if (newBody != childIssue.body) {
@@ -72,8 +82,8 @@ function updatePartOfRef(childRef, childIssue, parentIssue) {
 	}
 }
 
-
-function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue) {
+// Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
+function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOrExclude) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Reading issue # " + index);
 		// Let's see about getting the issue.
@@ -82,7 +92,7 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue) {
 			issueRefs[index].issue = result.data;
 			
 			// TODO: Check/update > partof. NOte. we don't need to wait for the result here.
-			updatePartOfRef(issueRefs[index], result.data, parentIssue);
+			updatePartOfRef(issueRefs[index], result.data, parentIssue, includeOrExclude);
 
 			resolve();
 		}).catch((err) => {
@@ -95,12 +105,16 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue) {
 
 //Helper function to query a list of issues, as given by their reference. The issue data will be populated in the issues field.
 //If there is a problem, issue will be set to null, and a warning logger.
-function readChildIssuesAndUpdatePartOf(childRefs, parentIssue) {
+function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue) {
 	return new Promise((resolve, reject) => {
 		var childPromises = [];
 		for (var i = 0; i < childRefs.issueRefs.length; i++) {
-			childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue));
+			childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
 		}
+		for (var i = 0; i < excludeChildRefs.length; i++) {
+			childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
+		}
+
 		// Wait for all children to complete reading and updating.
 		Promise.all(childPromises).then(() => {
 			logger.debug("Read all child issues.");
@@ -126,11 +140,15 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 			logger.debug("Child references:");
 			logger.debug(children);
 			
-			yoda.insertDeleteRefs(children.issueRefs, includeRefs, excludeRefs);
-			logger.trace(children.issueRefs);
+			yoda.insertDeleteRefs(children.issueRefs, includeRefs, excludeRefs); 
+			logger.debug("Adjusted child references:");
+			logger.debug(children.issueRefs);
 			
+			// NOTE: Actually above use of excludeRefs is a bit silly. These issues will most likely already (not be) present in the body.
+			// Instead we pass them on to the next step...
+
 			// Now, lets read all issues that we are referring to... 
-			readChildIssuesAndUpdatePartOf(children, response.data).then((updatedChildren) => {
+			readChildIssuesAndUpdatePartOf(children, excludeRefs, response.data).then((updatedChildren) => {
 				logger.trace("Done reading and updating child issues");
 				logger.trace(updatedChildren);
 				

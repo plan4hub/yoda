@@ -28,6 +28,7 @@ if (configuration.getOption('url') != undefined) {
 	var source;
 	if (configuration.getOption('webhookproxy') != undefined) {
 		logger.info('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
+//		source = new EventSource(configuration.getOption('webhookproxy'), {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
 		source = new EventSource(configuration.getOption('webhookproxy')); //, {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
 		source.onmessage = (event) => {
 			logger.trace("Event received.");
