@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex};
+module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -124,7 +124,14 @@ function getRefsDiff(refList1, refList2) {
 	return result;
 }
 
-
+function makeIssuesUnique(refList) {
+	for (var i = 0; i < refList.length; i++) {
+		for (var j = 0; j < refList.length; j++) {
+			if (i != j && compareRefs(refList[i], refList[j]) == 0)
+				refList.splice(i, 1);
+		}
+	}
+}
 
 // ------------------
 // FUNCTIONS to help with labels

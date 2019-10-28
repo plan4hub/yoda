@@ -182,6 +182,9 @@ function updateParentIssue(issueRef, children, oldIssue) {
 			return;
 		}
 	}
+
+	// We need to make sure that issues are only present once.
+	yoda.makeIssuesUnique(children.issueRefs);
 	
 	var block = yoda.makeChildBlock(issueRef, children); 
 	logger.debug(block); 
