@@ -37,7 +37,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	var issueType = yoda.getMatchingLabels(parentIssue, '^T[1-9] -');
 	if (issueType != "")
 		refLine += " " + issueType + " ";
-	refLine += "*" + parentIssue.title + "*\r\n";
+	refLine += " *" + parentIssue.title + "*\r\n";
 	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
