@@ -182,6 +182,7 @@ function getRemaining(issue) {
 	return parseFloat(remaining);
 }
 
+// This will build the childBlock, i.e. the block with "> contains (summary)" followed by a list of issues according to the defined format.
 function makeChildBlock(ownRef, childIssues) {
 	issueRefs = childIssues.issueRefs;
 	if (issueRefs.length == 0) {
@@ -197,7 +198,7 @@ function makeChildBlock(ownRef, childIssues) {
 		var shortRef = getShortRef(ownRef, issueRefs[i]);
 		var refLine = "";
 		if (issueRefs[i].issue == null) {
-			refLine = "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue?**";
+			refLine = "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
 		} else {
 			var refLine = "- [";
 

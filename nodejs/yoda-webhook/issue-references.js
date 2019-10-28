@@ -37,7 +37,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	var issueType = yoda.getMatchingLabels(parentIssue, '^T[1-9] -');
 	if (issueType != "")
 		refLine += " " + issueType + " ";
-	refLine += " *" + parentIssue.title + "*\r\n";
+	refLine += " *" + parentIssue.title + "*\n\n";
 	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
@@ -45,7 +45,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	if (parentIndex == -1) {
 		if (includeOrExclude) {
 			logger.debug("Issue reference not found. Inserting in beginning");
-			newBody = refLine + childIssue.body + '\n';
+			newBody = refLine + childIssue.body;
 		}
 	} else {
 		logger.debug("Issue reference found.");
@@ -63,13 +63,6 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	if (newBody != childIssue.body) {
 		logger.debug("Updating child issue with correct parent reference. New length: " + newBody.length + ", old length: " + childIssue.body.length);
 		
-//		for (var i = 0; i < newBody.length; i++) {
-//			if (newBody[i] != childIssue.body[i])
-//				logger.debug(i + " " + newBody.charCodeAt(i) + " " + childIssue.body.charCodeAt(i));
-//			
-//		}
-//		
-//		
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
