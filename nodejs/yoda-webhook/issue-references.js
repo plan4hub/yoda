@@ -249,7 +249,7 @@ function processIssue(issue) {
 		logger.debug("Parent references: ");
 		logger.debug(parentRefs);
 		processParentRefIssues(issueRef, parentRefs, false).then(() => {
-			logger.info("Done processing issues referenced by issue: " + issue.url);
+			logger.debug("Done processing issues referenced by issue: " + issue.url);
 			processIssueAsParent(issueRef, [], []).then(() => {
 				logger.info("Done processing issue: " + issue.url);
 				resolve();
@@ -302,7 +302,7 @@ function checkEvent(id, name, payload) {
 
 			processIssueAsParent(issueRef, [], deletedChildRefs).
 			then(() => {
-				logger.info("Event - done with child deletions");
+				logger.debug("Event - done with child deletions");
 				processParentRefIssues(issueRef, newParentRefs, false).then(() => {
 					logger.debug("Event - done with following parent refs.");
 				});
