@@ -197,10 +197,13 @@ function makeChildBlock(ownRef, childIssues) {
 	for (var i = 0; i < issueRefs.length; i++) {
 		var shortRef = getShortRef(ownRef, issueRefs[i]);
 		var refLine = "";
+		if (issueRefs[i].indent != undefined)
+			refLine += issueRefs[i].indent; // respect indentation.
+
 		if (issueRefs[i].issue == null) {
-			refLine = "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
+			refLine = refLine + "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
 		} else {
-			var refLine = "- [";
+			refLine += "- [";
 
 			if (issueRefs[i].issue.state == "closed") {
 				refLine += "x] ";
@@ -323,7 +326,7 @@ function getChildren(ownRef, body) {
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
 //	var refLineReg = '^[ ]*- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
-	var refLineReg = '^[ ]*-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+	var refLineReg = '^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
@@ -351,11 +354,12 @@ function getChildren(ownRef, body) {
 		var res = reg.exec(block);
 		logger.trace(res);
 		if (res != null) {
-			var ref = res[3];
-			var data = res[6];
+			var ref = res[4];
+			var data = res[7];
 			logger.trace("Reference: " + ref + ", data: " + data);
 
 			var refEntry = getRefFromShortRef(ownRef, ref);
+			refEntry.indent = res[1];
 			refEntry.data = data;
 			refEntry.index = res.index;
 			result.issueRefs.push(refEntry);
