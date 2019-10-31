@@ -320,20 +320,24 @@ function getParentRefs(ownRef, body) {
 // the starting position. This will be useful for when we have to update this data.
 // Return value will be a struct with {blockStart: <startvalue, -1 if not there>, blockLength: <length of block>, childRefs: <array of childrefs, empty is none>
 // No children will be reported as an empty array.
+// TODO: Include formatting between children references. Must be headlined block w/o blank line. Return these in parallel to issues
+//       so that extraText[i] comes before child issue i when re-building the block.
 function getChildren(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
-	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
+	var result = { blockStart: -1, blockLength: 0, issueRefs: [], fillText: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-//	var refLineReg = '^[ ]*- \\[([ xX])\\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
-	var refLineReg = '^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+//	var refLineReg = '^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
+	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|([A-Za-z#].*)$)';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
 	// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
-	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r\n]+" + refLineReg + ")*", "mg");
+//	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r\n]+" + refLineReg + ")*", "mg");
+	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
 	logger.trace(issueStart);
 	var blockStart = issueStart.exec(body);
+	logger.trace("blockStart:");
 	logger.trace(blockStart);
 	if (blockStart == null) {
 		logger.debug("No (child) issue list found for " + getFullRef(ownRef));
@@ -345,24 +349,34 @@ function getChildren(ownRef, body) {
 	result.blockStart = blockStart.index;
 	result.blockLength = blockStart[0].length;
 	logger.trace("Found child reference block at blockStart: " + result.blockStart + ", length: " + result.blockLength);
-	logger.trace(block);
+	
+	// Extract just the child part, i.e. take way contains issue reference lines (or text to remember).
+	var startChildBlock = block.indexOf('\n');
+	var childBlock = block.substr(startChildBlock);
+	logger.trace("Child block:");
+	logger.trace(childBlock);
 	
 	// Let's loop the issues using the refLineReg regular expression..
 	var reg = new RegExp(refLineReg, 'mg');
 	logger.trace(reg);
 	do {
-		var res = reg.exec(block);
+		var res = reg.exec(childBlock);
 		logger.trace(res);
 		if (res != null) {
-			var ref = res[4];
-			var data = res[7];
-			logger.trace("Reference: " + ref + ", data: " + data);
+			// Did we match an issue reference? 
+			if (res[0].trim().startsWith("-")) {
+				var ref = res[5];
+				var data = res[8];
+				logger.trace("Reference: " + ref + ", data: " + data);
 
-			var refEntry = getRefFromShortRef(ownRef, ref);
-			refEntry.indent = res[1];
-			refEntry.data = data;
-			refEntry.index = res.index;
-			result.issueRefs.push(refEntry);
+				var refEntry = getRefFromShortRef(ownRef, ref);
+				refEntry.indent = res[1];
+				refEntry.data = data;
+				refEntry.index = res.index;
+				result.issueRefs.push(refEntry);
+			} else {
+				
+			}
 		}
 	} while (res != null);
 	logger.debug("Got child references:");
