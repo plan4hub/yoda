@@ -19,6 +19,13 @@ const configuration = require('./configuration.js');
 //We will maintain the lists as arrays of (owner, repo, issue_number) structures, as these are anyway what will be used to
 //First a few functions to construct such elements.
 
+function isRef(ref) {
+	if (ref.line == undefined)
+		return true;
+	else 
+		return false;
+}
+
 //Make reference construct from issue url, e.g. "https://github.hpe.com/api/v3/repos/jens-markussen/obt-migrate/issues/721" 
 function getRefFromUrl(url) {
 	var temp = url.split("/");
@@ -74,7 +81,7 @@ function getShortRef(fromReference, toReference) {
 //A function to compare two references
 function compareRefs(a, b) {
 	// If either a or b are a line, then lines do not compare.
-	if (a.line != undefined || b.line != undefined)
+	if (!isRef(a) || !isRef(b))
 		return 1;
 	
 	var aFull = getFullRef(a);
@@ -91,7 +98,7 @@ function compareRefs(a, b) {
 function findRefIndex(aList, b) {
 	for (var i = 0; i < aList.length; i++) {
 		// Note, take care not to search in not childRef things...
-		if (aList[i].line == undefined && compareRefs(aList[i], b) == 0)
+		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
 			return i;
 	}
 	return -1;
@@ -100,7 +107,7 @@ function findRefIndex(aList, b) {
 //Search for a given issue, skip search if not a child ref, but just a text line.
 function findRef(aList, b) {
 	for (var i = 0; i < aList.length; i++) {
-		if (aList[i].line == undefined && compareRefs(aList[i], b) == 0)
+		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
 			return true;
 	}
 	return false;
@@ -125,7 +132,7 @@ function insertDeleteRefs(children, includeRefs, excludeRefs) {
 function getRefsDiff(refList1, refList2) {
 	var result = [];
 	for (var i = 0; i < refList1.length; i++) {
-		if (refList2[i].line == undefined && !findRef(refList2, refList1[i])) {
+		if (isRef(refList1[i]) && !findRef(refList2, refList1[i])) {
 			result.push(refList1[i]);
 		}
 	}
@@ -163,12 +170,11 @@ function getMatchingLabels(issue, labelRegExp) {
 function noChildRefs(refList) {
 	var total = 0;
 	for (var i = 0; i < refList.length; i++) {
-		if (refList[i].line == undefined)
+		if (isRef(refList[i]))
 			total++;
 	}
 	return total;
 }
-
 
 
 // ----------------------
