@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs};
+module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs, isRef};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();

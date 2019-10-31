@@ -102,11 +102,11 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 	return new Promise((resolve, reject) => {
 		var childPromises = [];
 		for (var i = 0; i < childRefs.issueRefs.length; i++) {
-			if (childRefs.issueRefs[i].line == undefined)
+			if (yoda.isRef(childRefs.issueRefs[i]))
 				childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
 		}
 		for (var i = 0; i < excludeChildRefs.length; i++) {
-			if (excludeChildRefs.issueRefs[i].line == undefined)
+			if (yoda.isRef(excludeChildRefs.issueRefs[i]))
 				childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
 		}
 
