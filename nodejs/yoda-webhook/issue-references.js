@@ -102,10 +102,12 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 	return new Promise((resolve, reject) => {
 		var childPromises = [];
 		for (var i = 0; i < childRefs.issueRefs.length; i++) {
-			childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
+			if (childRefs.issueRefs[i].line == undefined)
+				childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
 		}
 		for (var i = 0; i < excludeChildRefs.length; i++) {
-			childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
+			if (excludeChildRefs.issueRefs[i].line == undefined)
+				childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
 		}
 
 		// Wait for all children to complete reading and updating.
@@ -133,7 +135,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 			logger.debug("Child references:");
 			logger.debug(children);
 			
-			yoda.insertDeleteRefs(children.issueRefs, includeRefs, excludeRefs); 
+			yoda.insertDeleteRefs(children, includeRefs, excludeRefs); 
 			logger.debug("Adjusted child references:");
 			logger.debug(children.issueRefs);
 			
@@ -170,14 +172,14 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	var blockLength = children.blockLength;
 
 	if (blockStart == -1) {
-		if (children.issueRefs.length == 0) {
+		if (yoda.noChildRefs(children.issueRefs) == 0) {
 			logger.debug("No child block before and no issues now. Not doing anything..");
 			return;
 		}
 	}
 
 	// We need to make sure that issues are only present once.
-	yoda.makeIssuesUnique(children.issueRefs);
+	yoda.makeIssuesUnique(children);
 	
 	var block = yoda.makeChildBlock(issueRef, children); 
 	logger.debug(block); 

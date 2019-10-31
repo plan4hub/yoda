@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique};
+module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -7,6 +7,13 @@ const configuration = require('./configuration.js');
 
 //---------------
 // FUNCTIONS FOR MANIPULATION ISSUE REFERENCES
+
+//The main datastructure for child issue list (lines following > contains) will be a children structure read from the body text.
+// The structure will contain a struct with {blockStart: <startvalue, -1 if not there>, blockLength: <length of block>, issueRefs: <array of childRef>
+// A childRef will have onwer, repo, issue_number set (and if ready from body also indent and index). If owner not set, then considered to be of type line and line 
+// field will hold the text line.
+
+// The functions below will work either on the overall Children structure, or the lines directly (typically looking only at the entries of real child references.
 
 //We need to maintain lists of issues (issue references) for comparison purposes, e.g. new issues in subissues list, removed issues.
 //We will maintain the lists as arrays of (owner, repo, issue_number) structures, as these are anyway what will be used to
@@ -21,10 +28,6 @@ function getRefFromUrl(url) {
 		issue_number: temp[temp.length - 1]
 	};
 }
-
-// Mkae reference from shortRef. 
-
-
 
 //Make refernce from ShortRef i.e. [[owner]/][repository]#number
 function getRefFromShortRef(ownRef, reference) {
@@ -54,7 +57,7 @@ function getRefFromShortRef(ownRef, reference) {
 	return result;
 }  
 
-//Build a full reference
+//Build a full reference. Note, we take special care to make this work even if the ref is not a childRef structure....
 function getFullRef(ref) {
 	return ref.owner + "/" + ref.repo + "#" + ref.issue_number;
 }
@@ -70,6 +73,10 @@ function getShortRef(fromReference, toReference) {
 
 //A function to compare two references
 function compareRefs(a, b) {
+	// If either a or b are a line, then lines do not compare.
+	if (a.line != undefined || b.line != undefined)
+		return 1;
+	
 	var aFull = getFullRef(a);
 	var bFull = getFullRef(b);
 	if (aFull == bFull)
@@ -80,35 +87,36 @@ function compareRefs(a, b) {
 		return 1;
 }
 
-
+// Search for a given issue, skip search if not a child ref, but just a text line.
 function findRefIndex(aList, b) {
 	for (var i = 0; i < aList.length; i++) {
-		if (compareRefs(aList[i], b) == 0)
+		// Note, take care not to search in not childRef things...
+		if (aList[i].line == undefined && compareRefs(aList[i], b) == 0)
 			return i;
 	}
 	return -1;
 }
 
-
+//Search for a given issue, skip search if not a child ref, but just a text line.
 function findRef(aList, b) {
 	for (var i = 0; i < aList.length; i++) {
-		if (compareRefs(aList[i], b) == 0)
+		if (aList[i].line == undefined && compareRefs(aList[i], b) == 0)
 			return true;
 	}
 	return false;
 }
 
-// handle includes and excluces to list. modifies the list in place
-function insertDeleteRefs(refList, includeRefs, excludeRefs) {
+// handle includes and excluces to list. modifies the issueRefs list inside the children construct 
+function insertDeleteRefs(children, includeRefs, excludeRefs) {
 	for (var i = 0; i < includeRefs.length; i++) {
-		if (!findRef(refList, includeRefs[i])) {
-			refList.push(includeRefs[i]); // insert it.
+		if (!findRef(children.issueRefs, includeRefs[i])) {
+			children.issueRefs.push(includeRefs[i]); // insert it.
 		}
 	}
 	for (var d = 0; d < excludeRefs.length; d++) {
-		var pos = findRefIndex(refList, excludeRefs[d]);  
+		var pos = findRefIndex(children.issueRefs, excludeRefs[d]);  
 		if (pos != -1) {
-			refList.splice(pos, 1);
+			children.issueRefs.splice(pos, 1);
 		}
 	}
 }
@@ -117,18 +125,19 @@ function insertDeleteRefs(refList, includeRefs, excludeRefs) {
 function getRefsDiff(refList1, refList2) {
 	var result = [];
 	for (var i = 0; i < refList1.length; i++) {
-		if (!findRef(refList2, refList1[i])) {
+		if (refList2[i].line == undefined && !findRef(refList2, refList1[i])) {
 			result.push(refList1[i]);
 		}
 	}
 	return result;
 }
 
-function makeIssuesUnique(refList) {
-	for (var i = 0; i < refList.length; i++) {
-		for (var j = 0; j < refList.length; j++) {
-			if (i != j && compareRefs(refList[i], refList[j]) == 0)
-				refList.splice(i, 1);
+function makeIssuesUnique(children) {
+	for (var i = 0; i < children.issueRefs.length; i++) {
+		for (var j = 0; j < children.issueRefs.length; j++) {
+			if (i != j && compareRefs(children.issueRefs[i], children.issueRefs[j]) == 0) {
+				children.issueRefs.splice(i, 1);
+			}
 		}
 	}
 }
@@ -149,6 +158,17 @@ function getMatchingLabels(issue, labelRegExp) {
 		result = "[" + result + "]";
 	return result;
 }
+
+// Count number of childReferences in list
+function noChildRefs(refList) {
+	var total = 0;
+	for (var i = 0; i < refList.length; i++) {
+		if (refList[i].line == undefined)
+			total++;
+	}
+	return total;
+}
+
 
 
 // ----------------------
@@ -185,9 +205,9 @@ function getRemaining(issue) {
 // This will build the childBlock, i.e. the block with "> contains (summary)" followed by a list of issues according to the defined format.
 function makeChildBlock(ownRef, childIssues) {
 	issueRefs = childIssues.issueRefs;
-	if (issueRefs.length == 0) {
-		return ""; // No issue means empty block. This can be debated... 
-	}
+//	if (issueRefs.length == 0) {
+//		return ""; // No issue means empty block. This can be debated... 
+//	}
 	
 	var totalEstimate = 0;
 	var totalRemaining = 0;
@@ -195,47 +215,52 @@ function makeChildBlock(ownRef, childIssues) {
 	var totalClosed = 0;
 	var result = "";
 	for (var i = 0; i < issueRefs.length; i++) {
-		var shortRef = getShortRef(ownRef, issueRefs[i]);
-		var refLine = "";
-		if (issueRefs[i].indent != undefined)
-			refLine += issueRefs[i].indent; // respect indentation.
-
-		if (issueRefs[i].issue == null) {
-			refLine = refLine + "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
+		// Is this a text line (rather than a child reference?
+		if (issueRefs[i].line != undefined) {
+			// Add line
+			result = result + issueRefs[i].line + "\n";
 		} else {
-			refLine += "- [";
+			var shortRef = getShortRef(ownRef, issueRefs[i]);
+			var refLine = "";
+			if (issueRefs[i].indent != undefined)
+				refLine += issueRefs[i].indent; // respect indentation.
 
-			if (issueRefs[i].issue.state == "closed") {
-				refLine += "x] ";
-				totalClosed++;
+			if (issueRefs[i].issue == null) {
+				refLine = refLine + "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
 			} else {
-				refLine += " ] ";
-				totalOpen++;
+				refLine += "- [";
+
+				if (issueRefs[i].issue.state == "closed") {
+					refLine += "x] ";
+					totalClosed++;
+				} else {
+					refLine += " ] ";
+					totalOpen++;
+				}
+				refLine += shortRef; 
+				var issueType = getMatchingLabels(issueRefs[i].issue, '^T[1-9] -');
+				logger.trace("'" + issueType + "'");
+				if (issueType != "")
+					refLine += " " + issueType + " ";
+
+				// Get estimate, remaining.
+				var estimate = getEstimate(issueRefs[i].issue);
+				totalEstimate += estimate;
+				var remaining = getRemaining(issueRefs[i].issue);
+				if (issueRefs[i].issue.state == "closed")
+					remaining = 0;
+				totalRemaining += remaining;
+
+				// If no estimate given, forget about estimates.
+				if (estimate != 0)
+					refLine += " (" +  estimate + " / " + remaining + ")";
+
+				refLine += " *" + issueRefs[i].issue.title + "*";
 			}
-			refLine += shortRef; 
-			var issueType = getMatchingLabels(issueRefs[i].issue, '^T[1-9] -');
-			logger.trace("'" + issueType + "'");
-			if (issueType != "")
-				refLine += " " + issueType + " ";
-
-			// Get estimate, remaining.
-			var estimate = getEstimate(issueRefs[i].issue);
-			totalEstimate += estimate;
-			var remaining = getRemaining(issueRefs[i].issue);
-			if (issueRefs[i].issue.state == "closed")
-				remaining = 0;
-			totalRemaining += remaining;
-			
-			// If no estimate given, forget about estimates.
-			if (estimate != 0)
-				refLine += " (" +  estimate + " / " + remaining + ")";
-
-			refLine += " *" + issueRefs[i].issue.title + "*";
+			logger.debug("refline: " + refLine);
+			issueRefs[i].refLine = refLine;
+			result = result + refLine + "\n";
 		}
-		logger.debug("refline: " + refLine);
-		issueRefs[i].refLine = refLine;
-
-		result = result + refLine + "\n";
 	}
 	
 	result = configuration.getOption('issuelist') + " (total estimate: " + totalEstimate + ", total remaining: " + totalRemaining + ", # open issues: " + totalOpen + ", # closed issues: " + totalClosed + ")\n" + result;
@@ -245,6 +270,7 @@ function makeChildBlock(ownRef, childIssues) {
 
 //---------------
 // FUNCTIONS FOR EXTRACTING ISSUE REFERNCES FROM BODY TEXT
+
 
 
 // Function to get a field from the body text.
@@ -318,10 +344,7 @@ function getParentRefs(ownRef, body) {
 // This function will attempt to get into an array of issue references (as per above) a list of issue references. i.e. 
 // per default a list of lines in the body following a line starting with "> contains". We will insert into each reference as well
 // the starting position. This will be useful for when we have to update this data.
-// Return value will be a struct with {blockStart: <startvalue, -1 if not there>, blockLength: <length of block>, childRefs: <array of childrefs, empty is none>
-// No children will be reported as an empty array.
-// TODO: Include formatting between children references. Must be headlined block w/o blank line. Return these in parallel to issues
-//       so that extraText[i] comes before child issue i when re-building the block.
+// Lines within the contains block (up to a blank line) that are not issue references will be includes with data the "line" item.
 function getChildren(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
 	var result = { blockStart: -1, blockLength: 0, issueRefs: [], fillText: []};
@@ -363,20 +386,23 @@ function getChildren(ownRef, body) {
 		var res = reg.exec(childBlock);
 		logger.trace(res);
 		if (res != null) {
+			var refEntry = {};
 			// Did we match an issue reference? 
 			if (res[0].trim().startsWith("-")) {
 				var ref = res[5];
 				var data = res[8];
 				logger.trace("Reference: " + ref + ", data: " + data);
 
-				var refEntry = getRefFromShortRef(ownRef, ref);
-				refEntry.indent = res[1];
+				refEntry = getRefFromShortRef(ownRef, ref);
+				refEntry.indent = res[2];
 				refEntry.data = data;
 				refEntry.index = res.index;
-				result.issueRefs.push(refEntry);
 			} else {
-				
+				logger.trace("Text line: " + res[0]);
+				refEntry.line = res[0];
 			}
+			result.issueRefs.push(refEntry);
+
 		}
 	} while (res != null);
 	logger.debug("Got child references:");
