@@ -106,7 +106,7 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 				childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
 		}
 		for (var i = 0; i < excludeChildRefs.length; i++) {
-			if (yoda.isRef(excludeChildRefs.issueRefs[i]))
+			if (yoda.isRef(excludeChildRefs[i]))
 				childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
 		}
 

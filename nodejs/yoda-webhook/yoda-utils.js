@@ -19,6 +19,7 @@ const configuration = require('./configuration.js');
 //We will maintain the lists as arrays of (owner, repo, issue_number) structures, as these are anyway what will be used to
 //First a few functions to construct such elements.
 
+// Crude way of determining if a line is indeed a reference. If the line is set, it is not.....
 function isRef(ref) {
 	if (ref.line == undefined)
 		return true;
