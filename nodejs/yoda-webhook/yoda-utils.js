@@ -354,16 +354,14 @@ function getParentRefs(ownRef, body) {
 // Lines within the contains block (up to a blank line) that are not issue references will be includes with data the "line" item.
 function getChildren(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
-	var result = { blockStart: -1, blockLength: 0, issueRefs: [], fillText: []};
+	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-//	var refLineReg = '^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$';
-	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|([A-Za-z#].*)$)';
+	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
 	// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
-//	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r\n]+" + refLineReg + ")*", "mg");
 	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
 	logger.trace(issueStart);
 	var blockStart = issueStart.exec(body);
@@ -395,12 +393,13 @@ function getChildren(ownRef, body) {
 		if (res != null) {
 			var refEntry = {};
 			// Did we match an issue reference? 
-			if (res[0].trim().startsWith("-")) {
+			if (res[0].trim().startsWith("-") && res[0].indexOf("#") != -1) {
 				var ref = res[5];
 				var data = res[8];
 				logger.trace("Reference: " + ref + ", data: " + data);
 
 				refEntry = getRefFromShortRef(ownRef, ref);
+				
 				refEntry.indent = res[2];
 				refEntry.data = data;
 				refEntry.index = res.index;

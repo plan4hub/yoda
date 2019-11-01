@@ -66,7 +66,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
-			logger.debug("Succesfuully updated " + yoda.getFullRef(childRef));
+			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to point to " + yoda.getFullRef(parentIssueRef));
 		}).catch((err) => {
 			logger.error(err);
 		});
@@ -84,12 +84,13 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOr
 			logger.trace(result);
 			issueRefs[index].issue = result.data;
 			
-			// TODO: Check/update > partof. NOte. we don't need to wait for the result here.
+			// Check/update > partof. NOte. we don't need to wait for the result here.
 			updatePartOfRef(issueRefs[index], result.data, parentIssue, includeOrExclude);
 
 			resolve();
 		}).catch((err) => {
-			logger.warn(err);
+			logger.info("  Failed to read issue " + yoda.getFullRef(issueRefs[index]) + ", non-existing or insuffucient access rights?");
+			logger.debug(err);
 			issueRefs[index].issue = null;
 			resolve();
 		});
@@ -120,7 +121,6 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 
 
 
-// We will get the issue again to make sure we have a current picture.
 //Furthermore, two lists can be supplied. A list of issues (by reference) that must present in the > subissues list , and
 //a list of issues by references that should NOT be present in same list (either because a > parent has been removed, or because
 //one or more issues have been removed from the > subissues list.
@@ -128,7 +128,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Processing issue as parent: " + yoda.getFullRef(issueRef));
 		
-		// Get the issue (possibly a refresh)
+		// We will get the issue again to make sure we have a current picture.
 		octokit.issues.get(issueRef).then((response) => {
 			logger.trace(response);
 			var children = yoda.getChildren(issueRef, response.data.body);
@@ -204,15 +204,13 @@ function updateParentIssue(issueRef, children, oldIssue) {
 		var update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
 
 		octokit.issues.update(update).then((result) => {
-			logger.debug("Succesfully updated " + yoda.getFullRef(issueRef) + " with child block.");
+			logger.info("  Updated child block in " + yoda.getFullRef(issueRef));
 			logger.trace(result);
 		}).catch((err) => {
 			logger.error(err);
 		});
 	}
 }
-
-
 
 //Function/Loop to update structure. exclude boolean indicates if calling issue (issueRef) must be INCLUDED or EXCLUDED from the 
 //child list (> contains list) into parent.
