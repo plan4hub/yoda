@@ -536,7 +536,8 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 			
 				var metaStart = repoIssues[i].body.indexOf('> META ');
 				if (metaStart == -1) {
-					console.log("Could not find META tag????");
+					// No Meta-tag, let's try with '> contains'
+					
 				} else {
 					var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
 					if (lineEnd == -1)
@@ -551,6 +552,7 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 							continue;
 						var ref = issuesRawList[j].trim().replace(/#/g, "");
 						var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
+						console.log("urlRef = " + urlRef);
 						metaIssuesList.push(urlRef);
 					}
 				}

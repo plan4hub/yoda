@@ -50,15 +50,27 @@ const optionDefinitions = [
 		description: 'An optional GitHub Issue URL to trigger execution. In this case no service will be started and processing will terminate after handling the issue.'
 	},
 	{
+		name: 'issuelistre',
+		type: String,
+		description: 'The regular expression that will preceed a list of references to child issues. Default ">[ ]*contains".',
+		defaultValue: ">[ ]*contains"
+	},
+	{
 		name: 'issuelist',
 		type: String,
-		description: 'The regular expression that will preceed a list of references to child issues. Default "> contains".',
+		description: 'The string to insert to preceed a list of references to child issues. Default "> contains".',
 		defaultValue: "> contains"
+	},
+	{
+		name: 'issuerefre',
+		type: String,
+		description: 'The regular expression that will preceed a references to containing (parent) issue. Default ">[ ]*partof".',
+		defaultValue: ">[ ]*partof"
 	},
 	{
 		name: 'issueref',
 		type: String,
-		description: 'The regular expression that will preceed a references to containing (parent) issue. Default "> partof".',
+		description: 'The string to insert to preceed a references to containing (parent) issue. Default "> partof".',
 		defaultValue: "> partof"
 	},
 	{

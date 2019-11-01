@@ -325,7 +325,7 @@ function getParentRefs(ownRef, body) {
 	var issueRefs = [];
 	
 	// We are going to need a loop cutting the the body text as we go along
-	var reg = new RegExp("(^[ ]*" + configuration.getOption("issueref") + ')[ ]*(((.*/)?.*)?#[1-9][0-9]*)[ ]*(.*)$', 'mg');
+	var reg = new RegExp("(^[ ]*" + configuration.getOption("issuerefre") + ')[ ]*(((.*/)?.*)?#[1-9][0-9]*)[ ]*(.*)$', 'mg');
 	logger.trace(reg);
 	do {
 		var res = reg.exec(body);
@@ -362,7 +362,7 @@ function getChildren(ownRef, body) {
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
 	// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
-	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelist") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
+	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelistre") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
 	logger.trace(issueStart);
 	var blockStart = issueStart.exec(body);
 	logger.trace("blockStart:");
@@ -414,15 +414,5 @@ function getChildren(ownRef, body) {
 	logger.debug("Got child references:");
 	logger.debug(result);
 	return result;
-}
-
-//Is this a "parent" / umbrella issue.
-function isParentIssue(body) {
-	return (body.indexOf(configuration.getOption("issuelist")) != -1);
-}
-
-// Is this a "subissue" which references (one or more" parent/umbrella issues
-function isSubIssue(body) {
-	return (body.indexOf(configuration.getOption("issueref")) != -1);
 }
 
