@@ -537,8 +537,39 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 				var metaStart = repoIssues[i].body.indexOf('> META ');
 				if (metaStart == -1) {
 					// No Meta-tag, let's try with '> contains'
-					
+					var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
+
+					// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
+					// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
+					var issueStart = new RegExp("^[ ]*> contains[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
+					var blockStart = issueStart.exec(repoIssues[i].body);
+					if (blockStart != null) {
+						var block = blockStart[0];
+
+						// Extract just the child part, i.e. take way contains issue reference lines (or text to remember).
+						var startChildBlock = block.indexOf('\n');
+						var childBlock = block.substr(startChildBlock);
+
+						// Let's loop the issues using the refLineReg regular expression..
+						var reg = new RegExp(refLineReg, 'mg');
+						do {
+							var res = reg.exec(childBlock);
+							if (res != null) {
+								var refEntry = {};
+								// Did we match a LOCAL issue reference? 
+								if (res[0].trim().startsWith("-") && res[0].indexOf("#") != -1) {
+									var ref = res[5];
+									if (ref.startsWith("#")) {
+										var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref.substr(1));
+										console.log("urlRef = " + urlRef);
+										metaIssuesList.push(urlRef);
+									}
+								} 
+							}
+						} while (res != null);
+					}					
 				} else {
+					// > META format...
 					var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
 					if (lineEnd == -1)
 						lineEnd = repoIssues[i].body.length;
