@@ -380,6 +380,11 @@ function getChildren(ownRef, body) {
 	
 	// Extract just the child part, i.e. take way contains issue reference lines (or text to remember).
 	var startChildBlock = block.indexOf('\n');
+	if (startChildBlock == -1) {
+		// completely empty block!
+		logger.trace("Child block is empty");
+		return result;
+	}
 	var childBlock = block.substr(startChildBlock);
 	logger.trace("Child block:");
 	logger.trace(childBlock);
