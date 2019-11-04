@@ -3,6 +3,11 @@
 Yoda webhook is a server able to listen for GitHub events in order to run validations, changes, etc. The server is delivered as an example, so you'll need to modify it to performn the tasks you want. Hopefully most of 
 this will be self-explanatory.
 
+The default behaviour for the webhook concerns itself with enabling parent/child references. The default GitHub issue reference (`(org)/(repo)#(issue_number)`) does not provide semantics as to what the reference means. The idea is to introduce a few simple keywords that define parent/child relationship. A child issue may refer to it's parent issue by putting somewhere in the body (first comment) the text `> partof (issue reference`. Similarly, a parent may identify childen in a list format (one issue per line). The child block is indicated using the `> contains` keyword. 
+
+
+## Installation
+
 To install Yoda webhook, simply execute:
 
 `npm install`
