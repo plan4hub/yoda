@@ -5,7 +5,7 @@
   "main": "setlabelcolor.js",
   "dependencies": {
     "async": "",
-    "@octokit/rest": "",
+    "github": "^8.1.1",
     "fs": "0.0.1-security",
     "moment": "",
     "request": "",
