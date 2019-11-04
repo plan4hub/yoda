@@ -1,0 +1,7 @@
+{
+  "github": {
+    "url": "github.hpe.com",
+    "pathPrefix": "/api/v3",
+    "token": "(insert github personal access token. Generate from github/profile/settings/personal access token)"
+  }
+}

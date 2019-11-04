@@ -1,0 +1,30 @@
+{
+  "name": "setlabelcolor",
+  "version": "1.0.0",
+  "description": "Set GitHub label colors based on regular expression",
+  "main": "setlabelcolor.js",
+  "dependencies": {
+    "async": "",
+    "github": "^8.1.1",
+    "fs": "0.0.1-security",
+    "moment": "",
+    "request": "",
+    "command-line-args": "",
+    "command-line-usage": ""
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HewlettPackard/yoda"
+  },
+  "keywords": [
+    "github",
+    "colors",
+    "labels"
+  ],
+  "author": "Jens Vedel Markussen",
+  "license": "MIT"
+}
