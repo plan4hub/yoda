@@ -10,6 +10,6 @@ Install required npm modules:
 
 `npm install`
 
-Then copy `settings-template.json` to `settings.json` and modify URL and set personal access token.
+Adjust `settings.json` to run against a local GHE or github.com.
 
 

@@ -1,0 +1,6 @@
+{
+  "github": {
+    "url": "github.hpe.com",
+    "pathPrefix": "/api/v3"
+  }
+}
