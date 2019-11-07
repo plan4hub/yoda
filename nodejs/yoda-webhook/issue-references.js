@@ -271,9 +271,26 @@ function checkEvent(id, name, payload) {
 	logger.trace(issueRef);
 	logger.trace(payload);
 
+	// We are really only interested in events which may have modified the body text, or state changes. 
+	// Maybe as well labelled / unlabeled events as they could potentially be of interest (as some are listed in headline].. this can be debated, there are many such events.
+	// NOTE: This should of course be adjusted if this service should perform other actions than parent/child issue references!
+	// The possible issues actions are:
+	// opened, edited, deleted, pinned, unpinned, closed, reopened, assigned, unassigned, labeled, unlabeled, locked, unlocked, transferred, milestoned, or demilestoned.
+	var handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled'];
+	if (handleEventTypes.indexOf(issueAction) == -1) {
+		logger.info("  Disgarding event as not an event issue type (" + issueAction+ " that we are interested in.");
+		return;
+	} 
+	
+	// More special handling for label/unlabeled events. Only events for Types (i.e. starting with T) are of interest.
+	if ((issueAction == 'labeled' || issuesAction == 'unlabeled') && !payload.label.name.startsWith('T')) {
+		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
+		return;
+	} 
+	
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.
 	if (issueAction == 'edited' && payload.sender.login == configuration.getOption('user')) {
-		logger.info("Disgarding event as looks like we (" + configuration.getOption('user') + ") initiated it.");
+		logger.info("  Disgarding event as looks like we (" + configuration.getOption('user') + ") initiated it.");
 		return;
 	} 
 
