@@ -283,7 +283,7 @@ function checkEvent(id, name, payload) {
 	} 
 	
 	// More special handling for label/unlabeled events. Only events for Types (i.e. starting with T) are of interest.
-	if ((issueAction == 'labeled' || issuesAction == 'unlabeled') && !payload.label.name.startsWith('T')) {
+	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !payload.label.name.startsWith('T')) {
 		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
 		return;
 	} 
