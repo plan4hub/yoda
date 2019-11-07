@@ -278,7 +278,7 @@ function checkEvent(id, name, payload) {
 	// opened, edited, deleted, pinned, unpinned, closed, reopened, assigned, unassigned, labeled, unlabeled, locked, unlocked, transferred, milestoned, or demilestoned.
 	var handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled'];
 	if (handleEventTypes.indexOf(issueAction) == -1) {
-		logger.info("  Disgarding event as not an event issue type (" + issueAction+ " that we are interested in.");
+		logger.info("  Disgarding event as not an event issue type (" + issueAction+ ") that we are interested in.");
 		return;
 	} 
 	
