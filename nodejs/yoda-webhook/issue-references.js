@@ -12,7 +12,7 @@ const Octokit = require('@octokit/rest');
 var authString = "token " + configuration.getOption('password');
 const octokit = new Octokit({
 	userAgent: 'yoda-webhook',
-	baseUrl: 'https://github.hpe.com/api/v3',
+	baseUrl: configuration.getOption('baseurl'),
 	log: logger,
 	auth: authString
 });

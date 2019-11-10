@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yoda-webhook
+  labels:
+    app: yoda-webhook
+  namespace: yoda-webhook
+spec:
+  containers:
+    - name: yoda-webhook
+      image: jensmarkussenhpe/yoda-webhook
+      ports:
+        - containerPort: 8181
+     env:
+        - name: YODA_WEBHOOK_OPTIONS
+          value: "--user yoda-webhook -p (token for user) --loglevel info --secret (secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE"

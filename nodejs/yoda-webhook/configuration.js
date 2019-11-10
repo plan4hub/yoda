@@ -79,6 +79,12 @@ const optionDefinitions = [
 		description: 'Development mode. Use an external services (smee.io is good) for proxying GitHub events. Give the URL. Optional.'
 	},
 	{
+		name: 'baseurl',
+		type: String,
+		description: 'Base API endpoint. Default: https://github.hpe.com/api/v3',
+		defaultValue: 'https://github.hpe.com/api/v3'
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
