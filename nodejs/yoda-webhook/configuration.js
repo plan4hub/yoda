@@ -156,7 +156,7 @@ function parseOptions() {
 	  }
 	});
 
-	logger.debug(options);
+	logger.info(options);
 }
 
 function getOption(option) {
