@@ -140,10 +140,13 @@ function parseOptions() {
 	log4js.configure({
 	  appenders: {
 		out: { type: 'stdout' },
-		app: { type: 'dateFile', filename: 'yoda-webhook.log', daysToKeep: 7 }
+		// Note, taking out file logging as this is not immediately support e.g. on openshift.com
+		// TODO: Maybe make optional, or figure out later how it actually works. For now, default logging is actually ok.
+		// Note as well that 'app' logger is taking out of default appender below as well.
+//		app: { type: 'dateFile', filename: 'yoda-webhook.log', daysToKeep: 7 } 
 	  },
 	  categories: {
-		default: { appenders: [ 'out', 'app' ], level: options['loglevel'] }
+		default: { appenders: [ 'out' ], level: options['loglevel'] }
 	  }
 	});
 
