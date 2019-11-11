@@ -11,6 +11,6 @@ spec:
       image: jensmarkussenhpe/yoda-webhook
       ports:
         - containerPort: 8181
-     env:
+      env:
         - name: YODA_WEBHOOK_OPTIONS
           value: "--user (github user) -p (token for user) --loglevel info --secret (secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"

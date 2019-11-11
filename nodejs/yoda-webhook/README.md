@@ -55,26 +55,33 @@ or open a prompt in the container using:
 `docker exec -it yoda-webhook-app /bin/sh`
 
 
-## Definition for running in a Kubenetes Pod
+## Kubenetes Deployment example
 
 Below template for defining a Kubenetes Pod (native or OpenShift) for running Yoda Webhook. In case you do not have an exposed IP, use a service like smee.io (see example):
 
 ```
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: yoda-webhook
-  labels:
-    app: yoda-webhook
   namespace: yoda-webhook
 spec:
-  containers:
-    - name: yoda-webhook
-      image: jensmarkussenhpe/yoda-webhook
-      ports:
-        - containerPort: 8181
-      env:
-        - name: YODA_WEBHOOK_OPTIONS
-          value: "--user (github user) -p (token for user) --loglevel info --secret (secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"
+  selector:
+    matchLabels:
+      app: yoda-webhook
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: yoda-webhook
+    spec:
+      containers:
+        - name: yoda-webhook
+          image: jensmarkussenhpe/yoda-webhook
+          ports:
+            - containerPort: 8181
+          env:
+            - name: YODA_WEBHOOK_OPTIONS
+              value: "--user (user) -p (token) --loglevel info --secret obiwan2019 --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com/"
 ```
  

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yoda-webhook
+  namespace: yoda-webhook
+spec:
+  selector:
+    matchLabels:
+      app: yoda-webhook
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: yoda-webhook
+    spec:
+      containers:
+        - name: yoda-webhook
+          image: jensmarkussenhpe/yoda-webhook
+          ports:
+            - containerPort: 8181
+          env:
+            - name: YODA_WEBHOOK_OPTIONS
+              value: "--user (user) -p (token) --loglevel info --secret obiwan2019 --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com/"
+
+
+
+
+
