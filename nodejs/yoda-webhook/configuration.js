@@ -85,6 +85,12 @@ const optionDefinitions = [
 		defaultValue: 'https://github.hpe.com/api/v3'
 	},
 	{
+		name: 'logfile',
+		type: String,
+		description: 'Log file path. Default: /var/tmp/yoda-webhook/yoda-webhook.log',
+		defaultValue: '/var/tmp/yoda-webhook/yoda-webhook.log'
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
@@ -146,13 +152,10 @@ function parseOptions() {
 	log4js.configure({
 	  appenders: {
 		out: { type: 'stdout' },
-		// Note, taking out file logging as this is not immediately support e.g. on openshift.com
-		// TODO: Maybe make optional, or figure out later how it actually works. For now, default logging is actually ok.
-		// Note as well that 'app' logger is taking out of default appender below as well.
-//		app: { type: 'dateFile', filename: 'yoda-webhook.log', daysToKeep: 7 } 
+		app: { type: 'dateFile', filename: options['logfile'], daysToKeep: 7 } 
 	  },
 	  categories: {
-		default: { appenders: [ 'out' ], level: options['loglevel'] }
+		default: { appenders: [ 'out', 'app' ], level: options['loglevel'] }
 	  }
 	});
 
