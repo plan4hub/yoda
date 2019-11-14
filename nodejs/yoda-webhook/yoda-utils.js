@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildren, getChildrenOnlyFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs, isRef};
+module.exports = {getMatchingLabels, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs, isRef};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -124,7 +124,7 @@ function insertDeleteRefs(children, includeRefs, excludeRefs) {
 	for (var d = 0; d < excludeRefs.length; d++) {
 		var pos = findRefIndex(children.issueRefs, excludeRefs[d]);  
 		if (pos != -1) {
-			children.issueRefs.splice(pos, 1);
+			children.issueRefs.splice(pos, 1); // Delete it.
 		}
 	}
 }
@@ -352,7 +352,7 @@ function getParentRefs(ownRef, body) {
 // per default a list of lines in the body following a line starting with "> contains". We will insert into each reference as well
 // the starting position. This will be useful for when we have to update this data.
 // Lines within the contains block (up to a blank line) that are not issue references will be includes with data the "line" item.
-function getChildrenOnlyFromBody(ownRef, body) {
+function getChildrenFromBody(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
 	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
@@ -421,10 +421,3 @@ function getChildrenOnlyFromBody(ownRef, body) {
 	return result;
 }
 
-// getChildren function which will either get just from body or - if there is a "> issuesearch" clause do a search. Will return a promise.
-function getChildren(ownRef, body) {
-	return new Promise((resolve, reject) => {
-		var result = getChildrenOnlyFromBody(ownRef, body);
-		resolve(result);
-	});
-}

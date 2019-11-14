@@ -18,6 +18,45 @@ const octokit = new Octokit({
 });
 
 
+//getChildren function which will either get just from body or - if there is a "> issuesearch" clause do a search. Will return a promise.
+function getChildren(ownRef, body) {
+	return new Promise((resolve, reject) => {
+		var children = yoda.getChildrenFromBody(ownRef, body);
+		
+		if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith("> issuesearch ")) {
+			// Identify issues using a search criteria
+			var searchExpr = children.issueRefs[0].line.substr("> issuesearch ".length);
+			logger.info("  Searching for issues using term: " + searchExpr);
+			octokit.search.issuesAndPullRequests({
+				q: 'is:issue ' + searchExpr,
+				sort: "created",
+				order: "asc",
+				per_page: 100 // And we will not go further
+			}).then((searchResponse) => {
+				logger.debug("  Found " + searchResponse.data.items.length + " issues.");
+				logger.trace(searchResponse);
+
+				// Map searchResponse to children entries.
+				children.issueRefs.splice(1); // Remove all elements except the first (the "> issuesearch ..." line itself)
+				for (var i = 0; i < searchResponse.data.items.length; i++) {
+					children.issueRefs.push(yoda.getRefFromUrl(searchResponse.data.items[i].url));
+				}
+				
+				resolve(children);
+			}).catch((err) => {
+				// Insert error message in children
+				children.issueRefs.splice(1, 0, {line: err.message});
+				logger.error(err);
+				resolve(children);
+			});
+		} else {
+			// Normal case. No searching of issues. We have result immediately.
+			resolve(children);
+		}
+	});
+}
+
+
 // Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
 // as given by parentIssue. childIssue contains the full (current) issue.
 //Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
@@ -131,7 +170,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 		// We will get the issue again to make sure we have a current picture.
 		octokit.issues.get(issueRef).then((response) => {
 			logger.trace(response);
-			yoda.getChildren(issueRef, response.data.body).then((children) => {
+			getChildren(issueRef, response.data.body).then((children) => {
 				logger.debug("Child references:");
 				logger.debug(children);
 
@@ -301,7 +340,7 @@ function checkEvent(id, name, payload) {
 	// We will be potentially interested in any of them, just to make sure that we touch issues as and when appropriate.
 	// For "edited" payload, we need to consider the old body text as well (in case an issue was removed either from "> parent" or "> subissues" section.
 	if (issueAction == "edited" && payload.changes != undefined && payload.changes.body != undefined) {
-		logger.debug("Found earlier body: " + payload.changes.body.from);
+		logger.trace("Found earlier body: " + payload.changes.body.from);
 
 		// Handle deletions...... 
 		var oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
@@ -311,17 +350,17 @@ function checkEvent(id, name, payload) {
 		logger.debug(deletedParentRefs);
 		
 		// Call to handle deletion of parents.
-		processParentRefIssues(issueRef, deletedParentRefs, true).
-		then(() => {
-			// Any child deletions. Old children directly from body.
-			var oldChildRefs = yoda.getChildrenOnlyFromBody(issueRef, payload.changes.body.from).issueRefs;
-			yoda.getChildren(issueRef, payload.issue.body).issueRefs.then((newChildRefs) => {
-				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs);
-				logger.debug("deletedChildRefs:");
+		processParentRefIssues(issueRef, deletedParentRefs, true).then(() => {
+			// Any child deletions? Old children directly from body.
+			var oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
+			
+			// Get new children from new body (or issuesearch withint body), depending.
+			getChildren(issueRef, payload.issue.body).then((newChildRefs) => {
+				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
+				logger.info("deletedChildRefs. No of elements: " + deletedChildRefs.length);
 				logger.debug(deletedChildRefs);
 
-				processIssueAsParent(issueRef, [], deletedChildRefs).
-				then(() => {
+				processIssueAsParent(issueRef, [], deletedChildRefs).then(() => {
 					logger.debug("Event - done with child deletions");
 					processParentRefIssues(issueRef, newParentRefs, false).then(() => {
 						logger.debug("Event - done with following parent refs.");
