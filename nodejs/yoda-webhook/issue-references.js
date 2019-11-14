@@ -105,7 +105,10 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
-			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to point to " + yoda.getFullRef(parentIssueRef));
+			if (includeOrExclude) 
+				logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to point to " + yoda.getFullRef(parentIssueRef));
+			else 
+				logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " remove pointer to " + yoda.getFullRef(parentIssueRef));
 		}).catch((err) => {
 			logger.error(err);
 		});
@@ -357,7 +360,7 @@ function checkEvent(id, name, payload) {
 			// Get new children from new body (or issuesearch withint body), depending.
 			getChildren(issueRef, payload.issue.body).then((newChildRefs) => {
 				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
-				logger.info("deletedChildRefs. No of elements: " + deletedChildRefs.length);
+				logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
 				logger.debug(deletedChildRefs);
 
 				processIssueAsParent(issueRef, [], deletedChildRefs).then(() => {
