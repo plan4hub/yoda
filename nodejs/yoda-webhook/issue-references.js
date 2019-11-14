@@ -131,27 +131,30 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 		// We will get the issue again to make sure we have a current picture.
 		octokit.issues.get(issueRef).then((response) => {
 			logger.trace(response);
-			var children = yoda.getChildren(issueRef, response.data.body);
-			logger.debug("Child references:");
-			logger.debug(children);
-			
-			yoda.insertDeleteRefs(children, includeRefs, excludeRefs); 
-			logger.debug("Adjusted child references:");
-			logger.debug(children.issueRefs);
-			
-			// NOTE: Actually above use of excludeRefs is a bit silly. These issues will most likely already (not be) present in the body.
-			// Instead we pass them on to the next step...
+			yoda.getChildren(issueRef, response.data.body).then((children) => {
+				logger.debug("Child references:");
+				logger.debug(children);
 
-			// Now, lets read all issues that we are referring to... 
-			readChildIssuesAndUpdatePartOf(children, excludeRefs, response.data).then((updatedChildren) => {
-				logger.trace("Done reading and updating child issues");
-				logger.trace(updatedChildren);
-				
-				// Now we are ready to update the issue itself
-				// Note. Not waiting to complete.
-				updateParentIssue(issueRef, updatedChildren, response.data); 
-				
-				resolve();
+				yoda.insertDeleteRefs(children, includeRefs, excludeRefs); 
+				logger.debug("Adjusted child references:");
+				logger.debug(children.issueRefs);
+
+				// NOTE: Actually above use of excludeRefs is a bit silly. These issues will most likely already (not be) present in the body.
+				// Instead we pass them on to the next step...
+
+				// Now, lets read all issues that we are referring to... 
+				readChildIssuesAndUpdatePartOf(children, excludeRefs, response.data).then((updatedChildren) => {
+					logger.trace("Done reading and updating child issues");
+					logger.trace(updatedChildren);
+
+					// Now we are ready to update the issue itself
+					// Note. Not waiting to complete.
+					updateParentIssue(issueRef, updatedChildren, response.data); 
+
+					resolve();
+				});
+			}).catch((err) => {
+				logger.error(err);
 			});
 
 		}).catch((err) => {
@@ -310,20 +313,23 @@ function checkEvent(id, name, payload) {
 		// Call to handle deletion of parents.
 		processParentRefIssues(issueRef, deletedParentRefs, true).
 		then(() => {
-			// Any child deletions?
-			var oldChildRefs = yoda.getChildren(issueRef, payload.changes.body.from).issueRefs;
-			var newChildRefs = yoda.getChildren(issueRef, payload.issue.body).issueRefs;
-			var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs);
-			logger.debug("deletedChildRefs:");
-			logger.debug(deletedChildRefs);
+			// Any child deletions. Old children directly from body.
+			var oldChildRefs = yoda.getChildrenOnlyFromBody(issueRef, payload.changes.body.from).issueRefs;
+			yoda.getChildren(issueRef, payload.issue.body).issueRefs.then((newChildRefs) => {
+				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs);
+				logger.debug("deletedChildRefs:");
+				logger.debug(deletedChildRefs);
 
-			processIssueAsParent(issueRef, [], deletedChildRefs).
-			then(() => {
-				logger.debug("Event - done with child deletions");
-				processParentRefIssues(issueRef, newParentRefs, false).then(() => {
-					logger.debug("Event - done with following parent refs.");
+				processIssueAsParent(issueRef, [], deletedChildRefs).
+				then(() => {
+					logger.debug("Event - done with child deletions");
+					processParentRefIssues(issueRef, newParentRefs, false).then(() => {
+						logger.debug("Event - done with following parent refs.");
+					});
+					// ... Question is if we really need to call also processIssue again.. This would be for its potential role as a normal parent... I think we need to.
 				});
-			// ... Question is if we really need to call also processIssue again.. This would be for its potential role as a normal parent... I think we need to.
+			}).catch((err) => {
+				logger.error(err);
 			});
 		});
 	} else {

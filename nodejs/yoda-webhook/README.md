@@ -82,6 +82,6 @@ spec:
             - containerPort: 8181
           env:
             - name: YODA_WEBHOOK_OPTIONS
-              value: "--user (user) -p (token) --loglevel info --secret obiwan2019 --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"
+              value: "--user (user) -p (token) --loglevel info --secret (web secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"
 ```
  
