@@ -170,7 +170,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Processing issue as parent: " + yoda.getFullRef(issueRef));
 		
-		// We will get the issue again to make sure we have a current picture.
+		// We will get the issue again to make sure we have a current picture. // TODO: Is this really always necessary. Need to analyze ... 
 		octokit.issues.get(issueRef).then((response) => {
 			logger.trace(response);
 			getChildren(issueRef, response.data.body).then((children) => {
@@ -226,16 +226,18 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	// We need to make sure that issues are only present once.
 	yoda.makeIssuesUnique(children);
 	
-	var block = yoda.makeChildBlock(issueRef, children); 
+	var block = yoda.makeChildBlock(issueRef, children);
+	logger.debug("Block:");
 	logger.debug(block); 
 
-	logger.trace("BlockStart: " + blockStart + ", blockLength: " + blockLength);
+	logger.debug("BlockStart: " + blockStart + ", blockLength: " + blockLength);
 	
 	// Careful... we may not have an existing block!
 	if (blockStart == undefined || blockStart == -1) {
-		newBody = block + '\n' + oldIssue.body;
+		newBody = block + '\n' + oldIssue.body; 
+		
 	} else {
-		newBody = oldIssue.body.slice(0, blockStart) + block + oldIssue.body.slice(blockStart + blockLength + 1);		
+		newBody = oldIssue.body.slice(0, blockStart) + block + oldIssue.body.slice(blockStart + blockLength);		
 	}
 	
 	logger.trace(newBody);
@@ -244,7 +246,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	logger.debug("oldBody length: " + oldIssue.body.length + ", new length: " + newBody.length);
 
 	if (oldIssue.body == newBody) {
-		logger.debug("Skipping update as body is already correct.");
+		logger.info("  Skipping update as body is already correct for " + yoda.getFullRef(issueRef));
 	} else {
 		var update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
 

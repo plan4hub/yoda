@@ -264,13 +264,17 @@ function makeChildBlock(ownRef, childIssues) {
 
 				refLine += " *" + issueRefs[i].issue.title + "*";
 			}
-			logger.debug("refline: " + refLine);
+			logger.debug("refline: '" + refLine + "'");
 			issueRefs[i].refLine = refLine;
 			result = result + refLine + "\n";
 		}
 	}
 	
 	result = configuration.getOption('issuelist') + " (total estimate: " + totalEstimate + ", total remaining: " + totalRemaining + ", # open issues: " + totalOpen + ", # closed issues: " + totalClosed + ")\n" + result;
+	if (result.endsWith("\n")) {
+		result = result.substring(0, result.length - 1);
+	}
+	
 	return result;
 }
 
