@@ -76,7 +76,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	var issueType = yoda.getMatchingLabels(parentIssue, '^T[1-9] -');
 	if (issueType != "")
 		refLine += " " + issueType + " ";
-	refLine += " *" + parentIssue.title + "*\n\n";
+	refLine += " *" + parentIssue.title + "*";
 	logger.trace(refLine);
 		
 	var parentRefLine = configuration.getOption("issueref") + " ";
@@ -84,7 +84,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	if (parentIndex == -1) {
 		if (includeOrExclude) {
 			logger.debug("Issue reference not found. Inserting in beginning");
-			newBody = refLine + childIssue.body;
+			newBody = refLine + "\n\n" + childIssue.body;
 		}
 	} else {
 		logger.debug("Issue reference found.");
@@ -93,9 +93,9 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		var blockLength = parentRefs[parentIndex].length;
 		
 		if (includeOrExclude) {
-			newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength + 2);
+			newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength);
 		} else {
-			newBody = childIssue.body.slice(0, blockStart) + childIssue.body.slice(blockStart + blockLength + 2);
+			newBody = childIssue.body.slice(0, blockStart) + childIssue.body.slice(blockStart + blockLength);
 		}
 	}
 	
