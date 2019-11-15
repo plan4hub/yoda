@@ -262,7 +262,7 @@ function makeChildBlock(ownRef, childIssues) {
 				if (estimate != 0)
 					refLine += " (" +  estimate + " / " + remaining + ")";
 
-				refLine += " *" + issueRefs[i].issue.title + "*";
+				refLine += " *" + issueRefs[i].issue.title.trim() + "*";
 			}
 			logger.debug("refline: '" + refLine + "'");
 			issueRefs[i].refLine = refLine;
