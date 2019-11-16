@@ -245,7 +245,7 @@ function makeChildBlock(ownRef, childIssues) {
 					totalOpen++;
 				}
 				refLine += shortRef; 
-				var issueType = getMatchingLabels(issueRefs[i].issue, '^T[1-9] -');
+				var issueType = getMatchingLabels(issueRefs[i].issue, configuration.getOption("labelre"));
 				logger.trace("'" + issueType + "'");
 				if (issueType != "")
 					refLine += " " + issueType + " ";

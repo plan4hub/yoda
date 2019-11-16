@@ -74,6 +74,18 @@ const optionDefinitions = [
 		defaultValue: "> partof"
 	},
 	{
+		name: 'labelre',
+		type: String,
+		description: 'Regular expression for matching labels to be included before issue title. Default "^T[1-9] -".',
+		defaultValue: "^T[1-9] -"
+	},
+	{
+		name: 'issuesearch',
+		type: String,
+		description: 'Issue search keyword for searching using GitHub search. Default "> issuesearch ".',
+		defaultValue: "> issuesearch "
+	},
+	{
 		name: 'webhookproxy',
 		type: String,
 		description: 'Development mode. Use an external services (smee.io is good) for proxying GitHub events. Give the URL. Optional.'

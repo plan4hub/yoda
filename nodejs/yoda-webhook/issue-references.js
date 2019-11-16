@@ -23,9 +23,9 @@ function getChildren(ownRef, body) {
 	return new Promise((resolve, reject) => {
 		var children = yoda.getChildrenFromBody(ownRef, body);
 		
-		if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith("> issuesearch ")) {
+		if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("issuesearch"))) {
 			// Identify issues using a search criteria
-			var searchExpr = children.issueRefs[0].line.substr("> issuesearch ".length);
+			var searchExpr = children.issueRefs[0].line.substr(configuration.getOption("issuesearch").length);
 			logger.debug("  Searching for issues using term: " + searchExpr);
 			octokit.search.issuesAndPullRequests({
 				q: 'is:issue ' + searchExpr,
@@ -78,7 +78,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	
 	var shortRef = yoda.getShortRef(childRef, parentIssueRef);
 	var refLine = configuration.getOption("issueref") + " " + shortRef;
-	var issueType = yoda.getMatchingLabels(parentIssue, '^T[1-9] -');
+	var issueType = yoda.getMatchingLabels(parentIssue, configuration.getOption("labelre"));
 	if (issueType != "")
 		refLine += " " + issueType + " ";
 	refLine += " *" + parentIssue.title.trim() + "*";
