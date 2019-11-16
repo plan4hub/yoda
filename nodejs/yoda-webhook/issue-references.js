@@ -26,20 +26,25 @@ function getChildren(ownRef, body) {
 		if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith("> issuesearch ")) {
 			// Identify issues using a search criteria
 			var searchExpr = children.issueRefs[0].line.substr("> issuesearch ".length);
-			logger.info("  Searching for issues using term: " + searchExpr);
+			logger.debug("  Searching for issues using term: " + searchExpr);
 			octokit.search.issuesAndPullRequests({
 				q: 'is:issue ' + searchExpr,
 				sort: "created",
 				order: "asc",
 				per_page: 100 // And we will not go further
 			}).then((searchResponse) => {
-				logger.debug("  Found " + searchResponse.data.items.length + " issues.");
+				logger.info("  Found " + searchResponse.data.items.length + " issues using searchExpr: " + searchExpr);
 				logger.trace(searchResponse);
 
 				// Map searchResponse to children entries.
 				children.issueRefs.splice(1); // Remove all elements except the first (the "> issuesearch ..." line itself)
 				for (var i = 0; i < searchResponse.data.items.length; i++) {
-					children.issueRefs.push(yoda.getRefFromUrl(searchResponse.data.items[i].url));
+					var childRef = yoda.getRefFromUrl(searchResponse.data.items[i].url);
+					if (yoda.compareRefs(ownRef, childRef) != 0) {
+						children.issueRefs.push(childRef);
+					} else {
+						logger.info("  Ignoring reference to self.");
+					}
 				}
 				
 				resolve(children);
