@@ -72,7 +72,6 @@ function updatePartOfRefNotThere(childRef, parentIssue) {
 		var parentIndex = yoda.findRefIndex(parentRefs, parentIssue);
 		var blockStart = parentRefs[parentIndex].index;
 		var blockLength = parentRefs[parentIndex].length;
-		logger.error(blockStart);
 		var shortRef = yoda.getShortRef(childRef, parentIssue);
 		var refLine = configuration.getOption("issueref") + " " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
 		var newBody = result.data.body.slice(0, blockStart) + refLine + result.data.body.slice(blockStart + blockLength);
