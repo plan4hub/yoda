@@ -233,7 +233,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 			});
 
 		}).catch((err) => {
-			logger.error(err);
+			logger.debug(err);
 			// This is a bit tricky.... But overall, likely situation here is that we have been unable to read a > partof issue due to 
 			// it being a non-existing issue and/or insufficient access rights.
 			updatePartOfRefNotThere(includeRefs[0], issueRef);
