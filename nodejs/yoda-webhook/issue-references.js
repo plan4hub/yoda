@@ -62,6 +62,33 @@ function getChildren(ownRef, body) {
 }
 
 
+// Special case. Update child issue to indicate that the parentIssue indicate cannot be read... 
+function updatePartOfRefNotThere(childRef, parentIssue) {
+	logger.debug("updatePartOfRefNotThere: " + yoda.getFullRef(childRef) + " to indiciate that we cannot access " + yoda.getFullRef(parentIssue));
+	
+	// We need to get the issue again...
+	octokit.issues.get(childRef).then((result) => {
+		var parentRefs = yoda.getParentRefs(parentIssue, result.data.body);
+		var parentIndex = yoda.findRefIndex(parentRefs, parentIssue);
+		var blockStart = parentRefs[parentIndex].index;
+		var blockLength = parentRefs[parentIndex].length;
+		logger.error(blockStart);
+		var shortRef = yoda.getShortRef(childRef, parentIssue);
+		var refLine = configuration.getOption("issueref") + " " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
+		var newBody = result.data.body.slice(0, blockStart) + refLine + result.data.body.slice(blockStart + blockLength);
+
+		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
+		octokit.issues.update(childUpdate).then((result) => {
+			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to indicated that we find find  " + yoda.getFullRef(parentIssue));
+		}).catch((err) => {
+			logger.error(err);
+		});
+	}).catch((err) => {
+		logger.error("  Failed to read issue " + yoda.getFullRef(childRef) + " in updatePartOfRefNotThere");
+	});
+}
+
+
 // Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
 // as given by parentIssue. childIssue contains the full (current) issue.
 //Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
@@ -168,7 +195,7 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 
 
 
-//Furthermore, two lists can be supplied. A list of issues (by reference) that must present in the > subissues list , and
+//Furthermore, two lists can be supplied. A list of issues (by reference) that must present in the > contains list , and
 //a list of issues by references that should NOT be present in same list (either because a > parent has been removed, or because
 //one or more issues have been removed from the > subissues list.
 function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
@@ -202,10 +229,15 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 				});
 			}).catch((err) => {
 				logger.error(err);
+				reject();
 			});
 
 		}).catch((err) => {
 			logger.error(err);
+			// This is a bit tricky.... But overall, likely situation here is that we have been unable to read a > partof issue due to 
+			// it being a non-existing issue and/or insufficient access rights.
+			updatePartOfRefNotThere(includeRefs[0], issueRef);
+			resolve();
 		});
 	});
 }
