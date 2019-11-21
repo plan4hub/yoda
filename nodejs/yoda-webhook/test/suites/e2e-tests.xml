@@ -1,0 +1,46 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="UI e2e tests" parallel="false">
+	<listeners>
+		<listener class-name="com.hpe.obiwan.test.test.SuiteListener" />
+	</listeners>
+	<test name="Login">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T000Login" />
+		</classes>
+	</test>
+	<test name="CreateIssuesOne">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T001CreateIssuesOne" />
+		</classes>
+	</test>
+	<test name="CreateIssuesTwo">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T002CreateIssuesTwo" />
+		</classes>
+	</test>
+	<test name="CreateIssuesThree">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T003CreateIssuesThree" />
+		</classes>
+	</test>
+	<test name="UpdateIssuesOne">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T004UpdateIssuesOne" />
+		</classes>
+	</test>
+	<test name="UpdateIssuesTwo">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T005UpdateIssuesTwo" />
+		</classes>
+	</test>
+	<test name="ErrorIssues">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T006ErrorIssues" />
+		</classes>
+	</test>
+	<test name="SearchIssues">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T007SearchIssues" />
+		</classes>
+	</test>
+</suite>
