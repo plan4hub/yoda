@@ -23,16 +23,19 @@ public class Environment {
 	private final static String GITHUB_PASSWORD = "GITHUB_PASSWORD";
 	private final static String GITHUB_REPO_ONE = "GITHUB_REPO_ONE";
 	private final static String GITHUB_REPO_TWO = "GITHUB_REPO_TWO";
+	private final static String HOOK_TIMEOUT = "HOOK_TIMEOUT";
 	
 	private final static String DRIVER_TYPE_DEFAULT = "chrome";
 	private final static String DRIVER_REMOTE_URL_DEFAULT = "http://pompeiv52.gre.hpecorp.net:4444/wd/hub";
 	private final static String GITHUB_URL_DEFAULT = "https://github.hpe.com/";
+	private final static String HOOK_TIMEOUT_DEFAULT = "5";
 
 	private final static Map<String, String> DEFAULTS = new HashMap<String, String>();
 	static {
 		DEFAULTS.put(DRIVER_TYPE, DRIVER_TYPE_DEFAULT);
 		DEFAULTS.put(DRIVER_REMOTE_URL, DRIVER_REMOTE_URL_DEFAULT);
 		DEFAULTS.put(GITHUB_URL,GITHUB_URL_DEFAULT);
+		DEFAULTS.put(HOOK_TIMEOUT, HOOK_TIMEOUT_DEFAULT);
 	}
 
 	private static Environment instance = null;
@@ -110,6 +113,10 @@ public class Environment {
 
 	public String getGithubRepoTwo() {
 		return getValue(GITHUB_REPO_TWO);
+	}
+
+	public int getHookTimeout() {
+		return Integer.parseInt(getValue(HOOK_TIMEOUT));
 	}
 
 }

@@ -19,6 +19,7 @@ Following configuration properties can be customized:
 - `GITHUB_PASSWORD`: GitHub first password. No default value.
 - `GITHUB_REPO_ONE`: GitHub first repository. No default value.
 - `GITHUB_REPO_TWO`: GitHub second repository. No default value.
+- `HOOK_TIMEOUT`: Time in seconds to wait for Yoda Webhook to complete processing. By default 5.
 
 These properties can be defined in file `src/main/resources/test.properties` or in command line when run, with command line taking precedence over file. By example, to run tests defining user and password in commmand line:
 

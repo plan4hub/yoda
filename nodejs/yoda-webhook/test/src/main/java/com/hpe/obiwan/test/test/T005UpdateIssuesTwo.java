@@ -27,7 +27,7 @@ public class T005UpdateIssuesTwo extends Base {
 		parent.setRepository(repoOne);
 		parent.setTitle("Parent " + signature);
 		githubPage.createIssue(parent);
-		delayBackend(5);
+		waitHook();
 		Issue childOne = new Issue();
 		childOne.setRepository(repoOne);
 		childOne.setTitle("Child One " + signature);
@@ -35,7 +35,7 @@ public class T005UpdateIssuesTwo extends Base {
 		childOne.setEstimated(2);
 		childOne.setRemaining(2);
 		githubPage.createIssue(childOne);
-		delayBackend(5);
+		waitHook();
 		parent.getChildren().add(childOne);
 		Issue childTwo = new Issue();
 		childTwo.setRepository(repoOne);
@@ -44,25 +44,25 @@ public class T005UpdateIssuesTwo extends Base {
 		childTwo.setEstimated(1);
 		childTwo.setRemaining(1);
 		githubPage.createIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 		parent.getChildren().add(childTwo);
 		githubPage.checkIssue(parent);
 
 		getLogger().log(Level.INFO, "Step 3 - Update Child One");
 		childOne.setRemaining(1);
 		githubPage.updateBody(childOne);
-		delayBackend(5);
+		waitHook();
 		githubPage.checkIssue(parent);
 
 		getLogger().log(Level.INFO, "Step 4 - Update Child Two");
 		childTwo.setRemaining(0);
 		githubPage.updateBody(childTwo);
-		delayBackend(5);
+		waitHook();
 		githubPage.checkIssue(parent);
 
 		getLogger().log(Level.INFO, "Step 5 - Close Child Two");
 		githubPage.closeIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 		githubPage.checkIssue(parent);
 
 	}

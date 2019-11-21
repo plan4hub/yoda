@@ -30,12 +30,12 @@ public class T006ErrorIssues extends Base {
 		childOne.setRepository(repoOne);
 		childOne.setTitle("Child One " + signature);
 		githubPage.createIssue(childOne);
-		delayBackend(5);
+		waitHook();
 		Issue childTwo = new Issue();
 		childTwo.setRepository(repoOne);
 		childTwo.setTitle("Child Two " + signature);
 		githubPage.createIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 
 		getLogger().log(Level.INFO, "Step 3 - Create parent with text between children");
 		Issue parentOne = new Issue();
@@ -50,7 +50,7 @@ public class T006ErrorIssues extends Base {
 		parentOneBody.append("This is the issue ").append(parentOne.getTitle()).append(".");
 		String idOne = githubPage.createIssue(parentOne.getTitle(), parentOneBody.toString());
 		parentOne.setId(idOne);
-		delayBackend(5);
+		waitHook();
 		parentOne.getChildren().add(childOne);
 		parentOne.getChildren().add(childTwo);
 		githubPage.checkIssue(parentOne);
@@ -68,7 +68,7 @@ public class T006ErrorIssues extends Base {
 		parentTwoBody.append("This is the issue ").append(parentTwo.getTitle()).append(".");
 		String idTwo = githubPage.createIssue(parentTwo.getTitle(), parentTwoBody.toString());
 		parentTwo.setId(idTwo);
-		delayBackend(5);
+		waitHook();
 		parentTwo.getChildren().add(childOne);
 		githubPage.checkIssue(parentTwo);
 
@@ -84,7 +84,7 @@ public class T006ErrorIssues extends Base {
 		parentThree.setTitle("Parent Three " + signature);
 		parentThree.getChildren().add(dummy);
 		githubPage.createIssue(parentThree);
-		delayBackend(5);
+		waitHook();
 		String bodyThree = githubPage.getBody(parentThree);
 		Assert.assertTrue(bodyThree.indexOf(errorNotExists) != -1, "Expected child line not found");
 
@@ -94,7 +94,7 @@ public class T006ErrorIssues extends Base {
 		childThree.setTitle("Child Three " + signature);
 		childThree.getParents().add(dummy);
 		githubPage.createIssue(childThree);
-		delayBackend(5);
+		waitHook();
 		String bodyFour = githubPage.getBody(childThree);
 		Assert.assertTrue(bodyFour.indexOf(errorNotExists) != -1, "Expected parent line not found");
 
@@ -105,7 +105,7 @@ public class T006ErrorIssues extends Base {
 		parentFour.getChildren().add(childOne);
 		parentFour.getChildren().add(childOne);
 		githubPage.createIssue(parentFour);
-		delayBackend(5);
+		waitHook();
 		parentFour.getChildren().clear();
 		parentFour.getChildren().add(childOne);
 		githubPage.checkIssue(parentFour);
@@ -117,7 +117,7 @@ public class T006ErrorIssues extends Base {
 		childFour.getParents().add(parentOne);
 		childFour.getParents().add(parentOne);
 		githubPage.createIssue(childFour);
-		delayBackend(5);
+		waitHook();
 		childFour.getParents().clear();
 		childFour.getParents().add(parentOne);
 		githubPage.checkIssue(childFour);

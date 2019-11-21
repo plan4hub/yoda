@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.testng.annotations.Test;
 
+import com.hpe.obiwan.test.environment.Environment;
 import com.hpe.obiwan.test.pages.Github;
 
 public abstract class Base {
@@ -41,9 +42,9 @@ public abstract class Base {
 		return logger;
 	}
 
-	protected void delayBackend(int seconds) {
+	protected void waitHook() {
 		try {
-			Thread.sleep(1000L * seconds);
+			Thread.sleep(1000L * Environment.getEnvironment().getHookTimeout());
 		} catch (InterruptedException e) {
 			getLogger().log(Level.WARNING, "Unexpected exception", e);
 		}

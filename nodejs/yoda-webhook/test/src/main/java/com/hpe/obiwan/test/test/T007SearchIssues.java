@@ -30,7 +30,7 @@ public class T007SearchIssues extends Base {
 		childOne.setEstimated(2);
 		childOne.setRemaining(2);
 		githubPage.createIssue(childOne);
-		delayBackend(5);
+		waitHook();
 		Issue childTwo = new Issue();
 		childTwo.setRepository(repoTwo);
 		childTwo.setTitle("Child Two " + signature);
@@ -38,7 +38,7 @@ public class T007SearchIssues extends Base {
 		childTwo.setEstimated(1);
 		childTwo.setRemaining(1);
 		githubPage.createIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 
 		getLogger().log(Level.INFO, "Step 3 - Create parent with search");
 		Issue parentOne = new Issue();
@@ -51,7 +51,7 @@ public class T007SearchIssues extends Base {
 		parentOneBody.append("This is the issue ").append(parentOne.getTitle()).append(".");
 		String idOne = githubPage.createIssue(parentOne.getTitle(), parentOneBody.toString());
 		parentOne.setId(idOne);
-		delayBackend(5);
+		waitHook();
 		parentOne.getChildren().add(childOne);
 		parentOne.getChildren().add(childTwo);
 		childOne.getParents().add(parentOne);
@@ -63,16 +63,16 @@ public class T007SearchIssues extends Base {
 		getLogger().log(Level.INFO, "Step 3 - Decrease remaining");
 		childOne.setRemaining(1);
 		githubPage.updateBody(childOne);
-		delayBackend(5);
+		waitHook();
 		childTwo.setRemaining(0);
 		githubPage.updateBody(childTwo);
-		delayBackend(5);
+		waitHook();
 		githubPage.checkIssue(parentOne);
 
 		getLogger().log(Level.INFO, "Step 3 - Close child");
 		childOne.setRemaining(1);
 		githubPage.closeIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 		githubPage.checkIssue(parentOne);
 
 	}

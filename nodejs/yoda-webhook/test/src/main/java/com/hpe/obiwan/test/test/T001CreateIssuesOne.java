@@ -27,14 +27,14 @@ public class T001CreateIssuesOne extends Base {
 		parentOne.setRepository(repoOne);
 		parentOne.setTitle("Parent One " + signature);
 		githubPage.createIssue(parentOne);
-		delayBackend(5);
+		waitHook();
 
 		getLogger().log(Level.INFO, "Step 3 - Create Parent Two");
 		Issue parentTwo = new Issue();
 		parentTwo.setRepository(repoOne);
 		parentTwo.setTitle("Parent Two " + signature);
 		githubPage.createIssue(parentTwo);
-		delayBackend(5);
+		waitHook();
 
 		getLogger().log(Level.INFO, "Step 4 - Create Child One");
 		Issue childOne = new Issue();
@@ -42,7 +42,7 @@ public class T001CreateIssuesOne extends Base {
 		childOne.setTitle("Child One " + signature);
 		childOne.getParents().add(parentOne);
 		githubPage.createIssue(childOne);
-		delayBackend(5);
+		waitHook();
 		parentOne.getChildren().add(childOne);
 
 		getLogger().log(Level.INFO, "Step 5 - Create Child Two");
@@ -52,7 +52,7 @@ public class T001CreateIssuesOne extends Base {
 		childTwo.getParents().add(parentOne);
 		childTwo.getParents().add(parentTwo);
 		githubPage.createIssue(childTwo);
-		delayBackend(5);
+		waitHook();
 		parentOne.getChildren().add(childTwo);
 		parentTwo.getChildren().add(childTwo);
 		
