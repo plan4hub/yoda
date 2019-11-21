@@ -85,3 +85,7 @@ spec:
               value: "--user (user) -p (token) --loglevel info --secret (web secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"
 ```
  
+ 
+## Test
+
+A fully automated test for yoda-webhook is available in the `test` directory. See specific instructions for running the tests there.
