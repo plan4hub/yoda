@@ -78,7 +78,7 @@ function updatePartOfRefNotThere(childRef, parentIssue) {
 
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
 		octokit.issues.update(childUpdate).then((result) => {
-			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to indicated that we find find  " + yoda.getFullRef(parentIssue));
+			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to indicated that we cannot find " + yoda.getFullRef(parentIssue));
 		}).catch((err) => {
 			logger.error(err);
 		});
@@ -99,8 +99,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	
 	var parentIssueRef = yoda.getRefFromUrl(parentIssue.url);
 	var parentRefs = yoda.getParentRefs(parentIssueRef, childIssue.body);
-	
-	var parentIndex = yoda.findRefIndex(parentRefs, parentIssueRef);
+	var parentIndex = yoda.findRefIndex(parentRefs, parentIssueRef);  
 	
 	var shortRef = yoda.getShortRef(childRef, parentIssueRef);
 	var refLine = configuration.getOption("issueref") + " " + shortRef;
@@ -128,6 +127,23 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		} else {
 			newBody = childIssue.body.slice(0, blockStart) + childIssue.body.slice(blockStart + blockLength);
 		}
+		
+		// Check newBody for OTHER references TO THE SAME PARENT, i.e. not the first. If there, must be removed.
+		var loopProt = 0; // Always wear protective gear
+		do {
+			loopProt++;
+			var parentRefs = yoda.getParentRefs(parentIssueRef, newBody);
+			var allParentIndex = yoda.findAllRefIndex(parentRefs, parentIssueRef);
+			if ((includeOrExclude && allParentIndex.length > 1) || (!includeOrExclude && allParentIndex.length > 0)) {
+				logger.info("  Removing extra partof reference in issue.");
+				
+				// Take last one out
+				var blockStart = parentRefs[allParentIndex.slice(-1)].index;
+				var blockLength = parentRefs[allParentIndex.slice(-1)].length;
+				newBody = newBody.slice(0, blockStart) + newBody.slice(blockStart + blockLength);
+			} else
+				break;
+		} while (true && loopProt < 100);
 	}
 	
 	if (newBody != childIssue.body) {

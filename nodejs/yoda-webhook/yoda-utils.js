@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, makeIssuesUnique, noChildRefs, isRef};
+module.exports = {getMatchingLabels, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, findAllRefIndex, makeIssuesUnique, noChildRefs, isRef};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -104,6 +104,18 @@ function findRefIndex(aList, b) {
 	}
 	return -1;
 }
+
+// Find all matches
+function findAllRefIndex(aList, b) {
+	var result = [];
+	for (var i = 0; i < aList.length; i++) {
+		// Note, take care not to search in not childRef things...
+		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
+			result.push(i);
+	}
+	return result;
+}
+
 
 //Search for a given issue, skip search if not a child ref, but just a text line.
 function findRef(aList, b) {
