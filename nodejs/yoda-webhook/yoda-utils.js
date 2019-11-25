@@ -373,7 +373,7 @@ function getChildrenFromBody(ownRef, body) {
 	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
+	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*((([^ ]*\/)?[^ ]*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
@@ -414,7 +414,7 @@ function getChildrenFromBody(ownRef, body) {
 		if (res != null) {
 			var refEntry = {};
 			// Did we match an issue reference? 
-			if (res[0].trim().startsWith("-") && res[0].indexOf("#") != -1) {
+			if (res[0].trim().startsWith("-") && res[5] != undefined) {
 				var ref = res[5];
 				var data = res[8];
 				logger.trace("Reference: " + ref + ", data: " + data);
