@@ -19,6 +19,25 @@ const configuration = require('./configuration.js');
 //We will maintain the lists as arrays of (owner, repo, issue_number) structures, as these are anyway what will be used to
 //First a few functions to construct such elements.
 
+// Escape string for RegExp usage
+function escapeRegExp(string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+// Generic regular expression for an issue reference.
+// Can either be:
+// 1. An issue short reference, e.g.. '#3'
+// 2. A reference to an issue for another repo in same org. This is actually not legal GitHub, but useful shorthand for inpt: e.g. "obt#33"
+// 3. A full GitHub reference for an issue into repo, e.g. "hpsd/hpsp#338"
+// 4. A full URL to a GitHub issue, e.g. "https://github.hpe.com/hpsd/hpsd/issues/2058"
+var static_issueRef = "";
+function issueReferenceRegExp() {
+	if (static_issueRef == "")
+		static_issueRef = "((((.*/)?.*)?#[1-9][0-9]*)|(" + escapeRegExp(configuration.getOption('baseurlui')) + "[^\/]+\/[^\/]+\/issues\/[1-9][0-9]*))";
+	
+	return static_issueRef;
+}
+
 // Crude way of determining if a line is indeed a reference. If the line is set, it is not.....
 function isRef(ref) {
 	if (ref.line == undefined)
@@ -341,18 +360,21 @@ function getParentRefs(ownRef, body) {
 	var issueRefs = [];
 	
 	// We are going to need a loop cutting the the body text as we go along
-	var reg = new RegExp("(^[ ]*" + configuration.getOption("issuerefre") + ')[ ]*(((.*/)?.*)?#[1-9][0-9]*)[ ]*(.*)$', 'mg');
+	var reg = new RegExp("^[ ]*" + configuration.getOption("issuerefre") + '[ ]*' + issueReferenceRegExp() + '[ ]*(.*)$', 'mg');
 	logger.trace(reg);
 	do {
+		var refEntry = {};
 		var res = reg.exec(body);
 		logger.trace(res);
 		if (res != null) {
-			var ref = res[2];
-			var data = res[5];
-			logger.trace("Reference: " + ref + ", data: " + data);
+			logger.trace(res);
+			if (res[5] != undefined) {  // Full URL issue reference
+				refEntry = getRefFromUrl(res[5]); 
+			} else {                    // Normal GitHub issue reference
+				refEntry = getRefFromShortRef(ownRef, res[2]);
+			}
+			logger.debug("  Parent reference: " + getFullRef(refEntry));
 
-			var refEntry = getRefFromShortRef(ownRef, ref);
-			refEntry.data = data;
 			refEntry.index = res.index;
 			refEntry.length = res[0].length;
 			issueRefs.push(refEntry);
@@ -372,8 +394,8 @@ function getChildrenFromBody(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
 	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
-	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)" 
-	var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*((([^ ]*\/)?[^ ]*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
+	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)"
+	var refLineReg = '(^([ ]*)- (\\[[ xX]\\])?[ ]*' + issueReferenceRegExp() + '[ ]*(.*)|(..*)$)';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
@@ -414,26 +436,25 @@ function getChildrenFromBody(ownRef, body) {
 		if (res != null) {
 			var refEntry = {};
 			// Did we match an issue reference? 
-			if (res[0].trim().startsWith("-") && res[5] != undefined) {
-				var ref = res[5];
-				var data = res[8];
-				logger.trace("Reference: " + ref + ", data: " + data);
-
-				refEntry = getRefFromShortRef(ownRef, ref);
+			if (res[0].trim().startsWith("-") && res[4] != undefined) {
+				if (res[8] != undefined) {  // https://  variant
+					refEntry = getRefFromUrl(res[8]); 
+				} else {                    // github reference variant
+					refEntry = getRefFromShortRef(ownRef, res[4]);
+				}
+				logger.debug("  Child reference: " + getFullRef(refEntry));
 				
 				refEntry.indent = res[2];
-				refEntry.data = data;
 				refEntry.index = res.index;
 			} else {
-				logger.trace("Text line: " + res[0]);
+				// Not an issue reference. just a text line.
+				logger.debug("Text line: " + res[0]);
 				refEntry.line = res[0];
 			}
 			result.issueRefs.push(refEntry);
-
 		}
 	} while (res != null);
 	logger.debug("Got child references:");
 	logger.debug(result);
 	return result;
 }
-

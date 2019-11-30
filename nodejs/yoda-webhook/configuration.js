@@ -171,6 +171,10 @@ function parseOptions() {
 	  }
 	});
 
+	// Derived detauls
+	var url = new URL(options['baseurl']);
+	options['baseurlui'] = url.protocol + "//" + url.hostname + "/"; 
+	
 	logger.info(options);
 }
 
