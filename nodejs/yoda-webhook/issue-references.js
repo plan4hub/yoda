@@ -66,10 +66,12 @@ function getChildren(ownRef, body) {
 function updatePartOfRefNotThere(childRef, parentIssue) {
 	logger.debug("updatePartOfRefNotThere: " + yoda.getFullRef(childRef) + " to indiciate that we cannot access " + yoda.getFullRef(parentIssue));
 	
+	
 	// We need to get the issue again...
 	octokit.issues.get(childRef).then((result) => {
 		var parentRefs = yoda.getParentRefs(parentIssue, result.data.body);
 		var parentIndex = yoda.findRefIndex(parentRefs, parentIssue);
+	    var blockStart = parentRefs[parentIndex].index;
 		var blockLength = parentRefs[parentIndex].length;
 		var shortRef = yoda.getShortRef(childRef, parentIssue);
 		var refLine = configuration.getOption("issueref") + " " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
