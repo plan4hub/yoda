@@ -8,6 +8,7 @@ var logger = log4js.getLogger();
 
 
 const yodaRefModule = require('./issue-references.js');
+const yodaAppModule = require('./github-app.js');
 
 // Are we being asked to process just a single issue. If so, no need for server stuff.
 if (configuration.getOption('url') != undefined) {
@@ -47,6 +48,14 @@ if (configuration.getOption('url') != undefined) {
 		yodaRefModule.checkEvent(id, name, payload);
 	});
 
+	//	Register for GitHub App events
+	webhooks.on('installation', ({id, name, payload}) => {
+		yodaAppModule.checkEvent(id, name, payload);
+	});
+
+	yodaAppModule.init();
+	
+	
 	//	Start the server. Can consider express if better than http 
 	const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
 	logger.trace(server);

@@ -9,12 +9,14 @@
   "author": "Jens Vedel Markussen",
   "license": "MIT",
   "dependencies": {
-    "eventsource": "",
-    "log4js": "",
-    "http": "",
+    "@octokit/auth-app": "",
+    "@octokit/request": "",
+    "@octokit/rest": "^16.35.0",
+    "@octokit/webhooks": "",
     "command-line-args": "",
-    "command-line-usage": "",
-    "@octokit/rest": "",
-    "@octokit/webhooks": ""
+    "command-line-usage": "^6.1.0",
+    "eventsource": "",
+    "http": "",
+    "log4js": "^6.1.0"
   }
 }
