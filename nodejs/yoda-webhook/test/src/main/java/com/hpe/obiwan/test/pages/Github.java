@@ -129,7 +129,7 @@ public class Github extends Base {
 			sb.append(REMAINING_DATE_FORMAT.format(new Date())).append(" ");
 			sb.append(issue.getRemaining()).append("\n\n");
 		}
-		if (issue.getParents().size() > 0) {
+		if (issue.getParents().size() > 0 || issue.getExternalParents().size() > 0) {
 			for (Issue parent : issue.getParents()) {
 				sb.append("> partof ");
 				if (!issue.getRepository().equals(parent.getRepository())) {
@@ -137,8 +137,12 @@ public class Github extends Base {
 				}
 				sb.append(parent.getId()).append("\n\n");
 			}
+			for (String externalParent : issue.getExternalParents()) {
+				sb.append("> partof ");
+				sb.append(externalParent).append("\n\n");
+			}
 		}
-		if (issue.getChildren().size() > 0) {
+		if (issue.getChildren().size() > 0 || issue.getExternalChildren().size() > 0) {
 			sb.append("> contains\n");
 			for (Issue child : issue.getChildren()) {
 				sb.append("- ");
@@ -146,6 +150,10 @@ public class Github extends Base {
 					sb.append(child.getRepository());
 				}
 				sb.append(child.getId()).append("\n");
+			}
+			for (String externalchild : issue.getExternalChildren()) {
+				sb.append("- ");
+				sb.append(externalchild).append("\n");
 			}
 			sb.append("\n");
 		}
@@ -156,12 +164,18 @@ public class Github extends Base {
 	private boolean checkParents(Issue issue, String comment) {
 		String[] lines = comment.split("\n");
 		List<Issue> parents = new ArrayList<Issue>();
+		List<String> externalParents = new ArrayList<String>();
 		for (String line : lines) {
 			if (line.startsWith("> partof ")) {
-				parents.add(Issue.fromParentInfo(line, issue.getRepository()));
+				if (line.indexOf("#") != -1) {
+					parents.add(Issue.fromParentInfo(line, issue.getRepository()));
+				} else {
+					externalParents.add(line.substring("> partof ".length()));
+				}
 			}
 		}
 		if (issue.getParents().size() != parents.size()) {
+			getLogger().severe("Wrong parents size, expected " + issue.getParents().size() + ", got " + parents.size());
 			return false;
 		}
 		for (Issue expected : issue.getParents()) {
@@ -172,6 +186,10 @@ public class Github extends Base {
 						getLogger().severe("Wrong status of issue " + expected.getRepository() + expected.getId());
 						return false;
 					}
+					if (expected.getError() != null && !expected.getError().equals(observed.getError())) {
+						getLogger().severe("Wrong error of issue " + expected.getRepository() + expected.getId());
+						return false;
+					}
 					if (expected.getLabel() == null && observed.getLabel() != null) {
 						getLogger().severe("Wrong label of issue " + expected.getRepository() + expected.getId());
 						return false;
@@ -180,7 +198,7 @@ public class Github extends Base {
 						getLogger().severe("Wrong label of issue " + expected.getRepository() + expected.getId());
 						return false;
 					}
-					if (!expected.getTitle().equals(observed.getTitle())) {
+					if (expected.getTitle() != null && !expected.getTitle().equals(observed.getTitle())) {
 						getLogger().severe("Wrong title of issue " + expected.getRepository() + expected.getId());
 						return false;
 					}
@@ -190,6 +208,19 @@ public class Github extends Base {
 			}
 			if (missing) {
 				getLogger().severe("Missing parent issue " + expected.getRepository() + expected.getId());
+				return false;
+			}
+		}
+		for (String expected : issue.getExternalParents()) {
+			boolean missing = true;
+			for (String observed : externalParents) {
+				if (observed.equals(expected)) {
+					missing = false;
+					break;
+				}
+			}
+			if (missing) {
+				getLogger().severe("Missing external parent issue " + expected);
 				return false;
 			}
 		}
@@ -203,6 +234,7 @@ public class Github extends Base {
 		int observedClosed = 0;
 		int observedOpened = 0;
 		List<Issue> children = new ArrayList<Issue>();
+		List<String> externalChildren = new ArrayList<String>();
 		boolean found = false;
 		for (String line : lines) {
 			if (line.startsWith("> contains")) {
@@ -236,12 +268,17 @@ public class Github extends Base {
 					}
 				}
 			} else if (found && line.startsWith("- ")) {
-				children.add(Issue.fromChildInfo(line, issue.getRepository()));
+				if (line.indexOf("#") != -1) {
+					children.add(Issue.fromChildInfo(line, issue.getRepository()));
+				} else {
+					externalChildren.add(line.substring(2));
+				}
 			} else if (line.length() == 0) {
 				found = false;
 			}
 		}
 		if (issue.getChildren().size() != children.size()) {
+			getLogger().severe("Wrong children size, expected " + issue.getChildren().size() + ", got " + children.size());
 			return false;
 		}
 		int expectedEstimated = 0;
@@ -251,14 +288,20 @@ public class Github extends Base {
 		for (Issue expected : issue.getChildren()) {
 			expectedEstimated += expected.getEstimated();
 			expectedRemaining += expected.getRemaining();
-			if (expected.isClosed()) {
-				expectedClosed++;
-			} else {
-				expectedOpened++;
+			if (expected.getError() == null) {
+				if (expected.isClosed()) {
+					expectedClosed++;
+				} else {
+					expectedOpened++;
+				}
 			}
 			boolean missing = true;
 			for (Issue observed : children) {
 				if (expected.getRepository().equals(observed.getRepository()) && expected.getId().equals(observed.getId())) {
+					if (expected.getError() != null && !expected.getError().equals(observed.getError())) {
+						getLogger().severe("Wrong error of issue " + expected.getRepository() + expected.getId());
+						return false;
+					}
 					if (expected.getLabel() == null && observed.getLabel() != null) {
 						getLogger().severe("Wrong label of issue " + expected.getRepository() + expected.getId());
 						return false;
@@ -267,7 +310,7 @@ public class Github extends Base {
 						getLogger().severe("Wrong label of issue " + expected.getRepository() + expected.getId());
 						return false;
 					}
-					if (!expected.getTitle().equals(observed.getTitle())) {
+					if (expected.getTitle() != null && !expected.getTitle().equals(observed.getTitle())) {
 						getLogger().severe("Wrong title of issue " + expected.getRepository() + expected.getId());
 						return false;
 					}
@@ -276,7 +319,7 @@ public class Github extends Base {
 				}
 			}
 			if (missing) {
-				getLogger().severe("Missing parent issue " + expected.getRepository() + expected.getId());
+				getLogger().severe("Missing children issue " + expected.getRepository() + expected.getId());
 				return false;
 			}
 		}
@@ -295,6 +338,23 @@ public class Github extends Base {
 		if (expectedOpened != observedOpened) {
 			getLogger().severe("Opened count mismatch");
 			return false;
+		}
+		if (issue.getExternalChildren().size() != externalChildren.size()) {
+			getLogger().severe("Wrong external children size, expected " + issue.getChildren().size() + ", got " + children.size());
+			return false;
+		}
+		for (String expected : issue.getExternalChildren()) {
+			boolean missing = true;
+			for (String observed : externalChildren) {
+				if (observed.equals(expected)) {
+					missing = false;
+					break;
+				}
+			}
+			if (missing) {
+				getLogger().severe("Missing external children issue " + expected);
+				return false;
+			}
 		}
 		return true;
 	}

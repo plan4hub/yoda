@@ -10,11 +10,14 @@ public class Issue {
 	private String title;
 	private String label;
 	private String milestone;
+	private String error;
 	private int estimated;
 	private int remaining;
 	private boolean closed;
 	private List<Issue> parents = new ArrayList<Issue>();
 	private List<Issue> children = new ArrayList<Issue>();
+	private List<String> externalParents = new ArrayList<String>();
+	private List<String> externalChildren = new ArrayList<String>();
 
 	public static Issue fromChildInfo(String info, String repository) {
 		Issue issue = new Issue();
@@ -46,6 +49,15 @@ public class Issue {
 					issue.setRepository(repository);
 				}
 				issue.setId(part.substring(indexOne));
+			}
+		}
+		indexOne = info.indexOf("**");
+		if (indexOne != -1) {
+			indexTwo = info.lastIndexOf("**");
+			if (indexTwo > indexOne) {
+				part = info.substring(indexOne + 2, indexTwo);
+				info = info.substring(indexTwo + 2);
+				issue.setError(part);
 			}
 		}
 		indexOne = info.indexOf("[");
@@ -102,6 +114,15 @@ public class Issue {
 				issue.setId(part.substring(indexOne));
 			}
 		}
+		indexOne = info.indexOf("**");
+		if (indexOne != -1) {
+			indexTwo = info.lastIndexOf("**");
+			if (indexTwo > indexOne) {
+				part = info.substring(indexOne + 2, indexTwo);
+				info = info.substring(indexTwo + 2);
+				issue.setError(part);
+			}
+		}
 		indexOne = info.indexOf("[");
 		if (indexOne != -1) {
 			indexTwo = info.indexOf("]", indexOne + 1);
@@ -151,6 +172,12 @@ public class Issue {
 	public void setMilestone(String milestone) {
 		this.milestone = milestone;
 	}
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
+	}
 	public int getEstimated() {
 		return estimated;
 	}
@@ -174,6 +201,12 @@ public class Issue {
 	}
 	public List<Issue> getChildren() {
 		return children;
+	}
+	public List<String> getExternalParents() {
+		return externalParents;
+	}
+	public List<String> getExternalChildren() {
+		return externalChildren;
 	}
 
 	@Override

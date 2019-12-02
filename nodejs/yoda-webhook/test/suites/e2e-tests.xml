@@ -43,4 +43,9 @@
 			<class name="com.hpe.obiwan.test.test.T007SearchIssues" />
 		</classes>
 	</test>
+	<test name="FullUrlReferences">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T008FullUrlReferences" />
+		</classes>
+	</test>
 </suite>

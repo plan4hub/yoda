@@ -162,3 +162,17 @@ First create child issues with a milestone and then create a parent issue search
 - Check `Parent One` issue
 - Close `Child Two` issue
 - Check `Parent One` issue
+
+## Test 008 - FullUrlReferences
+
+First create issues and them update them to include full URL references.
+
+- Go to second repository
+- Create `Parent One` issue
+- Create `Parent Two`
+- Create `Child One`
+- Create `Child Two`
+- Update `Parent One` issue to add children with full URL references to `Child Two` issue, a non-existing issue and a external page
+- Check `Parent One` issue
+- Update `Child One` issue to add parents with full URL references to `Parent Two` issue, a non-existing issue and a external page
+- Check `Child One` issue
