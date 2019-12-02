@@ -526,7 +526,10 @@ function storeIssuesThenCreateChart(issues) {
 			for (var j = 0; j < mFilter.length; j++) {
 				if (issues[i].milestone == null)
 					continue;
-				if (issues[i].milestone.title != mFilter[j])
+				
+				// If milestone filter starts with "-" then the filter is negative.
+				if ((mFilter[j].indexOf("-") == -1 && issues[i].milestone.title != mFilter[j]) ||
+					(mFilter[j].indexOf("-") == 0 && issues[i].milestone.title == mFilter[j].substr(1)))
 					continue;
 				foundMilestone = true;
 			}
