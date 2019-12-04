@@ -45,8 +45,10 @@ const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\n" +
 
 
 // init
-function init() {
+function initAppAuth() {
 }
+
+
 
 //Main entry point for checking installation events.
 function checkEvent(id, name, payload) {

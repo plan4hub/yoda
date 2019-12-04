@@ -13,7 +13,7 @@ const yodaAppModule = require('./github-app.js');
 // Are we being asked to process just a single issue. If so, no need for server stuff.
 if (configuration.getOption('url') != undefined) {
 	logger.info("Processing url: " + configuration.getOption('url'));
-	yodaRefModule.processIssueUrl(configuration.getOption('url'));
+	yodaRefModule.processIssueUrl(configuration.getOption('url')); 
 } else {
 	logger.info("Server starting ...");
 
