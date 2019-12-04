@@ -743,7 +743,7 @@ var yoda = (function() {
 			}
 		},
 
-		// get owner part of issue. If short form, use the owner from argument.
+		// get repo part of issue. If short form, use the owner from argument.
 		getIssueRepo: function(issueRef, issueRepo) {
 			var issueRefSplit = issueRef.split("/");
 			if (issueRefSplit.length == 1) {
@@ -765,14 +765,19 @@ var yoda = (function() {
 		
 		// get owner from url
 		getUrlOwner: function(url) {
-			return (url.split("/").slice(-2)[0]);
+			return (url.split("/").slice(-4)[0]);
 		},
 		
 		// get repo from url
 		getUrlRepo: function(url) {
-			return (url.split("/").slice(-1)[0]);
+			return (url.split("/").slice(-3)[0]);
 		},
 		
+		// get issue_number from url
+		getUrlNumber: function(url) {
+			return (url.split("/").slice(-1)[0]);
+		},
+
 		getRepoFromMilestoneUrl: function(url) {
 			return (url.split("/").slice(-3)[0]);
 		},

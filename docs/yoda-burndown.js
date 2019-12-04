@@ -220,6 +220,75 @@ function saveTableToCSV() {
 
 //---------------------------------------
 
+// SORT ISSUES SMARTLY, taking into account possible "ObiWan" parent
+// Go by current order. For each issue x
+// Determine of there are children (anywhere in the list, could be earlier) of the current issue. If so, move them as x+1, x+2, ....
+// Two problems: 1) This will not sort in one iteration if multiple levels (e.g. Epic->Enhancement->SubTask), 2) could loop potentially
+// Ref 1), we can run 2-3 iterations, no bigs deal. For looping, need some form of gap-stop
+
+
+function moveIssue(issues, from, to) {
+	issues.splice(to, 0, issues.splice(from, 1)[0]);
+};
+
+function issueCompare(a, b) {
+	if (a.repository_url == b.repository_url) {
+		return (a.number - b.number); 
+	}
+	if (a.repository_url > b.repository_url) {
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
+// Main helper function. Is issue1 a parent of issue2?
+function isParentOf(issue1, issue2) {
+	var owner1 = yoda.getUrlOwner(issue1.url); 
+	var repo1 = yoda.getUrlRepo(issue1.url);
+	var owner2 = yoda.getUrlOwner(issue2.url); 
+	var repo2 = yoda.getUrlRepo(issue2.url);
+	var number1 = yoda.getUrlNumber(issue1.url);
+	var number2 = yoda.getUrlNumber(issue2.url);
+	
+	var refOption1 = "> partof " + owner1 + "/" + repo1 + "#" + number1 +" ";
+	var refOption2 = "> partof #" + number1 + " ";
+	
+	if ((issue2.body.indexOf(refOption1) != -1) ||
+		((owner1 = owner2) && (repo1 = repo2) && issue2.body.indexOf(refOption2) != -1)) 
+			return true;
+	
+	return false;
+}
+
+// Iteration to sort
+function sortIteration(issues, depth) {
+	if (depth > 20)
+		return;
+	for (var i = 0; i < issues.length; i++) {
+		for (var j = issues.length - 1; j >= 0; j--) {
+			if (i == j)
+				continue;
+			
+			if (isParentOf(issues[i], issues[j]) && issues[j].indent == undefined) {
+				issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
+				console.log("Moving issue " + issues[j].url + " to " + (i+1));
+				moveIssue(issues, j, i + 1);
+				sortIteration(issues, depth + 1);
+				return;
+			}
+		}
+	}
+}
+
+function sortTable(issues) {
+	// First sort by repository, number
+	// Sort by repository, number
+	issues.sort(issueCompare);
+	
+	sortIteration(issues);
+}
+
 function makeTable(issues) {
 	if ($('#showclosed').is(":checked")) {
 		var showClosed = true;
@@ -232,17 +301,8 @@ function makeTable(issues) {
 	// Filter out pull requests
 	yoda.filterPullRequests(issues);
 	
-	// Sort by repository, number
-	issues.sort(function(a,b) {
-		if (a.repository_url == b.repository_url) {
-			return (a.number - b.number); 
-		}
-		if (a.repository_url > b.repository_url) {
-			return 1;
-		} else {
-			return -1;
-		}
-	});
+	sortTable(issues);
+	
 	var tentativeLabel = $("#tentative").val();
 	var inprogressLabel = $("#inprogress").val();
 	var notcodefreezeLabel = $("#notcodefreeze").val();
@@ -425,7 +485,10 @@ function makeTable(issues) {
 		}
 		
 		cell = row.insertCell();
-		cell.innerHTML = issues[i].title;
+		if (issues[i].indent != undefined)
+			cell.innerHTML = issues[i].indent + issues[i].title;
+		else
+			cell.innerHTML = issues[i].title;
 
 		// # of issues
 		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalIssues", 1, issues[i]);
