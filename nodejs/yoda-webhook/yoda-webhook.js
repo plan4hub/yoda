@@ -6,7 +6,6 @@ configuration.parseOptions();
 const log4js = require('log4js');
 var logger = log4js.getLogger();
 
-
 const yodaRefModule = require('./issue-references.js');
 const yodaAppModule = require('./github-app.js');
 
@@ -34,7 +33,7 @@ if (configuration.getOption('url') != undefined) {
 	var source;
 	if (configuration.getOption('webhookproxy') != undefined) {
 		logger.debug('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
-		source = new EventSource(configuration.getOption('webhookproxy')); //, {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
+		source = new EventSource(configuration.getOption('webhookproxy')); // ,  {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'}); // ); //
 		source.onmessage = (event) => {
 			logger.trace("Event received.");
 			const webhookEvent = JSON.parse(event.data)

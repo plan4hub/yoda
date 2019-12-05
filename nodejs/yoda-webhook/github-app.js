@@ -1,4 +1,4 @@
-module.exports = {checkEvent, init, getToken};
+module.exports = {checkEvent, init, authorize};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -38,11 +38,11 @@ function checkEvent(id, name, payload) {
 	var issueAction = payload.action;
 
 	logger.info("Checking installation event (" + issueAction + ") for installation id " + payload.installation.id);
-	logger.info("Access token url: " + payload.installation.access_tokens_url);
+	logger.info(payload); // This is too important to keep at debug :-)
 }
 
 // Function to get an access token
-function getToken(payload) {
+function authorize(payload) {
 	return new Promise((resolve, reject) => {
 		if (payload.installation == undefined || payload.installation.id == undefined) {
 			logger.error("Received non GitHub APP event while running in App mode. Payload is:");

@@ -5,12 +5,14 @@ var logger = log4js.getLogger();
 
 const configuration = require('./configuration.js');
 const yoda = require('./yoda-utils.js');
+const yodaAppModule = require('./github-app.js');
 
 const Octokit = require('@octokit/rest');
 
 
+
 function authorizeUser() {
-//	Set-up authentication
+	// Set-up authentication
 	var authString = "token " + configuration.getOption('password');
 	octokit = new Octokit({
 		userAgent: 'yoda-webhook',
@@ -18,9 +20,17 @@ function authorizeUser() {
 		log: logger,
 		auth: authString
 	});
-	return octokit;
 }
 
+function authorize(payload) {
+	if (configuration.getOption("app-mode")) {
+		return yodaAppModule.authorize(payload);
+	} else {
+		return new Promise((resolve, reject) => {
+			resolve(authorizeUser());
+		});
+	}
+}
 
 //getChildren function which will either get just from body or - if there is a "> issuesearch" clause do a search. Will return a promise.
 function getChildren(octokit, ownRef, body) {
@@ -398,54 +408,54 @@ function checkEvent(id, name, payload) {
 		return;
 	} 
 	
-	// TODO: Authorize
-	octokit = authorizeUser();
+	// Authorize (user or GitHub App mode, then continue)
+	authorize(payload).then((octokit) => {
+		// Possible actions are: assigned, closed, deleted, demilestoned, edited, labeled, locked, milestoned, opened, pinned, reopened, transferred, unassigned, unlabeled, unlocked, unpinned
+		// We will be potentially interested in any of them, just to make sure that we touch issues as and when appropriate.
+		// For "edited" payload, we need to consider the old body text as well (in case an issue was removed either from "> parent" or "> subissues" section.
+		if (issueAction == "edited" && payload.changes != undefined && payload.changes.body != undefined) {
+			logger.trace("Found earlier body: " + payload.changes.body.from);
 
-	// Possible actions are: assigned, closed, deleted, demilestoned, edited, labeled, locked, milestoned, opened, pinned, reopened, transferred, unassigned, unlabeled, unlocked, unpinned
-	// We will be potentially interested in any of them, just to make sure that we touch issues as and when appropriate.
-	// For "edited" payload, we need to consider the old body text as well (in case an issue was removed either from "> parent" or "> subissues" section.
-	if (issueAction == "edited" && payload.changes != undefined && payload.changes.body != undefined) {
-		logger.trace("Found earlier body: " + payload.changes.body.from);
+			// Handle deletions...... 
+			var oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
+			var newParentRefs = yoda.getParentRefs(issueRef, payload.issue.body);
+			var deletedParentRefs = yoda.getRefsDiff(oldParentRefs, newParentRefs);
+			logger.debug("deletedParentRefs:");
+			logger.debug(deletedParentRefs);
 
-		// Handle deletions...... 
-		var oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
-		var newParentRefs = yoda.getParentRefs(issueRef, payload.issue.body);
-		var deletedParentRefs = yoda.getRefsDiff(oldParentRefs, newParentRefs);
-		logger.debug("deletedParentRefs:");
-		logger.debug(deletedParentRefs);
-		
-		// Call to handle deletion of parents.
-		processParentRefIssues(octokit, issueRef, deletedParentRefs, true).then(() => {
-			// Any child deletions? Old children directly from body.
-			var oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
-			
-			// Get new children from new body (or issuesearch withint body), depending.
-			getChildren(octokit, issueRef, payload.issue.body).then((newChildRefs) => {
-				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
-				logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
-				logger.debug(deletedChildRefs);
+			// Call to handle deletion of parents.
+			processParentRefIssues(octokit, issueRef, deletedParentRefs, true).then(() => {
+				// Any child deletions? Old children directly from body.
+				var oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
 
-				processIssueAsParent(octokit, issueRef, [], deletedChildRefs).then(() => {
-					logger.debug("Event - done with child deletions");
-					processParentRefIssues(octokit, issueRef, newParentRefs, false).then(() => {
-						logger.debug("Event - done with following parent refs.");
+				// Get new children from new body (or issuesearch withint body), depending.
+				getChildren(octokit, issueRef, payload.issue.body).then((newChildRefs) => {
+					var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
+					logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
+					logger.debug(deletedChildRefs);
+
+					processIssueAsParent(octokit, issueRef, [], deletedChildRefs).then(() => {
+						logger.debug("Event - done with child deletions");
+						processParentRefIssues(octokit, issueRef, newParentRefs, false).then(() => {
+							logger.debug("Event - done with following parent refs.");
+						});
+						// ... Question is if we really need to call also processIssue again.. This would be for its potential role as a normal parent... I think we need to.
 					});
-					// ... Question is if we really need to call also processIssue again.. This would be for its potential role as a normal parent... I think we need to.
+				}).catch((err) => {
+					logger.error(err);
 				});
-			}).catch((err) => {
-				logger.error(err);
 			});
-		});
-	} else {
-		// Not an edit event involving body. Normal processing.
-		processIssue(octokit, payload.issue);
-	}
+		} else {
+			// Not an edit event involving body. Normal processing.
+			processIssue(octokit, payload.issue);
+		}
+	});
 }
 
 //Entry point for directly checking references based on input url
 function processIssueUrl(url) {
 	octokit = authorizeUser();
-	
+
 	logger.info("Retriving issue from url: " + url);
 
 	// Get the full issue, then process
