@@ -47,8 +47,8 @@ function authorize(payload) {
 	
 	return new Promise((resolve, reject) => {
 		if (payload.installation == undefined || payload.installation.id == undefined) {
-			logger.error("Received non GitHub APP event while running in App mode. Payload is:");
-			logger.error(payload);
+			logger.debug("Received non GitHub APP event while running in App mode.");
+			logger.debug(payload);
 			reject("Received non GitHub APP event while running in App mode.");
 		}
 

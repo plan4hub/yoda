@@ -9,8 +9,6 @@ const yodaAppModule = require('./github-app.js');
 
 const Octokit = require('@octokit/rest');
 
-
-
 function authorizeUser() {
 	// Set-up authentication
 	var authString = "token " + configuration.getOption('password');
@@ -452,6 +450,8 @@ function checkEvent(id, name, payload) {
 			// Not an edit event involving body. Normal processing.
 			processIssue(octokit, payload.issue);
 		}
+	}).catch((err) => {
+		logger.error(err);
 	});
 }
 
