@@ -23,13 +23,13 @@ const optionDefinitions = [
 		name: 'user',
 		alias: 'u',
 		type: String,
-		description: 'The GitHub user name. Required. We are assuming that this is a non-standard user. Events received from this user are ignored.'
+		description: 'The GitHub user name. We are assuming that this is a non-standard user. Events received from this user are ignored. Required (if not running as GitHub App)'
 	},
 	{
 		name: 'password',
 		alias: 'p',
 		type: String,
-		description: 'The GitHub password (a GitHub personal access token). Required.'
+		description: 'The GitHub password (a GitHub personal access token). Required (if not running as GitHub App).'
 	},
 	{
 		name: 'port',
@@ -103,6 +103,27 @@ const optionDefinitions = [
 		defaultValue: '/var/tmp/yoda-webhook/yoda-webhook.log'
 	},
 	{
+		name: 'app-mode',
+		type: Boolean,
+		description: 'Run in GitHub App mode (i.e. using tokens retrieved from GitHub App Installation(s)).',
+		defaultValue: false
+	},
+	{
+		name: 'app-clientid',
+		type: String,
+		description: 'The App client id. Required when running in App mode.'
+	},
+	{
+		name: 'app-clientsecret',
+		type: String,
+		description: 'The App secret. Required when running in App mode.'
+	},
+	{
+		name: 'app-pemfile',
+		type: String,
+		description: 'Path to PEM permission for with private key. Required when running in App mode.'
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
@@ -140,13 +161,33 @@ function parseOptions() {
 
 		error = false;
 
-		if (options['user'] == undefined) {
+		if (options['app-mode'] && options['user'] == undefined) {
 			logger.error("No --user or -u given");
 			error = true;
 		}
 
-		if (options['password'] == undefined) {
+		if (!options['app-mode'] && options['password'] == undefined) {
 			logger.error("No --password or -p given");
+			error = true;
+		}
+		
+		if (options['app-mode'] && options['app-clientid'] == undefined) {
+			logger.error("No --app-clientid given");
+			error = true;
+		}
+		
+		if (options['app-mode'] && options['app-clientsecret'] == undefined) {
+			logger.error("No --app-clientsecret given");
+			error = true;
+		}
+
+		if (options['app-mode'] && options['app-pemfile'] == undefined) {
+			logger.error("No --app-pemfile given");
+			error = true;
+		}
+
+		if (options['app-mode'] && options['url'] != undefined) {
+			logger.error("--url not valid in GitHub App mode.");
 			error = true;
 		}
 

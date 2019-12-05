@@ -45,7 +45,7 @@ const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\n" +
 
 
 // init
-function initAppAuth() {
+function init() {
 }
 
 
