@@ -20,6 +20,7 @@ function authorizeUser() {
 		log: logger,
 		auth: authString
 	});
+	return octokit;
 }
 
 function authorize(payload) {
