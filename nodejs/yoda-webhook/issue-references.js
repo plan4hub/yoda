@@ -402,6 +402,7 @@ function checkEvent(id, name, payload) {
 	} 
 	
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.
+	// If running App mode, then we can identify based on presense of lack of [bot]
 	if (issueAction == 'edited' && 
 			((!configuration.getOption('app-mode') && payload.sender.login == configuration.getOption('user')) ||
 			 (configuration.getOption('app-mode') && payload.sender.login.indexOf("[bot]") != -1))) {
