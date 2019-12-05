@@ -402,8 +402,10 @@ function checkEvent(id, name, payload) {
 	} 
 	
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.
-	if (issueAction == 'edited' && payload.sender.login == configuration.getOption('user')) {
-		logger.info("  Disgarding event as looks like we (" + configuration.getOption('user') + ") initiated it.");
+	if (issueAction == 'edited' && 
+			((!configuration.getOption('app-mode') && payload.sender.login == configuration.getOption('user')) ||
+			 (configuration.getOption('app-mode') && payload.sender.login.indexOf("[bot]") != -1))) {
+		logger.info("  Disgarding event as looks like we initiated it.");
 		return;
 	} 
 	
