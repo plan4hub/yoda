@@ -80,7 +80,6 @@ function getChildren(octokit, ownRef, body) {
 function updatePartOfRefNotThere(octokit, childRef, parentIssue) {
 	logger.debug("updatePartOfRefNotThere: " + yoda.getFullRef(childRef) + " to indiciate that we cannot access " + yoda.getFullRef(parentIssue));
 	
-	
 	// We need to get the issue again...
 	octokit.issues.get(childRef).then((result) => {
 		var parentRefs = yoda.getParentRefs(parentIssue, result.data.body);
@@ -266,7 +265,7 @@ function processIssueAsParent(octokit, issueRef, includeRefs, excludeRefs) {
 			logger.debug(err);
 			// This is a bit tricky.... But overall, likely situation here is that we have been unable to read a > partof issue due to 
 			// it being a non-existing issue and/or insufficient access rights.
-			updatePartOfRefNotThere(includeRefs[0], issueRef);
+			updatePartOfRefNotThere(octokit, includeRefs[0], issueRef);
 			resolve();
 		});
 	});
@@ -362,9 +361,9 @@ function processIssue(octokit, issue) {
 		var parentRefs = yoda.getParentRefs(issueRef, issue.body);
 		logger.debug("Parent references: ");
 		logger.debug(parentRefs);
-		processParentRefIssues(issueRef, parentRefs, false).then(() => {
+		processParentRefIssues(octokit, issueRef, parentRefs, false).then(() => {
 			logger.debug("Done processing issues referenced by issue: " + issue.url);
-			processIssueAsParent(issueRef, [], []).then(() => {
+			processIssueAsParent(octokit, issueRef, [], []).then(() => {
 				logger.info("Done processing issue: " + issue.url);
 				resolve();
 			});

@@ -18,7 +18,7 @@ auth = null;
 function init() {
 	logger.info("Initializing GitHub App ...");
 
-	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));	
+	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));
 	
 	auth = createAppAuth({
 		  id: configuration.getOption('app-appid'),
@@ -43,6 +43,8 @@ function checkEvent(id, name, payload) {
 
 // Function to get an access token
 function authorize(payload) {
+	logger.info("Authorize (GitHub App mode).");
+	
 	return new Promise((resolve, reject) => {
 		if (payload.installation == undefined || payload.installation.id == undefined) {
 			logger.error("Received non GitHub APP event while running in App mode. Payload is:");
@@ -65,6 +67,7 @@ function authorize(payload) {
 
 			resolve(octokit);
 		}).catch((err) => {
+			logger.error(err);
 			reject(err);
 		});
 	});
