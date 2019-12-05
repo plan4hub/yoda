@@ -43,7 +43,7 @@ function checkEvent(id, name, payload) {
 
 // Function to get an access token
 function authorize(payload) {
-	logger.info("Authorize (GitHub App mode).");
+	logger.debug("Authorize (GitHub App mode).");
 	
 	return new Promise((resolve, reject) => {
 		if (payload.installation == undefined || payload.installation.id == undefined) {
@@ -53,7 +53,7 @@ function authorize(payload) {
 		}
 
 		auth({ type: "installation", installationId: payload.installation.id, permissions: "issues=write" }).then((authorization) => {
-			logger.info(authorization);
+			logger.debug(authorization);
 
 			// Let's try to use our new token... just for fun...
 			//Set-up authentication
