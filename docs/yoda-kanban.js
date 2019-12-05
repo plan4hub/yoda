@@ -231,7 +231,7 @@ function createCard(issue) {
 	}
 	card.append(cardRef);
 	
-	var repo = yoda.getUrlRepo(issue.repository_url);
+	var repo = yoda.getUrlRepo(issue.url);
 
 	if (issue.assignees.length > 0) {
 		var assignText = "";
