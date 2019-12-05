@@ -33,8 +33,7 @@ if (configuration.getOption('url') != undefined) {
 	const EventSource = require('eventsource');
 	var source;
 	if (configuration.getOption('webhookproxy') != undefined) {
-		logger.info('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
-//		source = new EventSource(configuration.getOption('webhookproxy'), {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
+		logger.debug('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
 		source = new EventSource(configuration.getOption('webhookproxy')); //, {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'});
 		source.onmessage = (event) => {
 			logger.trace("Event received.");
@@ -53,14 +52,13 @@ if (configuration.getOption('url') != undefined) {
 		yodaRefModule.checkEvent(id, name, payload);
 	});
 
-	//	Register for GitHub App events
-	webhooks.on('installation', ({id, name, payload}) => {
-		yodaAppModule.checkEvent(id, name, payload);
-	});
+	//	If we are running in GitHub App mode, let's listen as well for installation events. They are interesting....
+	if (configuration.getOption('app-mode')) {
+		webhooks.on('installation', ({id, name, payload}) => {
+			yodaAppModule.checkEvent(id, name, payload);
+		});
+	}
 
-	yodaAppModule.init();
-	
-	
 	//	Start the server. Can consider express if better than http 
 	const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
 	logger.trace(server);
@@ -71,5 +69,9 @@ if (configuration.getOption('url') != undefined) {
 		server.close(function() {process.exit(0)});
 	});
 
-	logger.info("Server running. Accepting connections on port: " + configuration.getOption('port'));
-}	
+	if (configuration.getOption('webhookproxy') == undefined) {
+		logger.info("Server running. Accepting connections on port: " + configuration.getOption('port'));
+	} else {
+		logger.info("Server running. Accepting via webhook proxy at: " + configuration.getOption('webhookproxy'));
+	}
+}
