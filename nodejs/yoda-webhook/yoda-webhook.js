@@ -10,6 +10,11 @@ var logger = log4js.getLogger();
 const yodaRefModule = require('./issue-references.js');
 const yodaAppModule = require('./github-app.js');
 
+// Run as GitHub App?
+if (configuration.getOption("app-mode")) {
+	yodaAppModule.init();
+}
+
 // Are we being asked to process just a single issue. If so, no need for server stuff.
 if (configuration.getOption('url') != undefined) {
 	logger.info("Processing url: " + configuration.getOption('url'));

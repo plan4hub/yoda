@@ -5,11 +5,18 @@ var logger = log4js.getLogger();
 
 const configuration = require('./configuration.js');
 
+var fs = require('fs');
+
+
+
 const Octokit = require('@octokit/rest');
+
 
 
 const { request } = require("@octokit/request");
 const { createAppAuth } = require('@octokit/auth-app');
+
+
 
 
 var auth = null;
@@ -42,10 +49,24 @@ const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\n" +
 "1BFAevJnXAlY+60Uk+QQg/3opXRRkULeaFBJQ/4cBv+Cxj3EVcN0\n" +
 "-----END RSA PRIVATE KEY-----\n";
 
-
+auth = null;
 
 // init
 function init() {
+	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));	
+	
+	auth = createAppAuth({
+		  id: configuration.getOption('app-appid'),
+		  privateKey: pem,
+		  clientId: configuration.getOption('app-clientid'),
+		  clientSecret: configuration.getOption('app-clientsecret'),
+		  request: request.defaults({
+			  baseUrl: configuration.getOption('baseurl')
+		  })  
+	});
+	
+	logger.debug(auth);
+	
 }
 
 
@@ -61,17 +82,6 @@ function checkEvent(id, name, payload) {
 	
 	logger.info("Initializing..");
 	
-	const auth = createAppAuth({
-		  id: 34,
-		  privateKey: PRIVATE_KEY,
-		  clientId: "Iv1.8fa5264d8674a03a",
-		  clientSecret: "b299affb833c8960a745f4e5a4d61d4b2ab8540a",
-		  request: request.defaults({
-			  baseUrl: configuration.getOption('baseurl')
-		  })  
-	});
-	
-	logger.info(auth);
 	
 	// Retrieve installation access token
 

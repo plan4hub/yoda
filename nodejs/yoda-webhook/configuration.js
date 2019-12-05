@@ -109,6 +109,11 @@ const optionDefinitions = [
 		defaultValue: false
 	},
 	{
+		name: 'app-appid',
+		type: String,
+		description: 'The App app id. Required when running in App mode.'
+	},
+	{
 		name: 'app-clientid',
 		type: String,
 		description: 'The App client id. Required when running in App mode.'
@@ -161,13 +166,18 @@ function parseOptions() {
 
 		error = false;
 
-		if (options['app-mode'] && options['user'] == undefined) {
+		if (!options['app-mode'] && options['user'] == undefined) {
 			logger.error("No --user or -u given");
 			error = true;
 		}
 
 		if (!options['app-mode'] && options['password'] == undefined) {
 			logger.error("No --password or -p given");
+			error = true;
+		}
+		
+		if (options['app-mode'] && options['app-appid'] == undefined) {
+			logger.error("No --app-appid given");
 			error = true;
 		}
 		
