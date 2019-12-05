@@ -42,58 +42,30 @@ function checkEvent(id, name, payload) {
 }
 
 // Function to get an access token
-function getToken(id, name, payload) {
+function getToken(payload) {
+	return new Promise((resolve, reject) => {
+		if (payload.installation == undefined || payload.installation.id == undefined) {
+			logger.error("Received non GitHub APP event while running in App mode. Payload is:");
+			logger.error(payload);
+			reject("Received non GitHub APP event while running in App mode.");
+		}
 
-	// Let's try it.., i.e. get an access token...
-	
-	
-	
-	// Retrieve installation access token
+		auth({ type: "installation", installationId: payload.installation.id, permissions: "issues=write" }).then((authorization) => {
+			logger.info(authorization);
 
-	
-	var jens = auth({ type: "installation", installationId: payload.installation.id, permissions: "issues=write" }).then((authorization) => {
-		logger.info(authorization);
-		
-		// Let's try to use our new token... just for fun...
-		//Set-up authentication
-		var authString = "token " + authorization.token;
-		const octokit = new Octokit({
-			userAgent: 'yoda-webhook',
-			baseUrl: configuration.getOption('baseurl'),
-			log: logger,
-			auth: authString
-		});
-		
-		issueRef = { owner: "jens-markussen", repo: "peter", issue_number: 6};
-		octokit.issues.get(issueRef).then((result) => {
-			logger.trace(result);
-			
-			// Ok, let's go all in and CHANGE the body. Adding a line at start
-			issueRef.body = "More data: " + result.data.body;
-			octokit.issues.update(issueRef).then((upd) => {
-				logger.info("YES");
-			}).catch((err) => {
-				logger.error("OH NO");
+			// Let's try to use our new token... just for fun...
+			//Set-up authentication
+			var authString = "token " + authorization.token;
+			octokit = new Octokit({
+				userAgent: 'yoda-webhook',
+				baseUrl: configuration.getOption('baseurl'),
+				log: logger,
+				auth: authString
 			});
 
+			resolve(octokit);
 		}).catch((err) => {
-			logger.error(err);
+			reject(err);
 		});
-		
-
-		
-	}).catch((err) => {
-		logger.error(err);
 	});
-
-	// resolves with
-	// {
-	//   type: 'token',
-	//   tokenType: 'installation',
-	//   token: 'token123',
-	//   installationId: 123,
-	//   expiresAt: '2018-07-07T00:59:00.000Z'
-	// }	
-	
-//	logger.trace(payload);
 }

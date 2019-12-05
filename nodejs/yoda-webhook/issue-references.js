@@ -8,18 +8,22 @@ const yoda = require('./yoda-utils.js');
 
 const Octokit = require('@octokit/rest');
 
-//Set-up authentication
-var authString = "token " + configuration.getOption('password');
-const octokit = new Octokit({
-	userAgent: 'yoda-webhook',
-	baseUrl: configuration.getOption('baseurl'),
-	log: logger,
-	auth: authString
-});
+
+function authorizeUser() {
+//	Set-up authentication
+	var authString = "token " + configuration.getOption('password');
+	octokit = new Octokit({
+		userAgent: 'yoda-webhook',
+		baseUrl: configuration.getOption('baseurl'),
+		log: logger,
+		auth: authString
+	});
+	return octokit;
+}
 
 
 //getChildren function which will either get just from body or - if there is a "> issuesearch" clause do a search. Will return a promise.
-function getChildren(ownRef, body) {
+function getChildren(octokit, ownRef, body) {
 	return new Promise((resolve, reject) => {
 		var children = yoda.getChildrenFromBody(ownRef, body);
 		
@@ -63,7 +67,7 @@ function getChildren(ownRef, body) {
 
 
 // Special case. Update child issue to indicate that the parentIssue indicate cannot be read... 
-function updatePartOfRefNotThere(childRef, parentIssue) {
+function updatePartOfRefNotThere(octokit, childRef, parentIssue) {
 	logger.debug("updatePartOfRefNotThere: " + yoda.getFullRef(childRef) + " to indiciate that we cannot access " + yoda.getFullRef(parentIssue));
 	
 	
@@ -92,7 +96,7 @@ function updatePartOfRefNotThere(childRef, parentIssue) {
 // Update a chidl issue (as per childRef), ensuring correct pointer to parent issue 
 // as given by parentIssue. childIssue contains the full (current) issue.
 //Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
-function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
+function updatePartOfRef(octokit, childRef, childIssue, parentIssue, includeOrExclude) {
 	if (includeOrExclude)
 		logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to ensure pointing to " + parentIssue.url);
 	else
@@ -166,7 +170,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 }
 
 // Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
-function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOrExclude) {
+function readSingleChildAndUpdatePartOf(octokit, issueRefs, index, parentIssue, includeOrExclude) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Reading issue # " + index);
 		// Let's see about getting the issue.
@@ -175,7 +179,7 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOr
 			issueRefs[index].issue = result.data;
 			
 			// Check/update > partof. NOte. we don't need to wait for the result here.
-			updatePartOfRef(issueRefs[index], result.data, parentIssue, includeOrExclude);
+			updatePartOfRef(octokit, issueRefs[index], result.data, parentIssue, includeOrExclude);
 
 			resolve();
 		}).catch((err) => {
@@ -189,16 +193,16 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOr
 
 //Helper function to query a list of issues, as given by their reference. The issue data will be populated in the issues field.
 //If there is a problem, issue will be set to null, and a warning logger.
-function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue) {
+function readChildIssuesAndUpdatePartOf(octokit, childRefs, excludeChildRefs, parentIssue) {
 	return new Promise((resolve, reject) => {
 		var childPromises = [];
 		for (var i = 0; i < childRefs.issueRefs.length; i++) {
 			if (yoda.isRef(childRefs.issueRefs[i]))
-				childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
+				childPromises.push(readSingleChildAndUpdatePartOf(octokit, childRefs.issueRefs, i, parentIssue, true));
 		}
 		for (var i = 0; i < excludeChildRefs.length; i++) {
 			if (yoda.isRef(excludeChildRefs[i]))
-				childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
+				childPromises.push(readSingleChildAndUpdatePartOf(octokit, excludeChildRefs, i, parentIssue, false));
 		}
 
 		// Wait for all children to complete reading and updating.
@@ -214,14 +218,14 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 //Furthermore, two lists can be supplied. A list of issues (by reference) that must present in the > contains list , and
 //a list of issues by references that should NOT be present in same list (either because a > parent has been removed, or because
 //one or more issues have been removed from the > subissues list.
-function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
+function processIssueAsParent(octokit, issueRef, includeRefs, excludeRefs) {
 	return new Promise((resolve, reject) => {
 		logger.debug("Processing issue as parent: " + yoda.getFullRef(issueRef));
 		
 		// We will get the issue again to make sure we have a current picture. // TODO: Is this really always necessary. Need to analyze ... 
 		octokit.issues.get(issueRef).then((response) => {
 			logger.trace(response);
-			getChildren(issueRef, response.data.body).then((children) => {
+			getChildren(octokit, issueRef, response.data.body).then((children) => {
 				logger.debug("Child references:");
 				logger.debug(children);
 
@@ -233,13 +237,13 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 				// Instead we pass them on to the next step...
 
 				// Now, lets read all issues that we are referring to... 
-				readChildIssuesAndUpdatePartOf(children, excludeRefs, response.data).then((updatedChildren) => {
+				readChildIssuesAndUpdatePartOf(octokit, children, excludeRefs, response.data).then((updatedChildren) => {
 					logger.trace("Done reading and updating child issues");
 					logger.trace(updatedChildren);
 
 					// Now we are ready to update the issue itself
 					// Note. Not waiting to complete.
-					updateParentIssue(issueRef, updatedChildren, response.data); 
+					updateParentIssue(octokit, issueRef, updatedChildren, response.data); 
 
 					resolve();
 				});
@@ -260,7 +264,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 
 //Here we'll update the a parent issue and it's children.
 //ChildRefs is a structure containing the list of issue.
-function updateParentIssue(issueRef, children, oldIssue) {
+function updateParentIssue(octokit, issueRef, children, oldIssue) {
 	logger.debug("updateParentIssue: " + yoda.getFullRef(issueRef) + " # of children: " + children.issueRefs.length);
 	logger.debug(children);
 //	logger.trace(oldIssue);
@@ -315,21 +319,21 @@ function updateParentIssue(issueRef, children, oldIssue) {
 //Function/Loop to update structure. exclude boolean indicates if calling issue (issueRef) must be INCLUDED or EXCLUDED from the 
 //child list (> contains list) into parent.
 // Note: This is one way to use promises and sequentially execute list. TODO: Actually, this could be run in parallel...
-function processParentRefIssues(issueRef, pList, exclude, index) {
+function processParentRefIssues(octokit, issueRef, pList, exclude, index) {
 	return new Promise(function(resolve, reject) {
 		if (index == undefined)
 			index = 0; // Let's get going...
 
 		if (index < pList.length) {
 			if (exclude) { 
-				processIssueAsParent(pList[index], [], [issueRef]).then(() => {
-					processParentRefIssues(issueRef, pList, exclude, index + 1).then(() => {
+				processIssueAsParent(octokit, pList[index], [], [issueRef]).then(() => {
+					processParentRefIssues(octokit, issueRef, pList, exclude, index + 1).then(() => {
 						resolve();
 					});
 				});
 			}  else
-				processIssueAsParent(pList[index], [issueRef], []).then(() => {
-					processParentRefIssues(issueRef, pList, exclude, index + 1).then(() => {
+				processIssueAsParent(octokit, pList[index], [issueRef], []).then(() => {
+					processParentRefIssues(octokit, issueRef, pList, exclude, index + 1).then(() => {
 						resolve();
 					});
 				});
@@ -341,7 +345,7 @@ function processParentRefIssues(issueRef, pList, exclude, index) {
 
 //This is the entry point for checking issues.
 //The issue is assumed to be loaded and available in issue, coming either from a get call or the (new) issue part of an event.
-function processIssue(issue) {
+function processIssue(octokit, issue) {
 	return new Promise(function(resolve, reject) {
 		var issueRef = yoda.getRefFromUrl(issue.url);
 		// First handle issue as a child issue, i.e. examining any "> partof" lines, and doing appropriate updates to the referred parent issues.
@@ -393,6 +397,9 @@ function checkEvent(id, name, payload) {
 		logger.info("  Disgarding event as looks like we (" + configuration.getOption('user') + ") initiated it.");
 		return;
 	} 
+	
+	// TODO: Authorize
+	octokit = authorizeUser();
 
 	// Possible actions are: assigned, closed, deleted, demilestoned, edited, labeled, locked, milestoned, opened, pinned, reopened, transferred, unassigned, unlabeled, unlocked, unpinned
 	// We will be potentially interested in any of them, just to make sure that we touch issues as and when appropriate.
@@ -408,19 +415,19 @@ function checkEvent(id, name, payload) {
 		logger.debug(deletedParentRefs);
 		
 		// Call to handle deletion of parents.
-		processParentRefIssues(issueRef, deletedParentRefs, true).then(() => {
+		processParentRefIssues(octokit, issueRef, deletedParentRefs, true).then(() => {
 			// Any child deletions? Old children directly from body.
 			var oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
 			
 			// Get new children from new body (or issuesearch withint body), depending.
-			getChildren(issueRef, payload.issue.body).then((newChildRefs) => {
+			getChildren(octokit, issueRef, payload.issue.body).then((newChildRefs) => {
 				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
 				logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
 				logger.debug(deletedChildRefs);
 
-				processIssueAsParent(issueRef, [], deletedChildRefs).then(() => {
+				processIssueAsParent(octokit, issueRef, [], deletedChildRefs).then(() => {
 					logger.debug("Event - done with child deletions");
-					processParentRefIssues(issueRef, newParentRefs, false).then(() => {
+					processParentRefIssues(octokit, issueRef, newParentRefs, false).then(() => {
 						logger.debug("Event - done with following parent refs.");
 					});
 					// ... Question is if we really need to call also processIssue again.. This would be for its potential role as a normal parent... I think we need to.
@@ -431,19 +438,21 @@ function checkEvent(id, name, payload) {
 		});
 	} else {
 		// Not an edit event involving body. Normal processing.
-		processIssue(payload.issue);
+		processIssue(octokit, payload.issue);
 	}
 }
 
 //Entry point for directly checking references based on input url
 function processIssueUrl(url) {
+	octokit = authorizeUser();
+	
 	logger.info("Retriving issue from url: " + url);
 
 	// Get the full issue, then process
 	var issueRef = yoda.getRefFromUrl(url);
 	octokit.issues.get(issueRef).then((result) => {
 		logger.trace(result);
-		processIssue(result.data).then(() => {
+		processIssue(octokit, result.data).then(() => {
 			logger.info("Succesfully processes: " + url);
 		});
 	}).catch((err) => {
