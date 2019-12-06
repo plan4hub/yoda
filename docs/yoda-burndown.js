@@ -251,8 +251,10 @@ function isParentOf(issue1, issue2) {
 	var refOption2 = "> partof #" + number1 + " ";
 	
 	if ((issue2.body.indexOf(refOption1) != -1) ||
-		((owner1 == owner2) && (repo1 == repo2) && issue2.body.indexOf(refOption2) != -1)) 
-			return true;
+		((owner1 == owner2) && (repo1 == repo2) && issue2.body.indexOf(refOption2) != -1)) {
+//		console.log(issue1.url + " is a parent of " + issue2.url);
+		return true;
+	} 
 	
 	return false;
 }
@@ -272,12 +274,13 @@ function sortParent(issues) {
 	}
 
 	// Push child issues until the end
-	for (var i = 0; i < issues.length; i++) {
+	for (var i = issues.length - 1; i >= 0; i--) {
 		if (issues[i].parent != undefined) {
+//			console.log("moving " + issues[i].url + " to the end");
 			issues.splice(issues.length, 0, issues.splice(i, 1)[0]);
-		}
+		} 
 	}
-
+	
 	for (var i = 0; i < issues.length; i++) {
 		if (issues[i].children == undefined && issues[i].parent == undefined) {
 			// Neither a parent nor a child
@@ -297,7 +300,7 @@ function sortParent(issues) {
 					continue;
 				}
 				if (j < i) {
-					console.log("Child index " + j + " too low. ignoring");
+					console.log("Child index " + j + " too low. ignoring. issue is: " + issues[j].url);
 					continue;
 				}
 
