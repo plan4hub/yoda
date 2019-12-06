@@ -270,53 +270,43 @@ function sortParent(issues) {
 			}
 		}
 	}
-	
-//	for (var i = 0; i < issues.length; i++) {
-//		if (issues[i].children != undefined) {
-//			console.log("Parent at " + i + " url: " + issues[i].url);
-//			console.log(issues[i].children);
-//		}
-//	}
 
-	var newIssues = []; 
-	
-	var loopProt = 0;
-	while (issues.length > 0 && loopProt < 200) {
-		loopProt++;
-		for (var i = 0; i < issues.length; i++) {
-			if (issues[i].children == undefined && issues[i].parent == undefined) {
-				// Neither a parent nor a child
-				console.log("Issue " + issues[i].url + " is neither a child or a parent");
-				newIssues.push(issues.splice(i, 1));
-				continue;
-			}
-			
-			if (issues[i].children != undefined) {
-				console.log("Issue " + issues[i].url + " is a parent");
-				var childList = JSON.parse(JSON.stringify(issues[i].children));
-				console.log(childList);
-				newIssues.push(issues.splice(i, 1));
-				for (var k = 0; k < childList.length; k++) {
-					// Where in the list is the issue?
-					var j = issues.findIndex(function(element) {
-						return (element.url == childList[k]);
-					});
-					if (j == -1) {
-						console.log("Cannot find child " + childList[k]);
-						continue;
-					}
-					
-					console.log("  Issue " + issues[j].url + " is a child inserted here");
-					issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
-					newIssues.push(issues.splice(j, 1));
+	// Push child issues until the end
+	for (var i = 0; i < issues.length; i++) {
+		if (issues[i].parent != undefined) {
+			issues.splice(issues.length, 0, issues.splice(i, 1)[0]);
+		}
+	}
+
+	for (var i = 0; i < issues.length; i++) {
+		if (issues[i].children == undefined && issues[i].parent == undefined) {
+			// Neither a parent nor a child
+			console.log("Issue " + issues[i].url + " is neither a child nor a parent - all good.");
+			continue;
+		}
+
+		if (issues[i].children != undefined) {
+			console.log("Issue " + issues[i].url + " is a parent");
+			for (var k = issues[i].children.length - 1; k >= 0; k--) {
+				// Where in the list is the issue?
+				var j = issues.findIndex(function(element) {
+					return (element.url == issues[i].children[k]);
+				});
+				if (j == -1) {
+					console.log("Cannot find child " + childList[k]);
+					continue;
 				}
-				continue;
+				if (j < i) {
+					console.log("Child index " + j + " too low. ignoring");
+					continue;
+				}
+
+				console.log("  Issue " + issues[j].url + " is a child inserted here. j = " + j);
+				issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
+				issues.splice((i + 1), 0, issues.splice(j, 1)[0]);
 			}
 		}
 	}
-	console.log("loopProt " + loopProt);
-	console.log("length of newIssue: " + newIssues.length);
-	return newIssues;
 }
 
 function sortTable(issues) {
@@ -324,7 +314,7 @@ function sortTable(issues) {
 	// Sort by repository, number
 	issues.sort(issueCompare);
 	
-	// sortParent(issues);
+	sortParent(issues);
 }
 
 function makeTable(issues) {
