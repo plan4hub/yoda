@@ -251,7 +251,7 @@ function isParentOf(issue1, issue2) {
 	var refOption2 = "> partof #" + number1 + " ";
 	
 	if ((issue2.body.indexOf(refOption1) != -1) ||
-		((owner1 = owner2) && (repo1 = repo2) && issue2.body.indexOf(refOption2) != -1)) 
+		((owner1 == owner2) && (repo1 == repo2) && issue2.body.indexOf(refOption2) != -1)) 
 			return true;
 	
 	return false;
