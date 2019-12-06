@@ -227,10 +227,6 @@ function saveTableToCSV() {
 // Ref 1), we can run 2-3 iterations, no bigs deal. For looping, need some form of gap-stop
 
 
-function moveIssue(issues, from, to) {
-	issues.splice(to, 0, issues.splice(from, 1)[0]);
-};
-
 function issueCompare(a, b) {
 	if (a.repository_url == b.repository_url) {
 		return (a.number - b.number); 
@@ -262,23 +258,65 @@ function isParentOf(issue1, issue2) {
 }
 
 // Iteration to sort
-function sortIteration(issues, depth) {
-	if (depth > 20)
-		return;
+function sortParent(issues) {
+	// First let's identify children.
 	for (var i = 0; i < issues.length; i++) {
-		for (var j = issues.length - 1; j >= 0; j--) {
-			if (i == j)
-				continue;
-			
-			if (isParentOf(issues[i], issues[j]) && issues[j].indent == undefined) {
-				issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
-				console.log("Moving issue " + issues[j].url + " to " + (i+1));
-				moveIssue(issues, j, i + 1);
-				sortIteration(issues, depth + 1);
-				return;
+		for (var j = 0; j < issues.length; j++) {
+			if ((i != j) && isParentOf(issues[i], issues[j])) {
+				if (issues[i].children == undefined)
+					issues[i].children = [];
+				issues[i].children.push(issues[j].url)
+				issues[j].parent = issues[i].url;
 			}
 		}
 	}
+	
+//	for (var i = 0; i < issues.length; i++) {
+//		if (issues[i].children != undefined) {
+//			console.log("Parent at " + i + " url: " + issues[i].url);
+//			console.log(issues[i].children);
+//		}
+//	}
+
+	var newIssues = []; 
+	
+	var loopProt = 0;
+	while (issues.length > 0 && loopProt < 200) {
+		loopProt++;
+		for (var i = 0; i < issues.length; i++) {
+			if (issues[i].children == undefined && issues[i].parent == undefined) {
+				// Neither a parent nor a child
+				console.log("Issue " + issues[i].url + " is neither a child or a parent");
+				newIssues.push(issues.splice(i, 1));
+				continue;
+			}
+			
+			if (issues[i].children != undefined) {
+				console.log("Issue " + issues[i].url + " is a parent");
+				var childList = JSON.parse(JSON.stringify(issues[i].children));
+				console.log(childList);
+				newIssues.push(issues.splice(i, 1));
+				for (var k = 0; k < childList.length; k++) {
+					// Where in the list is the issue?
+					var j = issues.findIndex(function(element) {
+						return (element.url == childList[k]);
+					});
+					if (j == -1) {
+						console.log("Cannot find child " + childList[k]);
+						continue;
+					}
+					
+					console.log("  Issue " + issues[j].url + " is a child inserted here");
+					issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
+					newIssues.push(issues.splice(j, 1));
+				}
+				continue;
+			}
+		}
+	}
+	console.log("loopProt " + loopProt);
+	console.log("length of newIssue: " + newIssues.length);
+	return newIssues;
 }
 
 function sortTable(issues) {
@@ -286,7 +324,7 @@ function sortTable(issues) {
 	// Sort by repository, number
 	issues.sort(issueCompare);
 	
-	sortIteration(issues);
+	// sortParent(issues);
 }
 
 function makeTable(issues) {
