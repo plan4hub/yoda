@@ -147,7 +147,7 @@ function parseRNMarkdown(markdown) {
 //Create a List node to based on the given issue.
 function formatIssueRN(issue) {
 	var rnFormat = $("#rnformat").val();
-	var repo = yoda.getUrlRepo(issue.repository_url);
+	var repo = yoda.getUrlRepo(issue.url);
 	
 	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
 		var newLine = "<br>";
