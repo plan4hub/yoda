@@ -180,7 +180,7 @@ function createChart() {
 	if (labelSplit == "repo") {
 		// This is a special situation. We will create a bar for each repo. Useful only when doing organization level graph.
 		for (i=0; i<issues.length; i++) {
-			var repo = yoda.getUrlRepo(issues[i].repository_url);
+			var repo = yoda.getUrlRepo(issues[i].url);
 			if (bars.indexOf(repo) == -1)
 				bars.push(repo);
 		}
@@ -320,7 +320,7 @@ function createChart() {
 			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
 			// This will cause an immediate match.
 			if (labelSplit == "repo") 
-				labelList = [{name: yoda.getUrlRepo(issues[i].repository_url)}];
+				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 			
 			// Log's look at the labels.
 			for (l = 0; l < labelList.length; l++) {
