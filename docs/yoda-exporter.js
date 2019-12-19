@@ -139,7 +139,7 @@ function exportIssues(issues) {
 				el["Owner"] = $("#owner").val();
 				break;
 			case "Repo":
-				el["Repo"] = yoda.getUrlRepo(issues[i].repository_url);
+				el["Repo"] = yoda.getUrlRepo(issues[i].url);
 				break;
 			case "Number":
 				el["Number"] = issues[i].number;

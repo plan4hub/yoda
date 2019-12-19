@@ -187,7 +187,7 @@ function buildIndex() {
 		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th width="18%" align="left">Labels</th><th width="17%" align="left">Milestone</th><th width="50%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
 			issue = globIssues[i];
-			var issueRepo = yoda.getUrlRepo(issue.repository_url);
+			var issueRepo = yoda.getUrlRepo(issue.url);
 			if (issueRepo != repoList[repInd])
 				continue; // Issue belongs to different repo;
 			indexHTML += '<tr class="indexrow">';
@@ -316,7 +316,7 @@ function formatIssue(issue, comments, events) {
 	console.log("formatIssue for: " + issue.url + ", no of comments: " + comments.length, ", no of events: " + events.length);
 	
 	// Let's prepare the issue HTML
-	var repo = yoda.getUrlRepo(issue.repository_url);
+	var repo = yoda.getUrlRepo(issue.url);
 	var title = repo + '#' + issue.number + ': ' + issue.title; 
 	var issueHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
 	issueHTML += '<link rel="stylesheet" type="text/css" href="../../css/issues.css"></head>';
@@ -446,7 +446,7 @@ function formatIssue(issue, comments, events) {
 
 //STEP 5: Add to ZIP FILE. Then to step 0.
 function writeToZip(issue, issueHTML) {
-	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.repository_url) + "/" + issue.number + ".html";
+	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.url) + "/" + issue.number + ".html";
 	issueZipRoot.file(fileName, issueHTML);
 	
 	noIssuesActive--;
