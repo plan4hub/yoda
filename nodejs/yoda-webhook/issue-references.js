@@ -297,9 +297,10 @@ function updateParentIssue(octokit, issueRef, children, oldIssue) {
 
 	logger.debug("BlockStart: " + blockStart + ", blockLength: " + blockLength);
 	
-	// Careful... we may not have an existing block!
+	// Careful... we may not have an existing block! Note, that the block created will NOT have a newline at the end, so in order to force
+	// a blank line, we add two newlines in this case.
 	if (blockStart == undefined || blockStart == -1) {
-		newBody = block + '\n' + oldIssue.body; 
+		newBody = block + '\n\n' + oldIssue.body; 
 		
 	} else {
 		newBody = oldIssue.body.slice(0, blockStart) + block + oldIssue.body.slice(blockStart + blockLength);		
