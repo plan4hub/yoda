@@ -33,7 +33,7 @@ function escapeRegExp(string) {
 var static_issueRef = "";
 function issueReferenceRegExp() {
 	if (static_issueRef == "")
-		static_issueRef = "((((.*/)?.*)?#[1-9][0-9]*)|(" + escapeRegExp(configuration.getOption('baseurlui')) + "[^\/]+\/[^\/]+\/issues\/[1-9][0-9]*))";
+		static_issueRef = "(((([^ ]*/)?[^ ]*)?#[1-9][0-9]*)|(" + escapeRegExp(configuration.getOption('baseurlui')) + "[^\/]+\/[^\/]+\/issues\/[1-9][0-9]*))";
 	
 	return static_issueRef;
 }
