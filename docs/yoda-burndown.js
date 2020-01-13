@@ -34,6 +34,7 @@ function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
+	params = addIfNotDefault(params, "labelfilter");	
 	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");	
@@ -1288,12 +1289,12 @@ function copy_text(element) {
 
 function startBurndown() {
 	console.log("Milestone based chart...");
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, burndown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addMilestoneFilter, burndown, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 function startTable() {
 	console.log("Milestone based table...");
-	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addMilestoneFilter, makeTable, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 //--------------

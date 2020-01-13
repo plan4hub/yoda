@@ -70,6 +70,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
+			<label>Label filter</label>
+			<input type="text" size="20" id="labelfilter" value="">
+			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
+		</div>
+
+		<div class="field">
 			<label>Tentative Label</label>
 			<input type="text" id="tentative" size="13" value="P - Tentative">
 			<span class="tooltip">Label indicating tentative/stretch issues</span>
@@ -82,20 +88,20 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Not Codefreeze Label</label>
+			<label>Not Codefreeze</label>
 			<input type="text" id="notcodefreeze" size="13" value="Q - NotCodeFreeze">
 			<span class="tooltip">Label indicating work is not needed for code freeze</span>
 		</div>
 		
 		<div class="field">
 			<label>Label subtotals</label>
-			<input type="text" id="labelsplit" size="20" value="^T[1-9] -">
+			<input type="text" id="labelsplit" size="13" value="^T[1-9] -">
 			<span class="tooltip">Regular expression for doing subtotals</span>
 		</div>
 		
 		<div class="field">
 			<label>Additional Data</label>
-			<input type="text" id="additionaldata" size="20" value="Severity,^S[1-4] -">
+			<input type="text" id="additionaldata" size="15" value="Severity,^S[1-4] -">
 			<span class="tooltip">Headline and label regular expression separated by comma (blank to skip)</span>
 		</div>
 		
@@ -199,6 +205,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#tentative", "tentative");
+		yoda.decodeUrlParam("#labelfilter", "labelfilter");
 		yoda.decodeUrlParam("#inprogress", "inprogress");
 		yoda.decodeUrlParam("#labelsplit", "labelsplit");
 		yoda.decodeUrlParam("#additionaldata", "additionaldata");
