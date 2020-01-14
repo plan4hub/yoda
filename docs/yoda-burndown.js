@@ -37,7 +37,8 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "labelfilter");	
 	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
-	params = addIfNotDefault(params, "inprogress");	
+	params = addIfNotDefault(params, "inprogress");
+	params = addIfNotDefault(params, "csvdelimiter");
 	if ($("#milestonelist").val() != "") {
 		params += "&milestone=" + $("#milestonelist").val(); 
 	}
@@ -208,7 +209,7 @@ function saveTableToCSV() {
 	config = {
 			quotes: false,
 			quoteChar: '"',
-			delimiter: ";",
+			delimiter: $("#csvdelimiter").val(),
 			header: true,
 			newline: "\r\n"
 		};
