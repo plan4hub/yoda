@@ -36,6 +36,7 @@ function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "splitlabels");
+	params = addIfNotDefault(params, "labelfilter");
 	params = addIfNotDefault(params, "splitother");
 	if ($("#milestonelist").val() != "") {
 		params += "&milestonelist=" + $("#milestonelist").val(); 
@@ -277,7 +278,7 @@ function addMilestone(issues) {
 function getMilestoneData(milestones, index) {
 	if (index < milestones.length) {
 		milestoneFilter = milestones[index];
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), "", "all", addMilestoneFilter, 
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addMilestoneFilter, 
 		function(res) {
 			addMilestone(res);
 			getMilestoneData(milestones, index+1);

@@ -97,6 +97,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<div class="frame">
 		<div class="field">
+			<label>Label filter</label>
+			<input type="text" size="30" id="labelfilter" value="">
+			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
+		</div>
+	
+		<div class="field">
 			<label>Split Story Point Labels</label>
 			<input type="text" size="30" id="splitlabels" value=""> <!--  value="T1 - Defect,T2 - Enhancement,T3 - Task"> -->
 			<span class="tooltip">Comma-separated list of labels to split Story Points by. Blank for no splitting</span>
@@ -134,6 +140,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		
+		yoda.decodeUrlParam("#labelfilter", "labelfilter");
 		yoda.decodeUrlParam("#splitlabels", "splitlabels");
 		yoda.decodeUrlParam("#splitother", "splitother");
 		
