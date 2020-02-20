@@ -122,9 +122,12 @@ function getFormat(formatArray, index) {
 
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
+	console.log(markdown);
 	var markdownUrl = yoda.getGithubUrl() + "markdown";
-	console.log("markdownUrl: " + markdownUrl);
+	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
+//	console.log("markdownUrl: " + markdownUrl);
 
+	
 	var urlData = {
 			"text": markdown
 	};
@@ -140,6 +143,7 @@ function parseRNMarkdown(markdown) {
 		complete: function(jqXHR, textStatus) { }
 	});
 	
+//	console.log(result);
 	return result;
 }
 
