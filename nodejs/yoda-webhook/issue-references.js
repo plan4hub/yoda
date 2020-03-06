@@ -410,6 +410,8 @@ function checkEvent(id, name, payload) {
 		return;
 	} 
 	
+	logger.debug("  Event is of interest. Proceeding with processing.");
+	
 	// Authorize (user or GitHub App mode, then continue)
 	authorize(payload).then((octokit) => {
 		// Possible actions are: assigned, closed, deleted, demilestoned, edited, labeled, locked, milestoned, opened, pinned, reopened, transferred, unassigned, unlabeled, unlocked, unpinned
