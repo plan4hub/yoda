@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, findAllRefIndex, makeIssuesUnique, noChildRefs, isRef};
+module.exports = {getMatchingLabels, labelMatch, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, findAllRefIndex, makeIssuesUnique, noChildRefs, isRef};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -197,6 +197,12 @@ function getMatchingLabels(issue, labelRegExp) {
 		result = "[" + result + "]";
 	return result;
 }
+
+function labelMatch(label, labelRegExp) {
+	var reg = new RegExp(labelRegExp);
+	return (label.match(reg));
+}
+
 
 // Count number of childReferences in list
 function noChildRefs(refList) {
