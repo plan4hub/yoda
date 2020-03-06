@@ -199,8 +199,11 @@ function getMatchingLabels(issue, labelRegExp) {
 }
 
 function labelMatch(labelName, labelRegExp) {
+	
 	var reg = new RegExp(labelRegExp);
-	return (labelName.match(reg) != null);
+	var match = labelName.match(reg) != null;
+	logger.trace(labelName, labelRegExp, match);
+	return match;
 }
 
 
