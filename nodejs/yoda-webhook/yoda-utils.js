@@ -198,9 +198,9 @@ function getMatchingLabels(issue, labelRegExp) {
 	return result;
 }
 
-function labelMatch(label, labelRegExp) {
+function labelMatch(labelName, labelRegExp) {
 	var reg = new RegExp(labelRegExp);
-	return (label.match(reg));
+	return (labelName.match(reg) != null);
 }
 
 
