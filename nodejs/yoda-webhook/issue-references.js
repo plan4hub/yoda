@@ -264,7 +264,10 @@ function processIssueAsParent(octokit, issueRef, includeRefs, excludeRefs) {
 			logger.debug(err);
 			// This is a bit tricky.... But overall, likely situation here is that we have been unable to read a > partof issue due to 
 			// it being a non-existing issue and/or insufficient access rights.
-			updatePartOfRefNotThere(octokit, includeRefs[0], issueRef);
+			
+			// Protect.
+			if (includeRefs != undefined && includeRefs[0] != undefined)
+				updatePartOfRefNotThere(octokit, includeRefs[0], issueRef);
 			resolve();
 		});
 	});
