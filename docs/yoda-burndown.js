@@ -202,8 +202,9 @@ function saveTableToCSV() {
 	for (var i=0; i<tableRows.length; i++) { 
 		var tableRow = tableRows[i]; var rowData = {}; 
 		for (var j=0; j<tableRow.cells.length; j++) { 
-			rowData[headers[j]] = tableRow.cells[j].innerHTML.replace(/<(?:.|\n)*?>/gm, ''); 
-		} data.push(rowData); 
+			rowData[headers[j]] = tableRow.cells[j].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gm, ' '); 
+		} 
+		data.push(rowData); 
 	} 
 	
 	config = {
