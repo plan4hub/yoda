@@ -396,7 +396,7 @@ function checkEvent(id, name, payload) {
 	} 
 	
 	// More special handling for label/unlabeled events. Only events for Types (i.e. starting with T) are of interest.
-	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !yoda.matchLabel(payload.label.name, configuration.getOption("labelre"))) {
+	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !yoda.labelMatch(payload.label.name, configuration.getOption('labelre'))) {
 		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
 		return;
 	} 
