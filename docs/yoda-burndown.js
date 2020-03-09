@@ -941,49 +941,20 @@ function burndown(issues) {
 	// Let's add an trendline for burndown using remaining estimates (not considering burndownData / notforcodefreeze), so simply remainingArray
 	if ($('#trendline').is(":checked")) {
 		console.log("Calculating trendline. remainingArray (length " + remainingArray.length + ") = " + remainingArray);
-		
-		// Ok, we will assume that first point is correct as a starting point. We want to then place a line with the best linear regression
-		// (least sum of squares) of the errors for all available points.
-		var leastSquareSum = -1;
-		var leastSquareIndex = -1;
 		remainingTrendArray[0] = remainingArray[0];
-		
 		console.log("Startinmg at " + remainingTrendArray[0]);
 		
 	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). 
 		// Let's accept to couble the duration
-		for (tryIndex = 1; tryIndex < (remainingArray.length * 2); tryIndex++) {
-			
-			// Ok, let's pretend that this was the burndown date.
-			var average = remainingArray[0] / tryIndex;
-			
-			// Ok, let's see what sum of squares this results in... 
-			var squareSum = 0;
-			for (sumIndex = 1; sumIndex < remainingArray.length && !isNaN(remainingArray[sumIndex]); sumIndex++) {
-				var squareValue = Math.pow(remainingArray[sumIndex] - (remainingArray[0] - average * sumIndex), 2);
-				squareSum += squareValue;
-			}
-//			console.log("  tryIndex = " + tryIndex + ", value = " + remainingArray[tryIndex] + ", average = " + average + ", squareSum = " + squareSum);
-			
-			if (squareSum < leastSquareSum || leastSquareSum == -1) {
-				leastSquareSum = squareSum;
-				leastSquareIndex = tryIndex;
-			}
-			
-		}
+		for (tryIndex = 1; tryIndex < remainingArray.length && !isNaN(remainingArray[tryIndex]); tryIndex++);
+		tryIndex--;
+		var slope = (remainingArray[0] - remainingArray[tryIndex]) / tryIndex;
+		remainingTrendArray[tryIndex] = remainingArray[tryIndex];
+		for (; tryIndex < remainingArray.length - 1; tryIndex++)
+			remainingTrendArray[tryIndex + 1] = remainingTrendArray[tryIndex] - slope;
 
 		// Add the trendLine end date (the tryIndex) to trendline legend, if later than duedate
-
 		var trendLabel = "TrendLine";
-		var trendDate = new Date(dueDate);
-		for (var lateIndex = leastSquareIndex; lateIndex > remainingArray.length; lateIndex--) {
-			trendDate.setDate(trendDate.getDate() + 1);
-			console.log(" ... " + lateIndex + ", " + trendDate);
-			trendLabel = "TrendLine (" + yoda.formatDate(trendDate) + ")";
-		}
-		
-		console.log("Best end index/date: " + leastSquareIndex + " / " + labels[leastSquareIndex] + ", trendLabel = " + trendLabel + ", length of remainingArray = " + remainingArray.length);
-		remainingTrendArray[leastSquareIndex] = 0;
 		
 		console.log(remainingTrendArray);
 		
