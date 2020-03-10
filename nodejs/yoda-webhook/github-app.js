@@ -7,7 +7,7 @@ const configuration = require('./configuration.js');
 
 var fs = require('fs');
 
-const Octokit = require('@octokit/rest');
+const { Octokit } = require('@octokit/rest');
 
 const { request } = require("@octokit/request");
 const { createAppAuth } = require('@octokit/auth-app');
@@ -58,7 +58,7 @@ function authorize(payload) {
 			// Let's try to use our new token... just for fun...
 			//Set-up authentication
 			var authString = "token " + authorization.token;
-			octokit = new Octokit({
+			const octokit = new Octokit({
 				userAgent: 'yoda-webhook',
 				baseUrl: configuration.getOption('baseurl'),
 				log: logger,

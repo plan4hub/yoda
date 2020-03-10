@@ -7,12 +7,12 @@ const configuration = require('./configuration.js');
 const yoda = require('./yoda-utils.js');
 const yodaAppModule = require('./github-app.js');
 
-const Octokit = require('@octokit/rest');
+const { Octokit } = require('@octokit/rest');
 
 function authorizeUser() {
 	// Set-up authentication
 	var authString = "token " + configuration.getOption('password');
-	octokit = new Octokit({
+	const octokit = new Octokit({
 		userAgent: 'yoda-webhook',
 		baseUrl: configuration.getOption('baseurl'),
 		log: logger,

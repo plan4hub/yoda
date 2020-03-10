@@ -11,7 +11,7 @@
   "dependencies": {
     "@octokit/auth-app": "",
     "@octokit/request": "",
-    "@octokit/rest": "^16.35.0",
+    "@octokit/rest": "",
     "@octokit/webhooks": "",
     "command-line-args": "",
     "command-line-usage": "^6.1.0",
