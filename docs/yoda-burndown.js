@@ -714,7 +714,6 @@ function burndown(issues) {
 			}
 		}
 	}
-	
 	console.log("Total estimate: " + estimate + ", Total nofreeze: " + estimateNoFreeze + ", Total tentative: " + estimateTentative);
 	
 	
@@ -763,6 +762,7 @@ function burndown(issues) {
 		for (i=0; i<issues.length; i++) {
 			if (issues[i].closed_at != null) {
 				var closedAt = new Date(issues[i].closed_at);
+				closedAt.setHours(12); // avoid problems if closed near midnight
 				if (date < closedAt && closedAt < nextDay) {
 					
 					if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
@@ -785,28 +785,41 @@ function burndown(issues) {
 	// Now for the - really - complex bit, namely handling of "> remaining (date) (number)" syntax
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
+			console.log("Looking at issue index " + i + ": " + issues[i].url);
 			// First, let's get the estimate at start
 			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
 			if (issueEstimate != null) {
 				var issueWorkDoneBefore = 0;
+				var lastRemainingNumber = 9999;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
 					var remainingEntry = yoda.getFirstRemaining(issues[i].body, index);
 					var remainingDate = yoda.getDateFromEntry(remainingEntry);
 					var remainingNumber = yoda.getRemainingFromEntry(remainingEntry);
 					
-					console.log("Remaining entry (" + index + ") for issue: " + issues[i].number + ": " + remainingDate + ", " + remainingNumber);
+					if (remainingNumber > lastRemainingNumber)
+						console.log("  NOTE: Below remainingNumber represents in increase vs last.");
+					if (remainingNumber > issueEstimate)
+						console.log("  NOTE: Below remaining is higher than estimate.");
+					lastRemainingNumber = remainingNumber;
+					console.log("  Remaining entry (" + index + "): " + remainingDate + ", " + remainingNumber);
 
-					if (issues[i].closed_at == null) {
-						var closedAtString = null;
-					} else {
+					var closedAtString = null;
+					if (issues[i].closed_at != null)
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
+					
+					// Is the remaining entry for the date where the issue was closed? This is unnecessary and could even be bad.
+					if ( remainingDate >= closedAtString ) {
+						console.log("  NOTE: Remaining entry on or after at close date (" + closedAtString + "). Ignoring");
+						continue;
 					}
 					
 					// We also need to know if the issue has been closed. If so, we should only adjust up to the point of
 					// closure. The graph already has the effect of the closure (going to 0).
+					var remainingMatch = false;
 					for (var d = 0; d < labels.length; d++) {
 						if (remainingDate == labels[d]) {
-							console.log(" XXXXX " + labels[d] + ", remaining: " + remainingArray[d]);
+							remainingMatch = true;
+							console.log("  Starting reduction from date: " + labels[d] + ", remaining: " + remainingArray[d]);
 							// Loop for future estimates, but only until either closed date (if issue was closed OR current date).
 							for (var e = d + 1; e < labels.length; e++) {
 								if (closedAtString != null && labels[e] > closedAtString) 
@@ -816,9 +829,7 @@ function burndown(issues) {
 									continue;
 								
 								var delta = (issueEstimate - remainingNumber - issueWorkDoneBefore);
-								console.log("Delta = " + delta);
-
-								console.log(" YYYY " + labels[e] + ", remaining: " + remainingArray[e]);
+								console.log("    For date: " + labels[e] + ", remaining: " + remainingArray[e] + ", delta: " + delta);
 								
 								if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 									remainingTentativeArray[e] -= delta;
