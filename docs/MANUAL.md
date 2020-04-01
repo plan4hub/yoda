@@ -219,6 +219,8 @@ URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels
 
 *Note*: A further URL argument, draw, will result in the graph/table being rendered immediately (without the user having to press "Draw Chart" or "Show table" button). Simply add "draw=chart" or "draw=table" to URL. Similarly, it is possible to hide the header (e.g. if including the graph into a dashboard as an iFrame) by putting "hideheader=true".
 
+*Note*: If you specific in the URL argument the milestone as "_CURRENT_", then Yoda will attempt to select - based on start and duedate - the current sprint.
+
 The report is available [here](yoda-burndown.html).
 
 [Example](yoda-burndown.html?owner=HewlettPackard&repo=yoda-demo&estimate=inbody&milestone=Sprint 2&draw=chart).

@@ -815,10 +815,8 @@ function burndown(issues) {
 					
 					// We also need to know if the issue has been closed. If so, we should only adjust up to the point of
 					// closure. The graph already has the effect of the closure (going to 0).
-					var remainingMatch = false;
 					for (var d = 0; d < labels.length; d++) {
 						if (remainingDate == labels[d]) {
-							remainingMatch = true;
 							console.log("  Starting reduction from date: " + labels[d] + ", remaining: " + remainingArray[d]);
 							// Loop for future estimates, but only until either closed date (if issue was closed OR current date).
 							for (var e = d + 1; e < labels.length; e++) {
@@ -1115,26 +1113,37 @@ function updateMilestones(repoIndex) {
 			for (var m = 0; m < repoMilestones[r].length; m++) {
 				var repoTitle = repoMilestones[r][m].title;
 				
-				if (commonMilestones.indexOf(repoTitle) == -1) {
-					commonMilestones.push(repoTitle);
+//				if (commonMilestones.indexOf(repoTitle) == -1) {
+				if (!commonMilestones.find(function(element) {return (element.title == repoTitle);})) {
+					commonMilestones.push({title: repoTitle, duedate: yoda.formatDate(new Date(repoMilestones[r][m].due_on)), startdate: yoda.getMilestoneStartdate(repoMilestones[r][m].description)});
 				}
 			}
 		}
 		
 		// Sort and add. If URL argument has specified the milestone, select it.
-		commonMilestones.sort();
-		console.log("The common milestones are: " + commonMilestones);
+		commonMilestones.sort(function(a,b) {return (a.title < b.title);});
+		console.log("The common milestones are: ");
+		console.log(commonMilestones);
 		var milestonesSelected = false;
 		
 		console.log("URL milestone: " + yoda.decodeUrlParam(null, "milestone"));
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (firstMilestoneShow && commonMilestones[c] == yoda.decodeUrlParam(null, "milestone")) { 
+			if (firstMilestoneShow && commonMilestones[c].title == yoda.decodeUrlParam(null, "milestone")) { 
+				console.log("Selecting milestone as: " + commonMilestones[c].title);
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
 
-			var newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
+			// Handle _CURRENT_ milestone 
+			var today = yoda.formatDate(new Date());
+			if (firstMilestoneShow && yoda.decodeUrlParam(null, "milestone") == "_CURRENT_" && today >= commonMilestones[c].startdate && today <= commonMilestones[c].duedate) { 
+				console.log("Selecting _CURRENT_ milestone as: " + commonMilestones[c].title);
+				selectMilestone = true;
+				milestonesSelected = true;
+			}
+
+			var newOption = new Option(commonMilestones[c].title, commonMilestones[c].title, selectMilestone, selectMilestone);
 			$('#milestonelist').append(newOption);
 		}
 		
