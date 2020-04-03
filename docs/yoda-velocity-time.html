@@ -91,7 +91,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
-			<label>End date (today=current month)</label>
+			<label>End month (today=current month)</label>
 			<input type="text" id="endmonth" size="15" value="">
 			<span class="tooltip">End month (e.g. 2020-03)</span>
 		</div>
@@ -140,8 +140,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		
-		yoda.decodeUrlParamDate("#startdate", "startdate");
-		yoda.decodeUrlParamDate("#enddate", "enddate");
+		yoda.decodeUrlParamDate("#startmonth", "startmonth");
+		yoda.decodeUrlParamDate("#endmonth", "endmonth");
 //		yoda.decodeUrlParam("#interval", "interval");
 
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
@@ -160,7 +160,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		githubAuth();
 		$(document).ready(function() {
 			$('#repolist').select2();
-			$('#milestonelist').select2();
 		});
 		
 		// Rather complex updating of the defaults repos. 
@@ -174,12 +173,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			console.log("List of selected repos is now: " + repoList);
 		});
 		
-		$('#milestonelist').on('change.select2', function (e) {
-			// Update start-date + due-date/burndown-date + capacity (sum)
-			
-		});
-
-
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
 		}

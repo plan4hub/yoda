@@ -67,19 +67,81 @@ function errorFunc(errorText) {
 
 // ------------------
 
-function getAndPlotInterval(currentMonth, endMonth, repoIndex) {
+function getAndPlotInterval(currentMonth, endMonth, repoIndex, issues) {
+	console.log("Current month = " + currentMonth);
 	// is:issue is:closed repo:hpsd/REPO closed:2020-01-01..2020-01-31
 	
 	// Need to work out last day of month
 	var startDate = new Date(currentMonth + "-01");
-	var endDate = new Date(startDate.getYear(), startDate.getMonth(), 0).getDate();
+	console.log(startDate);
+	console.log(startDate.getFullYear());
+	console.log(startDate.getMonth());
+	var endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+	console.log("endDate = " + endDate);
 	
 	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=is:issue+repo:" + $("#owner").val() + "/" + repoList[repoIndex] + 
 	   "+closed:" + currentMonth + "-01.." + currentMonth + "-" + endDate;
 	console.log(getIssuesUrl);
 	yoda.getLoop(getIssuesUrl, 1, [], function(data) {
-		console.log(data);
-		// TND- store, then loop, either repoIndex (first), then currentMonth
+		console.log(data[0].items);
+		if (repoIndex == repoList.length -1) {
+			// This was the last one. We are ready to draw stuff.
+			issues = issues.concat(data[0].items);
+			console.log("Drawing for " + currentMonth + ". No of issues: " + issues.length);
+		
+			// Let's draw
+			var estimateArray = [];
+			for (var b = 0; b < noStoryBars; b++) {
+				estimateArray.push(0);
+			}
+			var estimate = 0;
+			
+			for (i=0; i<issues.length; i++) {
+				var issueEstimate = yoda.issueEstimate(issues[i]);
+				
+				console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
+				
+				var foundBar = false;
+				for (var b = 0; b < noStoryBars - 1; b++) {
+					if (yoda.isLabelInIssue(issues[i], splitLabels[b])) {
+						foundBar = true;
+						estimateArray[b] += issueEstimate;
+						break;
+					}
+		        }
+
+				if (!foundBar && $("#splitother").val() != "") {
+					estimateArray[noStoryBars - 1] += issueEstimate; 
+				}
+				
+				estimate += issueEstimate;
+			}
+			console.log("Total estimate: " + estimate);
+			
+			// Update chart
+			window.myMixedChart.data.labels.push(currentMonth);
+			for (var b = 0; b < noStoryBars; b++) {
+				if ($('#showpercent').is(":checked")) {
+					if (estimate == 0)
+						window.myMixedChart.data.datasets[b].data.push(0);
+					else
+						window.myMixedChart.data.datasets[b].data.push(Math.round(1000 * estimateArray[b] / estimate) / 10.0);
+				} else {
+					window.myMixedChart.data.datasets[b].data.push(estimateArray[b]);
+				}
+			}
+		 
+			window.myMixedChart.update();
+			
+			// Now, next month
+			if (currentMonth != endMonth) {
+				startDate.setMonth(startDate.getMonth() + 1);
+				getAndPlotInterval(startDate.getFullYear() + "-" + ('0' + (startDate.getMonth() + 1)).slice(-2), endMonth, 0, []);
+			}
+		} else {
+			// Next repo.
+			getAndPlotInterval(currentMonth, endMonth, repoIndex + 1, issues.concat(data[0].items));
+		}
 	}, null);
 
 }
@@ -160,19 +222,6 @@ function startChart() {
 	});
 	labels.push("Average / day");
 	
-	// Then vs. capacity
-	datasets.push({
-		type : 'bar',
-		stack : 'capacity',
-		label : 'Storypoints / capacity',
-		borderWidth : 2,
-		fill : false,
-		data : [],
-		yAxisID: "y-axis-right",
-		backgroundColor : 'rgb(255, 255, 26)' 
-	});
-	labels.push("Storypoints / capacity");
-	
 	var stacked = true; 
 	window.myMixedChart = new Chart(ctx, {
 		type : 'bar',	
@@ -205,7 +254,7 @@ function startChart() {
 				},{    
 					scaleLabel: {
 						display: true,
-						labelString: axis + " per day & story points vs. capacity",
+						labelString: axis + " per day",
 					},
 					position: "right",
 					id: "y-axis-right",
@@ -234,13 +283,13 @@ function startChart() {
 	} 
 	console.log("Start month: " + startMonth);
 	
-	var endMonth = $("#enddate").val();
+	var endMonth = $("#endmonth").val();
 	if (endMonth == "") {
 		// TBD. Set current month
 	}
 	console.log("End month: " + endMonth);
 	
-	getAndPlotInterval(startMonth, endMonth, 0);
+	getAndPlotInterval(startMonth, endMonth, 0, []);
 }
 
 // --------------
