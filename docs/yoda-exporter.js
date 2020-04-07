@@ -145,7 +145,7 @@ function exportIssues(issues) {
 				el["Number"] = issues[i].number;
 				break;
 			case "URL":
-				el["URL"] = issues[i].html_url;
+				el["URL"] = '=HYPERLINK("' + issues[i].html_url + '")';
 				break;
 			case "State":
 				el["State"] = issues[i].state;
