@@ -79,7 +79,7 @@ function getAndPlotInterval(currentMonth, endMonth, repoIndex, issues) {
 	var endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
 	console.log("endDate = " + endDate);
 	
-	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=is:issue+repo:" + $("#owner").val() + "/" + repoList[repoIndex] + 
+	var getIssuesUrl = yoda.getGithubUrl() + "search/issues?q=is:issue+estimate+in:body+repo:" + $("#owner").val() + "/" + repoList[repoIndex] + 
 	   "+closed:" + currentMonth + "-01.." + currentMonth + "-" + endDate;
 	console.log(getIssuesUrl);
 	yoda.getLoop(getIssuesUrl, 1, [], function(data) {
@@ -97,6 +97,11 @@ function getAndPlotInterval(currentMonth, endMonth, repoIndex, issues) {
 			var estimate = 0;
 			
 			for (i=0; i<issues.length; i++) {
+					
+				// TBD: Check for Jira migrated issue. IF issues has been created on same day as closed and has "Jira migrated" label,
+				//      then skip issue!
+				// Alternatively, just check if the issue was closed within X seconds (e.g. 60). Then it was a migration...
+				
 				var issueEstimate = yoda.issueEstimate(issues[i]);
 				
 				console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
@@ -130,6 +135,11 @@ function getAndPlotInterval(currentMonth, endMonth, repoIndex, issues) {
 					window.myMixedChart.data.datasets[b].data.push(estimateArray[b]);
 				}
 			}
+			
+			var days = endDate; 
+			console.log("Days = " + days);
+			var average = (estimate / days).toFixed(1);
+			window.myMixedChart.data.datasets[noStoryBars].data.push(average);
 		 
 			window.myMixedChart.update();
 			
