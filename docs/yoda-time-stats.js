@@ -263,6 +263,7 @@ function createChart() {
 	var otherArray = [];
 	var totalArray = [];
 	var totalAlwaysArray = [];
+	var storyPointsPerDayArray = [];
 	
 	// date loop
 	// Start at startDate
@@ -278,8 +279,13 @@ function createChart() {
 		date.setMinutes(59);
 		date.setSeconds(59);
 		
-		// Push to date array
-		dateArray.push(yoda.formatDate(date));
+		// Push to date array the labels. For open issues just the date. For others prepend with "<"
+		if (countType != "noissues") {
+			dateArray.push("< " + yoda.formatDate(date));
+		} else {
+			dateArray.push(yoda.formatDate(date));
+		}
+
 		
 		// Prepare data array
 		var dataArrayForDay = new Array(bars.length);
@@ -353,7 +359,7 @@ function createChart() {
 			
 			if (countType == "velocity") {
 				issueEstimate = yoda.issueEstimate(issues[i]);
-				console.log("Estimate for issue: " + issueEstimate);
+//				console.log("Estimate for issue: " + issueEstimate);
 			}
 
 			// Log's look at the labels.
@@ -369,7 +375,6 @@ function createChart() {
 					if (countType == "velocity") {
 						dataArrayForDay[index] = dataArrayForDay[index] + issueEstimate;
 						totalForDay += issueEstimate;
-						
 					} else {
 						// All other.. 
 						dataArrayForDay[index] = dataArrayForDay[index] + 1;
@@ -429,6 +434,10 @@ function createChart() {
 //		console.log(dataArrayForDay);
 		totalArray.push(totalForDay);
 		totalAlwaysArray.push(totalAlways);
+		if (countType == "velocity") {
+			var durationDays = (date.getTime() - previousDate.getTime()) /  (1000 * 3600 * 24);
+			storyPointsPerDayArray.push((totalForDay / durationDays).toFixed(1)); 
+		}
 	}
 	
 	// Ready, let's push the bars
@@ -469,6 +478,16 @@ function createChart() {
 	// TBD: If velocity, play on right axis instead 
 	if (rightTotal) {
 		if (countType == "velocity") {
+			// 
+			datasetArray.push({
+				type : 'line',
+				label : 'Story points per day',
+				borderWidth : 2,
+				fill : false,
+				yAxisID: "y-axis-right",
+				data : storyPointsPerDayArray,
+				lineTension: 0
+			});
 			
 		} else {
 			// Normal case. Right total line against right axis.
@@ -530,6 +549,7 @@ function createChart() {
 	rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
+	rightLabel["velocity"] = "Story points per day";
 	if (rightTotal) { 
 		rightLabel["opened"] = "No open issues";
 		rightLabel["closed"] = "No open issues";
