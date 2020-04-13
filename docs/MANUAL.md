@@ -179,6 +179,10 @@ All arguments may be supplied directly using the URL using default "parameter=<v
 
 *Note*: A further URL argument, draw, will result in the graph being drawn immediately (without the user having to press "Draw Chart" button). Simply add "draw=true" to URL. Similarly, it is possible to hide the header (e.g. if including the graph into a dashboard as an iFrame) by putting "hideheader=true".
 
+### Use for time based velocity charts
+
+As a further option, it is possible to set-up the tool to work out velocity based on estimates (in the body of the issue or in labels). The velocity is calculated as the total story points estimates for all issues *closed* during the interval (note that this is the interval leading *up to* the date shown). Right right side axis will change in this case to display the average story points per day.
+
 The report is available [here](yoda-time-stats.html).
 
 [Example](yoda-time-stats.html?owner=HewlettPackard&repolist=yoda-demo&draw=true)
