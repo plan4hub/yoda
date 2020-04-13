@@ -32,7 +32,8 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
-	params += "&estimate=" + yoda.getEstimateInIssues();
+	if (yoda.getEstimateInIssues() != "inbody")
+		params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "labelfilter");	
 	params = addIfNotDefault(params, "additionaldata");

@@ -55,6 +55,9 @@ function getUrlParams() {
 	if ($('#righttotal').is(":checked")) {
 		params += "&righttotal=true";
 	}
+	if (yoda.getEstimateInIssues() != "inbody")
+		params += "&estimate=" + yoda.getEstimateInIssues();
+
 	var countType = $("#countradio input[type='radio']:checked").val();
 	if (countType != "noissues") {
 		params += "&count=" + countType;
@@ -62,6 +65,26 @@ function getUrlParams() {
 	
 	return params;
 }
+
+function estimateClick(radio) {
+	yoda.setEstimateInIssues(radio.value);
+}
+
+
+function velocitySelected() {
+	console.log("Velocity selected. Let's set some new defaults.");
+	var sixMAgo = new Date();
+	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+	$('#startdate').val(yoda.formatDate(sixMAgo)); 
+//	$('#enddate').val(''); 
+	$('#interval').val('1m');
+	$('#title').val('Velocity Chart');
+	$('#labelsplit').val('^T[1-9][0-9]? -');
+	$('#other').val('');
+	$('#stacked').attr('checked', true);
+	$('#righttotal').attr('checked', true);
+}
+
 
 
 // Helper functions for analyzing issues. These are introduced to be able to have an abstraction for
@@ -140,6 +163,10 @@ function createChart() {
 	
 	var interval = $("#interval").val();
 	console.log("Interval: " + interval);
+	if (interval == "" || parseInt(interval) == 0) {
+		yoda.showSnackbarError("Interval cannot be empty or zero", 3000);
+		return;
+	}
 
 	var startDateString = $("#startdate").val();
 	if (startDateString == "") {
@@ -240,9 +267,11 @@ function createChart() {
 	// date loop
 	// Start at startDate
 	
-	// Need to consider previous date, so that we can observe interval.
+	// Need to consider previous date, so that we can observe interval. Go back one interval
     var previousDate = new Date(startDate);
     var startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
+    yoda.advanceDate(previousDate, "-" + interval, startDay);
+    console.log("Initial previousDate: " + previousDate);
 	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
 		console.log("Date: " + date + ", previousDate: " + previousDate);
 		date.setHours(23);
@@ -293,17 +322,17 @@ function createChart() {
 				}
 				
 				// Closed before previous date
-				if (countType == "closed" && closedDate <= previousDate) {
+				if ((countType == "closed" || countType == "velocity") && closedDate <= previousDate) {
 					continue;
 			 	}
 					
 				// Closed later
-				if (countType == "closed" && closedDate > date) {
+				if ((countType == "closed" || countType == "velocity") && closedDate > date) {
 					continue;
 				}
 			} else {
 				totalAlways++;
-				if (countType == "closed")
+				if ((countType == "closed" || countType == "velocity"))
 					continue;
 			}
 			
@@ -322,6 +351,11 @@ function createChart() {
 			if (labelSplit == "repo") 
 				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 			
+			if (countType == "velocity") {
+				issueEstimate = yoda.issueEstimate(issues[i]);
+				console.log("Estimate for issue: " + issueEstimate);
+			}
+
 			// Log's look at the labels.
 			for (l = 0; l < labelList.length; l++) {
 				var labelName = labelList[l].name;
@@ -332,8 +366,17 @@ function createChart() {
 //							issues[i].created_at + ", closed: " + issues[i].closed_at);
 
 					// Got a match. Make sure we don't continue search
-					dataArrayForDay[index] = dataArrayForDay[index] + 1;
-					totalForDay++;
+					if (countType == "velocity") {
+						dataArrayForDay[index] = dataArrayForDay[index] + issueEstimate;
+						totalForDay += issueEstimate;
+						
+					} else {
+						// All other.. 
+						dataArrayForDay[index] = dataArrayForDay[index] + 1;
+						totalForDay++;
+					}
+
+					
 					l = labelList.length;
 					foundLabel = true;
 					
@@ -348,8 +391,13 @@ function createChart() {
 //				console.log("Could not find label for issue " + issues[i].url);
 //				console.log(labelList);
 				
-				otherForDay++;
-				totalForDay++;
+				if (countType == "velocity") {
+					otherForDay += issueEstimate;
+					totalForDay += issueEstimate;
+				} else {
+					otherForDay++;
+					totalForDay++;
+				}
 				
 				// Add the total duration, we will divide by # of issues later.
 				var duration = yoda.dateDiff(submitDate, date);
@@ -373,7 +421,7 @@ function createChart() {
 			// Normal, i.e. not duration
 			// We will push data to the data array
 			for (var i=0; i < bars.length; i++) {
-				dataArray[i].push(dataArrayForDay[i]);
+				dataArray[i].push(dataArrayForDay[i]); 
 			}
 			otherArray.push(otherForDay);
 		}
@@ -417,17 +465,23 @@ function createChart() {
 		});
 	}
 
-	// What should we put on right acis 
+	// What should we put on right axis
+	// TBD: If velocity, play on right axis instead 
 	if (rightTotal) {
-		datasetArray.push({
-			type : 'line',
-			label : 'Total',
-			borderWidth : 2,
-			fill : false,
-			yAxisID: "y-axis-right",
-			data : totalAlwaysArray,
-			lineTension: 0
-		});
+		if (countType == "velocity") {
+			
+		} else {
+			// Normal case. Right total line against right axis.
+			datasetArray.push({
+				type : 'line',
+				label : 'Total',
+				borderWidth : 2,
+				fill : false,
+				yAxisID: "y-axis-right",
+				data : totalAlwaysArray,
+				lineTension: 0
+			});
+		}
 	} else {	
 		// Add line for total, but only if bars (and not stacked)
 		if (bars.length > 0 && stacked == false) {

@@ -90,14 +90,40 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Count</label>
 			<div id="countradio">
-				<label><input type="radio" name="count" value="noissues"  checked="checked">Issues</label> 
-				<label><input type="radio" name="count" value="durationopen">Days open</label> 
-				<label><input type="radio" name="count" value="opened">Opened</label> 
-				<label><input type="radio" name="count" value="closed">Closed</label>
+				<div>
+					<label><input type="radio" name="count" value="noissues"  checked="checked"># Issues</label> 
+					<label><input type="radio" name="count" value="durationopen">Days open</label>
+					<label><input type="radio" name="count" value="velocity" onchange="velocitySelected()">Velocity</label>
+				</div>
+				<div> 
+					<label><input type="radio" name="count" value="opened">Opened</label> 
+					<label><input type="radio" name="count" value="closed">Closed</label>
+				</div>
 			</div>
 			<span class="tooltip">Issue display options..</span>
 		</div>
 		
+		
+		<div class="field">
+			<label>Estimates</label>
+			<div id="estimateradio">
+				<div>
+					<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
+					<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label>
+				</div>
+				<div> 
+					<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
+				</div>
+			</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
+		
+<!--  		<div class="field">
+			<label>Velocity per day</label>
+			<input type="checkbox" id="velocityperday">
+			<span class="tooltip">Draw velocity per day bar</span>
+		</div> 
+-->
 	</div>
 
 	<div class="frame">
@@ -146,7 +172,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Right total</label>
 			<input type="checkbox" id="righttotal">
-			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed</span>
+			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed.<br>For velocity chart, show story points per day.</span>
 		</div>
 
 		<div class="field" id="historyfield" hidden>
@@ -176,6 +202,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#other").val("");
 		
 		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParamRadio("count", "count");
+
 		// repo and repoList handled later, both are supported.		
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
@@ -187,7 +215,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
 		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
 		yoda.decodeUrlParamBoolean("#history", "history");
-		yoda.decodeUrlParamRadio("count", "count");
+//		yoda.decodeUrlParamBoolean("#velocityperday", "velocityperday");
+		
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
 		
 		if (yoda.decodeUrlParamBoolean(null, "history") == "true") {
 			$("#historyfield").show();
