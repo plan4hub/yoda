@@ -514,6 +514,7 @@ function createChart() {
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["opened"] = "No of issues opened";
 	leftLabel["closed"] = "No of issues closed";
+	leftLabel["velocity"] = "Story Points";
 
 	var chartScales = {
 			yAxes: [{

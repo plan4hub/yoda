@@ -112,13 +112,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			</div>
 			<span class="tooltip">Where to get estimates</span>
 		</div>
-		
-<!--  		<div class="field">
-			<label>Velocity per day</label>
-			<input type="checkbox" id="velocityperday">
-			<span class="tooltip">Draw velocity per day bar</span>
-		</div> 
--->
 	</div>
 
 	<div class="frame">
@@ -158,6 +151,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Chart title</span>
 		</div>
 		
+		<button id="drawbutton" onclick="startChart()">Draw chart</button>
+
 		<div class="field">
 			<label>Stacked</label>
 			<input type="checkbox" id="stacked">
@@ -175,8 +170,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="checkbox" id="history">
 			<span class="tooltip">Perfect history (long time)</span>
 		</div>
-
-		<button id="drawbutton" onclick="startChart()">Draw chart</button>
 	</div>
 
 	<div style="width: 90%">
