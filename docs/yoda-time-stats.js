@@ -70,32 +70,19 @@ function estimateClick(radio) {
 	yoda.setEstimateInIssues(radio.value);
 }
 
-
 function velocitySelected() {
-	console.log("Velocity selected. Let's set some new defaults.");
+	console.log("Velocity selected. Let's set some solid defaults.");
 	var sixMAgo = new Date();
 	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
-	$('#startdate').val(yoda.formatDate(sixMAgo)); 
+	if ($('#startdate').val() == "")
+		$('#startdate').val(yoda.formatDate(sixMAgo)); 
 //	$('#enddate').val(''); 
 	$('#interval').val('1m');
-	$('#title').val('Velocity Chart');
 	$('#labelsplit').val('^T[1-9][0-9]? -');
 	$('#other').val('');
 	$('#stacked').attr('checked', true);
 	$('#righttotal').attr('checked', true);
 }
-
-
-
-// Helper functions for analyzing issues. These are introduced to be able to have an abstraction for
-// using - or not using - history issue information based on events information.
-// Will return open, closed, unknown
-function issueState(issue, date) {
-	// TBD
-} 
-
-
-
 
 // Global array. Issue URL (API style) is the key
 var labelEventsReceived = false;
@@ -281,7 +268,7 @@ function createChart() {
 		
 		// Push to date array the labels. For open issues just the date. For others prepend with "<"
 		if (countType != "noissues") {
-			dateArray.push("< " + yoda.formatDate(date));
+			dateArray.push(".. " + yoda.formatDate(date));
 		} else {
 			dateArray.push(yoda.formatDate(date));
 		}
@@ -580,6 +567,8 @@ function createChart() {
 		window.myMixedChart.destroy();
 	
 	var chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
+	if (countType == "velocity") 
+		chartTitle = "Story point velocity for " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
