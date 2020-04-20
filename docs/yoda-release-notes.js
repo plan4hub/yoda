@@ -124,7 +124,7 @@ function getFormat(formatArray, index) {
 
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
-	console.log(markdown);
+//	console.log(markdown);
 	var markdownUrl = yoda.getGithubUrl() + "markdown";
 	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
 //	console.log("markdownUrl: " + markdownUrl);
@@ -258,15 +258,16 @@ function makeRN() {
 	var sFormat = $("#sformat").val().split(",");
 	var ssFormat = $("#ssformat").val().split(",");
 	var listFormat = $("#listformat").val().split(",");
+	var catFormat = $("#catformat").val();
 
 	// Headline
 	rnText += getFormat(hlFormat, 0) + "Release Notes for " + $("#milestonelist").val() + getFormat(hlFormat, 1);
 	
-	// Categories. First build list.
+	// Categories. First build list based on regular expression (if any)
 	var categories = [];
-	var catLabel = $("#catlabel").val();
-	if (catLabel != "") {
-		var catReg = new RegExp(catLabel);
+	var catLabel = $("#catlabel").val().split(",");
+	if (catLabel.length == 2) {
+		var catReg = new RegExp(catLabel[1]);
 		for (var i = 0; i < repoIssues.length; i++) {
 			for (var l=0; l < repoIssues[i].labels.length; l++) {
 				var labelName = repoIssues[i].labels[l].name;
@@ -275,8 +276,6 @@ function makeRN() {
 					catName = labelName;
 					if (res[1] != undefined)
 						catName = res[1];
-					console.log("Category match:");
-					console.log(catName);
 					if (categories.findIndex(function(c) {return (c.labelName == labelName)}) == -1) {
 						console.log("Found new category: " + catName);
 						categories.push({labelName: labelName, catName: catName});
@@ -284,31 +283,70 @@ function makeRN() {
 				}
 			}
 		}
+		// Add fallback category
+		categories.push({labelName: "_FALLBACK_", catName: catLabel[0]});
+		
 		console.log("List of categories:");
 		console.log(categories);
+	} else {
+		// Synthesize a category (hack to allow looping overit below).
+		categories.push({labelName: "_DUMMY_"});
 	}
 			
+	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
 		rnText += getFormat(sFormat, 0) + "Changes for " + repoList[r] + getFormat(sFormat, 1);
-		
+
+		// Loop over labelTypes (typically Defects, Fixes)
 		for (var t = 0; t < rnLabelTypesList.length; t++) {
-	
 			var rnList = "";
-			for (var i = 0; i < repoIssues.length; i++) {
-				// Match repo?.
-				var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
-				if (repository != repoList[r])
-					continue;
-				
-				// Match issue type (in label)
-				if (!yoda.isLabelInIssue(repoIssues[i], rnLabelTypesList[t].split("|")[0]))
-					continue;
-				
-				// Should issue be skipped
-				if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
-					continue;
-				
-				rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
+
+			// Loop over categories (possibly the single _DUMMY_ entry - see above
+			for (var c = 0; c < categories.length; c++) {
+				var categoryHeader = "";
+				if (categories[c].labelName != "_DUMMY_") {
+					categoryHeader = getFormat(listFormat, 2) + catFormat + getFormat(listFormat, 3);
+					categoryHeader = categoryHeader.replace(/%c/, categories[c].catName);
+				}
+				var issuesInCategory = 0;
+
+				// Loop over the issues putting into the right categories.
+				for (var i = 0; i < repoIssues.length; i++) {
+					// Match repo?.
+					var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
+					if (repository != repoList[r])
+						continue;
+
+					// Match issue type (in label)
+					if (!yoda.isLabelInIssue(repoIssues[i], rnLabelTypesList[t].split("|")[0]))
+						continue;
+
+					// Match category (if using categories at all)
+					// What if several labels match- suggest we add them in both/all places where there is a match.
+					if (!yoda.isLabelInIssue(repoIssues[i], categories[c].labelName) &&
+							categories[c].labelName != "_FALLBACK_" && categories[c].labelName != "_DUMMY_")
+						continue;
+
+					// FALLBACK handling
+					if (categories[c].labelName == "_FALLBACK_") {
+						var otherFound = false;
+						// Check if labels match any of the categories.
+						for (var c1 = 0; c1 < categories.length; c1++)
+							if (c != c1 && yoda.isLabelInIssue(repoIssues[i], categories[c1].labelName))
+								otherFound = true;
+						if (otherFound)
+							continue;
+					}
+
+					// Should issue be skipped
+					if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
+						continue;
+
+					if (issuesInCategory++ == 0)
+						rnList += categoryHeader;
+
+					rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
+				}	
 			}
 
 			if (rnList != "") {
@@ -318,7 +356,7 @@ function makeRN() {
 			}
 		}
 	}
-	
+
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		rn.innerHTML = rnText;
 	} else {
@@ -721,7 +759,7 @@ function changeOutput() {
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
 			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r</td>");
-			setDefaultAndValue("catformat", "<td>%c</td>");
+			setDefaultAndValue("catformat", "<td colspan=2><b>%c</b></td>");
 			
 		} else {
 			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");

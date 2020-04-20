@@ -179,8 +179,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Category Label</label>
-			<input type="text" size="20" id="catlabel" value="^Th - (.*)">
-			<span class="tooltip">Regular expression for splitting into categories</span>
+			<input type="text" size="20" id="catlabel" value="General Features,^Th - (.*)">
+			<span class="tooltip">Fallback category (comma) regular expression for splitting into categories</span>
 		</div>
 
 		<button id="drawRNbutton" onclick="startRN(false)">Show RN</button>
@@ -200,7 +200,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	<div id="RN">
 	</div>
-	
 
 	<div id="snackbar">Some text some message..</div>
 
