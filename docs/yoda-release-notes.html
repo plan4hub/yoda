@@ -100,8 +100,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="checkbox" id="tablelayout" checked="checked" onchange="changeOutput()">
 			<span class="tooltip">Table Layout</span>
 		</div>
-		
-		
 	</div>
 
 	<div class="frame">
@@ -130,8 +128,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Category format</label>
+			<input type="text" id="catformat" size="30"></input>
+			<span class="tooltip">Formatting for categories Special fields are category name from label (%c)</span>
+		</div>
+
+		<div class="field">
 			<label>Issue format</label>
-			<input type="text" id="rnformat" size="40"></input>
+			<input type="text" id="rnformat" size="30"></input>
 			<span class="tooltip">Formatting for issue. Special fields are issue nummer (%n), id (repo and number) (%d), title (%t)<br>and RN (%r). Use %x for RN under title in table, use %y to use RN if not empty, otherwise title</span>
 		</div>
 	</div>
@@ -173,6 +177,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
 		</div>
 
+		<div class="field">
+			<label>Category Label</label>
+			<input type="text" size="20" id="catlabel" value="^Th - (.*)">
+			<span class="tooltip">Regular expression for splitting into categories</span>
+		</div>
+
 		<button id="drawRNbutton" onclick="startRN(false)">Show RN</button>
 		<button id="downloadRNbutton" onclick="startRN(true)">Download RN</button>
 	</div>
@@ -211,6 +221,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
 		yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");
 		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
+		yoda.decodeUrlParam("#catlabel", "catlabel");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
@@ -222,6 +233,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#sformat", "sformat");
 		yoda.decodeUrlParam("#ssformat", "ssformat");
 		yoda.decodeUrlParam("#listformat", "listformat");
+		yoda.decodeUrlParam("#catformat", "catformat");
 		yoda.decodeUrlParam("#rnformat", "rnformat");
 		
 		// Local storage

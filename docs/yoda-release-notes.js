@@ -63,7 +63,9 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "sformat");
 	params = addIfNotDefault(params, "ssformat");
 	params = addIfNotDefault(params, "listformat");
+	params = addIfNotDefault(params, "catformat");
 	params = addIfNotDefault(params, "rnformat");
+	params = addIfNotDefault(params, "catlabel");
 	
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
@@ -259,7 +261,33 @@ function makeRN() {
 
 	// Headline
 	rnText += getFormat(hlFormat, 0) + "Release Notes for " + $("#milestonelist").val() + getFormat(hlFormat, 1);
-
+	
+	// Categories. First build list.
+	var categories = [];
+	var catLabel = $("#catlabel").val();
+	if (catLabel != "") {
+		var catReg = new RegExp(catLabel);
+		for (var i = 0; i < repoIssues.length; i++) {
+			for (var l=0; l < repoIssues[i].labels.length; l++) {
+				var labelName = repoIssues[i].labels[l].name;
+				var res = labelName.match(catReg);
+				if (res != null) {
+					catName = labelName;
+					if (res[1] != undefined)
+						catName = res[1];
+					console.log("Category match:");
+					console.log(catName);
+					if (categories.findIndex(function(c) {return (c.labelName == labelName)}) == -1) {
+						console.log("Found new category: " + catName);
+						categories.push({labelName: labelName, catName: catName});
+					}
+				}
+			}
+		}
+		console.log("List of categories:");
+		console.log(categories);
+	}
+			
 	for (var r = 0; r < repoList.length; r++) {
 		rnText += getFormat(sFormat, 0) + "Changes for " + repoList[r] + getFormat(sFormat, 1);
 		
@@ -692,13 +720,16 @@ function changeOutput() {
 			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
-			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r")
+			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r</td>");
+			setDefaultAndValue("catformat", "<td>%c</td>");
+			
 		} else {
 			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
 			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
 			setDefaultAndValue("rnformat", "%t (%d)<BLOCKQUOTE>%r</BLOCKQUOTE>");
+			setDefaultAndValue("catformat", "<H4>%c</H4>");
 		}
 		break;
 
@@ -710,12 +741,14 @@ function changeOutput() {
 			setDefaultAndValue("ssformat", "### ,\\n\\n");
 			setDefaultAndValue("listformat", "Number | Description\\n--------|-------------\\n,\\n,,\\n");
 			setDefaultAndValue("rnformat", "%d | %t%x");
+			setDefaultAndValue("catformat", "*%c*");
 		} else {
 			setDefaultAndValue("hlformat", "# ,\\n\\n");
 			setDefaultAndValue("sformat", "## ,\\n\\n");
 			setDefaultAndValue("ssformat", "### ,\\n\\n");
 			setDefaultAndValue("listformat", ",,-  ,\\n");
 			setDefaultAndValue("rnformat", "%t (%d)%x");
+			setDefaultAndValue("catformat", "*%c*");
 		}
 		break;
 	}
