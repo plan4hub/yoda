@@ -373,7 +373,7 @@ function makeRN(headline, changesOrKnown, draw) {
 
 	// Copy to clipboard
 	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw" + draw);
+	yoda.updateUrl(getUrlParams() + "&draw=" + draw);
 }
 
 // -----------
