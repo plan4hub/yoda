@@ -236,7 +236,7 @@ function formatIssueRN(issue) {
 	return issueText;
 }
 
-function makeRN() {
+function makeRN(headline, changesOrKnown, draw) {
 	var rn = document.getElementById("RN");
 	
 	var repoList = $("#repolist").val();
@@ -261,7 +261,7 @@ function makeRN() {
 	var catFormat = $("#catformat").val();
 
 	// Headline
-	rnText += getFormat(hlFormat, 0) + "Release Notes for " + $("#milestonelist").val() + getFormat(hlFormat, 1);
+	rnText += getFormat(hlFormat, 0) + headline + $("#milestonelist").val() + getFormat(hlFormat, 1);
 	
 	// Categories. First build list based on regular expression (if any)
 	var categories = [];
@@ -295,7 +295,7 @@ function makeRN() {
 			
 	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += getFormat(sFormat, 0) + "Changes for " + repoList[r] + getFormat(sFormat, 1);
+		rnText += getFormat(sFormat, 0) + changesOrKnown + repoList[r] + getFormat(sFormat, 1);
 
 		// Loop over labelTypes (typically Defects, Fixes)
 		for (var t = 0; t < rnLabelTypesList.length; t++) {
@@ -373,68 +373,7 @@ function makeRN() {
 
 	// Copy to clipboard
 	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=rn");
-}
-
-
-function makeKnown() {
-	// Get formatting
-	var hlFormat = $("#hlformat").val().split(",");
-	var sFormat = $("#sformat").val().split(",");
-	var ssFormat = $("#ssformat").val().split(",");
-	var listFormat = $("#listformat").val().split(",");
-
-	var rn = document.getElementById("RN");
-	
-	var repoList = $("#repolist").val();
-	var rnText = "";
-	
-	// Skip label
-	var rnSkipLabel = $("#rnskiplabel").val();
-	
-	// Headline
-	rnText += getFormat(hlFormat, 0) + "Known Issues" + getFormat(hlFormat, 1);
-	
-	for (var r = 0; r < repoList.length; r++) {
-		
-		var rnList = "";
-		for (var i = 0; i < repoIssues.length; i++) {
-			// Match repo?.
-			var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
-			if (repository != repoList[r])
-				continue;
-
-			// Should issue be skipped
-			if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
-				continue;
-
-			rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
-		}
-		
-		if (rnList != "") {
-			rnText += getFormat(sFormat, 0) + "Known Issues for " + repoList[r] + getFormat(sFormat, 1);
-			rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
-		}
-	}
-	
-	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
-		rn.innerHTML = rnText;
-
-	} else {
-		rn.innerHTML = "<pre>" + rnText + "</pre>";
-	}
-	
-	// Download?
-	if (download) {
-		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
-		console.log("Downloading to " + fileName);
-		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
-		yoda.downloadFileWithType(appType, rnText, fileName);		
-	}
-
-	// Copy to clipboard
-	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=known");
+	yoda.updateUrl(getUrlParams() + "&draw" + draw);
 }
 
 // -----------
@@ -558,7 +497,7 @@ function updateMetaIssuesThenRN(metaIssuesList) {
 	
 		console.log("No issues (after filtering out pull requests): " + repoIssues.length);
 		yoda.showSnackbarOk("Succesfully retrived " + repoIssues.length + " issues.");
-		makeRN();
+		makeRN("Release notes for ", "Changes for ", "rn");
 	}
 }
 
@@ -713,7 +652,7 @@ function updateIssuesKnownLoop(repoRemainList, issues) {
 
 	console.log(repoRemainList);
 	if (repoRemainList.length == 0) {
-		makeKnown();
+		makeRN("Known issues for ", "Known issues for ", "known");
 		return;
 	}
 	
