@@ -283,6 +283,10 @@ function makeRN(headline, changesOrKnown, draw) {
 				}
 			}
 		}
+		
+		// Sort the labels (before generic) alphabetically
+		categories = categories.sort(function(a,b) {return (a.catName < b.catName?-1:1);});
+		
 		// Add fallback category
 		categories.push({labelName: "_FALLBACK_", catName: catLabel[0]});
 		
