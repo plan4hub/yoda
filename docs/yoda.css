@@ -149,6 +149,11 @@ thead {
     color: white;
 }
 
+.ic {
+    background-color: #01a982;
+    color: white;
+}
+
 .gitnote {
 	font: status-bar;
 	margin: 0px 10px;

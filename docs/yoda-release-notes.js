@@ -702,7 +702,7 @@ function changeOutput() {
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
 			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r</td>");
-			setDefaultAndValue("catformat", "<td colspan=2><b>%c</b></td>");
+			setDefaultAndValue("catformat", '<td colspan=2 class="ic"><b>%c</b></td>');
 			
 		} else {
 			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
