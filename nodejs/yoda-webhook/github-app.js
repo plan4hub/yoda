@@ -52,7 +52,7 @@ function authorize(payload) {
 			reject("Received non GitHub APP event while running in App mode.");
 		}
 
-		auth({ type: "installation", installationId: payload.installation.id, permissions: "issues=write" }).then((authorization) => {
+		auth({ type: "installation", installationId: payload.installation.id }).then((authorization) => {
 			logger.debug(authorization);
 
 			// Let's try to use our new token... just for fun...
