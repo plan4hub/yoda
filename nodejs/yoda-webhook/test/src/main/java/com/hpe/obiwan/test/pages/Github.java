@@ -33,13 +33,13 @@ public class Github extends Base {
 		click("//nav[@aria-label='Repository']//span[text()='Issues']");
 		click("//div[contains(@class,'repository-content')]//span[contains(text(),'New issue')]");
 		if (label != null) {
-			click("//div[contains(@class,'sidebar-labels')]//summary");
+			click("//details[@id='labels-select-menu']//summary");
 			write("//input[@id='label-filter-field']", label);
 			click("//span[text()='" + label + "']");
-			click("//div[contains(@class,'sidebar-labels')]//summary");
+			click("//details[@id='labels-select-menu']//summary");
 		}
 		if (milestone != null) {
-			click("//div[contains(@class,'sidebar-milestone')]//summary");
+			click("//details[@id='milestone-select-menu']//summary");
 			write("//input[@id='context-milestone-filter-field']", milestone);
 			click("//span[text()='" + milestone + "']");
 		}
