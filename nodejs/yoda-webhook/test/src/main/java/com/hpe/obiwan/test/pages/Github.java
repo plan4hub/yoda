@@ -31,7 +31,7 @@ public class Github extends Base {
 	
 	public String createIssue(String title, String body, String label, String milestone) {
 		click("//nav[@aria-label='Repository']//span[text()='Issues']");
-		click("//div[contains(@class,'repository-content')]//a[contains(text(),'New issue')]");
+		click("//div[contains(@class,'repository-content')]//span[contains(text(),'New issue')]");
 		if (label != null) {
 			click("//div[contains(@class,'sidebar-labels')]//summary");
 			write("//input[@id='label-filter-field']", label);
