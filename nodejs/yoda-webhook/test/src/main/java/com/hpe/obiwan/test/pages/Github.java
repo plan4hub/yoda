@@ -14,10 +14,14 @@ public class Github extends Base {
 	private final static SimpleDateFormat REMAINING_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	public void login(String username, String password) {
-		click("//a[text()='Sign in with SAML']");
-		write("//input[@id='username']", username);
-		write("//input[@id='password']", password, true);
-		click("//input[@type='submit']");
+		try {
+			click("//a[text()='Sign in with SAML']");
+			write("//input[@id='username']", username);
+			write("//input[@id='password']", password, true);
+			click("//input[@type='submit']");
+		} catch (Exception e) {
+			// ignored because certificate pop-up appears
+		}
 	}
 	
 	public void goTo(String url) {
@@ -35,7 +39,7 @@ public class Github extends Base {
 		if (label != null) {
 			click("//details[@id='labels-select-menu']//summary");
 			write("//input[@id='label-filter-field']", label);
-			click("//span[text()='" + label + "']");
+			click("//div[@class='select-menu-item-text']//span[text()='" + label + "']");
 			click("//details[@id='labels-select-menu']//summary");
 		}
 		if (milestone != null) {
@@ -68,16 +72,16 @@ public class Github extends Base {
 	
 	public void updateLabel(Issue issue, String newLabel) {
 		searchIssue(issue);
-		click("//div[contains(@class,'sidebar-labels')]//summary");
+		click("//details[@id='labels-select-menu']//summary");
 		if (issue.getLabel() != null) {
 			write("//input[@id='label-filter-field']", issue.getLabel());
-			click("//span[text()='" + issue.getLabel() + "']");
+			click("//div[@class='select-menu-item-text']//span[text()='" + issue.getLabel() + "']");
 		}
 		if (newLabel != null) {
 			write("//input[@id='label-filter-field']", newLabel);
-			click("//span[text()='" + newLabel + "']");
+			click("//div[@class='select-menu-item-text']//span[text()='" + newLabel + "']");
 		}
-		click("//div[contains(@class,'sidebar-labels')]//summary");
+		click("//details[@id='labels-select-menu']//summary");
 		issue.setLabel(newLabel);
 	}
 	
@@ -91,13 +95,13 @@ public class Github extends Base {
 	
 	public void closeIssue(Issue issue) {
 		searchIssue(issue);
-		click("//button[@name='comment_and_close']");
+		click("//button[contains(@name,'comment_and_close')]");		
 		issue.setClosed(true);
 	}
 	
 	public void openIssue(Issue issue) {
 		searchIssue(issue);
-		click("//button[@name='comment_and_open']");		
+		click("//button[contains(@name,'comment_and_open')]");		
 		issue.setClosed(false);
 	}
 	
