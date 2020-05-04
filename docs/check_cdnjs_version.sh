@@ -5,19 +5,14 @@
 
 # NOTE: Important of course to check that nothing is broken afterwards by testing the updated HTML files.
 
-# Requires a Unix shell and jq
-
 CDNPATH="https://cdnjs.cloudflare.com/ajax/libs/"
 
 UPDATE="false"
 if [ "$1" == "update" ]
 then
-	echo "update given"
 	UPDATE="true"
 	shift
 fi 
-
-echo $#
 
 # Loop files
 while [ $# -gt 0 ]
@@ -47,6 +42,7 @@ do
 			then
 				cat $FILE | sed "s/$LIB\/$VERSION/$LIB\/$NEWEST_VERSION/" > $FILE.tmp
 				cp $FILE.tmp $FILE
+				rm $FILE.tmp
 			fi
 		else
 			echo "    OK"
