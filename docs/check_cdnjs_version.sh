@@ -1,14 +1,21 @@
 # Check HTML file cdnjs.com references to check if most recent library version is used
 
 # Argument(s) are HTML file names to check.
-# If first argument given is "update", then update the HTML file references as well.
+# If first argument given is "update", then update the versions referenced in the HTML file(s).
 
 # NOTE: Important of course to check that nothing is broken afterwards by testing the updated HTML files.
 
 CDNPATH="https://cdnjs.cloudflare.com/ajax/libs/"
 
+if [ $# == 0 ]
+then
+	echo "Usage: $0 [--update] {list of HTML files}"
+	echo "  If --update flag is given, the library refences in the HTML files will be updated. Otherwise they will just be checked." 
+	exit 1
+fi
+
 UPDATE="false"
-if [ "$1" == "update" ]
+if [ "$1" == "--update" ]
 then
 	UPDATE="true"
 	shift
