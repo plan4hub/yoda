@@ -205,7 +205,8 @@ var yoda = (function() {
 		barColors: [
 			'rgb(255, 80, 80)', // red
 			'rgb(255, 153, 0)', // orange
-			'rgb(102, 0, 255)', // blue
+//			'rgb(102, 0, 255)', // blue .... too blue
+			'rgb(102, 153, 255)', // blue .... too blue
 			'rgb(0, 204, 0)', // green
 			'rgb(204, 255, 51)', // yellow
 			'rgb(204, 102, 255)', // purple
