@@ -730,8 +730,11 @@ Chart.plugins.register({
          var meta = chartInstance.getDatasetMeta(i);
          if (!meta.hidden) {
              meta.data.forEach(function(element, index) {
-                 // Draw the text in black, with the specified font
-                 ctx.fillStyle = 'rgb(0, 0, 0)';
+                 // Draw the text in black (line) or whitish (bar) with the specified font
+            	 if (dataset.type == "bar" && stacked == true)
+            		 ctx.fillStyle = 'rgb(255, 255, 255)';
+            	 else
+            		 ctx.fillStyle = 'rgb(0, 0, 0)';
                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
 
                  // Just naively convert to string for now
@@ -744,7 +747,7 @@ Chart.plugins.register({
                  var padding = 5;
                  var position = element.tooltipPosition();
                  
-                 if (stacked == false) { 
+                 if (stacked == false || dataset.type == "line") { 
                 	 // Label above bar
                 	 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);
                  } else {
