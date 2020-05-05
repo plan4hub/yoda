@@ -31,6 +31,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/js/select2.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
@@ -111,12 +112,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Chart title</span>
 		</div>
 		
+		<div class="field" style="display: none;">
+			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
+			<span class="tooltip">CSV field delimiter</span>
+		</div>
+		
 		<button id="drawcfd" onclick='startChart("CFD")'>Draw CFD</button>
 		<button id="drawlt" onclick='startChart("LT")'>Draw Lead Time</button>
 	</div>
 
 	<div style="width: 90%">
-		<canvas id="canvas"></canvas>
+		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val())'></canvas>
 	</div>
 
 	<div id="snackbar">Some text some message..</div>
@@ -126,9 +132,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.enableMenu();
 		
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
 		yoda.getDefaultLocalStorage("#interval", "yoda.cfd.interval");
 
 		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
 		yoda.decodeUrlParam("#interval", "interval");

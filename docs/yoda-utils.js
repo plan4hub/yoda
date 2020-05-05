@@ -1225,7 +1225,49 @@ var yoda = (function() {
 			} else {	
 				return issue.closed_at;
 			}
+		},
+		
+		// Generic chart data export. A bit rudamentary, but will get you the data in the graph.
+		chartCSVExport: function(csvDelimiter) {
+			console.log("Exporting graph data to csv. Delimiter: " + csvDelimiter);
+			if (window.myMixedChart == undefined || window.myMixedChart == null) {
+				yoda.showSnackbarError("No current chart", 3000);
+				return;
+			}
+			var chartData = window.myMixedChart.chart.data;
+			
+			var data = []; 
+			var fields = [];
+			fields.push("Label");
+			for (var i = 0; i < chartData.datasets.length; i++) {
+				fields.push(chartData.datasets[i].label); 
+			} 
+
+			for (var j = 0; j < chartData.labels.length; j++) {
+				var row = [];
+				
+				// First label
+				row.push(chartData.labels[j]);
+				
+				// Then data sets
+				for (var i = 0; i < chartData.datasets.length; i++) {
+					row.push(chartData.datasets[i].data[j]); 
+				} 
+				data.push(row);
+			} 
+
+			config = {
+					quotes: false,
+					quoteChar: '"',
+					delimiter: csvDelimiter,
+					header: true,
+					newline: "\r\n"
+			};
+			
+			// Convert to CSV, the download
+			result = Papa.unparse({data: data, fields: fields}, config);
+			var fileName = "yoda-data.csv"; 
+			yoda.downloadFile(result, fileName);
 		}
 	}
-
 })();

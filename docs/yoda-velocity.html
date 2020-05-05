@@ -120,10 +120,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             <span class="tooltip">Show percentage values, instead of absolutes for story point</span>
 		</div>
 		
+		<div class="field" style="display: none;">
+			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
+			<span class="tooltip">CSV field delimiter</span>
+		</div>
 	</div>
 
-	<div style="width: 80%">
-		<canvas id="canvas"></canvas>
+	<div style="width: 90%">
+		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val())'></canvas>
 	</div>
 
 	<script>
@@ -132,11 +136,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
 
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#repo", "repo");
+		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		

@@ -721,46 +721,6 @@ function githubAuth() {
 
 // --------------
 
-function chartCSVExport() {
-	if (window.myMixedChart == undefined || window.myMixedChart == null) {
-		yoda.showSnackbarError("No current chart", 3000);
-		return;
-	}
-	var chartData = window.myMixedChart.chart.data;
-	
-	var data = []; 
-	var fields = [];
-	fields.push("Label");
-	for (var i = 0; i < chartData.datasets.length; i++) {
-		fields.push(chartData.datasets[i].label); 
-	} 
-
-	for (var j = 0; j < chartData.labels.length; j++) {
-		var row = [];
-		
-		// First label
-		row.push(chartData.labels[j]);
-		
-		// Then data sets
-		for (var i = 0; i < chartData.datasets.length; i++) {
-			row.push(chartData.datasets[i].data[j]); 
-		} 
-		data.push(row);
-	} 
-
-	config = {
-			quotes: false,
-			quoteChar: '"',
-			delimiter: ';',
-			header: true,
-			newline: "\r\n"
-	};
-	
-	result = Papa.unparse({data: data, fields: fields}, config);
-	var fileName = "yoda-time-stat.csv"; 
-	yoda.downloadFile(result, fileName);
-}
-
 //Label drawing
 Chart.plugins.register({
  afterDatasetsDraw: function(chartInstance, easing) {

@@ -166,6 +166,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed.<br>For velocity chart, show story points per day.</span>
 		</div>
 
+		<div class="field" style="display: none;">
+			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
+			<span class="tooltip">CSV field delimiter</span>
+		</div>
+
 		<div class="field" id="historyfield" hidden>
 			<label>History</label>
 			<input type="checkbox" id="history">
@@ -174,7 +179,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	</div>
 
 	<div style="width: 90%">
-		<canvas id="canvas" onclick="chartCSVExport()"></canvas>
+		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val())'></canvas>
 	</div>
 
 	<div id="snackbar">Some text some message..</div>
@@ -184,6 +189,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.enableMenu();
 
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
 		yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
 		yoda.getDefaultLocalStorage("#labelsplit", "yoda.time.labelsplit");
 		yoda.getDefaultLocalStorage("#other", "yoda.time.other");
@@ -193,7 +199,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParamRadio("count", "count");
 
-		// repo and repoList handled later, both are supported.		
+		// repo and repoList handled later, both are supported.
+		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
 		yoda.decodeUrlParam("#interval", "interval");

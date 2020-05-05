@@ -39,7 +39,6 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");
-	params = addIfNotDefault(params, "csvdelimiter");
 	if ($("#milestonelist").val() != "") {
 		params += "&milestone=" + $("#milestonelist").val(); 
 	}
