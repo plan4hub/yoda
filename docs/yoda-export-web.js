@@ -258,7 +258,8 @@ function downloadImages() {
 			url: image.fullPath,
 			type: "GET",
 			dataType: 'binary',
-			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
+//			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
+//			headers:{'X-Requested-With':'XMLHttpRequest'},
 			processData: false,
 			success: function(data){
 				logMessage("Downloaded image file " + image.fullPath);
