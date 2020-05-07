@@ -254,13 +254,16 @@ function downloadImages() {
 		// Download file, then call recursive.
 		image = issueImages.pop();
 		logMessage("Starting download of " + image.fullPath);
+
+		// Header to accept all.
+		var headers = [];
+		headers['Accept'] = '*/*';
 		
 		$.ajax({
 			url: image.fullPath,
 			type: "GET",
 			dataType: 'binary',
-//			headers:{'Content-Type':'image/png','X-Requested-With':'XMLHttpRequest'},
-//			headers:{'X-Requested-With':'XMLHttpRequest'},
+			headers : headers,
 			processData: false,
 			success: function(data){
 				logMessage("  Success");
