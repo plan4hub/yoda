@@ -253,6 +253,7 @@ function downloadImages() {
 	} else {
 		// Download file, then call recursive.
 		image = issueImages.pop();
+		logMessage("Starting download of " + image.fullPath);
 		
 		$.ajax({
 			url: image.fullPath,
@@ -262,10 +263,14 @@ function downloadImages() {
 //			headers:{'X-Requested-With':'XMLHttpRequest'},
 			processData: false,
 			success: function(data){
-				logMessage("Downloaded image file " + image.fullPath);
-				console.log("Downloading " + image.fullPath + " to " + image.path);
+				logMessage("  Success");
+				console.log("Downloaded " + image.fullPath + " to " + image.path);
 				issueZipRoot.file(image.path, data);
 				downloadImages();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				logMessage("  Failure: " + textStatus);
+				consoel.log("Failed to download " + image.fullPath + ": " + textStatus);
 			}
 		}); 
 	}
