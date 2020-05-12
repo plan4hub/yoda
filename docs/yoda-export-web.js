@@ -195,11 +195,17 @@ function buildIndex() {
 		indexHTML += '<body>';
 		indexHTML += '<div class="indextitle">' + title + '</div>';
 		indexHTML += '<table class="indextable">';
-		indexHTML += '<tr><th align="left">Issue Id</th><th align="left">State</th><th width="18%" align="left">Labels</th>';
+		indexHTML += '<tr><th align="left">Id</th><th align="left">State</th><th align="left">Labels</th>';
 		if ($('#showmilestone').is(":checked")) {
-			indexHTML += '<th align="left" width="17%">Milestone</th>';
+			indexHTML += '<th align="left">Milestone</th>';
 		}
-		indexHTML += '<th width="50%" align="left">Title</th></tr>';
+		indexHTML += '<th width="50%" align="left">Title</th>';
+		
+		if ($('#showcomment').is(":checked")) {
+			indexHTML += '<th align="left" width="25%">Last comment</th>';
+		}
+		indexHTML += '</tr>\n';
+		
 		for (var i = 0; i < globIssues.length; i++) {
 			issue = globIssues[i];
 			var issueRepo = yoda.getUrlRepo(issue.url);
@@ -229,7 +235,15 @@ function buildIndex() {
 			}
 
 			indexHTML += '<td align="left">' + issue.title + '</td>';
-			indexHTML += '</tr>';
+			
+			if ($('#showcomment').is(":checked")) {
+				if (issue.last_comment == null)
+					indexHTML += '<td align="left"></td>';
+				else
+					indexHTML += '<td align="left">' + issue.last_comment.body_html + '</td>';
+			}
+			
+			indexHTML += '</tr>\n';
 		}
 		indexHTML += '</table></body>';
 		
@@ -325,6 +339,13 @@ function issueComments(issue) {
 // STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 function processComments(issue, comments) {
 	console.log("issueComments for: " + issue.url + ", no of comments: " + comments.length);
+	
+	// Ok, here we will get the last comment and put into issue.
+	issue.last_comment = null;
+	if (comments.length > 0) {
+		issue.last_comment = comments[comments.length - 1];
+//		console.log(issue.last_comment);
+	}
 
 	issueEvents(issue, comments);
 }
