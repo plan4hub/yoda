@@ -121,7 +121,7 @@ function logMessage(message) {
 var issueZipRoot = null;
 var noIssuesActive = 0;
 var globIssues = null;
-var indexIssues = []; // will move them here after donw processing, including any status information. 
+var globIndex = 0;
 var issueImages = [];
 var globLabels = [];
 function exportIssues(issues) {
@@ -130,15 +130,18 @@ function exportIssues(issues) {
 	addCSSFile();
 	noIssuesActive = 0;
 	globIssues = issues;
+	globIndex = 0;
 	issueImages = [];
 	globLabels = [];
 	
 	console.log("Exporting issues. No issues: " + issues.length);
 	logMessage("Info: Received " + issues.length + " issues. Now getting detailed data and building ZIP file for download.");
 
-	// STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step I2 when done.
+	// NOTE: Some steps below are skipped if only doing index pages (especially if not doing last comment)
+	
+	// STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step 0 when done.
 
-	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.
+	// STEP 0: Extract first issue from list, then proceed to step 1 (if we need to get comments at all)1.
 	// STEP 1: Get issue comments, then call on to step 2
 	// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 	// STEP 3: Get issue events, then call on to step 4
@@ -168,8 +171,7 @@ function getLabels(repoLeft) {
 
 		// Call on.
 		// Copy a copy of all issues before...
-		issueProcessLoop();
-		
+		issueProcessLoop(0);
 	} else {
 		var repo = repoLeft.pop();
 		var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/labels";
@@ -179,14 +181,10 @@ function getLabels(repoLeft) {
 			getLabels(repoLeft);
 		});
 	}
-	
 }
-
 
 // STEP I2: Index generation, one file per repository
 function buildIndex() {
-	console.log(indexIssues.length);
-	globIssues = indexIssues; // restore list that we broke..
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
@@ -199,7 +197,7 @@ function buildIndex() {
 		indexHTML += '<table class="indextable">';
 		indexHTML += '<tr><th align="left">Issue Id</th><th align="left">State</th><th width="18%" align="left">Labels</th>';
 		if ($('#showmilestone').is(":checked")) {
-			indexHTML += '<th align="left">Milestone</th>';
+			indexHTML += '<th align="left" width="17%">Milestone</th>';
 		}
 		indexHTML += '<th width="50%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
@@ -208,7 +206,13 @@ function buildIndex() {
 			if (issueRepo != repoList[repInd])
 				continue; // Issue belongs to different repo;
 			indexHTML += '<tr>';
-			indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
+			
+			if ($('#onlyoverview').is(":checked")) {
+				indexHTML += '<td align="left">' + issue.number + '</td>';
+			} else {
+				indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
+			}
+				
 			indexHTML += '<td align="left">' + issue.state + '</td>';
 			var labels = "";
 			for (var l = 0; l < issue.labels.length; l++) {
@@ -235,31 +239,28 @@ function buildIndex() {
 	console.log("Done building indexes");
 }
 
-
 // STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
-var maxParallelIssues = 1;
 function issueProcessLoop() {
-	console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
-	if (noIssuesActive == 0 && globIssues.length == 0) {
-		// We are done with issues, now turn attention to download of images before downloading ZIP file.
+	console.log("issueProcessLoop. index " + globIndex + " / " + globIssues.length);
+	if (globIndex == globIssues.length) {
+		// We are done with issues, now turn attention to index and download of images before downloading ZIP file.
 		buildIndex();
-		downloadImages();
-		return;
-	}
-	
-	if (noIssuesActive < maxParallelIssues && globIssues.length > 0) {
+		if ($('#onlyoverview').is(":checked")) {
+			console.log("Only index, so writing ZIP now.");
+			writeZip();
+		} else {
+			downloadImages();
+		}
+	} else {
 		// Let's do some work!
-		noIssuesActive++;
-		issue = globIssues[0];
-		indexIssues = indexIssues.concat(globIssues.splice(0, 1));  
-		issueComments(issue);
-		return issueProcessLoop();
-	}
-	
-	if (noIssuesActive > 0 && globIssues.length == 0) {
-		console.log("We just need to wait for the remaining to complete...");
-		// NOP
-		return;
+		issue = globIssues[globIndex];
+		globIndex++;
+
+		// Call on for comments.
+		if ($('#onlyoverview').is(":checked") && !$('#showcomment').is(":checked"))
+			issueProcessLoop();
+		else
+			issueComments(issue);
 	}
 }
 
@@ -325,19 +326,20 @@ function issueComments(issue) {
 function processComments(issue, comments) {
 	console.log("issueComments for: " + issue.url + ", no of comments: " + comments.length);
 
-	// Download images.
-	
 	issueEvents(issue, comments);
-	
 }
 
 // STEP 3: Get issue events, then call on to step 4
 function issueEvents(issue, comments) {
-	var issueUrlEvents = issue.url + "/events";
-	console.log("Issues Events URL: " + issueUrlEvents);
-	yoda.getLoop(issueUrlEvents, 1, [], 
+	if ($('#onlyoverview').is(":checked")) {
+		formatIssue(issue, comments, []);
+	} else {
+		var issueUrlEvents = issue.url + "/events";
+		console.log("Issues Events URL: " + issueUrlEvents);
+		yoda.getLoop(issueUrlEvents, 1, [], 
 			function(events) { formatIssue(issue, comments, events); }, 
 			function(errorText) { yoda.showSnackbarError("Error getting issue events: " + errorText, 3000);});
+	}
 }
 
 // STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
@@ -476,10 +478,11 @@ function formatIssue(issue, comments, events) {
 //STEP 5: Add to ZIP FILE. Then to step 0.
 function writeToZip(issue, issueHTML) {
 	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.url) + "/" + issue.number + ".html";
-	issueZipRoot.file(fileName, issueHTML);
+	if (!$('#onlyoverview').is(":checked")) {
+		issueZipRoot.file(fileName, issueHTML);
+		logMessage("  Added file " + fileName + " to zip"); 
+	}
 	
-	noIssuesActive--;
-	logMessage("Added file " + fileName + ". Remaining # of issues: " + (globIssues.length + noIssuesActive));
 	issueProcessLoop();
 }
 
@@ -500,7 +503,9 @@ function addCSSFile() {
 	css += '.issuefield { font-weight:bold;}\n';
  	css += '.issuelabel { margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px; }\n';
 	
-	console.log(issueZipRoot.file("css/issues.css", css));
+	if (!$('#onlyoverview').is(":checked")) {
+		console.log(issueZipRoot.file("css/issues.css", css));
+	}
 }
 
 function cssIndex() {
