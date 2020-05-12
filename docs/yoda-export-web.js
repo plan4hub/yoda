@@ -121,6 +121,7 @@ function logMessage(message) {
 var issueZipRoot = null;
 var noIssuesActive = 0;
 var globIssues = null;
+var indexIssues = []; // will move them here after donw processing, including any status information. 
 var issueImages = [];
 var globLabels = [];
 function exportIssues(issues) {
@@ -167,7 +168,6 @@ function getLabels(repoLeft) {
 
 		// Call on.
 		// Copy a copy of all issues before...
-		indexIssues = yoda.deepCopy(globIssues);
 		issueProcessLoop();
 		
 	} else {
@@ -185,6 +185,7 @@ function getLabels(repoLeft) {
 
 // STEP I2: Index generation, one file per repository
 function buildIndex() {
+	console.log(indexIssues.length);
 	globIssues = indexIssues; // restore list that we broke..
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
@@ -192,17 +193,21 @@ function buildIndex() {
 		console.log("Building index file for: " + repoList[repInd]);
 		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
 		var indexHTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title>';
-		indexHTML += '<link rel="stylesheet" type="text/css" href="css/issues.css"></head>';
-		indexHTML += '<body class="indexlayout">';
+		indexHTML += '<style>' + cssIndex() + '</style>';
+		indexHTML += '<body>';
 		indexHTML += '<div class="indextitle">' + title + '</div>';
 		indexHTML += '<table class="indextable">';
-		indexHTML += '<tr class="indexheader"><th align="left">Issue Id</th><th align="left">State</th><th width="18%" align="left">Labels</th><th width="17%" align="left">Milestone</th><th width="50%" align="left">Title</th></tr>';
+		indexHTML += '<tr><th align="left">Issue Id</th><th align="left">State</th><th width="18%" align="left">Labels</th>';
+		if ($('#showmilestone').is(":checked")) {
+			indexHTML += '<th align="left">Milestone</th>';
+		}
+		indexHTML += '<th width="50%" align="left">Title</th></tr>';
 		for (var i = 0; i < globIssues.length; i++) {
 			issue = globIssues[i];
 			var issueRepo = yoda.getUrlRepo(issue.url);
 			if (issueRepo != repoList[repInd])
 				continue; // Issue belongs to different repo;
-			indexHTML += '<tr class="indexrow">';
+			indexHTML += '<tr>';
 			indexHTML += '<td align="left">' + '<a href="' + $("#owner").val() + '/' + issueRepo + '/' + issue.number + '.html" target="_blank">' + issue.number + '</td>';
 			indexHTML += '<td align="left">' + issue.state + '</td>';
 			var labels = "";
@@ -210,11 +215,13 @@ function buildIndex() {
 				labels += formatLabel(issueRepo, issue.labels[l].name);
 			}
 			indexHTML += '<td align="left">' + labels + '</td>';
-			
-			if (issue.milestone != null) {
-				indexHTML += '<td align="left">' + issue.milestone.title + '</td>';
-			} else {
-				indexHTML += '<td align="left"></td>';
+
+			if ($('#showmilestone').is(":checked")) {
+				if (issue.milestone != null) {
+					indexHTML += '<td align="left">' + issue.milestone.title + '</td>';
+				} else {
+					indexHTML += '<td align="left"></td>';
+				}
 			}
 
 			indexHTML += '<td align="left">' + issue.title + '</td>';
@@ -225,6 +232,7 @@ function buildIndex() {
 		fileName = repoList[repInd] + ".html";
 		issueZipRoot.file(fileName, indexHTML);
 	}
+	console.log("Done building indexes");
 }
 
 
@@ -243,7 +251,7 @@ function issueProcessLoop() {
 		// Let's do some work!
 		noIssuesActive++;
 		issue = globIssues[0];
-		globIssues.splice(0, 1);  // BUG:::: this kills the index
+		indexIssues = indexIssues.concat(globIssues.splice(0, 1));  
 		issueComments(issue);
 		return issueProcessLoop();
 	}
@@ -259,6 +267,7 @@ function issueProcessLoop() {
 function downloadImages() {
 	if (issueImages.length == 0) {
 		// Done
+		console.log("Done with images.");
 		writeZip();
 	} else {
 		// Download file, then call recursive.
@@ -291,9 +300,10 @@ function downloadImages() {
 
 // STEP F2: Write ZIP. Finalize things. 
 function writeZip() {
+	console.log("Writing ZIP file.");
 	issueZipRoot.generateAsync({type:"blob"})
 	.then(function(content) {
-		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val() + ".zip");
+		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val());
 	});
 
 	logMessage("Succesfully downloaded ZIP file with issues.");
@@ -490,17 +500,20 @@ function addCSSFile() {
 	css += '.issuefield { font-weight:bold;}\n';
  	css += '.issuelabel { margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px; }\n';
 	
-	// Index page stuff
-	css += '.indexlayout {}\n';
-	css += '.indextitle { margin:15px 0px 15px 20px; font-size:32px; font-weight:400;}\n';
-	css += '.indextable { }\n';
-	css += '.indexheader { }\n';
-	css += '.indexrow { }\n';
-	css += 'th { border-bottom: 5px solid #01a982; border-collapse: collapse; }\n';
-	css += 'td { border-bottom: 1px solid black; border-collapse: collapse; }\n';
-	css += 'th, td { padding: 15px; }\n';
-
 	console.log(issueZipRoot.file("css/issues.css", css));
+}
+
+function cssIndex() {
+	var css = "";
+
+	// Index page stuff
+	css += '.indextitle { font-size:30px; }\n';
+	css += '.indextable { font-size:14px; border-collapse: collapse; }\n';
+	css += 'th { border-bottom: 5px solid #01a982; }\n';
+	css += 'td { border-bottom: 1px solid black; }\n';
+	css += 'th, td { padding: 10px; }\n';
+
+	return css;
 }
 
 function formatTime(ts) {
