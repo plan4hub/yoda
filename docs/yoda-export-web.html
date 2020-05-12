@@ -107,9 +107,27 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
+			<label>Overview only</label>
+			<input type="checkbox" id="onlyoverview">
+			<span class="tooltip">Don't do full zip with all commnents. Only do the overview.</span>
+		</div>
+
+		<div class="field">
+			<label>Show milestone</label>
+			<input type="checkbox" id="showmilestone" checked>
+			<span class="tooltip">Include milestone column in overview.</span>
+		</div>
+
+		<div class="field">
+			<label>Overview comment</label>
+			<input type="checkbox" id="showcomment">
+			<span class="tooltip">Include last comment column in overview.</span>
+		</div>
+
+		<div class="field">
 			<label>Output file name</label> <input type="text" id="outputfile"
-				size="25" value="issues.zip"> <span class="tooltip">Output
-				file name</span>
+				size="25" value="issues"> <span class="tooltip">Output
+				file name (.zip or .html extension will be added)</span>
 		</div>
 		
 		<div class="field">
@@ -138,12 +156,15 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#state", "state");
+		yoda.decodeUrlParamBoolean("#onlyoverview", "onlyoverview");
+		yoda.decodeUrlParamBoolean("#showmilestone", "showmilestone");
+		yoda.decodeUrlParamBoolean("#showcomment", "showcomment");
 		yoda.decodeUrlParam("#outputfile", "outputfile");
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
 		yoda.decodeUrlParam("#downloadimages", "downloadimages");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
-	
+		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
 

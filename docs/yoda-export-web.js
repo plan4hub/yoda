@@ -90,7 +90,16 @@ function getUrlParams() {
 	if ($("#state").val() != "open") {
 		params += "&state=" + $("#state").val(); 
 	}
-
+	if ($('#onlyoverview').is(":checked")) {
+		params += "&onlyoverview=true";
+	}
+	if (!$('#showmilestone').is(":checked")) {
+		params += "&showmilestone=false";
+	}
+	if ($('#showcomment').is(":checked")) {
+		params += "&showcomment=true";
+	}
+	
 	return params;
 }
 
@@ -104,7 +113,6 @@ function logMessage(message) {
 	bottom = $('#console').prop('scrollHeight') - $('#console').height()
 	$('#console').scrollTop(bottom);
 }
-
 
 
 // ---------------------------------------
@@ -129,16 +137,17 @@ function exportIssues(issues) {
 
 	// STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step I2 when done.
 
-	// STEP I2: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
-	// We will build one overview page per respository and put into the root folder. When done on to STEP 0.
-
-	
 	// STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1.
 	// STEP 1: Get issue comments, then call on to step 2
 	// STEP 2: Investigate issue body and comments. For each image, download image, return to STEP 2 while still images to be downloaded. Index comment#
 	// STEP 3: Get issue events, then call on to step 4
 	// STEP 4: Format data into HTML file. Call GitHub markdown converter on result, rest in STEP 5
 	// STEP 5: Add to ZIP FILE. Then to step 0.
+
+	// ISSUE: Right now globIssues are being consumed by algorithm... messy..
+	
+	// STEP I2: Generate overview pages here (can be done in parallel, we have the information - maybe except label coloring ...
+	// We will build one overview page per respository and put into the root folder. When done on to STEP 0.
 
 	// STEP F1: Download image files collected during the issue processing, call resursively self until no more images. Then call STEP F2
 	// STEP F2: Write/download zip file
@@ -156,8 +165,10 @@ function getLabels(repoLeft) {
 		console.log(globLabels);
 		logMessage("Succesfully retrieved all repository labels ...");
 
-		// Call I2
-		buildIndex();
+		// Call on.
+		// Copy a copy of all issues before...
+		indexIssues = yoda.deepCopy(globIssues);
+		issueProcessLoop();
 		
 	} else {
 		var repo = repoLeft.pop();
@@ -174,6 +185,7 @@ function getLabels(repoLeft) {
 
 // STEP I2: Index generation, one file per repository
 function buildIndex() {
+	globIssues = indexIssues; // restore list that we broke..
 	var repoList = $("#repolist").val();
 	console.log("List of repositories: " + repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
@@ -213,9 +225,6 @@ function buildIndex() {
 		fileName = repoList[repInd] + ".html";
 		issueZipRoot.file(fileName, indexHTML);
 	}
-
-	// Call on.
-	issueProcessLoop();
 }
 
 
@@ -225,6 +234,7 @@ function issueProcessLoop() {
 	console.log("issueProcessLoop. noIssuesActive: " + noIssuesActive + ", issues.length: " + globIssues.length);
 	if (noIssuesActive == 0 && globIssues.length == 0) {
 		// We are done with issues, now turn attention to download of images before downloading ZIP file.
+		buildIndex();
 		downloadImages();
 		return;
 	}
@@ -233,7 +243,7 @@ function issueProcessLoop() {
 		// Let's do some work!
 		noIssuesActive++;
 		issue = globIssues[0];
-		globIssues.splice(0, 1);
+		globIssues.splice(0, 1);  // BUG:::: this kills the index
 		issueComments(issue);
 		return issueProcessLoop();
 	}
@@ -283,7 +293,7 @@ function downloadImages() {
 function writeZip() {
 	issueZipRoot.generateAsync({type:"blob"})
 	.then(function(content) {
-		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val());
+		yoda.downloadFileWithType('application/zip', content, $("#outputfile").val() + ".zip");
 	});
 
 	logMessage("Succesfully downloaded ZIP file with issues.");
@@ -478,14 +488,17 @@ function addCSSFile() {
 	css += '.issuetime { font-weight:bold;}\n';
 	css += '.issueuser { color:darkblue; font-weight:bold;}\n';
 	css += '.issuefield { font-weight:bold;}\n';
-
+ 	css += '.issuelabel { margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px; }\n';
+	
 	// Index page stuff
 	css += '.indexlayout {}\n';
 	css += '.indextitle { margin:15px 0px 15px 20px; font-size:32px; font-weight:400;}\n';
 	css += '.indextable { }\n';
-	css += '.indexheader { background-color: #f6f8fa; padding: 15px 0px 15px 0px;}\n';
+	css += '.indexheader { }\n';
 	css += '.indexrow { }\n';
-	css += 'td, th { border: 1px solid lightgrey; padding: 10px 5px 10px 5px;}\n';
+	css += 'th { border-bottom: 5px solid #01a982; border-collapse: collapse; }\n';
+	css += 'td { border-bottom: 1px solid black; border-collapse: collapse; }\n';
+	css += 'th, td { padding: 15px; }\n';
 
 	console.log(issueZipRoot.file("css/issues.css", css));
 }
@@ -503,6 +516,7 @@ function formatField(field) {
 	return '<span class="issuefield">' + field + '</span>';
 }
 
+
 function formatLabel(repo, label) {
 	// TODO: no-break + margins.
 	
@@ -512,6 +526,8 @@ function formatLabel(repo, label) {
 			var foreground = yoda.bestForeground(globLabels[repo][l].color);
 			// Got it.
 			return '<span style="background-color: #' + globLabels[repo][l].color + '; color:' + foreground + '; margin: 2px; 10px; 2px; 0px; white-space: nowrap; padding: 4px 8px 4px 8px; border-radius: 5px;">' + label + '</span>'; 
+
+//			return '<span class="issuelabel" style="background-color: #' + globLabels[repo][l].color + '; color:' + foreground + '; ">' + label + '</span>'; 
 		}
 	}
 	return label; // Strange... 
