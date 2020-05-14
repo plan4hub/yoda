@@ -833,8 +833,8 @@ var yoda = (function() {
 			if (userId == "" || accessToken == "") {
 				console.log("Empty userId/accessToken.");
 			} else {
-				var authdata = base64_encode(userId  + ':' + accessToken);
-				headers['Authorization'] = 'Basic ' + authdata;
+				// Review this part!
+				headers['Authorization'] = 'token ' + accessToken;
 //				headers['PRIVATE-TOKEN'] = accessToken;  // Gitlab play. API is differnet anyhow
 			}
 			
