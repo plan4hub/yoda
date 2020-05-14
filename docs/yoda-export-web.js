@@ -255,7 +255,7 @@ function buildIndex() {
 
 // STEP 0: If number of active issues is below "max # of parallel", increment number of active issues, proceed to STEP 1 / repeat STEP 0
 function issueProcessLoop() {
-	console.log("issueProcessLoop. index " + globIndex + " / " + globIssues.length);
+	console.log("issueProcessLoop. index " + (globIndex + 1) + " / " + globIssues.length);
 	if (globIndex == globIssues.length) {
 		// We are done with issues, now turn attention to index and download of images before downloading ZIP file.
 		buildIndex();
@@ -269,6 +269,7 @@ function issueProcessLoop() {
 		// Let's do some work!
 		issue = globIssues[globIndex];
 		globIndex++;
+		logMessage("Processing issue: " + globIndex + " / " + globIssues.length);
 
 		// Call on for comments.
 		if ($('#onlyoverview').is(":checked") && !$('#showcomment').is(":checked"))
@@ -457,39 +458,41 @@ function formatIssue(issue, comments, events) {
 	// Close off things.
 	issueHTML += "</body>\n";
 	
-	// Replace any references to picture files. These are stored into e.g. 
-	// https://media.github.hpe.com/user/3552/files/01f4b4e0-3c7d-11e6-887a-845324166c0d  (HPE)
-	// For github.com:
-	// https://user-images.githubusercontent.com/35253007/43787869-50bc2ab4-9a6c-11e8-8f78-5bae137cdb0d.png
-	// Actually, we probablyl have full control over images, so why don't we just get all image files?
-	console.log("Extracting image references...");
-	var searchImg = '<img src="';
-	var imgRef = issueHTML.indexOf(searchImg, 0);
-	var urlHack = document.createElement('a');
+	if (!$('#onlyoverview').is(":checked")) {
+		// Replace any references to picture files. These are stored into e.g. 
+		// https://media.github.hpe.com/user/3552/files/01f4b4e0-3c7d-11e6-887a-845324166c0d  (HPE)
+		// For github.com:
+		// https://user-images.githubusercontent.com/35253007/43787869-50bc2ab4-9a6c-11e8-8f78-5bae137cdb0d.png
+		// Actually, we probablyl have full control over images, so why don't we just get all image files?
+		console.log("Extracting image references...");
+		var searchImg = '<img src="';
+		var imgRef = issueHTML.indexOf(searchImg, 0);
+		var urlHack = document.createElement('a');
 
-	console.log(urlHack.pathname);
-	downloadFilter = $("#downloadimages").val();
-	for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
-		// Get full path... will end with quote..
-		var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
-		var fullPath = issueHTML.substring(imgRef + searchImg.length, endQuote);
-		console.log("Full path is: " + fullPath);
-		urlHack.href = fullPath;
-		
-		issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
+		console.log(urlHack.pathname);
+		downloadFilter = $("#downloadimages").val();
+		for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
+			// Get full path... will end with quote..
+			var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
+			var fullPath = issueHTML.substring(imgRef + searchImg.length, endQuote);
+			console.log("Full path is: " + fullPath);
+			urlHack.href = fullPath;
 
-		if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
-			logMessage("  Added " + fullPath + " to download queue ...");
-			issueImages.push(issueImage);
-		}  else {
-			console.log("Skipping image: " + fullPath);
+			issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
+
+			if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
+				logMessage("  Added " + fullPath + " to download queue ...");
+				issueImages.push(issueImage);
+			}  else {
+				console.log("Skipping image: " + fullPath);
+			}
 		}
-	}
 
-	// Next, let's replace the image strings.
-	for (var i = 0; i < issueImages.length; i++) {
-		var re = new RegExp(issueImages[i].fullPath, "g");
-		issueHTML = issueHTML.replace(re, issueImages[i].localPath);
+		// Next, let's replace the image strings.
+		for (var i = 0; i < issueImages.length; i++) {
+			var re = new RegExp(issueImages[i].fullPath, "g");
+			issueHTML = issueHTML.replace(re, issueImages[i].localPath);
+		}
 	}
 	
 	// HTML COMPLETE ----------------------
