@@ -1003,6 +1003,13 @@ var yoda = (function() {
 			yoda.getLoop(getReposUrl, 1, [],
 				// Ok func
 				function(data) {
+					// 	This would be a good place to remove any archieved repos.
+					var r = data.length;
+					while (r--) {
+						if (data[r].archived != null && data[r].archived == true)
+							data.splice(r, 1);
+					}
+
 					// Sort and store repos.
 					data.sort(function(a,b) {
 						if (a.name.toLowerCase() > b.name.toLowerCase()) {
@@ -1011,6 +1018,7 @@ var yoda = (function() {
 							return -1;
 						}
 					});
+					
 					yoda_repoList = data;
 					
 					if (okFunc != null)
