@@ -1217,7 +1217,13 @@ var yoda = (function() {
 		createDate: function(issue) {
 			if (yoda.isLabelInIssue(issue, "Jira Migrated")) {
 				// Created	2019-09-05T06:52:20.096+0000
-				return yoda.extractFieldFromBodyTable(issue.body, "Created");
+				var t = yoda.extractFieldFromBodyTable(issue.body, "Created");
+				
+				// Let's remove any final +0000 part. Javascript Date for some strange reason dislikes this - but only some times!
+				var p = t.indexOf('+');
+				if (p != -1)
+					t = t.substr(0, p);
+				return t;
 			} else {
 				return issue.created_at;
 			}
