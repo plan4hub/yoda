@@ -1211,22 +1211,32 @@ var yoda = (function() {
 			var valueEnd = body.indexOf("\n", fieldStart);
 			return body.substring(valueStart + 1, valueEnd);
 		},
+		
+		// Remove offending part of date ("+0000" at end).
+		cleanDate: function(dateString) {
+			if (dateString == null)
+				return dateString;
+			var p = dateString.indexOf('+0000');
+			if (p != -1)
+				return dateString.substr(0, p);
+			else
+				return dateString;
+		},
 
 		// Helper function. Create date (to taken into account as well migrated issues from other systems.
 		// For now, hacking and hard-coding "Jira Migrated"..
 		createDate: function(issue) {
 			if (yoda.isLabelInIssue(issue, "Jira Migrated")) {
 				// Created	2019-09-05T06:52:20.096+0000
-				var t = yoda.extractFieldFromBodyTable(issue.body, "Created");
-				
-				// Let's remove any final +0000 part. Javascript Date for some strange reason dislikes this - but only some times!
-				var p = t.indexOf('+');
-				if (p != -1)
-					t = t.substr(0, p);
-				return t;
+				return yoda.cleanDate(yoda.extractFieldFromBodyTable(issue.body, "Created"));
 			} else {
-				return issue.created_at;
+				return yoda.cleanDate(issue.created_at);
 			}
+		},
+		
+		// Helper function for closed date
+		closedDate: function(issue) {
+			return yoda.cleanDate(issue.closed_at);
 		},
 
 		//Helper function for delete date (to taken into account as well migrated issues from other systems.

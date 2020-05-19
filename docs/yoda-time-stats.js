@@ -272,7 +272,6 @@ function createChart() {
 		} else {
 			dateArray.push(yoda.formatDate(date));
 		}
-
 		
 		// Prepare data array
 		var dataArrayForDay = new Array(bars.length);
@@ -301,10 +300,10 @@ function createChart() {
 			}
 			
 			// Closed, and closed before OR DURING date?
-			var closedString = yoda.closeDate(issues[i]); 
+			var closedString = yoda.closedDate(issues[i]); 
 			if (closedString != null) {
 				var closedDate = new Date(closedString);
-
+				
 				// Check if open now, all cases.
 				if (closedDate > date)
 					totalAlways++;
@@ -324,6 +323,10 @@ function createChart() {
 					continue;
 				}
 			} else {
+				if (issues[i].state != "open") {
+					console.log("SUPER AHAHHHHHHH");
+					console.log(issues[i].url);
+				}
 				totalAlways++;
 				if ((countType == "closed" || countType == "velocity"))
 					continue;
