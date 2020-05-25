@@ -749,14 +749,17 @@ Chart.plugins.register({
 
                  var padding = 5;
                  var position = element.tooltipPosition();
-                 
-                 if (stacked == false || dataset.type == "line") { 
-                	 // Label above bar
-                	 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);
-                 } else {
-                	 // Label inside bar ... gives a bit of trouble at buttom... 
-                	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);
-                 }
+
+            	 // Don't draw zeros in stacked bar chart
+            	 if (!(dataset.type == "bar" && stacked == true && dataset.data[index] == 0)) { 
+            		 if (stacked == false || dataset.type == "line") { 
+            			 // Label above bar
+            			 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);
+            		 } else {
+            			 // Label inside bar ... gives a bit of trouble at buttom... 
+            			 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);
+            		 }
+            	 }
              });
          }
      });
