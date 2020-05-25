@@ -1092,7 +1092,6 @@ var yoda = (function() {
 		
 		// Support functions for update functions below. First to get labels in filterlist which are "full"
 		getFullLabelFilters(labelFilter) {
-			console.log("labelFilter=" + labelFilter);
 			var filter = "";
 			var filterArray = labelFilter.split(",");
 			for (var f = 0; f < filterArray.length; f++) {
@@ -1103,6 +1102,37 @@ var yoda = (function() {
 				}
 			}
 			return filter;
+		},
+		
+		// Filter issues with regexp (i.e. filtering done explicitly by specifying some fields using "^"
+		// Issues without any labels matching the regexp will be removed from list.
+		// Filter out pull requests. Don't want them.
+		// The function will work on the yoda_issues variables.
+		filterIssuesReqExp: function(labelFilter) {
+			var filterArray = labelFilter.split(",");
+			for (var f = 0; f < filterArray.length; f++) {
+				if (filterArray[f].charAt(0) == '^') {
+					// We have a regexp filter. Let's run through the issues.
+					console.log("Applying regexp filter: " + filterArray[f]);
+					var labelReg = new RegExp(filterArray[f]);
+					for (var i = 0; i < yoda_issues.length;) {
+						var match = false;
+						for (var l = 0; l < yoda_issues[i].labels.length; l++) {
+							var labelName = yoda_issues[i].labels[l].name;
+							if (labelName.match(labelReg) != null) {
+								match = true;
+								break;
+							}
+						}
+						// Remove if no match. Notice the counting; not in for loop... 
+						if (match == false) {
+							yoda_issues.splice(i, 1);
+						} else {
+							i++;
+						}
+					}
+				}
+			}
 		},
 		
 		// Generic function to retrieve issues across multiple repos.
@@ -1138,6 +1168,7 @@ var yoda = (function() {
 				if (repoList.length == 1) {
 					// Last call completed.
 					yoda.filterPullRequests(yoda_issues);
+					yoda.filterIssuesReqExp(labelFilter);
 					if (okFunc != null)
 						okFunc(yoda_issues);
 				} else {
@@ -1165,6 +1196,7 @@ var yoda = (function() {
 			console.log("Get Issues URL:" + getIssuesUrl);
 			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
 				yoda.filterPullRequests(issues);
+				yoda.filterIssuesReqExp(labelFilter);
 				yoda_issues = issues;
 
 				if (okFunc != null)
