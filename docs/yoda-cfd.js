@@ -488,30 +488,6 @@ function errorFunc(errorText) {
 }
 
 
-//This function will retrieve all lables from the labelfilter filter field that are NOT prefixed by a minus. These will instead be used for later filtering 
-function getFilterLabels() {
-	allFilters = $("#labelfilter").val().split(",");
-	positiveFilter = [];
-	for (var i = 0; i < allFilters.length; i++) {
-		if (allFilters[i].charAt(0) != "-")
-			positiveFilter.push(allFilters[i]);
-	}
-	
-	return positiveFilter.join(",");
-}
-
-// This function will return the reverse of above, i.e. array of labels to be ignored. So, this one returns an array.
-function getFilterLabelsReverse() {
-	allFilters = $("#labelfilter").val().split(",");
-	negativeFilter = [];
-	for (var i = 0; i < allFilters.length; i++) {
-		if (allFilters[i].charAt(0) == "-")
-			negativeFilter.push(allFilters[i].substr(1));
-	}
-	
-	return negativeFilter;
-}
-
 // ----------------
 var _chartType = "";
 function storeIssuesThenCreateChart(issues) {
@@ -541,15 +517,6 @@ function storeIssuesThenCreateChart(issues) {
 		issues = milestonedIssues;
 	}
 	
-	negativeFilter = getFilterLabelsReverse();
-	for (var i = 0; i < issues.length;) {
-		if (yoda.isAnyLabelInIssue(issues[i], negativeFilter)) {
-			issues.splice(i, 1);
-		}  else {
-			i++;
-		}
-	}
-	
 	// Check for no issues
 	if (issues.length == 0) {
 		var ctx = document.getElementById("canvas").getContext("2d");
@@ -571,9 +538,9 @@ function storeIssuesThenCreateChart(issues) {
 function startChart(chartType) {
 	_chartType = chartType
 	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), getFilterLabels(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), getFilterLabels(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 // --------------

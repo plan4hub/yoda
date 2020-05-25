@@ -632,46 +632,11 @@ function storeEvents(events) {
 }
 
 
-//This function will retrieve all lables from the labelfilter filter field that are NOT prefixed by a minus. These will instead be used for later filtering 
-function getFilterLabels() {
-	allFilters = $("#labelfilter").val().split(",");
-	positiveFilter = [];
-	for (var i = 0; i < allFilters.length; i++) {
-		if (allFilters[i].charAt(0) != "-")
-			positiveFilter.push(allFilters[i]);
-	}
-	
-	return positiveFilter.join(",");
-}
-
-// This function will return the reverse of above, i.e. array of labels to be ignored. So, this one returns an array.
-function getFilterLabelsReverse() {
-	allFilters = $("#labelfilter").val().split(",");
-	negativeFilter = [];
-	for (var i = 0; i < allFilters.length; i++) {
-		if (allFilters[i].charAt(0) == "-")
-			negativeFilter.push(allFilters[i].substr(1));
-	}
-	
-	return negativeFilter;
-}
-
 var issues = [];
 function storeIssuesThenCreateChart(issuesResp) {
-	issues = [];
-	negativeFilter = getFilterLabelsReverse();
-	
-	for (var i = 0; i < issuesResp.length; i++) {
-		if (yoda.isAnyLabelInIssue(issuesResp[i], negativeFilter)) {
-			// drop it
-		}  else {
-			issues.push(issuesResp[i]);
-		}
-	}
-	
+	issues = issuesResp;
 	createChart();
 }
-
 
 var lastRepoEvents = "";
 function startChart() {
@@ -682,9 +647,9 @@ function startChart() {
 	}
 	
 	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), getFilterLabels(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), getFilterLabels(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 
 	// Get events as well. ONLY DO THIS ONCE PER REPO. Very heavy
 	if ($('#history').is(":checked") && lastRepoEvents != $("#repolist").val()) {

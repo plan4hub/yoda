@@ -153,6 +153,8 @@ Issues are shown in a bar chart with the X-axis showing dates between two dates 
 
 Per default, all issues in the selected repos are considered. It is possible to specify a label filter as a comma-separate list of label values (logical AND assumed). E.g. "T1 - Defect" to show only defects, if you labeling standard denotes defects with a "T1 - Defect" label. If you prefix label(s) in the list with a minus (-), issues marked with such label(s) are excluded.
 
+As a special filtering feature, you may filter also using regular expressions. If you specify in the comma-separated list a value starting `^` (or `-^` for negative match), the subsequent regular expression will be used as filter.  
+
 For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labeling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
 
 Instead of a regular expression, it is also possible to split issues into bars by simply specifying a comma-separate list of labels. Example: "bug, feature". 

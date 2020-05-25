@@ -1090,12 +1090,13 @@ var yoda = (function() {
 			return yoda_issues;
 		},
 		
-		// Support functions for update functions below. First to get labels in filterlist which are "full"
+		// Support functions for update functions below. First to get labels which can be directly given to the API. These are issues
+		// which are do NOT start with "-" (negative filter) or "^" (regular expression)
 		getFullLabelFilters(labelFilter) {
 			var filter = "";
 			var filterArray = labelFilter.split(",");
 			for (var f = 0; f < filterArray.length; f++) {
-				if (filterArray[f].charAt(0) != '^') {
+				if (filterArray[f].charAt(0) != '^' && filterArray[f].charAt(0) != '-') {
 					if (filter != "")
 						filter += ",";
 					filter += filterArray[f];
@@ -1105,16 +1106,25 @@ var yoda = (function() {
 		},
 		
 		// Filter issues with regexp (i.e. filtering done explicitly by specifying some fields using "^"
+		// OR filter which are negative (starting with -, normal or regexp).
 		// Issues without any labels matching the regexp will be removed from list.
-		// Filter out pull requests. Don't want them.
-		// The function will work on the yoda_issues variables.
+		// The function will work on the yoda_issues variable.
 		filterIssuesReqExp: function(labelFilter) {
 			var filterArray = labelFilter.split(",");
 			for (var f = 0; f < filterArray.length; f++) {
-				if (filterArray[f].charAt(0) == '^') {
+				if (filterArray[f].charAt(0) == '^' || filterArray[f].charAt(0) == '-') {
+					if (filterArray[f].charAt(0) == "-") {
+						var positiveMatch = false;
+						var labelReg = new RegExp(filterArray[f].substr(1));
+					} else {
+						var positiveMatch = true;
+						var labelReg = new RegExp(filterArray[f]);	
+					}
+					
 					// We have a regexp filter. Let's run through the issues.
-					console.log("Applying regexp filter: " + filterArray[f]);
-					var labelReg = new RegExp(filterArray[f]);
+					console.log("Applying regexp filter (positive " + positiveMatch + "): " + filterArray[f]);
+					
+					// Note, special for loop. i is incremented below... 
 					for (var i = 0; i < yoda_issues.length;) {
 						var match = false;
 						for (var l = 0; l < yoda_issues[i].labels.length; l++) {
@@ -1124,8 +1134,8 @@ var yoda = (function() {
 								break;
 							}
 						}
-						// Remove if no match. Notice the counting; not in for loop... 
-						if (match == false) {
+
+						if ((positiveMatch && !match) || (!positiveMatch && match)) {
 							yoda_issues.splice(i, 1);
 						} else {
 							i++;
