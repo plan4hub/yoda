@@ -1090,6 +1090,21 @@ var yoda = (function() {
 			return yoda_issues;
 		},
 		
+		// Support functions for update functions below. First to get labels in filterlist which are "full"
+		getFullLabelFilters(labelFilter) {
+			console.log("labelFilter=" + labelFilter);
+			var filter = "";
+			var filterArray = labelFilter.split(",");
+			for (var f = 0; f < filterArray.length; f++) {
+				if (filterArray[f].charAt(0) != '^') {
+					if (filter != "")
+						filter += ",";
+					filter += filterArray[f];
+				}
+			}
+			return filter;
+		},
+		
 		// Generic function to retrieve issues across multiple repos.
 		// labelFilter can be empty
 		// stateFilter should be "all", "open" or "closed".
@@ -1106,8 +1121,9 @@ var yoda = (function() {
 
 			// Specific repo only. 
 			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter + "&direction=asc";
-			if (labelFilter != "") {
-				getIssuesUrl += "&labels=" + labelFilter; 
+			var fullFilter = yoda.getFullLabelFilters(labelFilter);
+			if (fullFilter != "") {
+				getIssuesUrl += "&labels=" + fullFilter; 
 			}
 			
 			// Do we need to add add filter (typically milestone as well)?
@@ -1141,9 +1157,11 @@ var yoda = (function() {
 			// All issues into org.
 			var getIssuesUrl = yoda.getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter + "&direction=asc";
 			
-			if (labelFilter != "") {
-				getIssuesUrl += "&labels=" + labelFilter; 
+			var fullFilter = yoda.getFullLabelFilters(labelFilter);
+			if (fullFilter != "") {
+				getIssuesUrl += "&labels=" + fullFilter; 
 			}
+
 			console.log("Get Issues URL:" + getIssuesUrl);
 			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
 				yoda.filterPullRequests(issues);
