@@ -143,7 +143,7 @@ To add a Yoda report as a custom tab, select Settings/Custom Tabs, enter tab nam
 
 # GitHub Reports
 
-Note: Data from Yoda graphic reports may be be exported by clicking (left-click) on the graph. This will ´generate and download a CSV file (fixed filename `yoda-data.csv`) which can then be imported to e.g. Excel. Note that this is just the graph data, not the set-up of the graph (title, series formatting, etc.). The idea is to allow customized Excel graphics if required. 
+Note: Data from Yoda graphic reports may be be exported by clicking (left-click) on the graph. This will generate and download a CSV file (fixed filename `yoda-data.csv`) which can then be imported to e.g. Excel. Note that this is just the graph data, not the set-up of the graph (title, series formatting, etc.). The idea is to allow customized Excel graphics if required. 
 
 ## Issue Statistics Report
 
