@@ -116,6 +116,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Where to get estimates</span>
 		</div>
 	</div>
+		
+	<div class="frame">
+		<div class="frameheader">
+			<h3>Yoda cache</h3>
+		</div>
+		
+		<div class="field">
+			<label>Repository cache live time</label> <input type="text" id="repolistcache" size="5" onchange="setLocalStorage('yoda.repolistcache', this.value)">
+			<span class="tooltip">Repository live time in minutes. Default is 60 (1h)";"</span>
+		</div>
+
+		<button id="clearrepolist" onclick="clearRepoListCache()">Clear Repository cache</button>
+	</div>
 
 	<div class="frame">
 		<div class="frameheader">
@@ -247,6 +260,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#token").val(localStorage.getItem("gitHubAccessToken"));
 			$("#owner").val(localStorage.getItem("yoda.owner"));
 			$("#repolist").val(localStorage.getItem("yoda.repolist"));
+			$("#repolistcache").val(localStorage.getItem("yoda.repolistcache"));
 			$("#time_interval").val(localStorage.getItem("yoda.time.interval"));
 			$("#time_labelsplit").val(localStorage.getItem("yoda.time.labelsplit"));
 			$("#time_other").val(localStorage.getItem("yoda.time.other"));

@@ -18,6 +18,12 @@
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+// Clear any repoList stored im local storage
+function clearRepoListCache() {
+	yoda.clearLocalStorageWild("yoda.cache.repolist.");
+	yoda.showSnackbarOk("Cached repository lists cleared");
+}
+
 // Helper function to set a given localStorage item
 // If value is set to blank, the item is removed. 
 function setLocalStorage(item, value) {

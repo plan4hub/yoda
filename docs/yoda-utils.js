@@ -798,6 +798,15 @@ var yoda = (function() {
 			}
 		},
 		
+		clearLocalStorageWild: function(keyWild) {
+			Object.entries(localStorage).map(
+					x => x[0] 
+			).filter(
+					x => x.indexOf(keyWild) != -1
+			).map(
+					x => localStorage.removeItem(x));
+		},
+		
 		getDefaultLocalStorageValue: function(localStorageId) {
 			try {
 				return window.localStorage.getItem(localStorageId);
@@ -817,6 +826,29 @@ var yoda = (function() {
 			}
 		},
 		
+		// Helper function to set a given localStorage item
+		// If value is set to blank, the item is removed. 
+		setLocalStorage: function(item, value) {
+			if (value == "") {
+				try {
+					localStorage.removeItem(item);
+					console.log("Succesfully cleared local storage with id: " + item);
+
+				}
+				catch (err) {
+					console.log("Failed to clear local storage for id: " + item);
+				}
+			} else {
+				try {
+					localStorage.setItem(item, value);
+					console.log("Succesfully updated local storage with id: " + item);
+				}
+				catch (err) {
+					console.log("Failed to update local storage for id: " + item);
+				}
+			}	
+		},
+
 		// Login to github. Accept block accepts experimental API features.
 		gitAuth: function (userId, accessToken, fullExport) {
 			yoda_userId = userId;
@@ -986,6 +1018,27 @@ var yoda = (function() {
 		// Update list of repositories for the given owner (organization or user).
 		// user boolean is optional
 		updateRepos: function(owner, okFunc, failFunc, user) {
+			// Quick check. Do we already have a value in localStorage that we may use
+			var localStorageKey = "yoda.cache.repolist." + owner;
+			var localRepoList = yoda.getDefaultLocalStorageValue(localStorageKey);
+			if (localRepoList != null) {
+				// Check case age
+				var repoListTime = yoda.getDefaultLocalStorageValue(localStorageKey + ".time");
+				var currentTime = new Date().getTime();
+				var elapsedMinutes = (currentTime - repoListTime) / 60000;
+				console.log("Elapsed minutes since repoList stored:" + elapsedMinutes);
+				
+				var cacheLiveTime = yoda.getDefaultLocalStorageValue("yoda.repolistcache");
+				if (cacheLiveTime == null)
+					cacheLiveTime = 60;
+				if (elapsedMinutes < cacheLiveTime) { 
+					console.log("  .. reusing repoList. Newer than interval.");
+					// Let's use that
+					yoda_repoList = JSON.parse(localRepoList);
+					okFunc();
+					return;
+				}
+			}
 			yoda_repoList = [];
 
 			if (user == true) {
@@ -1020,7 +1073,8 @@ var yoda = (function() {
 					});
 					
 					yoda_repoList = data;
-					
+					yoda.setLocalStorage(localStorageKey, JSON.stringify(data))
+					yoda.setLocalStorage(localStorageKey + ".time", new Date().getTime());
 					if (okFunc != null)
 						okFunc();
 				}, 
