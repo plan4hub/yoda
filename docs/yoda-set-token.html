@@ -31,6 +31,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <link rel="stylesheet" type="text/css" href="yoda.css">
 </head>
 
+<!-- 
+Example: Call with https://github.hpe.com/login/oauth/authorize?client_id=Iv1.20c23adef04034c7&state=yoda
+
+ -->
+
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-set-token.js"></script>
@@ -46,8 +51,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		if (code != null && state == "yoda")
 			requestToken(code, state);
-		
-		
+		else
+			window.open("https://github.hpe.com/login/oauth/authorize?client_id=Iv1.20c23adef04034c7&state=yoda&scope=user,repo", "_self");
 		
 	</script>
 </body>

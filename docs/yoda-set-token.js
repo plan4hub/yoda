@@ -41,7 +41,7 @@ function setLocalStorage(item, value) {
 }
 
 // Support function for posting
-function OpenWindowWithPost(url, windowoption, name, params)
+function openWindowWithPost(url, windowoption, name, params)
 {
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
@@ -80,5 +80,8 @@ function requestToken(code, state) {
 	console.log("Params:");
 	console.log(params);
 	
-	openWindowWithPost(getTokenUrl, "", getToken, params);
+//	openWindowWithPost(getTokenUrl, "", getTokenUrl, params);
+	
+	// Why not do it directly?
+	
 }

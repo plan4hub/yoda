@@ -498,19 +498,17 @@ function storeIssuesThenCreateChart(issues) {
 
 		milestonedIssues = [];
 		for (var i = 0; i < issues.length; i++) {
-			foundMilestone = false;
+			includeIssue = true;
 			for (var j = 0; j < mFilter.length; j++) {
-				if (issues[i].milestone == null)
-					continue;
-				
-				// If milestone filter starts with "-" then the filter is negative.
-				if ((mFilter[j].indexOf("-") == -1 && issues[i].milestone.title != mFilter[j]) ||
-					(mFilter[j].indexOf("-") == 0 && issues[i].milestone.title == mFilter[j].substr(1)))
-					continue;
-				foundMilestone = true;
+				var positiveFilter = (mFilter[j].indexOf("-") != 0);  // Positive if NOT starting with -
+
+				if ((positiveFilter && (issues[i].milestone == null || issues[i].milestone.title != mFilter[j])) ||
+						(!positiveFilter && issues[i].milestone != null && issues[i].milestone.title == mFilter[j].substr(1))) {
+					includeIssue = false;
+					break;
+				}
 			}
-			
-			if (foundMilestone)
+			if (includeIssue == true)
 				milestonedIssues.push(issues[i]);
 		}
 		
