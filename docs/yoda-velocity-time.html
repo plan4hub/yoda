@@ -160,17 +160,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		githubAuth();
 		$(document).ready(function() {
 			$('#repolist').select2();
-		});
-		
-		// Rather complex updating of the defaults repos. 
-		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Potential automatic startup actions can go here.
+			
+			$('#repolist').on('change.select2', function (e) {
+				repoList = 	$("#repolist").val();			
+				console.log("List of selected repos is now: " + repoList);
+			});
 
-		}, null);
+			// Rather complex updating of the defaults repos. 
+			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+				// Potential automatic startup actions can go here.
 
-		$('#repolist').on('change.select2', function (e) {
-			repoList = 	$("#repolist").val();			
-			console.log("List of selected repos is now: " + repoList);
+			}, null);
 		});
 		
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {

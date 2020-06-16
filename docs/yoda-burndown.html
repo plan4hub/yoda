@@ -233,32 +233,31 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		githubAuth();
 		
 		$(document).ready(function() {
+			console.log("Startup. Document ready.");
 			$('#repolist').select2();
 			$('#milestonelist').select2();
+			
+			$('#repolist').on('change.select2', function (e) {
+				repoList = 	$("#repolist").val();			
+				console.log("List of selected repos is now: " + repoList);
+				updateMilestones();
+			});
+
+			$('#milestonelist').on('change.select2', function (e) {
+				// Update start-date + due-date/burndown-date + capacity (sum)
+				showMilestoneData();
+			});
+			
+			// Rather complex updating of the defaults repos. 
+			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+				// Potential automatic startup actions can go here.
+										
+			}, null);
 		});
 		
-		// Rather complex updating of the defaults repos. 
-		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Potential automatic startup actions can go here.
-
-		}, null);
-
-		$('#repolist').on('change.select2', function (e) {
-			repoList = 	$("#repolist").val();			
-			console.log("List of selected repos is now: " + repoList);
-			updateMilestones();
-		});
-		
-		$('#milestonelist').on('change.select2', function (e) {
-			// Update start-date + due-date/burndown-date + capacity (sum)
-			showMilestoneData();
-		});
-
-
 		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
 			$(".frame").hide();
 		}
-		
 	</script>
 </body>
 </html>

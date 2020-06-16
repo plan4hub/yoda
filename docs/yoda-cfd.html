@@ -156,20 +156,20 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		}
 		githubAuth(); // if set already
 
-		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
-		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Should we draw directly? Only check this after the repo updates complete.
-			// Should we draw directly?
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd") {
-				startChart("CFD");
-			} 
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "lt") {
-				startChart("LT");
-			} 
-		}, null);
-		
 		$(document).ready(function() {
 			$('#repolist').select2();
+			
+			// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+				// Should we draw directly? Only check this after the repo updates complete.
+				// Should we draw directly?
+				if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd") {
+					startChart("CFD");
+				} 
+				if (yoda.decodeUrlParamBoolean(null, "draw") == "lt") {
+					startChart("LT");
+				} 
+			}, null);
 		});
 		
 
