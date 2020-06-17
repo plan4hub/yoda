@@ -347,6 +347,17 @@ var yoda = (function() {
 			window.history.replaceState(null, null, baseUrl + "?" + searchParams);
         },
         
+        // Return a copy of an array containing only attributes mentioned in fields array
+        reduceArray: function(data, fields) {
+        	return data.map(function(item) {
+        		var newItem = {};
+        		fields.forEach(function(field) {
+        			newItem[field] = item[field];
+        		});
+        		return newItem;
+        	});
+        },
+        
         advanceDate: function (date, interval, startDay) {
             if (interval.slice(-1) == 'm') {
                 // Assume month
@@ -1073,7 +1084,8 @@ var yoda = (function() {
 					});
 					
 					yoda_repoList = data;
-					yoda.setLocalStorage(localStorageKey, JSON.stringify(data))
+					console.log(yoda.reduceArray(data, ["name"]));
+					yoda.setLocalStorage(localStorageKey, JSON.stringify(yoda.reduceArray(data, ["name"])));
 					yoda.setLocalStorage(localStorageKey + ".time", new Date().getTime());
 					if (okFunc != null)
 						okFunc();

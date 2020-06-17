@@ -156,10 +156,10 @@ label, input {
 		githubAuth();
 		
 		$(document).ready(function() {
-			$.when(updateSrcRepos()).
-			done(function() {updateDstRepos();}).
-			done(function() {getDstLabels();}).
-			done(function() {getSrcLabels();});
+			updateSrcRepos();
+			
+//			done(function() {getDstLabels();}).
+//			done(function() {getSrcLabels();});
 		});
 	</script>
 </body>

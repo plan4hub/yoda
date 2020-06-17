@@ -70,6 +70,8 @@ function showSrcRepos(repos) {
 	for (var r = 0; r < repos.length; r++) {
 		$("#srcrepolist").append($("<option></option>").attr("value", repos[r].name));
 	}
+	
+	updateDstRepos();
 }
 
 function updateSrcRepos() {
