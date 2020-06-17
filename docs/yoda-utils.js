@@ -1084,7 +1084,7 @@ var yoda = (function() {
 					});
 					
 					yoda_repoList = data;
-					console.log(yoda.reduceArray(data, ["name"]));
+					
 					yoda.setLocalStorage(localStorageKey, JSON.stringify(yoda.reduceArray(data, ["name"])));
 					yoda.setLocalStorage(localStorageKey + ".time", new Date().getTime());
 					if (okFunc != null)
