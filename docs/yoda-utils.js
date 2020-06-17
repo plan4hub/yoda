@@ -841,7 +841,7 @@ var yoda = (function() {
 			} else {
 				try {
 					localStorage.setItem(item, value);
-					console.log("Succesfully updated local storage with id: " + item);
+					console.log("Succesfully updated local storage with id: " + item + ". Value length is: " + value.length);
 				}
 				catch (err) {
 					console.log("Failed to update local storage for id: " + item);
