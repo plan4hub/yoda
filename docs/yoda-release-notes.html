@@ -130,13 +130,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Category format</label>
 			<input type="text" id="catformat" size="30"></input>
-			<span class="tooltip">Formatting for categories Special fields are category name from label (%c)</span>
+			<span class="tooltip">Formatting for categories Special fields are category name from label (%c). Also possible (%z) total estimates.</span>
 		</div>
 
 		<div class="field">
 			<label>Issue format</label>
 			<input type="text" id="rnformat" size="30"></input>
-			<span class="tooltip">Formatting for issue. Special fields are issue nummer (%n), id (repo and number) (%d), title (%t)<br>and RN (%r). Use %x for RN under title in table, use %y to use RN if not empty, otherwise title</span>
+			<span class="tooltip">Formatting for issue. Special fields are issue nummer (%n), id (repo and number) (%d), title (%t)<br>estimate (%e) and RN (%r). Use %x for RN under title in table, use %y to use RN if not empty, otherwise title</span>
 		</div>
 	</div>
 
@@ -248,7 +248,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		// Login
 		githubAuth();
-		updateRepos();
 		
 		var firstMilestoneShowData = true;
 		$(document).ready(function() {
@@ -278,6 +277,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					} 
 				}
 			});
+			
+			updateRepos();
+
 		});
 		
 	</script>

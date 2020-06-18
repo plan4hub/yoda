@@ -213,6 +213,7 @@ function formatIssueRN(issue) {
 			rnText = parseRNMarkdown(rnText);
 		}
 	}
+	
 
 	// substitude into template
 	issueText = rnFormat;
@@ -220,6 +221,12 @@ function formatIssueRN(issue) {
 	issueText = issueText.replace(/%d/, repo + "#" + issue.number);
 	issueText = issueText.replace(/%n/, issue.number);
 	issueText = issueText.replace(/%r/, rnText);
+
+	var estimate = yoda.getBodyEstimate(issue.body);
+	if (estimate == null)
+		estimate = "";
+	issueText = issueText.replace(/%e/, estimate);
+	
 	
 	if (rnText != "") {
 		issueText = issueText.replace(/%y/, rnText);
@@ -307,6 +314,7 @@ function makeRN(headline, changesOrKnown, draw) {
 
 			// Loop over categories (possibly the single _DUMMY_ entry - see above
 			for (var c = 0; c < categories.length; c++) {
+				var categoryEstimate = 0;
 				var categoryHeader = "";
 				if (categories[c].labelName != "_DUMMY_") {
 					categoryHeader = getFormat(listFormat, 2) + catFormat + getFormat(listFormat, 3);
@@ -348,9 +356,16 @@ function makeRN(headline, changesOrKnown, draw) {
 
 					if (issuesInCategory++ == 0)
 						rnList += categoryHeader;
-
+					
+					var issueEstimate = yoda.getBodyEstimate(repoIssues[i].body);
+					if (issueEstimate != null)
+						categoryEstimate += issueEstimate;
+					
 					rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
-				}	
+				}
+				
+				// Update category total
+				rnList = rnList.replace(/%z/, categoryEstimate);
 			}
 
 			if (rnList != "") {
@@ -407,6 +422,7 @@ function storeMilestones(milestones, repoIndex) {
 
 var firstMilestoneShow = true;
 function updateMilestones(repoIndex) {
+	console.log("updateMilestones " + repoIndex);
 	if (repoIndex == undefined) {
 		repoIndex = 0;
 	}
