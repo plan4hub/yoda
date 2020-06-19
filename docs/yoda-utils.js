@@ -77,10 +77,11 @@ var yoda = (function() {
 		if (sPageURL.length == 0)
 			return null;
 		var sURLVariables = decodeURIComponent(sPageURL).split('&');
+		
 		for (var i = 0; i < sURLVariables.length; i++) {
 			var sParameterName = sURLVariables[i].split('=');
 			if (sParameterName[0] == sParam) {
-				return sParameterName[1];
+				return sURLVariables[i].substr(sParameterName[0].length + 1);
 			}
 		}
 		return null;
