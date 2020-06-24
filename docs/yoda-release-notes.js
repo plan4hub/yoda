@@ -719,7 +719,7 @@ function changeOutput() {
 		cat = "%c (total %z)";
 	else
 		cat = "%c";
-	if ($('#estimatecategory').is(":checked"))
+	if ($('#estimateissue').is(":checked"))
 		iss = "%d (%e)"
 	else
 		iss = "%d";
