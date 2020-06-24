@@ -77,6 +77,12 @@ function getUrlParams() {
 	if ($('#tablelayout').is(":checked")) {
 		params += "&tablelayout=true";
 	}
+	if ($('#estimatecategory').is(":checked")) {
+		params += "&estimatecategory=true";
+	}
+	if ($('#estimateissue').is(":checked")) {
+		params += "&estimateissue=true";
+	}
 	
 	return params;
 }
@@ -709,6 +715,16 @@ function setDefaultAndValue(id, value) {
 
 function changeOutput() {
 	value = $('input:radio[name="outputformat"]:checked').val();
+	if ($('#estimatecategory').is(":checked"))
+		cat = "%c (total %z)";
+	else
+		cat = "%c";
+	if ($('#estimatecategory').is(":checked"))
+		iss = "%d (%e)"
+	else
+		iss = "%d";
+			
+	
 	switch (value) {
 	case "html":
 		if ($('#tablelayout').is(":checked")) {
@@ -717,16 +733,16 @@ function changeOutput() {
 			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
-			setDefaultAndValue("rnformat", "<td>%d</td><td>%t%r</td>");
-			setDefaultAndValue("catformat", '<td colspan=2 class="ic"><b>%c</b></td>');
+			setDefaultAndValue("rnformat", "<td>" + iss + "</td><td>%t%r</td>");
+			setDefaultAndValue("catformat", '<td colspan=2 class="ic"><b>' + cat + '</b></td>');
 			
 		} else {
 			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
 			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			setDefaultAndValue("rnformat", "%t (%d)<BLOCKQUOTE>%r</BLOCKQUOTE>");
-			setDefaultAndValue("catformat", "<H4>%c</H4>");
+			setDefaultAndValue("rnformat", "%t (" + iss + ")<BLOCKQUOTE>%r</BLOCKQUOTE>");
+			setDefaultAndValue("catformat", "<H4>" + cat + "</H4>");
 		}
 		break;
 
@@ -737,15 +753,15 @@ function changeOutput() {
 			setDefaultAndValue("sformat", "## ,\\n\\n");
 			setDefaultAndValue("ssformat", "### ,\\n\\n");
 			setDefaultAndValue("listformat", "Number | Description\\n--------|-------------\\n,\\n,,\\n");
-			setDefaultAndValue("rnformat", "%d | %t%x");
-			setDefaultAndValue("catformat", "*%c*");
+			setDefaultAndValue("rnformat", iss + " | %t%x");
+			setDefaultAndValue("catformat", "*" + cat + "*");
 		} else {
 			setDefaultAndValue("hlformat", "# ,\\n\\n");
 			setDefaultAndValue("sformat", "## ,\\n\\n");
 			setDefaultAndValue("ssformat", "### ,\\n\\n");
 			setDefaultAndValue("listformat", ",,-  ,\\n");
-			setDefaultAndValue("rnformat", "%t (%d)%x");
-			setDefaultAndValue("catformat", "*%c*");
+			setDefaultAndValue("rnformat", "%t (" + iss + ")%x");
+			setDefaultAndValue("catformat", "*" + cat + "*");
 		}
 		break;
 	}

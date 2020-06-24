@@ -100,6 +100,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="checkbox" id="tablelayout" checked="checked" onchange="changeOutput()">
 			<span class="tooltip">Table Layout</span>
 		</div>
+		
+		<div class="field">
+			<label>Show Estimates</label><div id="estimatern">
+				<label><input type="checkbox" id="estimatecategory" onclick="changeOutput()">Categories</label> 
+				<label><input type="checkbox" id="estimateissue" onclick="changeOutput()">Issues</label> 
+				</div>
+			<span class="tooltip">Include estimates in RN (for internal overview).</span>
+		</div>
 	</div>
 
 	<div class="frame">
@@ -224,6 +232,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
+		yoda.decodeUrlParamBoolean("#estimatecategory", "estimatecategory");
+		yoda.decodeUrlParamBoolean("#estimateissue", "estimateissue");
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
 		yoda.decodeUrlParam("#filename", "filename");
 
