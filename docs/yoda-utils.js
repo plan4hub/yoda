@@ -1288,23 +1288,35 @@ var yoda = (function() {
 		    return JSON.parse(JSON.stringify( o ));
 		},
 		
+		openYodaTool: function(url, copyOwnerRepo) {
+			var params = "";
+			// If we have owner and/or repolist set, let's put these as parameters to new tool so we don't have to put them again.
+			if (copyOwnerRepo && $("#owner").val() != undefined &&	 $("#owner").val() != "") {
+				params += "?owner=" + $("#owner").val();
+				if ($("#repolist").val() != undefined && $("#repolist").val() != "")
+					params += "&repolist=" + $("#repolist").val();
+			}
+			
+			window.open(url + params);
+		},
+		
 		// Menu stuff
 		enableMenu: function() {
 			// Build the menu
 			$("#yodamenu").append('<a href="index.html">Landing Page</a>');
-			$("#yodamenu").append('<a href="yoda-time-stats.html">Time Statistics Report</a>');
-			$("#yodamenu").append('<a href="yoda-cfd.html">CFD Report</a>');
-			$("#yodamenu").append('<a href="yoda-burndown.html">Burndown Report</a>');
-			$("#yodamenu").append('<a href="yoda-velocity.html">Velocity Report</a>');
-			$("#yodamenu").append('<a href="yoda-kanban.html">Kanban Board</a>');
-			$("#yodamenu").append('<a href="yoda-release-notes.html">Release Notes</a>');
-			$("#yodamenu").append('<a href="yoda-milestone-manager.html">Milestone Manager</a>');
-			$("#yodamenu").append('<a href="yoda-label-manager.html">Label Manager</a>');
-			$("#yodamenu").append('<a href="yoda-exporter.html">Issue Exporter</a>');
-			$("#yodamenu").append('<a href="yoda-copy-tasks.html">Task Copier</a>');
-			$("#yodamenu").append('<a href="yoda-export-web.html">Export to Web Pages</a>');
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats.html\", true)'>Time Statistics Report</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-cfd.html\", true)'>CFD Report</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-burndown.html\", true)'>Burndown Report</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-velocity.html\", true)'>Velocity Report</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-kanban.html\", true)'>Kanban Board</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-release-notes.html\", true)'>Release Notes</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-milestone-manager.html\", true)'>Milestone Manager</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-label-manager.html\", false)'>Label Manager</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-exporter.html\", true)'>Issue Exporter</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-tasks.html\", false)'>Task Copier</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-export-web.html\", true)'>Export to Web Pages</a>");
 			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
-			$("#yodamenu").append('<a href="yoda-admin.html">Admin Settings</a>');
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 
 			// Close the dropdown menu if the user clicks outside of it
 			window.onclick = function(event) {
