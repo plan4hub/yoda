@@ -249,7 +249,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamBoolean("#locked", "locked");
 				
 		githubAuth(); 
-		updateRepos();
+		
 		
 		// We do not want caching here. 
 		$.ajaxSetup({ cache: false });
@@ -319,6 +319,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$('#columns').on('change.select2', function (e) {
 				drawKanban();
 			});
+			
+			updateRepos();
 		});
 		
 		// Now for argument decoding.
