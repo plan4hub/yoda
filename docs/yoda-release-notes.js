@@ -67,6 +67,9 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "rnformat");
 	params = addIfNotDefault(params, "catlabel");
 	
+	if (yoda.getEstimateInIssues() != "inbody")
+		params += "&estimate=" + yoda.getEstimateInIssues();
+	
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;

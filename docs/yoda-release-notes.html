@@ -108,6 +108,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				</div>
 			<span class="tooltip">Include estimates in RN (for internal overview).</span>
 		</div>
+		
+		<div class="field">
+			<label>Estimates</label><div id="estimateradio">
+				<label><input type="radio" name="estimate" value="noissues" onclick="estimateClick(this)"># issues</label> 
+				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label> 
+  				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
+				</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
+		
 	</div>
 
 	<div class="frame">
@@ -234,6 +244,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
 		yoda.decodeUrlParamBoolean("#estimatecategory", "estimatecategory");
 		yoda.decodeUrlParamBoolean("#estimateissue", "estimateissue");
+
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
+		
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
 		yoda.decodeUrlParam("#filename", "filename");
 
