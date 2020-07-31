@@ -648,7 +648,7 @@ var yoda = (function() {
 		},
 		
 		getMilestoneInfo: function(description) {
-			var info = getBodyField(description, '> info ', '[A-Za-z0-9].*$');   
+			var info = getBodyField(description, '> info ', '[#A-Za-z0-9].*$');   
 			if (info == null)
 				info = "";
 			return info;
