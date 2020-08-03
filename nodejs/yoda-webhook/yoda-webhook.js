@@ -72,7 +72,7 @@ if (configuration.getOption('url') != undefined) {
 		fs = require("fs");
 
 		const options = {
-		  key: fs.readFileSync(configuration.getOption('certkey')),
+		  key: fs.readFileSync(configuration.getOption('cert-key')),
 		  cert: fs.readFileSync(configuration.getOption('cert'))
 		};
 
