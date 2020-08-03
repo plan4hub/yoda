@@ -22,7 +22,7 @@ if (configuration.getOption('url') != undefined) {
 	logger.info("Server starting ...");
 
 	//	install with: npm install @octokit/webhooks
-	const WebhooksApi = require('@octokit/webhooks')
+	const { WebhooksApi } = require('@octokit/webhooks')
 	const webhooks = new WebhooksApi({
 		secret: configuration.getOption('secret')
 	});
