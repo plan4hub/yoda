@@ -17,6 +17,7 @@
     "command-line-usage": "^6.1.0",
     "eventsource": "",
     "http": "",
+    "https": "",
     "log4js": "^6.1.0"
   }
 }
