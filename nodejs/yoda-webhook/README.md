@@ -117,4 +117,8 @@ Generate the certificate:
 openssl req -new -x509 -key cert.key -out cert -days 3650 -subj /CN=(domain) -extensions SAN -config 'cert.conf'
 ```
 
+Note, that self-signed certificate will require that the webhook (in repo/org or app) disables SSL verication in settings.
+
+
+
 
