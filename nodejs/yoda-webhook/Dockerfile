@@ -1,6 +1,5 @@
 # specify the node base image with your desired version node:<version>
-# FROM node:10
-FROM node:10-alpine
+FROM node:lts-slim
 
 # replace this with your application's default port
 EXPOSE 8181
