@@ -129,6 +129,16 @@ const optionDefinitions = [
 		description: 'Path to PEM permission for with private key. Required when running in App mode.'
 	},
 	{
+		name: 'cert',
+		type: String,
+		description: 'HTTPS certificate.'
+	},
+	{
+		name: 'cert-key',
+		type: String,
+		description: 'HTTPS certificate key.'
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
@@ -198,6 +208,14 @@ function parseOptions() {
 
 		if (options['app-mode'] && options['url'] != undefined) {
 			logger.error("--url not valid in GitHub App mode.");
+			error = true;
+		}
+		if (options['--cert'] != undefined && options['--cert-key'] == undefined) {
+			logger.error("Need --cert-key to match --cert");
+			error = true;
+		}
+		if (options['--cert-key'] != undefined && options['--cert'] == undefined) {
+			logger.error("Need --cert to match --cert-key");
 			error = true;
 		}
 

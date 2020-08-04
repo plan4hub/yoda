@@ -58,9 +58,27 @@ if (configuration.getOption('url') != undefined) {
 		});
 	}
 
-	//	Start the server. Can consider express if better than http 
-	const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
-	logger.trace(server);
+	if (configuration.getOption('cert') == undefined) {
+		// HTTP
+		//	Start the server.
+		logger.info("Bringing up server in HTTP mode.");
+		const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
+		logger.trace(server);
+	} else {
+		// HTTPS
+		//	Start the server. Can consider express if better than http
+		logger.info("Bringing up server in HTTPS mode.");
+		const https = require("https"),
+		fs = require("fs");
+
+		const options = {
+		  key: fs.readFileSync(configuration.getOption('cert-key')),
+		  cert: fs.readFileSync(configuration.getOption('cert'))
+		};
+
+		const server = https.createServer(options, webhooks.middleware).listen(configuration.getOption('port'));
+		logger.trace(server);
+	}
 
 	//	Be prepared for shutdown
 	process.on('SIGINT', () => {

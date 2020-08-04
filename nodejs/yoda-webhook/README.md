@@ -89,3 +89,36 @@ spec:
 ## Test
 
 A fully automated test for yoda-webhook is available in the `test` directory. See specific instructions for running the tests there.
+
+
+## HTTPS / Certificates
+
+Yoda webhook support HTTPS. This works by specifying a certificate and associated key using the arguments `--cert-key (key file name)` and `--cert (certificate file name)`.
+
+
+### Self-signed certificates
+
+The instructions to generate a self-signed certificate for testing can be found on-line easily, but are repeated below:
+
+`openssl genrsa -out cert.key 2048`
+
+Create config file `cert.conf` with the following contents:
+
+``` 
+[req]
+distinguished_name=req
+[SAN]
+subjectAltName=DNS:(server domain name, e.g. arsenic.dnk.hp.com)
+```
+
+Generate the certificate:
+
+```
+openssl req -new -x509 -key cert.key -out cert -days 3650 -subj /CN=(domain) -extensions SAN -config 'cert.conf'
+```
+
+Note, that self-signed certificate will require that the webhook (in repo/org or app) disables SSL verication in settings.
+
+
+
+
