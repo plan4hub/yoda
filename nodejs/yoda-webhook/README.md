@@ -82,10 +82,67 @@ spec:
             - containerPort: 8181
           env:
             - name: YODA_WEBHOOK_OPTIONS
-              value: "--user (user) -p (token) --loglevel info --secret (web secret) --webhookproxy https://smee.io/nc5zHtov7xmDLzbE --baseurl https://api.github.com"
+              value: "--user (user) -p (token) --loglevel info --secret (web secret) --baseurl https://api.github.com"
 ```
  
- 
+## Docker compose examples
+
+Standard file (not in app mode, no HTTPS).
+
+
+```
+version: '2'
+
+services:
+  yoda-webhook:
+    image: jensmarkussenhpe/yoda-webhook
+    restart: always
+    ports:
+      - 8181:8181
+    command: [ "node", "yoda-webhook.js", "--user", "(user)", "-p", "(token)", "--secret", "(secret)" ]
+```
+
+File with HTTPS / certificates defined. Make sure that `cert` and `cert.key` are copied into the docker volume.
+
+```
+version: '2'
+
+services:
+  yoda-webhook:
+    image: jensmarkussenhpe/yoda-webhook
+    restart: always
+    ports:
+      - 8181:8181
+    volumes:
+      - yoda-webhook:/var/yoda-webhook
+    command: [ "node", "yoda-webhook.js", "--user", "(user)", "-p", "(token)", "--secret", "(secret)", "--cert", "/var/yoda-webhook/cert", "--cert-key", "/var/yoda-webhook/cert.key" ]
+
+volumes:
+  yoda-webhook:
+
+```
+
+File with HTTPS / certificates defined running in as GitHub App. Make sure that `yoda.pem`, `cert` and `cert.key` are copied into the docker volume.
+
+```
+version: '2'
+
+services:
+  yoda-webhook:
+    image: jensmarkussenhpe/yoda-webhook
+    restart: always
+    ports:
+      - 8181:8181
+    volumes:
+      - yoda-webhook:/var/yoda-webhook
+    command: [ "node", "yoda-webhook.js", "--app-mode", "--app-appid", "(appid)", "--app-clientid", "(app clientid)", "--app-clientsecret", "(app client secret)", "--app-pemfile", "/var/yoda-webhook/yoda.pem", "--secret", "(secret)", "--cert", "/var/yoda-webhook/cert", "--cert-key", "/var/yoda-webhook/cert.key" ]
+
+volumes:
+  yoda-webhook:
+
+```
+
+
 ## Test
 
 A fully automated test for yoda-webhook is available in the `test` directory. See specific instructions for running the tests there.
