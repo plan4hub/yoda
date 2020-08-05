@@ -1126,10 +1126,11 @@ function updateMilestones(repoIndex) {
 		console.log(commonMilestones);
 		var milestonesSelected = false;
 		
-		console.log("URL milestone: " + yoda.decodeUrlParam(null, "milestone"));
+		var urlMilestone = yoda.decodeUrlParam(null, "milestone");
+		console.log("URL milestone: " + urlMilestone);
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (firstMilestoneShow && commonMilestones[c].title == yoda.decodeUrlParam(null, "milestone")) { 
+			if (firstMilestoneShow && commonMilestones[c].title == urlMilestone) { 
 				console.log("Selecting milestone as: " + commonMilestones[c].title);
 				selectMilestone = true;
 				milestonesSelected = true;
@@ -1137,10 +1138,15 @@ function updateMilestones(repoIndex) {
 
 			// Handle _CURRENT_ milestone 
 			var today = yoda.formatDate(new Date());
-			if (firstMilestoneShow && yoda.decodeUrlParam(null, "milestone") == "_CURRENT_" && today >= commonMilestones[c].startdate && today <= commonMilestones[c].duedate) { 
-				console.log("Selecting _CURRENT_ milestone as: " + commonMilestones[c].title);
-				selectMilestone = true;
-				milestonesSelected = true;
+			if (firstMilestoneShow && urlMilestone != null && urlMilestone.startsWith("_CURRENT_") && today >= commonMilestones[c].startdate && today <= commonMilestones[c].duedate) {
+				// Check if we have more string matching to do
+				var matchMilestone = urlMilestone.substr("_CURRENT_".length);
+				console.log("Matching _CURRENT_ milestone with milestone beginning with: " + matchMilestone);
+				if (commonMilestones[c].title.startsWith(matchMilestone)) {
+					console.log("Selecting _CURRENT_ milestone as: " + commonMilestones[c].title);
+					selectMilestone = true;
+					milestonesSelected = true;
+				}
 			}
 
 			var newOption = new Option(commonMilestones[c].title, commonMilestones[c].title, selectMilestone, selectMilestone);
