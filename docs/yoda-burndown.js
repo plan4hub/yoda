@@ -895,7 +895,9 @@ function burndown(issues) {
 				borderWidth : 2,
 				fill : false,
 				data : remainingArray,
-				backgroundColor : 'rgba(0,153,51,0.6)'  // Green 
+				backgroundColor : 'rgba(0,153,51,0.6)',  // Green
+				barPercentage: 1,
+				categoryPercentage: 1
 			},
 			{
 				type : 'line',
@@ -919,7 +921,9 @@ function burndown(issues) {
 			borderWidth : 2,
 			fill : false,
 			data : remainingNoFreezeArray,
-			backgroundColor : 'rgb(0, 100, 38, 0.6)'  // some color - TODO
+			backgroundColor : 'rgb(0, 100, 38, 0.6)',  // some color - TODO
+			barPercentage: 1,
+			categoryPercentage: 1
 		});
 		
 		chartData.datasets.push({
@@ -943,7 +947,9 @@ function burndown(issues) {
 			borderWidth : 2,
 			fill : false,
 			data : remainingTentativeArray,
-			backgroundColor : 'rgb(255, 255, 51)'  // Yellow
+			backgroundColor : 'rgb(255, 255, 51)',  // Yellow
+			barPercentage: 1,
+			categoryPercentage: 1
 		});
 	}
 
@@ -1041,8 +1047,8 @@ function burndown(issues) {
 
 				}],
 				xAxes: [{
-					barPercentage: 1,
-					categoryPercentage: 1,
+//					barPercentage: 1,
+					// categoryPercentage: 1,
 					stacked: true
 				}]
 			},
