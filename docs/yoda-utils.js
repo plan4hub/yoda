@@ -918,6 +918,42 @@ var yoda = (function() {
 		downloadFile: function(data, fileName) {
 			yoda.downloadFileWithType("application/csv;charset=utf-8;", data, fileName);
 		},
+		
+		// Loop function to collect information across different URLs. It is the users reponsibility to ensure that the collected
+		// data is compatible in terms of format. It will be concatenated.
+		getUrlLoop: function(urlList, collector, finalFunc, errorFunc, callNo) {
+			// Final call?
+			if (urlList.length == 0) {
+				$("*").css("cursor", "default");
+				finalFunc(collector);
+				return;
+			}
+			
+			// First call?
+			if (callNo == undefined) {
+				$("*").css("cursor", "wait");
+				yoda_gitHubCallNo++;
+				callNo = yoda_gitHubCallNo;
+				console.log("Starting url loop call no " + callNo + " (list of URLs): " + urlList.length);
+			} else {
+				// Check if someone started a newer call. Then we will cancel.
+				if ((callNo != -1) && (callNo) < yoda_gitHubCallNo) {
+					console.log("getUrlLoop detected newer call (" + yoda_gitHubCallNo + " > " + callNo + "). Cancelling.");
+					return;
+				}
+			}
+			
+			$.getJSON(urlList[0], function(response, status) {
+				yoda.getUrlLoop(urlList.slice(1), collector.concat(response), finalFunc, errorFunc, callNo);
+			}).done(function() { /* One call succeeded */ })
+			.fail(function(jqXHR, textStatus, errorThrown) { 
+				$("*").css("cursor", "default");
+				if (errorFunc != null) {
+					errorFunc(errorThrown + " " + jqXHR.status);
+				}
+				})
+			.always(function() { /* One call ended */ });;          
+		},
 
 		// Collect various information from the API. URL gives the requested info, the function does the
 		// collection and concatenation, calling in the end the final function. 

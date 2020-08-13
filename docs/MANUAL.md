@@ -370,6 +370,8 @@ Apart from the Issue Exporter, which is aimed at producing CSV files to use for 
 
 Furthermore, the tool will download included images and place them in a parallel directory strucuture. Finally, Yoda will export a single ZIP with all of these files.
 
+A special option exists to download only a list of specified issues. In this case any specifiction of repository, labels, and state is disregarded. To use this feature, specify the `issuelist` parameter and/or enter data in this field. The format is (reponame)/(comma-separate list of issues). Several sets may be specified separate by colon. Example: `nfvd/2,3:obt/4,11`.
+
 *Notice:* In order to execute this tool, Yoda may need to request images from a different domain that what is serving the GitHub issues (e.g. `media.github.hpe.com` vs. `github.hpe.com`). This will cause the browser cross-origin security to kick in. To work around this, you'll need to install a browser extention. For Chrome, suggest `Allow-Control-Allow-Origin` extention.
 
 *Notice:* Some browser may complain upon ZIP download that this file could be dangerous / contain viruses. Of course, it does not, so you may have to manually accept the file.  

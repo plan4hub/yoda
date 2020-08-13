@@ -83,6 +83,7 @@ function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
 	params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "outputfile");
+	params = addIfNotDefault(params, "issuelist");
 	params = addIfNotDefault(params, "downloadimages");
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#labelfilter").val() != "") 
@@ -124,7 +125,9 @@ var globIssues = null;
 var globIndex = 0;
 var issueImages = [];
 var globLabels = [];
+var globRepoList = [];
 function exportIssues(issues) {
+	console.log(issues);
 	// Prepare new run (zip, parallel#, etc.)
 	issueZipRoot = new JSZip();
 	addCSSFile();
@@ -157,8 +160,7 @@ function exportIssues(issues) {
 	// STEP F2: Write/download zip file
 	
 	// Call to get labels.
-	getLabels($("#repolist").val());
-
+	getLabels(yoda.deepCopy(globRepoList));
 }
 
 //STEP I1: Retrieve labels for all repos. This will be used for nice coloring of labels. Call iteratively, goto step 0 when done.
@@ -185,8 +187,9 @@ function getLabels(repoLeft) {
 
 // STEP I2: Index generation, one file per repository
 function buildIndex() {
-	var repoList = $("#repolist").val();
-	console.log("List of repositories: " + repoList);
+	var repoList = globRepoList;
+	console.log("List of repositories: ");
+	console.log(repoList);
 	for (var repInd = 0; repInd < repoList.length; repInd++) {
 		console.log("Building index file for: " + repoList[repInd]);
 		var title = "Issue index for " + $("#owner").val() + '/' + repoList[repInd];
@@ -599,15 +602,37 @@ function showRepos(repos) {
 
 // -------------------------
 
+
 function startExport() {
+	globRepoList = [];
 	$("#console").val("");
 	
-	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	if ($("#issuelist").val() == "") {
+		if ($("#repolist").val() == "") { 
+			yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		} else {
+			globRepoList = $("#repolist").val();
+			yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		}
 
-	logMessage("Info: Initiated Github request.");
+		logMessage("Info: Initiated Github request.");
+	} else {
+		// Right. User has given an explicit list of issues, we will not query for them, but simply take the issues as is. In this case we'll need to synthesize the fields.
+		// First split by : to get list of issues for different repos
+		var repoIssueList = $("#issuelist").val().split(":");
+		var issueUrlList = [];
+		for (var r = 0; r < repoIssueList.length; r++) {
+			var repo = repoIssueList[r].split("/")[0];
+			globRepoList.push(repo);
+			var repoIssues = repoIssueList[r].split("/")[1].split(",");
+			for (var i = 0; i < repoIssues.length; i++) {
+				issueUrlList.push(yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues/" + repoIssues[i]);
+			}
+		}
+		console.log(issueUrlList);
+		
+		yoda.getUrlLoop(issueUrlList, [], exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	}
 }
 
 // --------------
