@@ -50,7 +50,12 @@ function getChildren(octokit, ownRef, body) {
 				logger.trace(searchResponse);
 
 				// Map searchResponse to children entries.
-				children.issueRefs.splice(1); // Remove all elements except the first (the "> issuesearch ..." line itself)
+				// Remove all elements except the first (the "> issuesearch ..." line itself) AND any potential "> headline" lin~e
+				if (children.issueRefs.length > 1 && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
+					children.issueRefs.splice(2);
+				else
+					children.issueRefs.splice(1); 
+				
 				for (var i = 0; i < searchResponse.data.items.length; i++) {
 					var childRef = yoda.getRefFromUrl(searchResponse.data.items[i].url);
 					if (yoda.compareRefs(ownRef, childRef) != 0) {
@@ -294,6 +299,100 @@ function updateParentIssue(octokit, issueRef, children, oldIssue) {
 	// We need to make sure that issues are only present once.
 	yoda.makeIssuesUnique(children);
 	
+	// Right, This is where we may have to consider if to make automatic headlines for the child issues. If so, we need to 
+	// 1. Sort the issues so that the match the headlines
+	// 2. Insert headlines as ".line" items. 
+	// If we do those two things, we can let the remaining algorithm fill in the details for each issues as per normal.
+	// Example: > headline ###,MS,P - Tentative,Q - NotCodeFreeze
+	var hlLine = -1;
+	if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("headline")))
+		hlLine = 0;
+	if (children.issueRefs.length > 1 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("issuesearch")) && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
+		hlLine = 1;
+	if (hlLine != -1) {
+		var hlExpr = children.issueRefs[hlLine].line.substr(configuration.getOption("headline").length).trim();
+		// If no expression is given, put the the default (we'll store it further down)
+		if (hlExpr == "")
+			hlExpr = configuration.getOption("headline-default");
+		var hlParts = hlExpr.split(",");
+		var prefix = hlParts[0];
+		hlParts.splice(0, 1);
+		var hlMilestone = false;
+		if (hlParts[0] == configuration.getOption("headline-ms")) {
+			hlMilestone = true;
+			hlParts.splice(0, 1);
+		}
+		// hlParts now contains the labels.
+		logger.debug(hlParts);
+		logger.debug(hlParts.length);
+		logger.debug("Headline format. Prefix: '" + prefix + "', includeMilestones: " + hlMilestone + ", labels: " + hlParts.join(","));
+		
+		if (hlMilestone)
+			var allMilestones = yoda.getAllMilestones(children.issueRefs);
+		else
+			var allMilestones = [""];
+		
+		// Ok, time to take over and simply redo children.issueRefs. First into temporary area.
+		// The headlines will be 
+		var newIssueRefs = [];
+		// First, keep > headline (and > issuessearch if there) lines as is. 
+		for (var r = 0; r <= hlLine; r++)
+			newIssueRefs.push(children.issueRefs[r]);
+		newIssueRefs[hlLine].line = configuration.getOption("headline") + " " + hlExpr;
+		
+		// First, iterate milestons
+		for (var m = 0; m < allMilestones.length; m++) {
+			// Then we need to iterate all the labels in binary format (either they are there, or they are not). For this we could to 2^(# of labels)
+			for (var labelOpt = 0; labelOpt < (1 << hlParts.length); labelOpt++) {
+				// Ok, now we need to see if the relevant labels are set. 
+				// Example: In or example value 0 means none of the two labels set, Value 1 means P - Tentative set, Value 2 means Q - No CodeFreeze set, Value 3 means both labels set.
+				var header = prefix + allMilestones[m];
+				var posLabels = [];
+				var negLabels = [];
+				for (var l = 0; l < hlParts.length; l++) {
+					if (labelOpt & (1 << l)) 
+						posLabels.push(hlParts[l]);
+					else
+						negLabels.push(hlParts[l]);
+				}
+				if (posLabels.length > 0)
+					header += " [" + posLabels.join(",") + "]";
+				if (posLabels.length == 0 && allMilestones[m] == "") 
+					header = ""; // Special case. If not showing milestones, and no labels set, simply drop the header as this is the "base case";
+				
+				var noIssues = 0;
+				// Now, let's add the matching issues.... Loop the issues.
+				for (var r = hlLine + 1; r < children.issueRefs.length; r++) {
+					// Right. IF the issue is a text item (could be e.g. one of the headlines we have added ourselves) we will simply skip it.
+					if (children.issueRefs[r].line != undefined)
+						continue;
+					
+					// Does the issue belong in this section?
+					// First check correct milestone (if showing milestones, consider "No Milestone")
+					if (!(!hlMilestone || (children.issueRefs[r].issue.milestone == null && allMilestones[m] == "No Milestone") || 
+							(children.issueRefs[r].issue.milestone != null && children.issueRefs[r].issue.milestone.title == allMilestones[m]))) 
+						continue;
+					
+					// Then, consider labels.
+					if (!yoda.labelListPos(children.issueRefs[r].issue, posLabels))
+						continue;
+					if (!yoda.labelListNeg(children.issueRefs[r].issue, negLabels))
+						continue;
+					
+					if (noIssues == 0 && header != "") {
+						// First issue in section, then we add the header.
+						newIssueRefs.push({line: header});
+					}
+					newIssueRefs.push(children.issueRefs[r]);
+					noIssues++;
+				}
+			}
+		}
+		
+		// ok now let's "simply" replace our issue refs.
+		children.issueRefs = newIssueRefs;
+	}
+	
 	var block = yoda.makeChildBlock(issueRef, children);
 	logger.debug("Block:");
 	logger.debug(block); 
@@ -392,7 +491,7 @@ function checkEvent(id, name, payload) {
 	// NOTE: This should of course be adjusted if this service should perform other actions than parent/child issue references!
 	// The possible issues actions are:
 	// opened, edited, deleted, pinned, unpinned, closed, reopened, assigned, unassigned, labeled, unlabeled, locked, unlocked, transferred, milestoned, or demilestoned.
-	var handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled'];
+	var handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled', "milestoned", "demilestoned"];
 	if (handleEventTypes.indexOf(issueAction) == -1) {
 		logger.info("  Disgarding event as not an event issue type (" + issueAction+ ") that we are interested in.");
 		return;

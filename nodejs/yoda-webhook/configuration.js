@@ -86,6 +86,24 @@ const optionDefinitions = [
 		defaultValue: "> issuesearch "
 	},
 	{
+		name: 'headline',
+		type: String,
+		description: 'Keyword for defining automatic headlines in list of child issues. Default "> headline".',
+		defaultValue: "> headline"
+	},
+	{
+		name: 'headline-ms',
+		type: String,
+		description: 'Keyword to use in headline list for specifying headline. Default "[MS]".',
+		defaultValue: "[MS]"
+	},
+	{
+		name: 'headline-default',
+		type: String,
+		description: 'Default options for headline if specifying headline keyword w/o furter options. Default "### ,[MS],P - Tentative".',
+		defaultValue: "### ,[MS],P - Tentative"
+	},
+	{
 		name: 'webhookproxy',
 		type: String,
 		description: 'Development mode. Use an external services (smee.io is good) for proxying GitHub events. Give the URL. Optional.'

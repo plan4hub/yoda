@@ -1,4 +1,5 @@
-module.exports = {getMatchingLabels, labelMatch, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, findAllRefIndex, makeIssuesUnique, noChildRefs, isRef};
+module.exports = {getMatchingLabels, labelMatch, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, 
+		findAllRefIndex, makeIssuesUnique, noChildRefs, isRef, getAllMilestones, labelListPos, labelListNeg};
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
@@ -206,6 +207,49 @@ function labelMatch(labelName, labelRegExp) {
 	return match;
 }
 
+// Check that issue has ALL labels in list. true => ok
+function labelListPos(issue, labelList) {
+	for (var c = 0; c < labelList.length; c++) {
+		var found = false;
+		for (var l = 0; l < issue.labels.length; l++)
+			if (labelList[c] == issue.labels[l].name) {
+				found = true;
+				break;
+			}
+		if (!found)
+			return false;
+	}
+	return true;
+}
+
+// Check that issue has NONE the labels in list. true => ok
+function labelListNeg(issue, labelList) {
+	for (var l = 0; l < issue.labels.length; l++)
+		if (labelList.indexOf(issue.labels[l].name) != -1)
+			return false;
+	return true;
+}
+
+// Helper function for milestones
+function getAllMilestones(refList) {
+	var milestones = [];
+	var noMilestone = false;
+	for (var i = 0; i < refList.length; i++) {
+		if (refList[i].issue != undefined) { // Yesn, an issue
+			noMilestone = true;
+			if (refList[i].issue.milestone != undefined) { 
+				ms = refList[i].issue.milestone.title;
+				if (milestones.indexOf(ms) == -1)
+					milestones.push(ms);
+			}
+		}
+	}
+	milestones.sort();
+	if (noMilestone)
+		milestones.push("No Milestone");
+	
+	return milestones;
+}
 
 // Count number of childReferences in list
 function noChildRefs(refList) {
