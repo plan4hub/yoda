@@ -498,10 +498,11 @@ function checkEvent(id, name, payload) {
 	} 
 	
 	// More special handling for label/unlabeled events. Only events for Types (i.e. starting with T) are of interest.
-	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !yoda.labelMatch(payload.label.name, configuration.getOption('labelre'))) {
-		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
-		return;
-	} 
+	// OBS: Since introducing the "> headline" feature, we cannot afford to discard any events.
+//	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !yoda.labelMatch(payload.label.name, configuration.getOption('labelre'))) {
+//		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
+//		return;
+//	} 
 	
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.
 	// If running App mode, then we can identify based on presense of lack of [bot]
