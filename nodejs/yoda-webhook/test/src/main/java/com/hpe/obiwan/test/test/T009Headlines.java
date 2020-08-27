@@ -114,20 +114,38 @@ public class T009Headlines extends Base {
 		Assert.assertTrue(checkHeadline(parentTwo), "Error in parent headlines");
 		Assert.assertTrue(checkHeadline(parentThree), "Error in parent headlines");
 
-		getLogger().log(Level.INFO, "Step 8 - Udpate child label");
+		getLogger().log(Level.INFO, "Step 6 - Udpate child label");
 		githubPage.updateLabel(childOne, "T2 - Enhancement");
 		waitHook();
 
-		getLogger().log(Level.INFO, "Step 10 - Check parents headline");
+		getLogger().log(Level.INFO, "Step 7 - Check parents headline");
 		Assert.assertTrue(checkHeadline(parentOne), "Error in parent headlines");
 		Assert.assertTrue(checkHeadline(parentTwo), "Error in parent headlines");
 		Assert.assertTrue(checkHeadline(parentThree), "Error in parent headlines");
 
-		getLogger().log(Level.INFO, "Step 11 - Udpate child milestone");
+		getLogger().log(Level.INFO, "Step 8 - Udpate child milestone");
 		githubPage.updateMilestone(childTwo, "Milestone Two");
 		waitHook();
 
-		getLogger().log(Level.INFO, "Step 12 - Check parents headline");
+		getLogger().log(Level.INFO, "Step 9 - Check parents headline");
+		Assert.assertTrue(checkHeadline(parentOne), "Error in parent headlines");
+		Assert.assertTrue(checkHeadline(parentTwo), "Error in parent headlines");
+		Assert.assertTrue(checkHeadline(parentThree), "Error in parent headlines");
+
+		getLogger().log(Level.INFO, "Step 10 - Delete child milestone");
+		githubPage.updateMilestone(childThree, null);
+		waitHook();
+
+		getLogger().log(Level.INFO, "Step 11 - Check parents headline");
+		Assert.assertTrue(checkHeadline(parentOne), "Error in parent headlines");
+		Assert.assertTrue(checkHeadline(parentTwo), "Error in parent headlines");
+		Assert.assertTrue(checkHeadline(parentThree), "Error in parent headlines");
+
+		getLogger().log(Level.INFO, "Step 12 - Insert child milestone");
+		githubPage.updateMilestone(childFour, "Milestone One");
+		waitHook();
+
+		getLogger().log(Level.INFO, "Step 13 - Check parents headline");
 		Assert.assertTrue(checkHeadline(parentOne), "Error in parent headlines");
 		Assert.assertTrue(checkHeadline(parentTwo), "Error in parent headlines");
 		Assert.assertTrue(checkHeadline(parentThree), "Error in parent headlines");

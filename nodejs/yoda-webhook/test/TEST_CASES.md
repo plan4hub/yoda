@@ -195,3 +195,7 @@ First create child issues with label and milestone and parent issues with headli
 - Check parent issues proper headline presentation
 - Update `Child Two` issue milestone to `Milestone Two`
 - Check parent issues proper headline presentation
+- Update `Child Three` issue to no milestone
+- Check parent issues proper headline presentation
+- Update `Child Four` issue milestone to `Milestone One`
+- Check parent issues proper headline presentation
