@@ -296,7 +296,8 @@ public abstract class Base {
 		WebElement element = getClickable(xpath);
 		element.click();
 		element.clear();
-		element.sendKeys(text);
+		delay(1);
+		element.sendKeys(text.replace("\n", Keys.chord(Keys.SHIFT, Keys.ENTER)));
 		delay(1);
 		
 	}

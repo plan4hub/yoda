@@ -85,6 +85,18 @@ public class Github extends Base {
 		issue.setLabel(newLabel);
 	}
 	
+	public void updateMilestone(Issue issue, String newMilestone) {
+		searchIssue(issue);
+		click("//details[@id='milestone-select-menu']//summary");
+		if (newMilestone != null) {
+			write("//input[@id='context-milestone-filter-field']", newMilestone);
+			click("//span[text()='" + newMilestone + "']");
+		} else {
+			click("//div[contains(text(),'Clear this milestone')]");
+		}
+		issue.setMilestone(newMilestone);
+	}
+	
 	public void updateTitle(Issue issue, String newTitle) {
 		searchIssue(issue);
 		click("//div[contains(@class,'gh-header-show')]//button[contains(text(),'Edit')]");
@@ -148,6 +160,16 @@ public class Github extends Base {
 		}
 		if (issue.getChildren().size() > 0 || issue.getExternalChildren().size() > 0) {
 			sb.append("> contains\n");
+			if (issue.getHeadline() != null) {
+				sb.append("> headline ").append(issue.getHeadline().getFormat());
+				if (issue.getHeadline().isMilestone()) {
+					sb.append(",[MS]");
+				}
+				for (String label : issue.getHeadline().getLabels()) {
+					sb.append(",").append(label);
+				}
+				sb.append("\n");
+			}
 			for (Issue child : issue.getChildren()) {
 				sb.append("- ");
 				if (!issue.getRepository().equals(child.getRepository())) {

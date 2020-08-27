@@ -18,6 +18,7 @@ public class Issue {
 	private List<Issue> children = new ArrayList<Issue>();
 	private List<String> externalParents = new ArrayList<String>();
 	private List<String> externalChildren = new ArrayList<String>();
+	private Headline headline;
 
 	public static Issue fromChildInfo(String info, String repository) {
 		Issue issue = new Issue();
@@ -207,6 +208,12 @@ public class Issue {
 	}
 	public List<String> getExternalChildren() {
 		return externalChildren;
+	}
+	public Headline getHeadline() {
+		return headline;
+	}
+	public void setHeadline(Headline headline) {
+		this.headline = headline;
 	}
 
 	@Override

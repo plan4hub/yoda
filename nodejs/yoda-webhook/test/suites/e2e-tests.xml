@@ -48,4 +48,9 @@
 			<class name="com.hpe.obiwan.test.test.T008FullUrlReferences" />
 		</classes>
 	</test>
+	<test name="Headlines">
+		<classes>
+			<class name="com.hpe.obiwan.test.test.T009Headlines" />
+		</classes>
+	</test>
 </suite>

@@ -151,8 +151,8 @@ First create child issues and then create child and parents issues including dup
 First create child issues with a milestone and then create a parent issue searching that milestone.
 
 - Go to second repository
-- Create `Child One` issue with milestone 'Yoda 1.0.0', estimated 2 and remaining 2
-- Create `Child Two` issue with milestone 'Yoda 1.0.0', estimated 1 and remaining 1
+- Create `Child One` issue with milestone `Yoda 1.0.0`, estimated 2 and remaining 2
+- Create `Child Two` issue with milestone `Yoda 1.0.0`, estimated 1 and remaining 1
 - Create `Parent One` issue with search by repository, milestone and title
 - Check `Child One` issue
 - Check `Child Two` issue
@@ -169,10 +169,29 @@ First create issues and them update them to include full URL references.
 
 - Go to second repository
 - Create `Parent One` issue
-- Create `Parent Two`
-- Create `Child One`
-- Create `Child Two`
+- Create `Parent Two` issue
+- Create `Child One` issue
+- Create `Child Two` issue
 - Update `Parent One` issue to add children with full URL references to `Child Two` issue, a non-existing issue and a external page
 - Check `Parent One` issue
 - Update `Child One` issue to add parents with full URL references to `Parent Two` issue, a non-existing issue and a external page
 - Check `Child One` issue
+
+## Test 009 - Headlines
+
+First create child issues with label and milestone and parent issues with headlines and them update child issues label and milestone and check parent issues headlines.
+
+- Go to first repository
+- Create `Child One` with milestone `Milestone One` and label `T1 - Defect` 
+- Create `Child Two` with milestone `Milestone One` and label `T2 - Enhancement` 
+- Create `Child Three` with milestone `Milestone Two` and label `T1 - Defect` 
+- Create `Child Four` with no milestone and label `T1 - Defect` 
+- Create `Parent One` issue with headline including milestone and label `T1 - Defect` and all four children issues
+- Create `Parent Two` issue with headline including milestone and all four children issues
+- Create `Parent Three` issuewith headline including label `T1 - Defect` and all four children issues
+- Check all issues proper creation
+- Check parent issues proper headline presentation
+- Update `Child One` issue label to `T2 - Enhancement` 
+- Check parent issues proper headline presentation
+- Update `Child Two` issue milestone to `Milestone Two`
+- Check parent issues proper headline presentation
