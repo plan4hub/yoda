@@ -367,6 +367,10 @@ function updateParentIssue(octokit, issueRef, children, oldIssue) {
 					if (children.issueRefs[r].line != undefined)
 						continue;
 					
+					// Need to consider the case of non-existing issue. If we have this, then the issue will be null. In this case, what do we do? I think best to simply ignore it.
+					if (children.issueRefs[r].issue == null)
+						continue;
+					
 					// Does the issue belong in this section?
 					// First check correct milestone (if showing milestones, consider "No Milestone")
 					if (!(!hlMilestone || (children.issueRefs[r].issue.milestone == null && allMilestones[m] == "No Milestone") || 
