@@ -87,6 +87,33 @@ var yoda = (function() {
 		return null;
 	};
 	
+	// Get last page. Given Link response header like "// <https://github.hpe.com/api/v3/repositories/12598/comments?per_page=100&page=2>; rel="next", <https://github.hpe.com/api/v3/repositories/12598/comments?per_page=100&page=6>; rel="last""
+	// return the last page, 6 in this case.
+	getLastPage = function (link) {
+		if (link == undefined || link == null)
+			return -1;
+		
+		var parts = link.split(",");
+		for (var p = 0; p < parts.length; p++) {
+			if (parts[p].indexOf('rel="last"') == -1)
+				continue;
+
+			var search = "&page=";
+			var lastIndex = parts[p].indexOf(search);
+			if (lastIndex == -1)
+				return -1;
+			lastIndex += search.length;
+			
+			var untilIndex = parts[p].indexOf(">;");
+			if (untilIndex == -1)
+				return -1;
+		
+			var lastPage = parts[p].substr(lastIndex, untilIndex - lastIndex);
+			return lastPage;
+		}
+		return -1;
+	};
+	
 	// Simple function to get a field from the body text.
 	// index is used to point to the instance
 	// Concatenation of start and data values indicates a regular expression to search for
@@ -945,6 +972,54 @@ var yoda = (function() {
 			
 			$.getJSON(urlList[0], function(response, status) {
 				yoda.getUrlLoop(urlList.slice(1), collector.concat(response), finalFunc, errorFunc, callNo);
+			}).done(function() { /* One call succeeded */ })
+			.fail(function(jqXHR, textStatus, errorThrown) { 
+				$("*").css("cursor", "default");
+				if (errorFunc != null) {
+					errorFunc(errorThrown + " " + jqXHR.status);
+				}
+				})
+			.always(function() { /* One call ended */ });;          
+		},
+		
+		// Return number of results for a given (get/search) url. This is done by executing the query once, then retriving the last page indicated
+		// This will allow us to gauge the number of results with just two calls (instead of one call per 100)...
+		// Set page to 1 when calling.
+		getCount: function(url, userArg, page, finalFunc, errorFunc, callNo) {
+			// First call?
+			if (callNo == undefined) {
+				$("*").css("cursor", "wait");
+				yoda_gitHubCallNo++;
+				callNo = yoda_gitHubCallNo;
+				console.log("Starting loop call no " + callNo + " with URL: " + url);
+			} 
+
+			var oldIndex = url.indexOf("per_page=100&page=");
+			if (oldIndex != -1) { 
+				url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
+			} else {
+				// Do we have a ?
+				if (url.indexOf("?") == -1) {
+					url = url + "?per_page=100&page=" + page;
+				} else {
+					url = url + "&per_page=100&page=" + page;
+				}
+			}
+
+			$.getJSON(url, function(response, status, xhr) {
+				if ((response != undefined && page == 1)) {
+					// First response, get the lastPage
+					var lastPage = getLastPage(xhr.getResponseHeader("Link"));
+					if (lastPage == -1) {
+						$("*").css("cursor", "default");
+						finalFunc(userArg, response.length);
+					} else 
+						yoda.getCount(url, userArg, lastPage, finalFunc, errorFunc, callNo);
+				} else {
+					$("*").css("cursor", "default");
+					// Final response, calculate and callback with total number.
+					finalFunc(userArg, (page - 1) * 100 + response.length);
+				}
 			}).done(function() { /* One call succeeded */ })
 			.fail(function(jqXHR, textStatus, errorThrown) { 
 				$("*").css("cursor", "default");

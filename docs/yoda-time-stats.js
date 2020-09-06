@@ -84,6 +84,22 @@ function velocitySelected() {
 	$('#righttotal').attr('checked', true);
 }
 
+function commentsSelected() {
+	console.log("Comments selected. Let's deselect some fields.");
+	var sixMAgo = new Date();
+	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+	if ($('#startdate').val() == "")
+		$('#startdate').val(yoda.formatDate(sixMAgo)); 
+//	$('#enddate').val(''); 
+	$('#interval').val('1m');
+
+//	$('#labelfilter').prop('disabled', true);
+	$('#labelsplit').val('repo');
+//	$('#other').prop('disabled', true);
+	$('#stacked').attr('checked', true);
+//	$('#righttotal').attr('checked', true);
+}
+
 // Global array. Issue URL (API style) is the key
 var labelEventsReceived = false;
 var labelEvents = [];
@@ -127,10 +143,256 @@ function issuesLabels(issue, date) {
 	}
 } 
 
+// We will use below two global arrays to keep track of the data for the comments graph
+var comDateArray = [];
+var comRepoArray = [];
+var comTotalArray = [];
+var reposLeft = -1;
+
+// This special chart is for plotting no of comments done during the various intervals.
+// Merging this with the standard chart will make it too messy. Instead, some functions will
+// be duplicated. Sad, perhaps, but safer.
+// 
+function createCommentsChart(dateIndex) {
+	console.log("createCommentChart: " + dateIndex + " / " + comDateArray.length);
+	var repoList = $("#repolist").val();
+
+	// Are we done?
+	if (dateIndex < comDateArray.length) {
+		// Are we done with the repos?
+		// Let's initiate the calls...
+		reposLeft = repoList.length;
+		for (var repoIndex = 0; repoIndex < repoList.length; repoIndex++) {
+			//  Make the call
+			console.log("Getting issues for date: " + comDateArray[dateIndex] + " for repo " + repoList[repoIndex]);
+			var getCommentsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/issues/comments?since=" + comDateArray[dateIndex];
+			yoda.getCount(getCommentsUrl, repoIndex, 1, function(rIndex, noComments) {
+				console.log("  ... there are " + noComments + " comments for repo " + repoList[rIndex] + " since " + comDateArray[dateIndex]);
+				comRepoArray[rIndex].push(noComments);
+
+				comTotalArray[dateIndex] += noComments; 
+
+				// Adjust previous date with this number....
+				if (dateIndex > 0) {
+					comRepoArray[rIndex][dateIndex - 1] -= noComments;
+					comTotalArray[dateIndex - 1] -= noComments;
+				}
+
+				reposLeft--;
+				if (reposLeft == 0) {
+					// Advance date index
+					setTimeout(function() {createCommentsChart(dateIndex + 1)}, 100);
+				}
+			},
+			function(errorText) { 
+				yoda.showSnackbarError("Error getting events: " + errorText, 3000);
+			});
+		}
+	} else {
+		if ($('#stacked').is(":checked"))
+			stacked = true;
+		else
+			stacked = false;
+		
+		if ($('#righttotal').is(":checked"))
+			var rightTotal = true;
+		else
+			var rightTotal = false;
+		
+		// All done. Draw the graph
+		// Ready, let's push the bars
+		var datasetArray = [];
+		if ($('#labelsplit').val() == "repo") {
+			for (var r = 0; r < repoList.length; r++) {
+				datasetArray.push({
+					type : 'bar',
+					label : repoList[r],
+					borderWidth : 2,
+					fill : false,
+					data : comRepoArray[r],
+					backgroundColor : yoda.barColors[r]
+				});
+			} 
+		} else {
+			datasetArray.push({
+				type : 'bar',
+				label : "Comments",
+				borderWidth : 2,
+				fill : false,
+				data : comTotalArray,
+				backgroundColor : yoda.barColors[0]
+			});
+		}
+
+		// What should we put on right axis
+		// TBD: If velocity, play on right axis instead 
+		if (rightTotal) {
+				// Normal case. Right total line against right axis.
+				datasetArray.push({
+					type : 'line',
+					label : 'Total',
+					borderWidth : 2,
+					fill : false,
+					yAxisID: "y-axis-right",
+					data : comTotalArray,
+					lineTension: 0
+				});
+		} else {	
+			// Add line for total, but only if bars (and not stacked)
+			if (bars.length > 0 && stacked == false) {
+				datasetArray.push({
+					type : 'line',
+					label : 'Total',
+					borderWidth : 2,
+					fill : false,
+					yAxisID: "y-axis-right",
+					data : totalArray,
+					lineTension: 0
+				});
+			}
+		}
+		
+		// We will push data to a 
+		var chartData = {
+				labels : comDateArray,
+				datasets : datasetArray
+		};
+		
+		var chartScales = {
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "No of comments",
+					},
+					stacked: stacked,
+					position: "left",
+					id: "y-axis-left",
+					ticks: {
+						beginAtZero: true
+					}
+				}],
+				xAxes: [{
+					stacked: stacked
+				}]
+		};
+		
+		// Add second axis.
+		if ((bars.length > 0 && stacked == false) || rightTotal) {
+			chartScales.yAxes.push({    
+				scaleLabel: {
+					display: true,
+					labelString: "Total comments",
+				},
+				position: "right",
+				id: "y-axis-right",
+				ticks: {
+					beginAtZero: true
+				}
+			});		
+		}
+
+		// -----------------------------------------------------------
+		// DATA. Draw the chart
+		var ctx = document.getElementById("canvas").getContext("2d");
+		if (window.myMixedChart != null)
+			window.myMixedChart.destroy();
+		
+		var chartTitle = "Github Comments " + $("#owner").val() + "/" + $("#repolist").val();
+		if ($("#title").val() != "")
+			chartTitle = $("#title").val(); 
+		
+		window.myMixedChart = new Chart(ctx, {
+			type : 'bar',	
+			data : chartData,
+			options : {
+				showDatapoints: true,
+				responsive : true,
+				title : {
+					display : true,
+					text : chartTitle
+				},
+				tooltips : {
+					mode : 'index',
+					intersect : true
+				},
+				scales: chartScales,
+			},
+		});
+		
+		yoda.updateUrl(getUrlParams() + "&draw=true");
+	}
+}
+
+
+
+function startCommentsChart() {
+	// Check date fields for possible +/- notations.
+	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
+	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
+	
+	var repoList = $("#repolist").val();
+
+	// Prepare the arrays. One for the dates. One for each repo 
+	comDateArray = [];
+	comRepoArray = [];
+	comTotalArray = [];
+	reposList = -1;
+	
+	// Iterate days.
+	// We need today startDate and endDate... we do this for each call. A bit wasteful, but who cares
+	// Let's set today as 0:0:0 time (so VERY start of the day)
+	var today = new Date();
+	today.setHours(0);
+	today.setMinutes(0);
+	today.setSeconds(0);
+
+	var endDateString = $("#enddate").val();
+	if (endDateString == "") {
+		var endDate = new Date(today);
+	} else {
+		endDate = new Date(endDateString);
+	}
+	console.log("End date: " + endDate);
+	endDate.setHours(23);
+	endDate.setMinutes(59);
+	endDate.setSeconds(59);
+
+	var startDateString = $("#startdate").val();
+	if (startDateString == "") {
+		var startDate = yoda.twoMonthsEarlier(interval, today);
+	} else {
+		var startDate = new Date(startDateString);
+	}
+	console.log("Start date: " + startDate);
+
+	// Done.. Advance to next date
+	var interval = $("#interval").val();
+	console.log("Interval: " + interval);
+	if (interval == "" || parseInt(interval) == 0) {
+		yoda.showSnackbarError("Interval cannot be empty or zero", 3000);
+		return;
+	}
+	
+	var repoListLength = $("#repolist").val().length;
+    var startDay = new Date(startDate).getDate();
+	comTotalArray = [];
+	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
+		comDateArray.push(yoda.formatDate(date));
+		comTotalArray.push(0);
+	}
+	for (var r = 0; r < repoList.length; r++) {
+		comRepoArray.push(new Array());
+	}
+
+	// Now, let's get the data and draw the graph
+	createCommentsChart(0, -1);
+}
+
+
+
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 var bars = [];
-//var barsIds = [];
 function createChart() {
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
@@ -640,6 +902,9 @@ function storeIssuesThenCreateChart(issuesResp) {
 
 var lastRepoEvents = "";
 function startChart() {
+	if ($("#countradio input[type='radio']:checked").val() == "comments") 
+		return startCommentsChart();
+	
 	if ($('#stacked').is(":checked")) {
 		stacked = true;
 	} else {

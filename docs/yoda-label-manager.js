@@ -143,6 +143,7 @@ function copyLabels(nameColorArray) {
 					url: patchLabelUrl,
 					type: 'PATCH',
 					data: JSON.stringify(urlData),
+					contentType: "application/json",
 					success: function() { yoda.showSnackbarOk("Succesfully updated existing label: " + name); },
 					error: function() { yoda.showSnackbarError("Failed to update existing label: " + name); },
 					complete: function(jqXHR, textStatus) { copyLabels(nameColorArray.splice(1)); return;}
@@ -162,7 +163,7 @@ function copyLabels(nameColorArray) {
 
 	var urlData = {
 			"name": name,
-			"color": color,
+			"color": color
 	};
     if (description != null)
         urlData["description"] = description;
@@ -171,6 +172,7 @@ function copyLabels(nameColorArray) {
 		url: createLabelUrl,
 		type: 'POST',
 		data: JSON.stringify(urlData),
+		contentType: "application/json",
 		success: function() { yoda.showSnackbarOk("Succesfully created label: " + name); },
 		error: function() { yoda.showSnackbarError("Failed to create label: " + name); },
 		complete: function(jqXHR, textStatus) { copyLabels(nameColorArray.splice(1));}
