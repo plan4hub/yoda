@@ -601,6 +601,16 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 										var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref.substr(1));
 										console.log("urlRef = " + urlRef);
 										metaIssuesList.push(urlRef);
+									} else {
+										// Non local.
+										repoSearch = "/repos/";
+										var repoIndex = repoIssues[i].url.indexOf(repoSearch);
+										if (repoIndex != -1) {
+											repoIndex += repoSearch.length;
+											var urlRef = repoIssues[i].url.substr(0, repoIndex) + ref.replace(/#/, "/issues/");
+											console.log("urlRef = " + urlRef);
+											metaIssuesList.push(urlRef);
+										}
 									}
 								} 
 							}
