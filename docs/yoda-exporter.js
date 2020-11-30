@@ -56,6 +56,56 @@ function logMessage(message) {
 	$('#console').val($('#console').val() + message + "\n");
 }
 
+function yodaTrim(str, exc) {
+	if (str.length > 0 && str[0] == exc) {
+		return yodaTrim(str.substring(1), exc);
+	} else if (str.length > 0 && str[str.length - 1] == exc) {
+		return yodaTrim(str.substring(0, str.length - 1), exc);
+	} else
+		return str;
+}
+
+function getEpicData(issue) {
+	// Search for lines in the issue description matching something like below:
+	// > partof #3638 [Co - FF, T6 - Epic]  *ETSILifeCycle Suite split in base+functionallity*
+	// If found will return a structure. Otherwise null.
+	var reg = /^[ ]*> partof [ ]*((([^ ~]*\/)?([^ ~]*))?#([1-9][0-9]*))[ ]*\[([^\]]*)\][ ]*(.*)$/mg;
+	// console.log(reg);
+	
+	var epicMatches = [];
+	do {
+		var res = reg.exec(issue.body);
+		if (res != null) {
+			var labels = res[6].split(",");
+			if (labels.indexOf("T6 - Epic")) {
+				// We got our baby.... Let's build data to support it.
+				var url = issue.html_url; // Let's build URL starting from the issue
+				var urlParts = url.split("/");
+				urlParts[urlParts.length - 1] = res[5]; // Replace issue #
+				if (res[4] != undefined) {
+					urlParts[urlParts.length - 3] = res[4]; // Repo.
+				}
+				url = urlParts.join("/");
+				
+				epicMatches.push({number: res[5], title: yodaTrim(res[7], "*"), repo: res[4], url: url});  
+			}
+		}
+	} while (res != null);
+
+	if (epicMatches > 1) {
+		// Hmm.. Let's favor local if more than one epic match.
+		for (var i = 0; i < epicMatches.length; i++) {
+			if (epicMatches.repo == undefined) {
+				epicMatches.splice(i, 1);
+				i--;
+			}
+		}
+	}
+	return epicMatches;	
+}
+
+
+
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 function exportIssues(issues) {
@@ -226,6 +276,42 @@ function exportIssues(issues) {
 					el["Duration"] = yoda.dateDiff(createdDate, todayDate);
 				}
 				break;
+			case "Epic URL":
+				var result = getEpicData(issues[i]);
+				if (result.length > 0) {
+					el["Epic URL"] = '=HYPERLINK("' + result[0].url + '")';
+				} else {
+					el["Epic URL"] = "";
+				}
+				break;
+			case "Epic Title":
+				var result = getEpicData(issues[i]);
+				if (result.length > 0) {
+					el["Epic Title"] = result[0].title;
+				} else {
+					el["Epic Title"] = "";
+				}
+				break;
+			case "Epic Number":
+				var result = getEpicData(issues[i]);
+				if (result.length > 0) {
+					el["Epic Number"] = result[0].number;
+				} else {
+					el["Epic Number"] = "";
+				}
+				break;
+			case "Epic Repo":
+				var result = getEpicData(issues[i]);
+				if (result.length > 0) {
+					if (result[0].repo == undefined) 
+						el["Epic Repo"] = yoda.getUrlRepo(issues[i].url); // Same as issue. Local ref.
+					else
+						el["Epic Repo"] = result[0].repo;
+				} else {
+					el["Epic Repo"] = "";
+				}
+				break;
+
 			default:
 				// Let's search between sharedLabels.
 				for (var s = 0; s < sharedLabels.length; s++) {
