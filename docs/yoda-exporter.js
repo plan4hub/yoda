@@ -66,7 +66,7 @@ function yodaTrim(str, exc) {
 		return str;
 }
 
-function getEpicData(issue) {
+function getEpicData(issues, issue) {
 	// Search for lines in the issue description matching something like below:
 	// > partof #3638 [Co - FF, T6 - Epic]  *ETSILifeCycle Suite split in base+functionallity*
 	// If found will return a structure. Otherwise null.
@@ -74,34 +74,56 @@ function getEpicData(issue) {
 	// console.log(reg);
 	
 	var epicMatches = [];
+	var otherMatches = [];
 	do {
 		var res = reg.exec(issue.body);
+		
 		if (res != null) {
-			var labels = res[6].split(",");
-			if (labels.indexOf($("#epiclabel").val())) {
+			var labels = res[6].split(", ");
+			var url = issue.html_url; // Let's build URL starting from the issue
+			var urlParts = url.split("/");
+			urlParts[urlParts.length - 1] = res[5]; // Replace issue #
+			if (res[4] != undefined) {
+				urlParts[urlParts.length - 3] = res[4]; // Repo.
+			}
+			url = urlParts.join("/");
+
+			if (labels.indexOf($("#epiclabel").val()) != -1) {
 				// We got our baby.... Let's build data to support it.
-				var url = issue.html_url; // Let's build URL starting from the issue
-				var urlParts = url.split("/");
-				urlParts[urlParts.length - 1] = res[5]; // Replace issue #
-				if (res[4] != undefined) {
-					urlParts[urlParts.length - 3] = res[4]; // Repo.
-				}
-				url = urlParts.join("/");
-				
 				epicMatches.push({number: res[5], title: yodaTrim(res[7], "*"), repo: res[4], url: url});  
+			} else {
+				// console.log("Issue " + issue.html_url + ", sSearching for: " + url);
+				// Ok, let's see if we have this non-Epic issue as part of the export?
+				for (var i = 0; i < issues.length; i++) {
+					if (issues[i].html_url == url) {
+						otherMatches.push({index: i});
+						break;				
+					}
+				}
 			}
 		}
 	} while (res != null);
 
-	if (epicMatches > 1) {
+	if (epicMatches.length > 1) {
 		// Hmm.. Let's favor local if more than one epic match.
 		for (var i = 0; i < epicMatches.length; i++) {
-			if (epicMatches.repo == undefined) {
+			if (epicMatches.repo == undefined && epicMatches.length > 0) {
 				epicMatches.splice(i, 1);
 				i--;
 			}
 		}
+	} 
+	
+	// Ok, we had no Epic matches. Did we have other matches?
+	if (epicMatches.length == 0 && otherMatches.length > 0) {
+		for (var m = 0; m < otherMatches.length; m++) {
+			// console.log("HERE", otherMatches[m].index, issue.html_url, issues[otherMatches[m].index].html_url);
+			var result = getEpicData(issues, issues[otherMatches[m].index]);
+			if (result.length > 0)
+				return result;
+		}
 	}
+	
 	return epicMatches;	
 }
 
@@ -278,7 +300,7 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Epic URL":
-				var result = getEpicData(issues[i]);
+				var result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					el["Epic URL"] = '=HYPERLINK("' + result[0].url + '")';
 				} else {
@@ -286,7 +308,7 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Epic Title":
-				var result = getEpicData(issues[i]);
+				var result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					el["Epic Title"] = result[0].title;
 				} else {
@@ -294,7 +316,7 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Epic Number":
-				var result = getEpicData(issues[i]);
+				var result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					el["Epic Number"] = result[0].number;
 				} else {
@@ -302,7 +324,7 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Epic Repo":
-				var result = getEpicData(issues[i]);
+				var result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					if (result[0].repo == undefined) 
 						el["Epic Repo"] = yoda.getUrlRepo(issues[i].url); // Same as issue. Local ref.
