@@ -36,6 +36,7 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "csvdelimiter");
 	params = addIfNotDefault(params, "labelindicator");
+	params = addIfNotDefault(params, "epiclabel");
 	params = addIfNotDefault(params, "outputfile");
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#state").val() != "open") {
@@ -77,7 +78,7 @@ function getEpicData(issue) {
 		var res = reg.exec(issue.body);
 		if (res != null) {
 			var labels = res[6].split(",");
-			if (labels.indexOf("T6 - Epic")) {
+			if (labels.indexOf($("#epiclabel").val())) {
 				// We got our baby.... Let's build data to support it.
 				var url = issue.html_url; // Let's build URL starting from the issue
 				var urlParts = url.split("/");
