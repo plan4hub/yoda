@@ -308,7 +308,10 @@ function sortParent(issues) {
 				}
 
 				console.log("  Issue " + issues[j].url + " is a child inserted here. j = " + j);
-				issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
+				if (issues[i].indent != undefined)
+					issues[j].indent = issues[i].indent  + "&nbsp;&nbsp;&nbsp;&nbsp;";
+				else
+					issues[j].indent = "&nbsp;&nbsp;&nbsp;&nbsp;";
 				issues.splice((i + 1), 0, issues.splice(j, 1)[0]);
 			}
 		}
