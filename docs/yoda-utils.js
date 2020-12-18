@@ -909,6 +909,8 @@ var yoda = (function() {
 //				headers['PRIVATE-TOKEN'] = accessToken;  // Gitlab play. API is differnet anyhow
 			}
 			
+//			headers['Access-Control-Max-Age'] = 86400; // 10 min, which is the maximum allowed for Chrome. 
+			
 			$.ajaxSetup({
 				headers : headers
 			});

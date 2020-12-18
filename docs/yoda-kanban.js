@@ -459,6 +459,7 @@ function drawKanban() {
 		} else {
 //			console.log("Dropping because of lack of assignee match.");
 		}
+		
 	}
 	
 	// Ok, now we have into issues array the issues we would like to draw. Let's get them into appropriate columns.
