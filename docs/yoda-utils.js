@@ -1446,7 +1446,12 @@ var yoda = (function() {
 			}
 			
 			// A slight hack to put here, but this is where everything goes.
-			Chart.defaults.global.defaultFontSize = 14;
+			try {
+				Chart.defaults.global.defaultFontSize = 14;
+			}
+			catch(e) {
+				// ignore
+			} 
 		},
 		
 		/* When the user clicks on the button, 
