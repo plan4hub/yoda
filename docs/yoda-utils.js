@@ -1218,9 +1218,66 @@ var yoda = (function() {
 		},
 		
 		// Update list of repositories AND update GUI field,. Select repo(s) from URL if supplied.
+		//Special Topic version. Ignore cache.
+		updateReposAndGUITopic: function(owner, fieldId, okFunc, failFunc) {
+			yoda_repoList = [];
+			var topics = yoda.decodeUrlParam(null, "repotopic").split(",");
+			console.log("Topics: " + topics);
+			var getReposUrl = yoda.getGithubUrl() + "search/repositories?q=org:" + $("#owner").val();
+			
+			for (var t = 0; t < topics.length; t++)
+				getReposUrl += "+topic:" + topics[t];
+			console.log("Url: " + getReposUrl);
+			yoda.getLoop(getReposUrl, 1, [],
+				// Ok func
+				function(d) {
+					data = d[0].items;
+					// 	This would be a good place to remove any archieved repos.
+					var r = data.length;
+					while (r--) {
+						if (data[r].archived != null && data[r].archived == true)
+							data.splice(r, 1);
+					}
+
+					// Sort and store repos.
+					data.sort(function(a,b) {
+						if (a.name.toLowerCase() > b.name.toLowerCase()) {
+							return 1;
+						} else {
+							return -1;
+						}
+					});
+					
+					yoda_repoList = data;
+
+					for (var r = 0; r < yoda_repoList.length; r++) {
+						var newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, true, true);
+						$(fieldId).append(newOption);
+					}
+				
+					$(fieldId).trigger('change');
+						
+					if (okFunc != null)
+						okFunc();
+				}, 
+				// fail func
+				function() {
+					if (failFunc != null)
+							failFunc();
+				});
+		},
+		
+		// Update list of repositories AND update GUI field,. Select repo(s) from URL if supplied.
 		// If required, fallback to the localStorage defaults.
 		updateReposAndGUI: function(owner, fieldId, URLId, localStorageId, okFunc, failFunc) {
 			$(fieldId).empty();
+
+			// Delegate handling to special "Tag" variant if we have repotag URL param and first time.
+			if (yoda_firstRepoUpdate == true && yoda.decodeUrlParam(null, "repotopic") != null) {
+				yoda_firstRepoUpdate = false;
+				yoda.updateReposAndGUITopic(owner, fieldId, okFunc, failFunc);
+				return;
+			}
 
 			yoda.updateRepos(owner, function() {
 				var selectRepos = [];
