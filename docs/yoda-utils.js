@@ -1223,7 +1223,7 @@ var yoda = (function() {
 			yoda_repoList = [];
 			var topics = yoda.decodeUrlParam(null, "repotopic").split(",");
 			console.log("Topics: " + topics);
-			var getReposUrl = yoda.getGithubUrl() + "search/repositories?q=org:" + $("#owner").val();
+			var getReposUrl = yoda.getGithubUrl() + "search/repositories?q=org:" + $("#owner").val() + "+archived:false";
 			
 			for (var t = 0; t < topics.length; t++)
 				getReposUrl += "+topic:" + topics[t];
