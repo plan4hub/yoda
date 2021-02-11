@@ -970,8 +970,16 @@ Chart.plugins.register({
             		 ctx.fillStyle = 'rgb(0, 0, 0)';
                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
 
-                 // Just naively convert to string for now
-                 var dataString = dataset.data[index].toString();
+	             // Just naively convert to string for now
+	             if (typeof(dataset.data[index]) == "number") {
+					// Make sure we do rounding if we have to.
+					var v = dataset.data[index];
+					if (v.toFixed(2) != v)
+						v = v.toFixed(1);
+					var dataString = v.toString();						
+                 } else {
+					var dataString = dataset.data[index].toString();	
+				 } 
 
                  // Make sure alignment settings are correct
                  ctx.textAlign = 'center';
