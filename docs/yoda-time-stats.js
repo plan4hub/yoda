@@ -973,10 +973,7 @@ Chart.plugins.register({
 	             // Just naively convert to string for now
 	             if (typeof(dataset.data[index]) == "number") {
 					// Make sure we do rounding if we have to.
-					var v = dataset.data[index];
-					if (v.toFixed(2) != v)
-						v = v.toFixed(1);
-					var dataString = v.toString();						
+					var dataString = dataset.data[index].toFixed().toString();						
                  } else {
 					var dataString = dataset.data[index].toString();	
 				 } 
