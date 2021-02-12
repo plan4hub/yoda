@@ -223,7 +223,9 @@ As part of sprint planning, often tentative/stretch goals are used. Normally, in
 
 The burndown page also includes an option for displaying a table of all issues associated with a milestone, along with their estimates and remaning work. Just press "Show table". You may click on "Issue Id" in the table header to export the table to a CSV file, e.g. for importing to Excel. The open state will be shown in **bold** if a special "in progress label" is present. A special "Additional Data" column may be customized. The default value is to include an issue severity based on a label convention where severity conform to an "S[1-4] - <severity text>" format.
 
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata, trendline.
+It is possible to filter for events assigned to a given person (using GitHub login). If more than one person is assigned to a task, the estimates are divided evenly.
+
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata, trendline, person.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 

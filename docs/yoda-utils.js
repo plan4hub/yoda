@@ -746,6 +746,15 @@ var yoda = (function() {
 			return false;
 		},
 		
+		// Is person assigned to this issue?
+		isPersonAssigned: function(issue, person) {
+			for (var as = 0; as < issue.assignees.length; as++) {
+				if (issue.assignees[as].login == person)
+					return true;
+			}
+			return false;
+		},
+		
 		sortDates: function(issue_1, issue_2) {
 			if (issue_1.closed_at == null || issue_2.closed_at == null) 
 				return 0;

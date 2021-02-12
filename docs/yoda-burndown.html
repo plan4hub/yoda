@@ -166,6 +166,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
+			<label>Person Filter</label>
+			<input type="text" id="person" size="20" value="">
+			<span class="tooltip">Only include issues for this person (GitHub login)</span>
+		</div>
+
+		<div class="field">
 			<label>Trendline</label>
 			<input type="checkbox" id="trendline">
             <span class="tooltip">Draw a burndown trendline</span>
@@ -221,6 +227,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		
+		yoda.decodeUrlParam("#person", "person");
 		yoda.decodeUrlParamBoolean("#trendline", "trendline");
 		
 		// Local storage

@@ -36,6 +36,7 @@ function getUrlParams() {
 		params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "labelfilter");	
+	params = addIfNotDefault(params, "person");	
 	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");
@@ -632,6 +633,12 @@ function makeTable(issues) {
 	yoda.updateUrl(getUrlParams() + "&draw=table");
 }
 
+// Align person
+function AP(issue, est) {
+	if ($("#person").val() == "")
+		return est;
+	return est / issue.assignees.length;
+}
 
 // ---------------------------------------
 // Milestone issues have been retrieved. Time to analyse data and draw the chart.
@@ -644,6 +651,12 @@ function burndown(issues) {
 	
 	var tentativeLabel = $("#tentative").val();
 	var notcodefreezeLabel = $("#notcodefreeze").val();
+
+	// Filtering by person - then let's clear capacity
+	if ($("#person").val() != "")
+		$("#capacity").val("");
+	
+
 
 	// 3 arrays we will create. 
 	// Labels (x axis - days)
@@ -695,13 +708,17 @@ function burndown(issues) {
 	// First calculate the sum of (either # of sum of estimates) of all issues associated with the
 	// milestone
 	for (i = 0; i < issues.length; i++) {
+		// If assignee filter given, then continue if person not assigned here.
+		if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+			continue;
+		
 		var closedAt = new Date(issues[i].closed_at);
 		if (issues[i].state == "closed" && closedAt < milestoneStartdate) {
 			// Issue was already been closed BEFORE the milestone start date.
 			// Issue (estimate or count) will NOT be included.
 			// NOTE: This can be debated. Issue is after all in the milestone...
 		}  else {
-			var issueEstimateValue = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));  
+			var issueEstimateValue = AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)));    
 
 			if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 				console.log(" => adding TENTATIVE : " + issues[i].number + ", estimate: " + issueEstimateValue);
@@ -763,6 +780,10 @@ function burndown(issues) {
 
 		// Now check which (if any) issues where closed during this day. Decrease remaining.
 		for (i=0; i<issues.length; i++) {
+			// If assignee filter given, then continue if person not assigned here.
+			if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+				continue;
+
 			if (issues[i].closed_at != null) {
 				var closedAt = new Date(issues[i].closed_at);
 				closedAt.setHours(12); // avoid problems if closed near midnight
@@ -770,14 +791,14 @@ function burndown(issues) {
 					
 					if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 						console.log("Tentative Issue " + issues[i].number + " was closed: " + closedAt);
-						remainingTentative -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)); 
+						remainingTentative -= AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate))); 
 					} else {
 						if (yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
 							console.log("Issue " + issues[i].number + " was closed: " + closedAt);
-							remainingNoFreeze -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
+							remainingNoFreeze -= AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate))); 
 						} else {
 							console.log("Issue " + issues[i].number + " was closed: " + closedAt);
-							remaining -= yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
+							remaining -= AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate))); 
 						}
 					}
 				}
@@ -788,16 +809,20 @@ function burndown(issues) {
 	// Now for the - really - complex bit, namely handling of "> remaining (date) (number)" syntax
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
+			// If assignee filter given, then continue if person not assigned here.
+			if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+				continue;
+
 			console.log("Looking at issue index " + i + ": " + issues[i].url);
 			// First, let's get the estimate at start
-			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate));
+			var issueEstimate = AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)));
 			if (issueEstimate != null) {
 				var issueWorkDoneBefore = 0;
 				var lastRemainingNumber = 9999;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
-					var remainingEntry = yoda.getFirstRemaining(issues[i].body, index);
+					var remainingEntry = yoda.getFirstRemaining(issues[i].body, index); 
 					var remainingDate = yoda.getDateFromEntry(remainingEntry);
-					var remainingNumber = yoda.getRemainingFromEntry(remainingEntry);
+					var remainingNumber = AP(issues[i], yoda.getRemainingFromEntry(remainingEntry));
 					
 					if (remainingNumber > lastRemainingNumber)
 						console.log("  NOTE: Below remainingNumber represents in increase vs last.");
@@ -873,6 +898,7 @@ function burndown(issues) {
 //		remainingIdealArray[0] = parseInt($("#capacity").val());
 		remainingIdealFullArray[0] = parseInt($("#capacity").val());
 	}
+	
 
 	remainingIdealFullArray[remainingIdealArray.length - 1] = 0;
 	if (burndownDateIndex != -1) {
