@@ -1572,7 +1572,7 @@ var yoda = (function() {
 				return null;
 			
 			if (yoda.isLabelInIssue(issue, "Jira Migrated")) {
-				return yoda.extractFieldFromBodyTable(issue.body, "Updated");  // This may be a simplification
+				return yoda.cleanDate(yoda.extractFieldFromBodyTable(issue.body, "Updated"));  // This may be a simplification
 			} else {	
 				return issue.closed_at;
 			}
