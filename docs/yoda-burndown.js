@@ -36,7 +36,7 @@ function getUrlParams() {
 		params += "&estimate=" + yoda.getEstimateInIssues();
 	params = addIfNotDefault(params, "labelsplit");	
 	params = addIfNotDefault(params, "labelfilter");	
-	params = addIfNotDefault(params, "person");	
+	params = addIfNotDefault(params, "assignee");	
 	params = addIfNotDefault(params, "additionaldata");
 	params = addIfNotDefault(params, "tentative");	
 	params = addIfNotDefault(params, "inprogress");
@@ -635,7 +635,7 @@ function makeTable(issues) {
 
 // Align person
 function AP(issue, est) {
-	if ($("#person").val() == "")
+	if ($("#assignee").val() == "")
 		return est;
 	return est / issue.assignees.length;
 }
@@ -653,7 +653,7 @@ function burndown(issues) {
 	var notcodefreezeLabel = $("#notcodefreeze").val();
 
 	// Filtering by person - then let's clear capacity
-	if ($("#person").val() != "")
+	if ($("#assignee").val() != "")
 		$("#capacity").val("");
 	
 
@@ -709,7 +709,7 @@ function burndown(issues) {
 	// milestone
 	for (i = 0; i < issues.length; i++) {
 		// If assignee filter given, then continue if person not assigned here.
-		if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+		if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 			continue;
 		
 		var closedAt = new Date(issues[i].closed_at);
@@ -781,7 +781,7 @@ function burndown(issues) {
 		// Now check which (if any) issues where closed during this day. Decrease remaining.
 		for (i=0; i<issues.length; i++) {
 			// If assignee filter given, then continue if person not assigned here.
-			if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+			if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 				continue;
 
 			if (issues[i].closed_at != null) {
@@ -810,7 +810,7 @@ function burndown(issues) {
 	if (yoda.getEstimateInIssues() == "inbody") {
 		for (i = 0; i < issues.length; i++) {
 			// If assignee filter given, then continue if person not assigned here.
-			if ($("#person").val() != "" && !yoda.isPersonAssigned(issues[i], $("#person").val()))
+			if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 				continue;
 
 			console.log("Looking at issue index " + i + ": " + issues[i].url);
