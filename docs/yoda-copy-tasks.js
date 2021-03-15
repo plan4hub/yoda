@@ -311,7 +311,7 @@ function copySingleIssue(issues) {
 		url: createIssueUrl,
 		type: 'POST',
 		data: JSON.stringify(urlData),
-		success: function() { logMessage("  Succesfully created issue"); },
+		success: function(resp) { logMessage("  Succesfully created issue " + resp.number + ": " + resp.title); },
 		error: function() { logMessage("  Failed to create issue"); },
 		complete: function(jqXHR, textStatus) { copySingleIssue(issues.splice(1));}
 	});
