@@ -288,6 +288,14 @@ function copySingleIssue(issues) {
 	var createIssueUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues";
 	console.log("createUrl: " + createIssueUrl);
 
+	if ($("#srcowner").val() == $("#dstowner").val() && $("#srcrepo").val() == $("#dstrepo").val()) {
+		var copiedFrom = "\n*Issue copied from #" + issues[0].number + " " + issues[0].title + "*\n"; 
+	} else {
+		var copiedFrom = "\n*Issue copied from " + $("#srcowner").val() + "/" + $("#srcrepo").val() + "#" + issues[0].number + " " + issues[0].title + "*\n"; 
+	}
+	console.log(":" + copiedFrom + ":");
+	newBody += copiedFrom;
+
 	var urlData = {
 			"title": newTitle,
 			"body": newBody,
@@ -296,6 +304,8 @@ function copySingleIssue(issues) {
 	if ($("#dstmilestone").val() != "0")
 		urlData["milestone"] = $("#dstmilestone").val();
 //	console.log(urlData);
+
+ 
 	
 	$.ajax({
 		url: createIssueUrl,
