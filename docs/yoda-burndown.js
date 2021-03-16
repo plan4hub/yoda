@@ -1225,7 +1225,6 @@ function addMilestoneFilter(repo) {
 var firstMilestoneShowData = true;
 function showMilestoneData() {
 	console.log("Updating milestone data.");
-	$("#capacity").val("");
 	
 	var selected = $("#milestonelist").val();
 	// First we have to find it all matching milestones within the list and add the capacity
@@ -1270,7 +1269,7 @@ function showMilestoneData() {
 			}
 		}
 	}
-	if (totalCapacity != 0) {
+	if (totalCapacity != 0 && !(firstMilestoneShowData && $("#capacity").val() != "")) {
 		$("#capacity").val(totalCapacity);
 	}
 	
