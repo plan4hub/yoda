@@ -52,6 +52,10 @@ function getUrlParams() {
 	if ($('#trendline').is(":checked")) {
 		params += "&trendline=true";
 	}
+	var capacity = yoda.decodeUrlParam(null, "capacity");
+	if (capacity != null) {
+		params += "&capacity=" + capacity;
+	}
 
 	return params;
 }
