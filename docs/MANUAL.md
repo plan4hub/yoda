@@ -225,7 +225,9 @@ The burndown page also includes an option for displaying a table of all issues a
 
 It is possible to filter for events assigned to a given GitHub login. If more than one person is assigned to a task, the estimates are divided evenly.
 
-URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata, trendline, assignee.
+URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels), user, token, tentative, inprogress, notcodefreeze, milestone, additionaldata, trendline, assignee, capacity.
+
+*Note*: If the capacity argument is supplied, any capacity values from the milestone(s) are ignored.
 
 *Note*: startdate, duedate, capacity are taken from milestone/projects respectively.
 
