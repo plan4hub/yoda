@@ -89,6 +89,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				id="issuelist" value=""> <span class="tooltip">Label
 				Comma separate list of issues. Format [repo]/(list of issue ids):] Example: nfvd/3,4:hpsd/124)</span>
 		</div>
+		
+		<div class="field">
+			<label>Descending order</label>
+			<input type="checkbox" id="descendingorder">
+			<span class="tooltip">Sort issues into Index in descending order</span>
+		</div>
 	</div>
 
 	<div class="frame">
@@ -171,6 +177,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		yoda.decodeUrlParam("#issuelist", "issuelist");
+		yoda.decodeUrlParamBoolean("#descendingorder", "descendingorder");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

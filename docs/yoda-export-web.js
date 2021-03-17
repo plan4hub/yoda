@@ -100,6 +100,9 @@ function getUrlParams() {
 	if ($('#showcomment').is(":checked")) {
 		params += "&showcomment=true";
 	}
+	if ($('#descendingorder').is(":checked")) {
+		params += "&descendingorder=true";
+	}
 	
 	return params;
 }
@@ -127,6 +130,11 @@ var issueImages = [];
 var globLabels = [];
 var globRepoList = [];
 function exportIssues(issues) {
+	// Sort issues in descending order if option given
+	if ($('#descendingorder').is(":checked")) {
+		issues.sort((a, b) => b.number - a.number);
+	}	
+	
 	console.log(issues);
 	// Prepare new run (zip, parallel#, etc.)
 	issueZipRoot = new JSZip();
