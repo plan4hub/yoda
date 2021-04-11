@@ -289,6 +289,47 @@ var yoda = (function() {
 			}
 			yoda.showSnackbar(message, '#cc0e24', timeout);
 		},
+		
+		// Select2 utils
+		// Sorter is not really a sorter, but called as such. It add the menu option to select all matches (including all entries if no search)
+		select2Sorter: function (matches) {
+			if (matches.length > 0) {
+			// Insert a special "Select all matches" item at the start of the 
+			// list of matched items.
+				return [{ id: 'selectAll', text: 'Select all matches', matchIds: matches.map(match => match.id) }, ...matches];
+			}
+		},
+		
+		select2Matcher: function(params, data) {
+    		// If there are no search terms, return all of the data
+    		if ($.trim(params.term) === '') {
+    			return data;
+    		}
+
+    		// Do not display the item if there is no 'text' property
+    		if (typeof data.text === 'undefined') {
+    			return null;
+    		}
+
+    		// `params.term` should be the term that is used for searching
+    		// `data.text` is the text that is displayed for the data object
+     		if (data.text.toUpperCase().indexOf(params.term.toUpperCase())==0) {
+    			var modifiedData = $.extend({}, data, true);
+				// You can return modified objects from here
+    		    // This includes matching the `children` how you want in nested data sets
+    		    return modifiedData;
+    		}
+
+	       // Return `null` if the term should not be displayed
+    		return null;
+    	},
+
+		select2SelectEvent: function(field) { return function (e) {
+			if (e.params.data.id === 'selectAll') {
+		  		$(field).val(e.params.data.matchIds);
+		  	 	$(field).trigger('change');
+		  	 };
+		}},
 
 		getEstimateInIssues: function() {
 			return estimateInIssues;
