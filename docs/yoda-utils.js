@@ -1355,7 +1355,8 @@ var yoda = (function() {
 				
 				for (var r = 0; r < yoda_repoList.length; r++) {
 					var selectRepo = false;
-					if (selectRepos.indexOf(yoda_repoList[r].name) != -1) {
+					if (selectRepos.indexOf(yoda_repoList[r].name) != -1 || 
+					    (selectRepos.length == 1 && selectRepos[0].endsWith('*')) && (yoda_repoList[r].name.startsWith(selectRepos[0].slice(0, -1)))) {
 						selectRepo = true;
 						reposSelected = true;
 					}

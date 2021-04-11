@@ -411,3 +411,6 @@ Example:
 
 It is possible to scope repositories based on a comma-separate list of topics that must be presents on the repository. This is done using the `repotopic` argument.
 
+# Selecting repos based on name wildcarding
+
+It is possible to use the `repolist` argument to specify a search argument using a wildcard at the end of a `repolist` argument (only one element). Exampe `repolist=yoda*`. This will mirror the repository selection search facility available in Yoda.
