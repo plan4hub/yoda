@@ -1360,7 +1360,7 @@ var yoda = (function() {
 				for (var r = 0; r < yoda_repoList.length; r++) {
 					var selectRepo = false;
 					if (selectRepos.indexOf(yoda_repoList[r].name) != -1 || 
-					    (selectRepos.length == 1 && yoda.select2MatchHelper(selectRepos[0], yoda_repoList[r].name))) { 
+					    (selectRepos.length == 1 && selectRepos[0].includes("*") && yoda.select2MatchHelper(selectRepos[0], yoda_repoList[r].name))) { 
 						selectRepo = true;
 						reposSelected = true;
 					}
