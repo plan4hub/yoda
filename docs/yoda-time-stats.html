@@ -238,7 +238,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		githubAuth();
 		
 		$(document).ready(function() {
-			$('#repolist').select2();
+			$('#repolist').select2({
+				// minimumInputLength: 2,
+				sorter: yoda.select2Sorter,
+    		    matcher: yoda.select2Matcher
+			});
+		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
 			
 			// Rather complex updating of the defaults repos. Once complete, check if we should draw.
 			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
