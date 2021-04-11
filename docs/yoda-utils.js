@@ -313,10 +313,16 @@ var yoda = (function() {
 
     		// `params.term` should be the term that is used for searching
     		// `data.text` is the text that is displayed for the data object
-     		if (data.text.toUpperCase().indexOf(params.term.toUpperCase())==0) {
+			var match = false;
+			// If search *, we will assume use it as "mini" regular expression
+			if (params.term.includes("*")) {
+				var termReg = new RegExp("^" + params.term.replaceAll("*", ".*").toUpperCase() + "$");
+				match = (data.text.toUpperCase().match(termReg) != null);	
+			} else {
+     			match = (data.text.toUpperCase().indexOf(params.term.toUpperCase()) == 0); 
+			}
+			if (match) {
     			var modifiedData = $.extend({}, data, true);
-				// You can return modified objects from here
-    		    // This includes matching the `children` how you want in nested data sets
     		    return modifiedData;
     		}
 
