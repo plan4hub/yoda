@@ -300,6 +300,11 @@ var yoda = (function() {
 			}
 		},
 		
+		select2MatchHelper: function(term, text) {
+			var termReg = new RegExp("^" + term.replaceAll("*", ".*").toUpperCase() + "$");
+			return (text.toUpperCase().match(termReg) != null);	
+		},
+		
 		select2Matcher: function(params, data) {
     		// If there are no search terms, return all of the data
     		if ($.trim(params.term) === '') {
@@ -313,15 +318,8 @@ var yoda = (function() {
 
     		// `params.term` should be the term that is used for searching
     		// `data.text` is the text that is displayed for the data object
-			var match = false;
 			// If search *, we will assume use it as "mini" regular expression
-			if (params.term.includes("*")) {
-				var termReg = new RegExp("^" + params.term.replaceAll("*", ".*").toUpperCase() + "$");
-				match = (data.text.toUpperCase().match(termReg) != null);	
-			} else {
-     			match = (data.text.toUpperCase().indexOf(params.term.toUpperCase()) == 0); 
-			}
-			if (match) {
+			if ((params.term.includes("*") && yoda.select2MatchHelper(params.term, data.text)) || (data.text.toUpperCase().indexOf(params.term.toUpperCase()) == 0)) {
     			var modifiedData = $.extend({}, data, true);
     		    return modifiedData;
     		}
@@ -1362,7 +1360,7 @@ var yoda = (function() {
 				for (var r = 0; r < yoda_repoList.length; r++) {
 					var selectRepo = false;
 					if (selectRepos.indexOf(yoda_repoList[r].name) != -1 || 
-					    (selectRepos.length == 1 && selectRepos[0].endsWith('*')) && (yoda_repoList[r].name.startsWith(selectRepos[0].slice(0, -1)))) {
+					    (selectRepos.length == 1 && yoda.select2MatchHelper(selectRepos[0], yoda_repoList[r].name))) { 
 						selectRepo = true;
 						reposSelected = true;
 					}
