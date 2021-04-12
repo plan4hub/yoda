@@ -413,6 +413,8 @@ var yoda = (function() {
 		},
 		
 		updateUrl: function(searchParams) {
+			if (yoda.topPanelHidden)
+				searchParams += "&hidepanel=true";
 //			var baseUrl = window.location.origin + window.location.pathname;
 			var baseUrl = window.location.pathname;
 			searchParams = searchParams.replace(/%/g, "%25");
@@ -1525,9 +1527,11 @@ var yoda = (function() {
 			window.open(url + params);
 		},
 		
+		topPanelHidden: false,
 		hideTopPanel: function() {
 			$("#yodamenu").closest(".frame").children().hide();
 			$("#yodamenu").parent().show(); // Leave the Hamburger there
+			yoda.topPanelHidden = true;
 		},
 		
 		showTopPanel: function() {
@@ -1539,6 +1543,7 @@ var yoda = (function() {
 			} catch(e) {
 				// Ignore
 			} 
+			yoda.topPanelHidden = false;
 		},
 		
 		// Menu stuff
@@ -1560,6 +1565,10 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Top Panel</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Top Panel</a>");
+			
+			if (yoda.decodeUrlParam(null, "hidepanel") == "true") {
+				yoda.hideTopPanel();
+			}
 
 			// Close the dropdown menu if the user clicks outside of it
 			window.onclick = function(event) {
