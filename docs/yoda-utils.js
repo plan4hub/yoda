@@ -1525,6 +1525,22 @@ var yoda = (function() {
 			window.open(url + params);
 		},
 		
+		hideTopPanel: function() {
+			$("#yodamenu").closest(".frame").children().hide();
+			$("#yodamenu").parent().show(); // Leave the Hamburger there
+		},
+		
+		showTopPanel: function() {
+			$("#yodamenu").closest(".frame").children().show();
+			// A bit of a hack, but don't know of better way to address user and token fields which should remain hidden.
+			try {
+				$("#user").closest("div").hide();
+				$("#token").closest("div").hide();
+			} catch(e) {
+				// Ignore
+			} 
+		},
+		
 		// Menu stuff
 		enableMenu: function() {
 			// Build the menu
@@ -1542,6 +1558,8 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-export-web.html\", true)'>Export to Web Pages</a>");
 			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Top Panel</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Top Panel</a>");
 
 			// Close the dropdown menu if the user clicks outside of it
 			window.onclick = function(event) {
