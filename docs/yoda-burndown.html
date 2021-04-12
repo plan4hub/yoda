@@ -57,6 +57,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">GitHub organisation or user</span>
 		</div>
 
+		<div class="field">
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
+		</div>
+		
 		<div class="field" style="display: none;">
 			<label>GitHub user</label>
 			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
@@ -114,27 +120,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Where to get estimates</span>
 		</div>
 
-		<div class="field">
-			<label>Closed issues</label>
-			<input type="checkbox" id="showclosed" checked>
-			<span class="tooltip">Show closed issues in table</span>
-		</div>
-		
-		<div class="field">
-			<label>Closed milestones</label>
-			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()">
-            <span class="tooltip">Show closed milestones</span>
-		</div>
 		
 	</div>
 
 	<div class="frame">
-		<div class="field">
-			<label>Repositories</label>
-			<select id="repolist" style="width: 350px" class="select2" multiple></select>
-			<span class="tooltip">Repositories to show</span>
-		</div>
-		
 		<div class="field">
 			<label>Milestone</label>
 			<select id="milestonelist" style="width: 250px" class="select2"></select>
@@ -182,6 +171,18 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">CSV field delimiter</span>
 		</div>
 		
+		<div class="field">
+			<label>Closed issues</label>
+			<input type="checkbox" id="showclosed" checked>
+			<span class="tooltip">Show closed issues in table</span>
+		</div>
+		
+		<div class="field">
+			<label>Closed milestones</label>
+			<input type="checkbox" id="closedmilestones" onchange="updateMilestones()">
+            <span class="tooltip">Show closed milestones</span>
+		</div>
+
 		<button id="drawbutton" onclick="startBurndown()">Draw chart</button>
 		<button id="tablebutton" onclick="startTable()">Show table</button>
 	</div>
