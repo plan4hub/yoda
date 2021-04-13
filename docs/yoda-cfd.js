@@ -558,9 +558,13 @@ Chart.plugins.register({
 			var meta = chartInstance.getDatasetMeta(i);
 			if (!meta.hidden) {
 				mod = 1;
-				if (meta.data.length > 30)  // If we have lots of data sets, don't show all, they will overlap/mess up
-					mod = 2;
 				m = 0;
+				if (meta.data.length > 30) {  // If we have lots of data sets, don't show all, they will overlap/mess up
+					mod = 2;
+					if (meta.data.length % 2 == 0)
+						m = 1; // Start counting at 1 if even number of datasets. This will make sure we get the last (more recent) number in graph.
+				}
+
 				meta.data.forEach(function(element, index) {
 					if (m++ % mod == 0) {
 						// Draw the text in black, with the specified font
