@@ -1189,25 +1189,30 @@ var yoda = (function() {
 			}
 		},
 		
-		// Retrieve GitHub file contents for a file under github control
+		// Retrieve GitHub file contents for a file under github control. 
 		getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
-			// First we will get the file object in order to retrieve the git_url reference
-			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + path;
-			if (branch != "")
+			var directory = path.split("/").slice(0, -1).join("/"); 
+			var file = path.split("/").slice(-1);
+			// First we will get the directory information in order to retrieve the git_url (blob) reference for the file
+			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + directory;
+			if (branch != "" && branch != null)
 				getFileUrl += "?ref=" + branch;
 			console.log("getFileUrl: " + getFileUrl); 
 			$.get(getFileUrl, function(response, status) {
-				rawFile = response[0].git_url;
-				console.log("  rawFile: " + rawFile);
+				console.log(response);
 				
-				var headers = [];
-				headers['Accept'] = '*/*';
-
+				// Now, let's search the response / directory entries looking for the filename requested.
+				blobUrl = null;
+				for (var i = 0; i < response.length; i++)
+					if (response[i].name == file)
+						blobUrl = response[i].git_url;
+				if (blobUrl == null)
+					errorFunc("No such file"); 
+				console.log("blob_url: " + blobUrl);
+				
 				$.ajax({
-					url: rawFile,
+					url: blobUrl,
 					type: "GET",
-					// dataType: 'binary',
-					headers : headers,
 					processData: false,
 					success: function(response, status){
 						console.log(response);
@@ -1215,7 +1220,7 @@ var yoda = (function() {
 						finalFunc(atob(response.content));
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("Failed to download " + rawFile + ": " + textStatus);
+						console.log("Failed to download " + blobUrl + ": " + textStatus);
 					}
 				});
 			}).fail(function(jqXHR, textStatus, errorThrown) { 
