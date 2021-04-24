@@ -152,15 +152,26 @@ function createChart() {
 	var totalArray = [];
 	var totalAlwaysArray = [];
 
+	// We want to count entries based on a given date.  
+	dateField ="scanDate";
 
 	// TBD: Need to rebuild a list of scans with a date index in order. This will allow us to choose the right dates...
 	var matchFields = ["Family", "Product", "Repository", "Tool"];
 	var scans = [];
-
+	// We will simply represent the scans by putting one of the issues. If not there. (we may decide maybe to add a counter)
+	for (var i = 0; i < issues.length; i++) {
+		var mText = "";
+		for (var m = 0; m < matchFields.length; m++) {
+			mText += issues[i][matchFields[m]] + ",";
+		}
+		if (scans.find(element => element.mText == mText && element.date == issues[i][dateField]) == undefined)
+			scans.push({date: issues[i][dateField], mText: mText});
+	}
+	scans.sort(function(a, b) { if (a.date < b.date) return -1; else return 1;});
+	console.log("# of unique scans: " + scans.length);
 	
 	// date loop
 	// Start at startDate
-	
 	// Need to consider previous date, so that we can observe interval. Go back one interval
     var previousDate = new Date(startDate);
     var startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
@@ -186,22 +197,24 @@ function createChart() {
 		// Ok, now let's count issues
 		for (var i=0; i < issues.length; i++) {
 			// TOTO: skip issue if it does not meet TBD filtering criteria. We will do this later.
-
-			// We want to count entries based on a given date.  
-			dateField ="scanDate";
 			
 			// We need to select the most recent based on date, but ignore later/others. TBD
 			issueDate = new Date(issues[i][dateField]);
-			
-			
-			
-
-			
-			// For now, we'll hack it and report everything up to and including the date
 			if (issueDate > date) {
-				// report is later - skip it. This is obviously wrong. But for now, Ok
+				// report is later
 				continue;
 			}
+
+			var mText = "";
+			for (var m = 0; m < matchFields.length; m++) {
+				mText += issues[i][matchFields[m]] + ",";
+			}
+			var sIndex = scans.find(element => element.mText == mText && element.date == issues[i][dateField]);
+			// Right. We found the report that the issue belongs to. Now the question(s) is if there are more recent reports
+			// which are still done before (or on) this date. If so, skip issue.
+			if (scans.find((element, index) => element.mText = mText && index > sIndex && element.date <= date) != undefined)
+				continue;
+			
 			
 			totalAlways++;
 			foundBar = false;
