@@ -903,9 +903,24 @@ function readCSV() {
 		console.log(response, status);
 		rawFile = response[0].download_url;
 		console.log(rawFile);
-		$.get(rawFile, function(response, status) {
-			console.log(response, status);
-		})
+		
+		var headers = [];
+		headers['Accept'] = '*/*';
+		
+		$.ajax({
+			url: rawFile,
+			type: "GET",
+			dataType: 'binary',
+			headers : headers,
+			processData: false,
+			success: function(response, status){
+				console.log(response, status);
+
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log("Failed to download " + rawFile + ": " + textStatus);
+			}
+		}); 
 	});
 }
 
