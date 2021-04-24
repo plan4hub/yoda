@@ -901,7 +901,8 @@ function readCSV() {
 	branch = "49_full_maven_security_report_collector";
 	yoda.getGitFile("hpsd", "orchestration", path, branch, function(response, status) {
 		console.log(response, status);
-		rawFile = response[0].download_url;
+		// rawFile = response[0].download_url;
+		rawFile = response[0].git_url;
 		console.log(rawFile);
 		
 		var headers = [];
