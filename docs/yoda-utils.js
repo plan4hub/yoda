@@ -1190,13 +1190,37 @@ var yoda = (function() {
 		},
 		
 		// Retrieve GitHub file contents for a file under github control
-		getGitFile(owner, repo, path, branch, f) {
+		getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
+			// First we will get the file object in order to retrieve the git_url reference
 			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + path;
 			if (branch != "")
 				getFileUrl += "?ref=" + branch;
 			console.log("getFileUrl: " + getFileUrl); 
 			$.get(getFileUrl, function(response, status) {
-				f(response, status);
+				rawFile = response[0].git_url;
+				console.log("  rawFile: " + rawFile);
+				
+				var headers = [];
+				headers['Accept'] = '*/*';
+
+				$.ajax({
+					url: rawFile,
+					type: "GET",
+					// dataType: 'binary',
+					headers : headers,
+					processData: false,
+					success: function(response, status){
+						console.log(response);
+						console.log("Succesfully got file. Status: " + status + ", length: " + response.content.length);
+						finalFunc(atob(response.content));
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log("Failed to download " + rawFile + ": " + textStatus);
+					}
+				});
+			}).fail(function(jqXHR, textStatus, errorThrown) { 
+				if (errorFunc != null) 
+					errorFunc(errorThrown + " " + jqXHR.status);
 			});
 		},
 		

@@ -899,29 +899,10 @@ function readCSV() {
 	// path = "Security_report_aggregator/aggregation/globalReport.csv";
 	path = "Security_report_aggregator/aggregation";
 	branch = "49_full_maven_security_report_collector";
-	yoda.getGitFile("hpsd", "orchestration", path, branch, function(response, status) {
-		console.log(response, status);
-		// rawFile = response[0].download_url;
-		rawFile = response[0].git_url;
-		console.log(rawFile);
-		
-		var headers = [];
-		headers['Accept'] = '*/*';
-		
-		$.ajax({
-			url: rawFile,
-			type: "GET",
-			dataType: 'binary',
-			headers : headers,
-			processData: false,
-			success: function(response, status){
-				console.log(response, status);
-
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				console.log("Failed to download " + rawFile + ": " + textStatus);
-			}
-		}); 
+	yoda.getGitFile("hpsd", "orchestration", path, branch, function(data) {
+		console.log(data);
+	}, function(err) {
+		console.log("ERROR: " + err);
 	});
 }
 
