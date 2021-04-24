@@ -1189,6 +1189,17 @@ var yoda = (function() {
 			}
 		},
 		
+		// Retrieve GitHub file contents for a file under github control
+		getGitFile(owner, repo, path, branch, f) {
+			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + path;
+			if (branch != "")
+				getFileUrl += "?ref=" + branch;
+			console.log("getFileUrl: " + getFileUrl); 
+			$.get(getFileUrl, function(response, status) {
+				f(response, status);
+			});
+		},
+		
 		// ----GITHUB REPO FUNCTIONS --------------------------------------
 		
 		// Functions to keep up-to-date list of repos based on owner.

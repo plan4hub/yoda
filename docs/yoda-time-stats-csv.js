@@ -896,12 +896,17 @@ function storeEvents(events) {
 
 function readCSV() {
 	console.log("readCSV");
-	url = "https://github.hpe.com/hpsd/orchestration/blob/49_full_maven_security_report_collector/Security_report_aggregator/aggregation/globalReport.csv";
-	$.get(url, function(response, status) {
-		conosole.log(response, status);
+	// path = "Security_report_aggregator/aggregation/globalReport.csv";
+	path = "Security_report_aggregator/aggregation";
+	branch = "49_full_maven_security_report_collector";
+	yoda.getGitFile("hpsd", "orchestration", path, branch, function(response, status) {
+		console.log(response, status);
+		rawFile = response[0].download_url;
+		console.log(rawFile);
+		$.get(rawFile, function(response, status) {
+			console.log(response, status);
+		})
 	});
-
-	
 }
 
 
