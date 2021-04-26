@@ -420,12 +420,15 @@ function addFilter(column) {
 	var select = document.createElement("select");
 	select.id = "sel-" + column;
 	select.class = "select2";
-	select.style = "width: 200px";
+	select.style = "width: 300px";
 	select.multiple = true;
 	div.appendChild(select);
 	
 	ff.appendChild(div);
-	$("#sel-" + column).select2();
+	$("#sel-" + column).select2({
+		sorter: yoda.select2Sorter,
+	    matcher: yoda.select2Matcher
+	});
 	
 	// Now, add the possible values.
 	var values = [];
@@ -436,8 +439,9 @@ function addFilter(column) {
 			var newOption = new Option(v, v, false, false);
 			$("#sel-" + column).append(newOption);		
 		}
-		$("#sel-" + column).trigger('change');
 	}
+	$("#sel-" + column).trigger('change');
+	$("#sel-" + column).on('select2:select', yoda.select2SelectEvent("#sel-" + column));
 } 
 
 function removeFilter(column) {
