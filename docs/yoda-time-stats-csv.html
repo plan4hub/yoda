@@ -72,13 +72,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>CSV Path</label>
-			<input type="text" size="50" id="path" value="">
+			<input type="text" size="25" id="path" value="">
 			<span class="tooltip">Path for CSV file</span>
 		</div>
 
 		<div class="field">
 			<label>CSV Branch</label>
-			<input type="text" size="25" id="branch" value="">
+			<input type="text" size="20" id="branch" value="">
 			<span class="tooltip">Optional branch for CSV file</span>
 		</div>
 
@@ -93,6 +93,18 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
 			<span class="tooltip">GitHub personal token</span>
 		</div>
+		
+		<div class="field">
+			<label>CSV date column</label>
+			<input type="text" size="10" id="datecolumn" value="scanDate">
+			<span class="tooltip">CSV column containing date</span>
+		</div>
+
+		<div class="field">
+			<label>CSV group columns</label>
+			<input type="text" size="25" id="groupcolumns" value="Family,Product,Repository,Tool"> 
+			<span class="tooltip">Comma-separated list of column for group</span>
+		</div>
 
 		<button id="readcsv" onclick="readCSV()">Read CSV</button>
 		
@@ -100,6 +112,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>CSV entries</label>
 			<input size="10" id="entries" value="" disabled>
 			<span class="tooltip">Number of entries/lines read from CSV</span>
+		</div>
+	</div>
+
+	<div class="frame" id="filterframe">
+		<div class="field">
+			<label>Filters</label>
+			<select id="filters" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Columns to filter</span>
 		</div>
 	</div>
 
@@ -174,15 +194,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
 		yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
 		yoda.getDefaultLocalStorage("#other", "yoda.time.other");
-		if ($("#other").val() == "blank")
-			$("#other").val("");
 		
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#repo", "repo");
 		yoda.decodeUrlParam("#path", "path");
 		yoda.decodeUrlParam("#branch", "branch");
+		yoda.decodeUrlParam("#datecolumn", "datecolumn");
+		yoda.decodeUrlParam("#groupcolumns", "groupcolumns");
 
-		// repo and repoList handled later, both are supported.
 		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
@@ -193,7 +212,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
 		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
-		yoda.decodeUrlParamBoolean("#history", "history");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
@@ -210,6 +228,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		githubAuth();
 		
 		$(document).ready(function() {
+			$('#filters').select2();
+			
+		  	$('#filters').on('select2:select', function(e) {
+		  		addFilter(e.params.data.id);
+		  	});
+		  	
+		  	$('#filters').on('select2:unselect', function(e) {
+		  		removeFilter(e.params.data.id);
+		  	});
+
 		});
 	</script>
 

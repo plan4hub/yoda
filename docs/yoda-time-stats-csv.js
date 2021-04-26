@@ -44,6 +44,8 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "repo");	
 	params = addIfNotDefault(params, "path");
 	params = addIfNotDefault(params, "branch");
+	params = addIfNotDefault(params, "dateColumn");
+	params = addIfNotDefault(params, "groupColumns");
 
 	params = addIfNotDefault(params, "barsplit");	
 	params = addIfNotDefault(params, "other");	
@@ -152,23 +154,26 @@ function createChart() {
 	var totalArray = [];
 	var totalAlwaysArray = [];
 
-	// We want to count entries based on a given date.  
-	dateField ="scanDate";
+	// For security reports, we will be targetting the following fields.
 
-	// TBD: Need to rebuild a list of scans with a date index in order. This will allow us to choose the right dates...
-	var matchFields = ["Family", "Product", "Repository", "Tool"];
+	// We want to count entries based on a given date.
+	dateColumn = $("#datecolumn").val();
+	console.log("dateColumn: " + dateColumn);
+
+	var groupColumns = $("#groupcolumns").val().split(",");
+	console.log("Group:");
+	console.log(groupColumns);
 	var scans = [];
-	// We will simply represent the scans by putting one of the issues. If not there. (we may decide maybe to add a counter)
 	for (var i = 0; i < issues.length; i++) {
 		var mText = "";
-		for (var m = 0; m < matchFields.length; m++) {
-			mText += issues[i][matchFields[m]] + ",";
-		}
-		if (scans.find(element => element.mText == mText && element.date == issues[i][dateField]) == undefined)
-			scans.push({date: issues[i][dateField], mText: mText});
+		for (var m = 0; m < groupColumns.length; m++)
+			mText += issues[i][groupColumns[m]] + ",";
+		if (scans.findIndex(element => element.mText == mText && element.date == issues[i][dateColumn]) == -1) 
+			scans.push({mText: mText, date: issues[i][dateColumn]});
 	}
 	scans.sort(function(a, b) { if (a.date < b.date) return -1; else return 1;});
 	console.log("# of unique scans: " + scans.length);
+	console.log(scans);
 	
 	// date loop
 	// Start at startDate
@@ -178,18 +183,18 @@ function createChart() {
     yoda.advanceDate(previousDate, "-" + interval, startDay);
     console.log("Initial previousDate: " + previousDate);
 	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
-		console.log("Date: " + date + ", previousDate: " + previousDate);
 		date.setHours(23);
 		date.setMinutes(59);
 		date.setSeconds(59);
+		var dateString = yoda.formatDate(date);
+		console.log("Date: " + date + ", previousDate: " + previousDate + ", dateString: " + dateString);
 		
 		dateArray.push(yoda.formatDate(date));
 		
 		// Prepare data array
 		var dataArrayForDay = new Array(bars.length);
-		for (var l=0; l<bars.length; l++) {
+		for (var l=0; l<bars.length; l++)
 			dataArrayForDay[l] = 0;
-		};
 		var otherForDay = 0;
 		var totalForDay = 0;
 		var totalAlways = 0;
@@ -198,23 +203,26 @@ function createChart() {
 		for (var i=0; i < issues.length; i++) {
 			// TOTO: skip issue if it does not meet TBD filtering criteria. We will do this later.
 			
-			// We need to select the most recent based on date, but ignore later/others. TBD
-			issueDate = new Date(issues[i][dateField]);
-			if (issueDate > date) {
-				// report is later
+			// Is issue reported after current date. If so, skip immediately
+			if (issues[i][dateColumn] > dateString)
 				continue;
-			}
 
 			var mText = "";
-			for (var m = 0; m < matchFields.length; m++) {
-				mText += issues[i][matchFields[m]] + ",";
+			for (var m = 0; m < groupColumns.length; m++)
+				mText += issues[i][groupColumns[m]] + ",";
+			var sIndex = scans.findIndex(element => element.mText == mText && element.date == issues[i][dateColumn]);
+			if (sIndex == -1) {
+				console.log("AHHHH. Could not find scan report. That is bad: i=" + i);
+				console.log(issues[i]);
+				return;
 			}
-			var sIndex = scans.find(element => element.mText == mText && element.date == issues[i][dateField]);
 			// Right. We found the report that the issue belongs to. Now the question(s) is if there are more recent reports
 			// which are still done before (or on) this date. If so, skip issue.
-			if (scans.find((element, index) => element.mText = mText && index > sIndex && element.date <= date) != undefined)
+//			console.log("Found scan: " + sIndex);
+			if (scans.findIndex((element, index) => element.mText == mText && index > sIndex && element.date <= dateString) != -1) {
+//				console.log("Ignoring issue from date. " + issues[i][dateColumn]);
 				continue;
-			
+			}
 			
 			totalAlways++;
 			foundBar = false;
@@ -239,8 +247,8 @@ function createChart() {
 		
 		// Normal, i.e. not duration
 		// We will push data to the data array
-		for (var i=0; i < bars.length; i++) {
-			dataArray[i].push(dataArrayForDay[i]); 
+		for (var b=0; b < bars.length; b++) {
+			dataArray[b].push(dataArrayForDay[b]); 
 		}
 		otherArray.push(otherForDay);
 		
@@ -376,6 +384,70 @@ function createChart() {
 	yoda.updateUrl(getUrlParams() + "&draw=true");
 }
 
+
+function updateFilterColumns() {
+	// Let's update the filters based on the columns
+	var columns = Object.keys(issues[0]);
+	for (var c = 0; c < columns.length; c++) {
+		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
+			continue;
+	
+		var newOption = new Option(columns[c], columns[c], false, false);
+		$("#filters").append(newOption);		
+	}
+	$("#filters").trigger('change');
+}
+
+//		<div class="field">
+//			<label>Filters</label>
+//			<select id="filters" style="width: 350px" class="select2" multiple></select>
+//			<span class="tooltip">Columns to filter</span>
+//		</div>
+
+
+function addFilter(column) {
+	console.log("Add filter column: " + column);
+	var ff = document.getElementById("filterframe");
+	
+	var div = document.createElement("div");
+	div.className = "field";
+	div.id = "f-" + column;
+	
+	var label = document.createElement("label");
+	label.innerText = column;
+	div.appendChild(label);
+	
+	var select = document.createElement("select");
+	select.id = "sel-" + column;
+	select.class = "select2";
+	select.style = "width: 200px";
+	select.multiple = true;
+	div.appendChild(select);
+	
+	ff.appendChild(div);
+	$("#sel-" + column).select2();
+	
+	// Now, add the possible values.
+	var values = [];
+	for (var i = 0; i < issues.length; i++) {
+		var v = issues[i][column];
+		if (values.indexOf(v) == -1) {
+			values.push(v);
+			var newOption = new Option(v, v, false, false);
+			$("#sel-" + column).append(newOption);		
+		}
+		$("#sel-" + column).trigger('change');
+	}
+} 
+
+function removeFilter(column) {
+	console.log("Remove filter column: " + column);
+	
+	var ff = document.getElementById("f-" + column);
+	console.log(ff);
+	ff.remove();
+} 
+
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
 issues = [];
 function readCSV() {
@@ -395,10 +467,20 @@ function readCSV() {
 		if (issues.length == 0)
 			console.log("Empty CSV file / wrong format");
 		else {
+			var noCols = Object.keys(issues[0]).length;
+			console.log("Number of columns: " + noCols);
+			// Fix. Remove any trailing issues with different # of columns
+			while (issues.length > 0 && Object.keys(issues[issues.length - 1]).length < noCols)
+				issues.splice(-1, 1);
+
 			console.log("Read CSV file. No entries: " + issues.length);
 			$("#entries").val(issues.length);
-			console.log("Sample issue");
+			console.log("Sample issue:");
 			console.log(issues[0]);
+			console.log("Last issue:");
+			console.log(issues[issues.length - 1]);
+			
+			updateFilterColumns();		
 		}
 	}, function(err) {
 		console.log("ERROR: " + err);
