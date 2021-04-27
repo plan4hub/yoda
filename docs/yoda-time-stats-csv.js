@@ -48,7 +48,6 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "groupColumns");
 
 	params = addIfNotDefault(params, "barsplit");	
-	params = addIfNotDefault(params, "other");	
 	params = addIfNotDefault(params, "title");
 	if ($('#stacked').is(":checked")) {
 		params += "&stacked=true";
@@ -122,10 +121,6 @@ function createChart() {
 	// Let's get the filters
 	var filters = getFilters();
 	
-	// If we don't split bars, then we'll put in Other. If Other has no value, put Total.
-	if (barSplit == "" && $("#other").val() == "")
-		$("#other").val("Total");
-	
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
@@ -135,6 +130,9 @@ function createChart() {
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
 		for (var i = 0; i < issues.length; i++) {
+			if (!filterIssue(filters, issues[i]))
+				continue;
+			
 			v = issues[i][barSplit];
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
@@ -147,6 +145,7 @@ function createChart() {
 	// 1. A bar chart for others (i.e. issues not having labels matching the ones identified
 	// 2. A line for total # issues (only if we have splitting)
 	
+	
 	// Data arrays for issues.
 	// 	Data array (two-dimentional) for issues matching the bar labels
 	// 	Other for issues not match
@@ -157,9 +156,7 @@ function createChart() {
 	for (i = 0; i < dataArray.length; i++) {
 		dataArray[i] = new Array();
 	}
-	var otherArray = [];
 	var totalArray = [];
-	var totalAlwaysArray = [];
 
 	// For security reports, we will be targetting the following fields.
 
@@ -202,14 +199,17 @@ function createChart() {
 		var dataArrayForDay = new Array(bars.length);
 		for (var l=0; l<bars.length; l++)
 			dataArrayForDay[l] = 0;
-		var otherForDay = 0;
 		var totalForDay = 0;
-		var totalAlways = 0;
 		
 		// Ok, now let's count issues
 		for (var i=0; i < issues.length; i++) {
 			if (!filterIssue(filters, issues[i]))
 				continue;
+				
+			// Let's see if we should add just 1 for the entry, or if there is a count field
+			var count = 1;
+			if (issues[i]["count"] != undefined)
+				count = issues[i]["count"];
 			
 			// Is issue reported after current date. If so, skip immediately
 			if (issues[i][dateColumn] > dateString)
@@ -232,65 +232,51 @@ function createChart() {
 				continue;
 			}
 			
-			totalAlways++;
-			foundBar = false;
-
-			// Let's find the right bar'
+			totalForDay += count;
+			// Let's find the right bar.
 			if (bars.length > 0) {
 				var index = bars.indexOf(issues[i][barSplit]);
 				if (index != -1) {
 					// Got a match. Make sure we don't continue search
-					// All other.. 
-					dataArrayForDay[index] = dataArrayForDay[index] + 1;
-					totalForDay++;
-					foundBar = true;
+					dataArrayForDay[index] = dataArrayForDay[index] + count;
 				}
-			}
-
-			if (foundBar == false && $("#other").val() != "") {
-				otherForDay++;
-				totalForDay++;
-			}
+			} 
 		}
 		
-		// Normal, i.e. not duration
 		// We will push data to the data array
 		for (var b=0; b < bars.length; b++) {
 			dataArray[b].push(dataArrayForDay[b]); 
 		}
-		otherArray.push(otherForDay);
 		
 //		console.log(dataArrayForDay);
 		totalArray.push(totalForDay);
-		totalAlwaysArray.push(totalAlways);
 	}
 	
-	// Ready, let's push the bars
+	// Ready, let's push the bars. If we don't have any bars, let's use the total bar.
 	var datasetArray = [];
-	for (var b = 0; b < bars.length; b++) {
-		// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
-		actualBar = bars[b];
-		
+	if (bars.length > 0) {
+		for (var b = 0; b < bars.length; b++) {
+			// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
+			actualBar = bars[b];
+			
+			datasetArray.push({
+				type : 'bar',
+				label : actualBar,
+				borderWidth : 2,
+				fill : false,
+				data : dataArray[b],
+				backgroundColor : yoda.barColors[b]
+			});
+		}
+	} else {
+		// Just make a bar from the total
 		datasetArray.push({
 			type : 'bar',
-			label : actualBar,
+			label : 'Total',
 			borderWidth : 2,
 			fill : false,
-			data : dataArray[b],
-			backgroundColor : yoda.barColors[b]
-		});
-	}
-
-	// Other's bar (if not blank)
-	if ($("#other").val() != "") {
-		datasetArray.push({
-			type : 'bar',
-			label : $("#other").val(),
-			borderWidth : 2,
-			fill : false,
-			data : otherArray,
-			yAxisID: "y-axis-left",
-			backgroundColor : 'rgb(191, 191, 191)' // grey'ish
+			data : totalArray,
+			backgroundColor : yoda.barColors[0]
 		});
 	}
 
@@ -303,7 +289,7 @@ function createChart() {
 			borderWidth : 2,
 			fill : false,
 			yAxisID: "y-axis-right",
-			data : totalAlwaysArray,
+			data : totalArray,
 			lineTension: 0
 		});
 	} else {	
