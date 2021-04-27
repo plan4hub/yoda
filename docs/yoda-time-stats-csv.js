@@ -115,6 +115,9 @@ function createChart() {
 	var barSplit = $("#barsplit").val();
 	console.log("Label split: " + barSplit);
 	
+	// Let's get the filters
+	var filters = getFilters();
+	
 	// If we don't split bars, then we'll put in Other. If Other has no value, put Total.
 	if (barSplit == "" && $("#other").val() == "")
 		$("#other").val("Total");
@@ -201,7 +204,8 @@ function createChart() {
 		
 		// Ok, now let's count issues
 		for (var i=0; i < issues.length; i++) {
-			// TOTO: skip issue if it does not meet TBD filtering criteria. We will do this later.
+			if (!filterIssue(filters, issues[i]))
+				continue;
 			
 			// Is issue reported after current date. If so, skip immediately
 			if (issues[i][dateColumn] > dateString)
@@ -398,17 +402,15 @@ function updateFilterColumns() {
 	$("#filters").trigger('change');
 }
 
+function addFilter(column) {
+	console.log("Add filter column: " + column);
+	var ff = document.getElementById("filterframe");
+	
 //		<div class="field">
 //			<label>Filters</label>
 //			<select id="filters" style="width: 350px" class="select2" multiple></select>
 //			<span class="tooltip">Columns to filter</span>
 //		</div>
-
-
-function addFilter(column) {
-	console.log("Add filter column: " + column);
-	var ff = document.getElementById("filterframe");
-	
 	var div = document.createElement("div");
 	div.className = "field";
 	div.id = "f-" + column;
@@ -419,7 +421,7 @@ function addFilter(column) {
 	
 	var select = document.createElement("select");
 	select.id = "sel-" + column;
-	select.class = "select2";
+	select.class = "select2 colfilter";
 	select.style = "width: 300px";
 	select.multiple = true;
 	div.appendChild(select);
@@ -440,7 +442,7 @@ function addFilter(column) {
 			$("#sel-" + column).append(newOption);		
 		}
 	}
-	$("#sel-" + column).trigger('change');
+	$("#sel-" + column).trigger('change');	
 	$("#sel-" + column).on('select2:select', yoda.select2SelectEvent("#sel-" + column));
 } 
 
@@ -448,9 +450,45 @@ function removeFilter(column) {
 	console.log("Remove filter column: " + column);
 	
 	var ff = document.getElementById("f-" + column);
-	console.log(ff);
 	ff.remove();
 } 
+
+// $("#sel-Product").find(':selected')[0].value
+function getFilters() {
+	var filterArray = [];
+	// First, we need to get the filters. They all have the "colfilter" class
+	var selectDoms = document.getElementsByTagName("SELECT");
+	for (var f = 0; f < selectDoms.length; f++) {
+		var sel = selectDoms[f];
+		if (sel.id.startsWith("sel-")) {
+			var selections = $("#" + sel.id).find(":selected");
+			var values = [];
+			for (var s = 0; s < selections.length; s++)
+				values.push(selections[s].value);
+			filterArray.push({id: selectDoms[f].id.substr(4), values: values});
+		}
+	} 
+	console.log(filterArray);
+	return filterArray;
+}
+
+// Based on filter (as retrieved by getFilters) 
+function filterIssue(filters, issue) {
+	// Loop filters. For each filter, we evaluate OR (i.e. need at least match for one of the values) and across filters we do AND (match have to be in all)
+	for (var f = 0; f < filters.length; f++) {
+		var filterOk = false; // Need to find at least one match
+		for (var v = 0; v < filters[f].values.length; v++) {
+			if (issue[filters[f].id] == filters[f].values[v]) {
+				filterOk = true;
+				break;
+			}
+		}
+		if (!filterOk)
+			return false;
+	}
+	return true;
+}
+
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
 issues = [];

@@ -118,7 +118,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame" id="filterframe">
 		<div class="field">
 			<label>Filters</label>
-			<select id="filters" style="width: 350px" class="select2" multiple></select>
+			<select id="filters" style="width: 300px" class="select2" multiple></select>
 			<span class="tooltip">Columns to filter</span>
 		</div>
 	</div>
@@ -161,6 +161,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<button id="drawbutton" onclick="createChart()">Draw chart</button>
+		
+		<button onclick="getFilters()">Filter</button>
 
 		<div class="field">
 			<label>Stacked</label>
