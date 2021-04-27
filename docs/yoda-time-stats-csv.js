@@ -497,6 +497,26 @@ function filterIssue(filters, issue) {
 	return true;
 }
 
+var firstBarUpdate = true;
+function updateBarSplit() {
+	var barSplit = yoda.decodeUrlParam(null, "barsplit");
+	var columns = Object.keys(issues[0]);
+	for (var c = 0; c < columns.length; c++) {
+		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
+			continue;
+
+		if (firstBarUpdate && barSplit != null && columns[c] == barSplit) {
+			var newOption = new Option(columns[c], columns[c], true, true);
+			$("#barsplit").append(newOption);			
+		} else {
+			var newOption = new Option(columns[c], columns[c], false, false);
+			$("#barsplit").append(newOption);			
+		}
+	}
+	$('#barsplit').trigger('change');	
+	firstBarUpdate = false;
+}
+
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
 issues = [];
@@ -532,6 +552,7 @@ function readCSV() {
 			console.log(issues[issues.length - 1]);
 			
 			updateFilterColumns();
+			updateBarSplit();
 			
 			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true") {
 				createChart();

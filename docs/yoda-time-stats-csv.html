@@ -144,7 +144,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Bar Splitting</label>
-			<input type="text" id="barsplit" size="13" value="^S[1-4] -">
+			<select id="barsplit" style="width: 200px" class="select2"></select>
 			<span class="tooltip">Split into bars (by CSV field)</span>
 		</div>
 
@@ -226,16 +226,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			if ($("#path").val() != "")
 				readCSV();
 			
-			var filters = JSON.parse(yoda.decodeUrlParam(null, "filters")); // how to handle?
-		    console.log(filters);
+			$('#barslit').select2();
 			
-
 			$('#filters').select2();
-			
 		  	$('#filters').on('select2:select', function(e) {
 		  		addFilter(e.params.data.id);
 		  	});
-		  	
 		  	$('#filters').on('select2:unselect', function(e) {
 		  		removeFilter(e.params.data.id);
 		  	});
