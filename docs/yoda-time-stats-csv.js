@@ -514,6 +514,7 @@ function filterIssue(filters, issue) {
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
 issues = [];
+var firstCSVRead = true;
 function readCSV() {
 	console.log("readCSV");
 	yoda.getGitFile($("#owner").val(), $("#repo").val(), $("#path").val(), $("#branch").val(), function(data) {
@@ -544,7 +545,13 @@ function readCSV() {
 			console.log("Last issue:");
 			console.log(issues[issues.length - 1]);
 			
-			updateFilterColumns();		
+			updateFilterColumns();
+			
+			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+				createChart();
+			}
+
+			firstCSVRead = false;				
 		}
 	}, function(err) {
 		console.log("ERROR: " + err);
