@@ -517,7 +517,6 @@ function updateBarSplit() {
 	firstBarUpdate = false;
 }
 
-
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
 issues = [];
 var firstCSVRead = true;
@@ -566,14 +565,12 @@ function readCSV() {
 }
 
 // --------------
-
 function githubAuth() {
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
 }
 
 // --------------
-
 //Label drawing
 Chart.plugins.register({
  afterDatasetsDraw: function(chartInstance, easing) {

@@ -236,7 +236,10 @@ var yoda = (function() {
 //			'rgb(102, 0, 255)', // blue .... too blue
 			'rgb(102, 102, 255)', // blue .... too blue
 			'rgb(0, 204, 0)', // green
-			'rgb(204, 255, 51)', // yellow
+			'rgb(13, 82, 101)',
+			'rgb(50,218,200)',
+			'rgb(118,48,234)',
+			'rgb(254, 201, 1)', // yellow
 			'rgb(204, 102, 255)', // purple
 			'rgb(153, 102, 0)', // brown
 			'rgb(153, 153, 255)', // light blue
