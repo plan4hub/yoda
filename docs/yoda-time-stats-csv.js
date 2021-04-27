@@ -57,6 +57,10 @@ function getUrlParams() {
 		params += "&righttotal=true";
 	}
 	
+	var filters = getFilters();
+	if (filters.length > 0)
+		params += "&filters=" + JSON.stringify(filters);
+	
 	return params;
 }
 
@@ -388,22 +392,36 @@ function createChart() {
 	yoda.updateUrl(getUrlParams() + "&draw=true");
 }
 
-
+var firstFilterUpdate = true;
 function updateFilterColumns() {
+	var filters = JSON.parse(yoda.decodeUrlParam(null, "filters"));
+	
 	// Let's update the filters based on the columns
 	var columns = Object.keys(issues[0]);
 	for (var c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
 			continue;
-	
-		var newOption = new Option(columns[c], columns[c], false, false);
-		$("#filters").append(newOption);		
+
+		if (firstFilterUpdate && filters != null && filters.findIndex(element => element.id == columns[c]) != -1) {
+			var newOption = new Option(columns[c], columns[c], true, true);
+			$("#filters").append(newOption);			
+			var i = filters.findIndex(element => element.id == columns[c]);
+			addFilter(columns[c], filters[i].values);
+		} else {
+			var newOption = new Option(columns[c], columns[c], false, false);
+			$("#filters").append(newOption);			
+		}
+		
 	}
 	$("#filters").trigger('change');
+	firstFilterUpdate = false;
 }
 
-function addFilter(column) {
+function addFilter(column, selectedValues) {
 	console.log("Add filter column: " + column);
+	console.log(selectedValues);
+	if (selectedValues == undefined)
+		selectedValues = [];
 	var ff = document.getElementById("filterframe");
 	
 //		<div class="field">
@@ -416,7 +434,7 @@ function addFilter(column) {
 	div.id = "f-" + column;
 	
 	var label = document.createElement("label");
-	label.innerText = column;
+	label.innerText = column + " filter";
 	div.appendChild(label);
 	
 	var select = document.createElement("select");
@@ -438,7 +456,10 @@ function addFilter(column) {
 		var v = issues[i][column];
 		if (values.indexOf(v) == -1) {
 			values.push(v);
-			var newOption = new Option(v, v, false, false);
+			if (selectedValues.indexOf(v) != -1)
+				var newOption = new Option(v, v, true, true);
+			else
+				var newOption = new Option(v, v, false, false);
 			$("#sel-" + column).append(newOption);		
 		}
 	}
@@ -465,7 +486,8 @@ function getFilters() {
 			var values = [];
 			for (var s = 0; s < selections.length; s++)
 				values.push(selections[s].value);
-			filterArray.push({id: selectDoms[f].id.substr(4), values: values});
+			if (values.length > 0)  // Ignore of nothing is selected. That filter would be stupid, as it would just discard everything.
+				filterArray.push({id: selectDoms[f].id.substr(4), values: values});
 		}
 	} 
 	console.log(filterArray);

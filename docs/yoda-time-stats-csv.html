@@ -162,8 +162,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<button id="drawbutton" onclick="createChart()">Draw chart</button>
 		
-		<button onclick="getFilters()">Filter</button>
-
 		<div class="field">
 			<label>Stacked</label>
 			<input type="checkbox" id="stacked">
@@ -226,10 +224,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$(".frame").hide();
 		}
 
+		
 		// Login
 		githubAuth();
 		
 		$(document).ready(function() {
+			// If path is set (via argument), we will assume that we are ready to load CSV and do so directly
+			if ($("#path").val() != "")
+				readCSV();
+			
+			var filters = JSON.parse(yoda.decodeUrlParam(null, "filters")); // how to handle?
+		    console.log(filters);
+			
+
 			$('#filters').select2();
 			
 		  	$('#filters').on('select2:select', function(e) {
