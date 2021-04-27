@@ -561,6 +561,7 @@ function readCSV() {
 		}
 	}, function(err) {
 		console.log("ERROR: " + err);
+		yoda.showSnackbarError("Error retriving CSV file: " + err, 3000);
 	});
 }
 
