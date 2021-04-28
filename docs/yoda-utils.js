@@ -1604,6 +1604,7 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-exporter.html\", true)'>Issue Exporter</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-copy-tasks.html\", false)'>Task Copier</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-export-web.html\", true)'>Export to Web Pages</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats-csv.html\", true)'>CSV based Statistics</a>");
 			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Panel</a>");

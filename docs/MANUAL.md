@@ -409,10 +409,17 @@ Example:
 `<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.com/HewlettPackard/yoda/yoda-time-stats.html?owner=HewlettPackard&amp;repo=yoda-demo&amp;draw=true&amp;hideheader=true"></iframe>`
 
 
-# Selecting repos based on topics
+# Selecting repos based on topics or name wildcarding
 
 It is possible to scope repositories based on a comma-separate list of topics that must be presents on the repository. This is done using the `repotopic` argument.
 
-# Selecting repos based on name wildcarding
+It is also possible to use the `repolist` argument to specify a search argument using a wildcard at the end of a `repolist` argument (only one element). Exampe `repolist=yoda*`. This will mirror the repository selection search facility available in Yoda.
 
-It is possible to use the `repolist` argument to specify a search argument using a wildcard at the end of a `repolist` argument (only one element). Exampe `repolist=yoda*`. This will mirror the repository selection search facility available in Yoda.
+
+# Using Yoda to split CSV time-series files stored on GitHub
+
+A special version of the statistics time based report is available. The main focus is to plot occurances of events (initial scope was security vulnerability events reported by scanning tools) in a similar way as is done for issues. Instead of scoping GitHub issues, the first line is used to point to a CSV file stored in GitHub.
+
+It is possible to apply filters based on the identified columns and their values, and further to split the bars according to one of the columns. Hopefully the tool should be fairly self-explanatory (read: lazy documentation). As usual URL arguments will be updated to reflect graph parameters in order that the URL can be stored and reused, for example by embedding into another Web Page as previously described.
+
+CSV based issue statistics tool available [here](yoda-time-stats-csv.html).

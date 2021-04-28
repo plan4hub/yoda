@@ -138,6 +138,9 @@ function createChart() {
 				bars.push(v);
 		}
 		bars.sort();
+		
+		// TODO: Do we want to make special sorting for Severities? Cheating, but hey..
+		// CRITICAL, HIGH, MEDIUM, LOW, INFORMATIONAL
 	}
 	console.log("Labels: " + bars);
 		
