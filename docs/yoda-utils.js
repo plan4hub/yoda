@@ -1200,8 +1200,11 @@ var yoda = (function() {
 			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + directory;
 			if (branch != "" && branch != null)
 				getFileUrl += "?ref=" + branch;
-			console.log("getFileUrl: " + getFileUrl); 
+			console.log("getFileUrl: " + getFileUrl);
+ 			$("*").css("cursor", "wait");
 			$.get(getFileUrl, function(response, status) {
+				$("*").css("cursor", "default");
+
 				console.log(response);
 				
 				// Now, let's search the response / directory entries looking for the filename requested.
