@@ -137,10 +137,22 @@ function createChart() {
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
 		}
-		bars.sort();
-		
-		// TODO: Do we want to make special sorting for Severities? Cheating, but hey..
-		// CRITICAL, HIGH, MEDIUM, LOW, INFORMATIONAL
+
+		// Special sorting for severities
+		if (barSplit == "Severity") {
+			var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
+			bars.sort(function (a, b) {
+				if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
+					return (a < b);
+				if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) != -1)
+					return 1;
+				if (sevOrder.indexOf(a) != -1 && sevOrder.indexOf(b) == -1)
+					return -1;
+				return (sevOrder.indexOf(a) - sevOrder.indexOf(b));
+			});
+		} else {
+			bars.sort();
+		}
 	}
 	console.log("Labels: " + bars);
 		
