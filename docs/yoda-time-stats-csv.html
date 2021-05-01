@@ -155,6 +155,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
+			<label>Axis category</label>
+			<input type="text" id="axiscategory" size="10" value="vulnerabilities">
+			<span class="tooltip">Entry types for use on axis labels</span>
+		</div>
+
+		<div class="field">
 			<label>Title</label>
 			<input type="text" id="title" size="30" value="">
 			<span class="tooltip">Chart title</span>
@@ -202,7 +208,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#interval", "interval");
 		yoda.decodeUrlParam("#maxage", "maxage");
 
-		yoda.decodeUrlParam("#title", "title");
+		yoda.decodeUrlParam("#title", "title"); 
+		yoda.decodeUrlParam("#axiscategory", "axiscategory"); 
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
 		
 		// Local storage

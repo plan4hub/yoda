@@ -50,6 +50,8 @@ function getUrlParams() {
 
 	params = addIfNotDefault(params, "barsplit");	
 	params = addIfNotDefault(params, "title");
+	params = addIfNotDefault(params, "axiscategory");
+	
 	if ($('#stacked').is(":checked")) {
 		params += "&stacked=true";
 	}
@@ -76,6 +78,7 @@ function createChart() {
 	}
 	
 	var maxAge = $('#maxage').val();
+	var axisCategory = $('#axiscategory').val();
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
@@ -331,7 +334,7 @@ function createChart() {
 			yAxes: [{
 				scaleLabel: {
 					display: true,
-					labelString: "# vulnerabilities",
+					labelString: "# " + axisCategory,
 				},
 				stacked: stacked,
 				position: "left",
@@ -350,7 +353,7 @@ function createChart() {
 		chartScales.yAxes.push({    
 			scaleLabel: {
 				display: true,
-				labelString: "Total vulnerabilities",
+				labelString: "Total " + axisCategory,
 			},
 			position: "right",
 			id: "y-axis-right",
