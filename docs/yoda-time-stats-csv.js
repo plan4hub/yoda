@@ -398,6 +398,8 @@ function createChart() {
 var firstFilterUpdate = true;
 function updateFilterColumns() {
 	var filters = JSON.parse(yoda.decodeUrlParam(null, "filters"));
+	// Let's start by clearing filters
+	$("#filters").val(null).empty();
 	
 	// Let's update the filters based on the columns
 	var columns = Object.keys(issues[0]);
@@ -474,8 +476,17 @@ function removeFilter(column) {
 	console.log("Remove filter column: " + column);
 	
 	var ff = document.getElementById("f-" + column);
-	ff.remove();
+	if (ff != null)
+		ff.remove();
 } 
+
+function removeAllFilters() {
+	if (issues.length > 0) {
+		var columns = Object.keys(issues[0]);
+		for (var c = 0; c < columns.length; c++)
+			removeFilter(columns[c]); // Surely, most will not be there. But that is ok.
+	}
+}
 
 // $("#sel-Product").find(':selected')[0].value
 function getFilters() {
@@ -538,6 +549,9 @@ function updateBarSplit() {
 issues = [];
 var firstCSVRead = true;
 function readCSV() {
+	removeAllFilters();
+
+	
 	console.log("readCSV");
 	yoda.getGitFile($("#owner").val(), $("#repo").val(), $("#path").val(), $("#branch").val(), function(data) {
 		config = {
@@ -551,9 +565,10 @@ function readCSV() {
 		// Convert to CSV, the download
 		issues = Papa.parse(data, config).data;
 		
-		if (issues.length == 0)
+		if (issues.length == 0) {
 			console.log("Empty CSV file / wrong format");
-		else {
+			yoda.showSnackbarError("Empty CSV file / wrong format", 3000);
+		} else {
 			var noCols = Object.keys(issues[0]).length;
 			console.log("Number of columns: " + noCols);
 			// Fix. Remove any trailing issues with different # of columns
