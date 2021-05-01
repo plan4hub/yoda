@@ -52,9 +52,6 @@ function getUrlParams() {
 	if ($('#stacked').is(":checked")) {
 		params += "&stacked=true";
 	}
-	if ($('#righttotal').is(":checked")) {
-		params += "&righttotal=true";
-	}
 	
 	var filters = getFilters();
 	if (filters.length > 0)
@@ -75,12 +72,6 @@ function createChart() {
 		stacked = true;
 	} else {
 		stacked = false;
-	}
-	
-	if ($('#righttotal').is(":checked")) {
-		var rightTotal = true;
-	} else {
-		var rightTotal = false;
 	}
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
@@ -295,9 +286,7 @@ function createChart() {
 		});
 	}
 
-	// What should we put on right axis
-	if (rightTotal) {
-		// Normal case. Right total line against right axis.
+	if (bars.length > 0 && stacked == false) {
 		datasetArray.push({
 			type : 'line',
 			label : 'Total',
@@ -307,20 +296,18 @@ function createChart() {
 			data : totalArray,
 			lineTension: 0
 		});
-	} else {	
-		// Add line for total, but only if bars (and not stacked)
-		if (bars.length > 0 && stacked == false) {
-			datasetArray.push({
-				type : 'line',
-				label : 'Total',
-				borderWidth : 2,
-				fill : false,
-				yAxisID: "y-axis-right",
-				data : totalArray,
-				lineTension: 0
-			});
-		}
-	}
+	} else {
+		// Normal case. Right total line against right axis.
+		datasetArray.push({
+			type : 'line',
+			label : 'Total',
+			borderWidth : 2,
+			fill : false,
+			yAxisID: "y-axis-left",
+			data : totalArray,
+			lineTension: 0
+		});
+	} 
 	
 	// We will push data to a 
 	var chartData = {
@@ -347,7 +334,7 @@ function createChart() {
 	};
 	
 	// Add second axis.
-	if ((bars.length > 0 && stacked == false) || rightTotal) {
+	if ((bars.length > 0 && stacked == false)) {
 		chartScales.yAxes.push({    
 			scaleLabel: {
 				display: true,

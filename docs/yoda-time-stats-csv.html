@@ -162,12 +162,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Stack bars</span>
 		</div>
 
-		<div class="field">
-			<label>Right total</label>
-			<input type="checkbox" id="righttotal">
-			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed.<br>For velocity chart, show story points per day.</span>
-		</div>
-
 		<div class="field" style="display: none;">
 			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
 			<span class="tooltip">CSV field delimiter</span>
@@ -204,7 +198,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
-		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
