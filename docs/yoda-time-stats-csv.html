@@ -138,8 +138,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Interval</label>
-			<input type="text" id="interval" size="8" value="7">
+			<input type="text" id="interval" size="5" value="7">
 			<span class="tooltip">Interval in days or months (<i>m</i> postfix)</span>
+		</div>
+
+		<div class="field">
+			<label>Max age</label>
+			<input type="text" id="maxage" size="5" value="40">
+			<span class="tooltip">Max age in days for entry to be still valid</span>
 		</div>
 
 		<div class="field">
@@ -194,7 +200,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamDate("#startdate", "startdate");
 		yoda.decodeUrlParamDate("#enddate", "enddate");
 		yoda.decodeUrlParam("#interval", "interval");
-
+		yoda.decodeUrlParam("#maxage", "maxage");
 
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");

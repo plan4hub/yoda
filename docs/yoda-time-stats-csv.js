@@ -41,6 +41,7 @@ function getUrlParams() {
 		params += "&enddate=" + $("#enddate").val(); 
 	}
 	params = addIfNotDefault(params, "interval");	
+	params = addIfNotDefault(params, "maxage");	
 	params = addIfNotDefault(params, "repo");	
 	params = addIfNotDefault(params, "path");
 	params = addIfNotDefault(params, "branch");
@@ -73,6 +74,8 @@ function createChart() {
 	} else {
 		stacked = false;
 	}
+	
+	var maxAge = $('#maxage').val();
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
@@ -235,6 +238,15 @@ function createChart() {
 //			console.log("Found scan: " + sIndex);
 			if (scans.findIndex((element, index) => element.mText == mText && index > sIndex && element.date <= dateString) != -1) {
 //				console.log("Ignoring issue from date. " + issues[i][dateColumn]);
+				continue;
+			}
+			
+			// We now know that this issue is part of most recent scanReport (done for this category). However, the scan report 
+			// could be REALLY OLD. In this case, we want to ignore as well.
+			issueDate = new Date(issues[i][dateColumn]);
+			var issueAge = (date.getTime() - issueDate.getTime()) /(24*3600*1000);
+			if (issueAge > maxAge) {
+				console.log("Ignoring issue due to age in days: " + issueAge);
 				continue;
 			}
 			
