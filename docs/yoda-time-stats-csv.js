@@ -224,7 +224,7 @@ function createChart() {
 			// Let's see if we should add just 1 for the entry, or if there is a count field
 			var count = 1;
 			if (issues[i]["count"] != undefined)
-				count = issues[i]["count"];
+				count = parseInt(issues[i]["count"]);
 			
 			// Is issue reported after current date. If so, skip immediately
 			if (issues[i][dateColumn] > dateString)
