@@ -49,11 +49,12 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "groupColumns");
 
 	params = addIfNotDefault(params, "barsplit");	
+	params = addIfNotDefault(params, "countsplit");
 	params = addIfNotDefault(params, "title");
 	params = addIfNotDefault(params, "axiscategory");
 	
-	if ($('#stacked').is(":checked")) {
-		params += "&stacked=true";
+	if (!$('#stacked').is(":checked")) {
+		params += "&stacked=false";
 	}
 	
 	var filters = getFilters();
@@ -175,6 +176,8 @@ function createChart() {
 	// We want to count entries based on a given date.
 	dateColumn = $("#datecolumn").val();
 	console.log("dateColumn: " + dateColumn);
+	
+	countField = $("#countfield").val();
 
 	var groupColumns = $("#groupcolumns").val().split(",");
 	console.log("Group:");
@@ -220,8 +223,8 @@ function createChart() {
 				
 			// Let's see if we should add just 1 for the entry, or if there is a count field
 			var count = 1;
-			if (issues[i]["count"] != undefined)
-				count = parseInt(issues[i]["count"]);
+			if (countField != "")
+				count = parseInt(issues[i][countField]);
 			
 			// Is issue reported after current date. If so, skip immediately
 			if (issues[i][dateColumn] > dateString)
@@ -528,6 +531,11 @@ function filterIssue(filters, issue) {
 var firstBarUpdate = true;
 function updateBarSplit() {
 	$("#barsplit").val(null).empty();
+	
+	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
+	var newOption = new Option("", "", true, true);
+	$("#barsplit").append(newOption);			
+	
 	var barSplit = yoda.decodeUrlParam(null, "barsplit");
 	var columns = Object.keys(issues[0]);
 	for (var c = 0; c < columns.length; c++) {
@@ -544,6 +552,37 @@ function updateBarSplit() {
 	}
 	$('#barsplit').trigger('change');	
 	firstBarUpdate = false;
+}
+
+var firstCountUpdate = true;
+function updateCountField() {
+	$("#countfield").val(null).empty();
+	
+	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
+	var newOption = new Option("", "", true, true);
+	$("#countfield").append(newOption);			
+	
+	var countField = yoda.decodeUrlParam(null, "countfield");
+	var columns = Object.keys(issues[0]);
+	console.log("hej");
+	for (var c = 0; c < columns.length; c++) {
+		if (columns[c] == $("#datecolumn").val())
+			continue;
+			
+		// Must be an integer field
+		if (isNaN(parseInt(issues[c][columns[c]])))
+			continue;
+		
+		if (firstCountUpdate && ((countField != null && columns[c] == countField) || (countField == null && columns[c] == "count"))) {
+			var newOption = new Option(columns[c], columns[c], true, true);
+			$("#countfield").append(newOption);			
+		} else {
+			var newOption = new Option(columns[c], columns[c], false, false);
+			$("#countfield").append(newOption);			
+		}
+	}
+	$('#countfield').trigger('change');	
+	firstCountField = false;
 }
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
@@ -583,11 +622,12 @@ function readCSV() {
 			console.log("Last issue:");
 			console.log(issues[issues.length - 1]);
 			
-			updateFilterColumns();
 			updateBarSplit();
+			updateCountField();
+			updateFilterColumns();
 			
 			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true") {
-				createChart();
+				setTimeout(createChart, 0);
 			}
 
 			firstCSVRead = false;				

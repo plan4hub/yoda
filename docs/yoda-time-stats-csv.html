@@ -150,8 +150,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Bar Splitting</label>
-			<select id="barsplit" style="width: 200px" class="select2"></select>
+			<select id="barsplit" style="width: 150px" class="select2"></select>
 			<span class="tooltip">Split into bars (by CSV field)</span>
+		</div>
+
+		<div class="field">
+			<label>Count column</label>
+			<select id="countfield" style="width: 150px" class="select2"></select>
+			<span class="tooltip">Column to count (empty to count #entries)</span>
 		</div>
 
 		<div class="field">
@@ -170,7 +176,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>Stacked</label>
-			<input type="checkbox" id="stacked">
+			<input type="checkbox" id="stacked" checked>
 			<span class="tooltip">Stack bars</span>
 		</div>
 
@@ -223,6 +229,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$(".frame").hide();
 		}
 
+		$('#countfield').select2();
+		$('#barslit').select2();
+		$('#filters').select2();
 		
 		// Login
 		githubAuth();
@@ -232,9 +241,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			if ($("#path").val() != "")
 				readCSV();
 			
-			$('#barslit').select2();
-			
-			$('#filters').select2();
 		  	$('#filters').on('select2:select', function(e) {
 		  		addFilter(e.params.data.id);
 		  	});
