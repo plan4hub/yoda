@@ -527,6 +527,7 @@ function filterIssue(filters, issue) {
 
 var firstBarUpdate = true;
 function updateBarSplit() {
+	$("#barsplit").val(null).empty();
 	var barSplit = yoda.decodeUrlParam(null, "barsplit");
 	var columns = Object.keys(issues[0]);
 	for (var c = 0; c < columns.length; c++) {
