@@ -49,7 +49,7 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "groupColumns");
 
 	params = addIfNotDefault(params, "barsplit");	
-	params = addIfNotDefault(params, "countsplit");
+	params = addIfNotDefault(params, "countfield");
 	params = addIfNotDefault(params, "title");
 	params = addIfNotDefault(params, "axiscategory");
 	
