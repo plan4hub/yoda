@@ -252,7 +252,7 @@ function createChart() {
 			issueDate = new Date(issues[i][dateColumn]);
 			var issueAge = (date.getTime() - issueDate.getTime()) /(24*3600*1000);
 			if (issueAge > maxAge) {
-				console.log("Ignoring issue due to age in days: " + issueAge);
+//  				console.log("Ignoring issue due to age in days: " + issueAge);
 				continue;
 			}
 			
