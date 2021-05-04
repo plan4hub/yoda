@@ -416,7 +416,6 @@ function createChartCFD(issues) {
 		datasetArray.push({
 			type: 'line',
 			label: bars[b],
-			borderWidth: 2,
 			fill: true,
 			data: dataArray[b],
 			backgroundColor: yoda.barColors[b + 2]
@@ -431,21 +430,20 @@ function createChartCFD(issues) {
 	};
 
 	var chartScales = {
-		yAxes: [{
-			scaleLabel: {
+		yleft: {
+			title: {
 				display: true,
-				labelString: '# of issues',
+				text: '# of issues',
 			},
 			stacked: true,
 			position: "left",
-			id: "y-axis-left",
 			ticks: {
 				beginAtZero: true
 			}
-		}],
-		xAxes: [{
+		},
+		x: {
 			stacked: true
-		}]
+		}
 	};
 
 	// -----------------------------------------------------------
@@ -465,9 +463,11 @@ function createChartCFD(issues) {
 		options: {
 			showDatapoints: true,
 			responsive: true,
-			title: {
-				display: true,
-				text: chartTitle
+			plugins: {
+				title: {
+					display: true,
+					text: chartTitle
+				},
 			},
 			tooltips: {
 				mode: 'index',
@@ -550,9 +550,11 @@ function githubAuth() {
 // --------------
 
 //Label drawing
-Chart.plugins.register({
+Chart.defaults.font.size = 14;
+Chart.register({
+	id: 'yoda-label',
 	afterDatasetsDraw: function(chartInstance, easing) {
-		var ctx = chartInstance.chart.ctx;
+		var ctx = chartInstance.ctx;
 
 		chartInstance.data.datasets.forEach(function(dataset, i) {
 			var meta = chartInstance.getDatasetMeta(i);
@@ -572,7 +574,7 @@ Chart.plugins.register({
 							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, 'rgb(230,230,230)', 'rgb(0,0,0)');
 						else
 							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, 'rgb(0,0,0)', 'rgb(230,230,230)');
-						ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+						ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
 						// Just naively convert to string for now
 						var dataString = dataset.data[index].toString();
@@ -586,7 +588,7 @@ Chart.plugins.register({
 
 						// Label inside bar ... gives a bit of trouble at buttom...
 						if (i == 0) 
-							ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);
+							ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
 						else
 							ctx.fillText(dataString, position.x, position.y - padding);
 					}
@@ -596,11 +598,11 @@ Chart.plugins.register({
 	}
 });
 
-var backgroundColor = 'white';
-Chart.plugins.register({
+Chart.register({
+	id: "yoda-background",
 	beforeDraw: function(c) {
-		var ctx = c.chart.ctx;
-		ctx.fillStyle = backgroundColor;
-		ctx.fillRect(0, 0, c.chart.width, c.chart.height);
+		var ctx = c.ctx;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, c.chartArea.width, c.chartArea.height);
 	}
 });

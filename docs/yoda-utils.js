@@ -1705,7 +1705,7 @@ var yoda = (function() {
 				yoda.showSnackbarError("No current chart", 3000);
 				return;
 			}
-			var chartData = window.myMixedChart.chart.data;
+			var chartData = window.myMixedChart.data;
 			
 			var data = []; 
 			var fields = [];
@@ -1740,5 +1740,6 @@ var yoda = (function() {
 			var fileName = "yoda-data.csv"; 
 			yoda.downloadFile(result, fileName);
 		}
+		
 	}
 })();

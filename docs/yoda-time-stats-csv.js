@@ -286,7 +286,6 @@ function createChart() {
 			datasetArray.push({
 				type : 'bar',
 				label : actualBar,
-				borderWidth : 2,
 				fill : false,
 				data : dataArray[b],
 				backgroundColor : yoda.barColors[b]
@@ -297,7 +296,6 @@ function createChart() {
 		datasetArray.push({
 			type : 'bar',
 			label : 'Total',
-			borderWidth : 2,
 			fill : false,
 			data : totalArray,
 			backgroundColor : yoda.barColors[0]
@@ -308,9 +306,8 @@ function createChart() {
 		datasetArray.push({
 			type : 'line',
 			label : 'Total',
-			borderWidth : 2,
 			fill : false,
-			yAxisID: "y-axis-right",
+			yAxisID: "yright",
 			data : totalArray,
 			lineTension: 0
 		});
@@ -319,9 +316,8 @@ function createChart() {
 		datasetArray.push({
 			type : 'line',
 			label : 'Total',
-			borderWidth : 2,
 			fill : false,
-			yAxisID: "y-axis-left",
+			yAxisID: "yleft",
 			data : totalArray,
 			lineTension: 0
 		});
@@ -334,36 +330,34 @@ function createChart() {
 	};
 	
 	var chartScales = {
-			yAxes: [{
-				scaleLabel: {
-					display: true,
-					labelString: "# " + axisCategory,
-				},
-				stacked: stacked,
-				position: "left",
-				id: "y-axis-left",
-				ticks: {
-					beginAtZero: true
-				}
-			}],
-			xAxes: [{
-				stacked: stacked
-			}]
+		yleft: {
+			title: {
+				display: true,
+				text: "# " + axisCategory,
+			},
+			stacked: stacked,
+			position: "left",
+			ticks: {
+				beginAtZero: true
+			}
+		},
+		x: {
+			stacked: stacked,
+		}
 	};
 	
 	// Add second axis.
 	if ((bars.length > 0 && stacked == false)) {
-		chartScales.yAxes.push({    
-			scaleLabel: {
+		chartScales["yright"] = {    
+			title: {
 				display: true,
-				labelString: "Total " + axisCategory,
+				text: "Total " + axisCategory,
 			},
 			position: "right",
-			id: "y-axis-right",
 			ticks: {
 				beginAtZero: true
 			}
-		});		
+		};		
 	}
 
 	// -----------------------------------------------------------
@@ -383,9 +377,11 @@ function createChart() {
 		options : {
 			showDatapoints: true,
 			responsive : true,
-			title : {
-				display : true,
-				text : chartTitle
+			plugins: {
+				title : {
+					display : true,
+					text : chartTitle
+				}
 			},
 			tooltips : {
 				mode : 'index',
@@ -564,7 +560,6 @@ function updateCountField() {
 	
 	var countField = yoda.decodeUrlParam(null, "countfield");
 	var columns = Object.keys(issues[0]);
-	console.log("hej");
 	for (var c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val())
 			continue;
@@ -644,59 +639,59 @@ function githubAuth() {
 	yoda.gitAuth($("#user").val(), $("#token").val());
 }
 
-// --------------
-//Label drawing
-Chart.plugins.register({
- afterDatasetsDraw: function(chartInstance, easing) {
-     var ctx = chartInstance.chart.ctx;
+Chart.defaults.font.size = 14;
+Chart.register({
+	id: "yoda-label",
+	afterDatasetsDraw: function(chartInstance, easing) {
+		var ctx = chartInstance.ctx;
 
-     chartInstance.data.datasets.forEach(function (dataset, i) {
-         var meta = chartInstance.getDatasetMeta(i);
-         if (!meta.hidden) {
-             meta.data.forEach(function(element, index) {
-                 // Draw the text in black (line) or whitish (bar) with the specified font
-            	 if (dataset.type == "bar" && stacked == true)
-            		 ctx.fillStyle = 'rgb(255, 255, 255)';
-            	 else
-            		 ctx.fillStyle = 'rgb(0, 0, 0)';
-                 ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-
-	             // Just naively convert to string for now
-	             if (typeof(dataset.data[index]) == "number") {
-					// Make sure we do rounding if we have to.
-					var dataString = dataset.data[index].toFixed().toString();						
-                 } else {
-					var dataString = dataset.data[index].toString();	
-				 } 
-
-                 // Make sure alignment settings are correct
-                 ctx.textAlign = 'center';
-                 ctx.textBaseline = 'middle';
-
-                 var padding = 5;
-                 var position = element.tooltipPosition();
-
-            	 // Don't draw zeros in stacked bar chart
-            	 if (!(dataset.type == "bar" && stacked == true && dataset.data[index] == 0)) { 
-            		 if (stacked == false || dataset.type == "line") { 
-            			 // Label above bar
-            			 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);
-            		 } else {
-            			 // Label inside bar ... gives a bit of trouble at buttom... 
-            			 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);
-            		 }
-            	 }
-             });
-         }
-     });
- }
+		chartInstance.data.datasets.forEach(function (dataset, i) {
+			var meta = chartInstance.getDatasetMeta(i);
+			if (!meta.hidden) {
+				meta.data.forEach(function(element, index) {
+					// Draw the text in black (line) or whitish (bar) with the specified font
+					if (dataset.type == "bar" && stacked == true)
+						ctx.fillStyle = 'rgb(255, 255, 255)';
+					else
+						ctx.fillStyle = 'rgb(0, 0, 0)';
+					ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
+				
+					// Just naively convert to string for now
+					if (typeof(dataset.data[index]) == "number") {
+						// Make sure we do rounding if we have to.
+						var dataString = dataset.data[index].toFixed().toString();						
+					} else {
+						var dataString = dataset.data[index].toString();	
+					} 
+				
+					// Make sure alignment settings are correct
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+				
+					var padding = 5;
+					var position = element.tooltipPosition();
+				
+					// Don't draw zeros in stacked bar chart
+					if (!(dataset.type == "bar" && stacked == true && dataset.data[index] == 0)) { 
+						if (stacked == false || dataset.type == "line") { 
+				    		// Label above bar
+				        	ctx.fillText(dataString, position.x, position.y - (Chart.defaults.font.size / 2) - padding);
+				    	} else {
+					        // Label inside bar ... gives a bit of trouble at buttom... 
+				        	ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
+				    	}
+					}
+				});
+			}
+		});
+	}
 });
-
-var backgroundColor = 'white';
-Chart.plugins.register({
- beforeDraw: function(c) {
-     var ctx = c.chart.ctx;
-     ctx.fillStyle = backgroundColor;
-     ctx.fillRect(0, 0, c.chart.width, c.chart.height);
- }
+			
+Chart.register({
+	id: "yoda-background",
+	beforeDraw: function(c) {
+		var ctx = c.ctx;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, c.chartArea.width, c.chartArea.height);
+	}
 });

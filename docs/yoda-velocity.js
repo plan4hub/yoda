@@ -337,7 +337,7 @@ function startChart() {
 			borderWidth : 2,
 			fill : false,
 			data : [],
-			yAxisID: "y-axis-left",
+			yAxisID: "yleft",
 			backgroundColor : yoda.barColors[b + 4]
 		});
 	}
@@ -348,7 +348,7 @@ function startChart() {
 		borderWidth : 2,
 		fill : false,
 		data : [],
-		yAxisID: "y-axis-left",
+		yAxisID: "yleft",
 		backgroundColor : 'rgb(0, 155, 0, 0.6)'
 	});
 	
@@ -360,7 +360,7 @@ function startChart() {
 		borderWidth : 2,
 		fill : false,
 		data : [],
-		yAxisID: "y-axis-right",
+		yAxisID: "yright",
 		backgroundColor : 'rgb(255, 102, 0)' 
 	});
 	labels.push("Average / day");
@@ -373,7 +373,7 @@ function startChart() {
 		borderWidth : 2,
 		fill : false,
 		data : [],
-		yAxisID: "y-axis-right",
+		yAxisID: "yright",
 		backgroundColor : 'rgb(255, 255, 26)' 
 	});
 	labels.push("Storypoints / capacity");
@@ -387,40 +387,37 @@ function startChart() {
 		},
 		options : {
 			responsive : true,
-			title : {
-				display : true,
-				text : 'Velocity chart for ' + $("#owner").val() + "/" + $("#repolist").val()
+			plugins: {
+				title : {
+					display : true,
+					text : 'Velocity chart for ' + $("#owner").val() + "/" + $("#repolist").val()
+				}
 			},
 			tooltips : {
 				mode : 'index',
 				intersect : true
 			},
 			scales: {
-				yAxes: [{
-					scaleLabel: {
+				yleft: {
+					title: {
 						display: true,
-						labelString: axis,
-						stacked: stacked
+						text: axis,
 					},
+					stacked: stacked,
 					position: "left",
-					id: "y-axis-left",
-					ticks: {
-						beginAtZero: true
-					}
-				},{    
-					scaleLabel: {
+					beginAtZero: true
+				},
+				yright: {    
+					title: {
 						display: true,
-						labelString: axis + " per day & story points vs. capacity",
+						text: axis + " per day & story points vs. capacity",
 					},
 					position: "right",
-					id: "y-axis-right",
-					ticks: {
-						beginAtZero: true
-					}
-				}],
-				xAxes: [{
+					beginAtZero: true
+				},
+				xAxes: {
 					stacked: stacked
-				}] 
+				} 
 			},
 			tooltips: {
 				enabled: false
@@ -445,9 +442,11 @@ function githubAuth() {
 // --------------
 
 //Label drawing
-Chart.plugins.register({
+Chart.defaults.font.size = 14;
+Chart.register({
+	id: "yoda-label",
  afterDatasetsDraw: function(chartInstance, easing) {
-     var ctx = chartInstance.chart.ctx;
+     var ctx = chartInstance.ctx;
 
      chartInstance.data.datasets.forEach(function (dataset, i) {
          var meta = chartInstance.getDatasetMeta(i);
@@ -455,10 +454,13 @@ Chart.plugins.register({
              meta.data.forEach(function(element, index) {
                  // Draw the text in black, with the specified font
                  ctx.fillStyle = 'rgb(0, 0, 0)';
-                 ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+ 				 ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
                  // Just naively convert to string for now
                  var dataString = dataset.data[index].toString();
+				 // Ugly rounding?
+				 if (dataString.indexOf(".") != -1 && dataString.length > 7)
+			       dataString = dataset.data[index].toFixed(1).toString();
 
                  // Make sure alignment settings are correct
                  ctx.textAlign = 'center';
@@ -466,21 +468,18 @@ Chart.plugins.register({
 
                  var padding = 5;
                  var position = element.tooltipPosition();
-//                 if (dataset.label == $("#splitother").val())
-//                	 ctx.fillText(dataString, position.x, position.y - (Chart.defaults.global.defaultFontSize / 2) - padding);   // above bar
-//                 else
-                	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);   // inside bar
+               	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);   // inside bar
              });
          }
      });
  }
 });
 
-var backgroundColor = 'white';
-Chart.plugins.register({
- beforeDraw: function(c) {
-     var ctx = c.chart.ctx;
-     ctx.fillStyle = backgroundColor;
-     ctx.fillRect(0, 0, c.chart.width, c.chart.height);
- }
+Chart.register({
+	id: "yoda-background",
+	beforeDraw: function(c) {
+		var ctx = c.ctx;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, c.chartArea.width, c.chartArea.height);
+	}
 });

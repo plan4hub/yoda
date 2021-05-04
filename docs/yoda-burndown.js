@@ -925,23 +925,23 @@ function burndown(issues) {
 			datasets : [ {
 				type : 'bar',
 				label : 'Burndown',
-				borderWidth : 2,
 				fill : false,
 				data : remainingArray,
 				backgroundColor : 'rgba(0,153,51,0.6)',  // Green
 				barPercentage: 1,
-				categoryPercentage: 1
+				borderWidth : 2,
+				categoryPercentage: 1,
+				yAxisID: "yleft"
 			},
 			{
 				type : 'line',
 				label : 'Ideal',
-				borderWidth : 2,
 				fill : false,
 				data : remainingIdealArray,
 				borderColor: '#004d1a',
 				pointRadius: 0,
 				spanGaps: true,
-				yAxisID: "axis-lines"
+				yAxisID: "yline"
 			}]
 	};
 	
@@ -951,8 +951,8 @@ function burndown(issues) {
 		chartData.datasets.push({
 			type : 'bar',
 			label : 'NotCodeFreeze',
-			borderWidth : 2,
 			fill : false,
+			borderWidth : 2,
 			data : remainingNoFreezeArray,
 			backgroundColor : 'rgb(0, 100, 38, 0.6)',  // some color - TODO
 			barPercentage: 1,
@@ -962,13 +962,12 @@ function burndown(issues) {
 		chartData.datasets.push({
 			type : 'line',
 			label : 'Ideal Full Sprint',
-			borderWidth : 2,
 			fill : false,
 			data : remainingIdealFullArray,
 			borderColor: '#004d1a',
 			pointRadius: 0,
 			spanGaps: true,
-			yAxisID: "axis-lines"
+			yAxisID: "yline"
 		});
 //	}
 	
@@ -977,9 +976,9 @@ function burndown(issues) {
 		chartData.datasets.push({
 			type : 'bar',
 			label : 'Tentative',
-			borderWidth : 2,
 			fill : false,
 			data : remainingTentativeArray,
+			borderWidth : 2,
 			backgroundColor : 'rgb(255, 255, 51)',  // Yellow
 			barPercentage: 1,
 			categoryPercentage: 1
@@ -1009,14 +1008,13 @@ function burndown(issues) {
 		chartData.datasets.push({
 			type : 'line',
 			label : trendLabel,
-			borderWidth : 2,
 			borderColor: '#414d8a',
 			borderDash: [15, 5],
 			fill : false,
 			data : remainingTrendArray,
 			pointRadius: 0,
 			spanGaps: true,
-			yAxisID: "axis-lines"
+			yAxisID: "yline"
 		});
 	}
 
@@ -1046,44 +1044,39 @@ function burndown(issues) {
 		data : chartData,
 		options : {
 			responsive : true,
-			title : {
-				display : true,
-				text : titleText
+			plugins: {
+				title : {
+					display : true,
+					text : titleText
+				},
 			},
 			tooltips : {
 				mode : 'index',
 				intersect : true
 			},
 			scales: {
-				yAxes: [{
-					scaleLabel: {
+				yleft: {
+					title: {
 						display: true,
-						labelString: axis
+						text: axis
 					},
 					stacked: true,
-					ticks: {
-						beginAtZero: true,
-						min: 0,
-						max: yMaxValue 
-					}
-				
-				},{		
-					id: "axis-lines",
+					beginAtZero: true,
+					min: 0,
+					max: yMaxValue,
+					position: "left" 
+				},
+				yline: {
 					stacked: false,
-					display: false, //optional if both yAxes use the same scale
-					ticks: {
-						beginAtZero: true,
-						min: 0,
-						max: yMaxValue 
-					},
-//				  type: 'linear'
-
-				}],
-				xAxes: [{
-//					barPercentage: 1,
-					// categoryPercentage: 1,
+					beginAtZero: true,
+					min: 0,
+					max: yMaxValue,
+					position: "left",
+					display: false
+				},
+				x: {
 					stacked: true
-				}]
+				}
 			},
 			tooltips: {
 				enabled: false
@@ -1343,9 +1336,11 @@ function githubAuth() {
 // --------------
 
 //Label drawing
-Chart.plugins.register({
+Chart.defaults.font.size = 14;
+Chart.register({
+ id: "yoda-label",
  afterDatasetsDraw: function(chartInstance, easing) {
-     var ctx = chartInstance.chart.ctx;
+     var ctx = chartInstance.ctx;
 
      chartInstance.data.datasets.forEach(function (dataset, i) {
          var meta = chartInstance.getDatasetMeta(i);
@@ -1353,13 +1348,13 @@ Chart.plugins.register({
              meta.data.forEach(function(element, index) {
                  // Draw the text in black, with the specified font
                  ctx.fillStyle = 'rgb(0, 0, 0)';
-                 ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                 ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
                  // Just naively convert to string for now
                  var dataString = dataset.data[index].toString();
                  
                  // skip 0 label
-                 if (dataString != "0") { 
+                 if (dataString != "0" && dataString != "NaN") { 
 
                 	 // Make sure alignment settings are correct
                 	 ctx.textAlign = 'center';
@@ -1367,7 +1362,7 @@ Chart.plugins.register({
 
                 	 var padding = 5;
                 	 var position = element.tooltipPosition();
-                	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.global.defaultFontSize / 2) + padding);
+                	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
                  }
              });
          }
@@ -1375,11 +1370,11 @@ Chart.plugins.register({
  }
 });
 
-var backgroundColor = 'white';
-Chart.plugins.register({
- beforeDraw: function(c) {
-     var ctx = c.chart.ctx;
-     ctx.fillStyle = backgroundColor;
-     ctx.fillRect(0, 0, c.chart.width, c.chart.height);
- }
+Chart.register({
+	id: "yoda-background",
+	beforeDraw: function(c) {
+		var ctx = c.ctx;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, c.chartArea.width, c.chartArea.height);
+	}
 });
