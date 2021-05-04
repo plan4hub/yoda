@@ -115,6 +115,9 @@ function createChart() {
 
 	var barSplit = $("#barsplit").val();
 	console.log("Label split: " + barSplit);
+
+	countField = $("#countfield").val();
+
 	
 	// Let's get the filters
 	var filters = getFilters();
@@ -129,6 +132,9 @@ function createChart() {
 		console.log("Splitting by field: " + barSplit);
 		for (var i = 0; i < issues.length; i++) {
 			if (!filterIssue(filters, issues[i]))
+				continue;
+
+			if (countField != "" && parseInt(issues[i][countField]) == 0)
 				continue;
 			
 			v = issues[i][barSplit];
@@ -177,8 +183,6 @@ function createChart() {
 	dateColumn = $("#datecolumn").val();
 	console.log("dateColumn: " + dateColumn);
 	
-	countField = $("#countfield").val();
-
 	var groupColumns = $("#groupcolumns").val().split(",");
 	console.log("Group:");
 	console.log(groupColumns);
