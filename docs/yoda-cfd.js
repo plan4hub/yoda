@@ -603,6 +603,6 @@ Chart.register({
 	beforeDraw: function(c) {
 		var ctx = c.ctx;
 		ctx.fillStyle = 'white';
-		ctx.fillRect(0, 0, c.chartArea.width, c.chartArea.height);
+		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
