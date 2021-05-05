@@ -40,24 +40,24 @@ function getChildren(octokit, ownRef, body) {
 			// Identify issues using a search criteria
 			var searchExpr = children.issueRefs[0].line.substr(configuration.getOption("issuesearch").length);
 			logger.debug("  Searching for issues using term: " + searchExpr);
-			octokit.search.issuesAndPullRequests({
+			octokit.paginate(octokit.search.issuesAndPullRequests, {
 				q: 'is:issue ' + searchExpr,
 				sort: "created",
 				order: "asc",
-				per_page: 100 // And we will not go further
-			}).then((searchResponse) => {
-				logger.info("  Found " + searchResponse.data.items.length + " issues using searchExpr: " + searchExpr);
-				logger.trace(searchResponse);
+				per_page: 100 // per page, will will get all as using pagination
+			}).then((issues) => {
+				logger.info("  Found " + issues.length + " issues using searchExpr: " + searchExpr);
+				logger.trace(issues);
 
 				// Map searchResponse to children entries.
 				// Remove all elements except the first (the "> issuesearch ..." line itself) AND any potential "> headline" lin~e
-				if (children.issueRefs.length > 1 && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
+				if (issues.length > 1 && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
 					children.issueRefs.splice(2);
 				else
 					children.issueRefs.splice(1); 
 				
-				for (var i = 0; i < searchResponse.data.items.length; i++) {
-					var childRef = yoda.getRefFromUrl(searchResponse.data.items[i].url);
+				for (var i = 0; i < issues.length; i++) {
+					var childRef = yoda.getRefFromUrl(issues[i].url);
 					if (yoda.compareRefs(ownRef, childRef) != 0) {
 						children.issueRefs.push(childRef);
 					} else {
