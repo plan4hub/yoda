@@ -45,8 +45,8 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "repo");	
 	params = addIfNotDefault(params, "path");
 	params = addIfNotDefault(params, "branch");
-	params = addIfNotDefault(params, "dateColumn");
-	params = addIfNotDefault(params, "groupColumns");
+	params = addIfNotDefault(params, "datecolumn");
+	params = addIfNotDefault(params, "groupcolumns"); 
 
 	params = addIfNotDefault(params, "barsplit");	
 	params = addIfNotDefault(params, "countfield");
