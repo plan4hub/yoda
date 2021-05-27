@@ -529,6 +529,7 @@ var yoda = (function() {
 			res = removeFromBody(description, "^> startdate .*$");
 			res = removeFromBody(res, "^> burndownduedate .*$");
 			res = removeFromBody(res, "^> capacity .*$");
+			res = removeFromBody(res, "^> ed .*$");
 			res = removeFromBody(res, "^> info .*$");
 			return res;
 		},
@@ -720,6 +721,10 @@ var yoda = (function() {
 			return getBodyField(description, '> capacity ', '[ ]*[1-9][0-9]*');
 		},
 		
+		getMilestoneED: function(description) {
+			return getBodyField(description, '> ed ', '[ ]*[1-9][0-9]*');
+		},
+
 		getMilestoneBurndownDuedate: function(description) {
 			return getBodyField(description, '> burndownduedate ', '[ ]*20[0-9][0-9]-[01][0-9]-[0-3][0-9]');
 		},

@@ -158,7 +158,7 @@ function createMilestone() {
 	var burndownduedate = $("#newburndownduedate").val();
 	var description = $("#newdescription").val();
 	
-	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, "", duedate);
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, "", "", duedate);
 	urlData["title"] = title;
 	
 	// Ok, now we are ready. We will create a milestone per repo.
@@ -181,7 +181,7 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
-function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info) {
+function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info) {
 	var urlData = {};
 	
 	if ((info != "") && (info != null))
@@ -195,6 +195,9 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 	
 	if ((capacity != "") && (capacity != null))
 		description += "\n> capacity " + capacity;
+	
+	if ((ed != "") && (ed != null))
+		description += "\n> ed " + ed;
 	
 	urlData["description"] = description;
 
@@ -216,17 +219,18 @@ function updateMilestoneData(index) {
 	var duedate = $('#duedate' + index).val();
 	var burndownduedate = $('#burndownduedate' + index).val();
 	var capacity = $('#capacity' + index).val();
+	var ed = $('#ed' + index).val();
 	var state = $('#state' + index).val();
 	var info = $('#info' + index).val();
 	
 	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + 
-			capacity + ", state:" + state + ", info:" + info);
+			capacity + ", ed: " + ed + ", state:" + state + ", info:" + info);
 	
 	// Ok, let's prepare a PATCH request to update the data.
 	var updateMilestoneUrl = milestone.url;
 	console.log("updateUrl: " + updateMilestoneUrl);
 
-	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info);
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info);
 	
 	$.ajax({
 		url: updateMilestoneUrl,
@@ -272,12 +276,14 @@ function replicateMilestone(index) {
 		// Need to keep capacity
 		if (existingIndex != -1) {
 			var capacity = yoda.getMilestoneCapacity(milestoneListComplete[m].description);
+			var ed = yoda.getMilestoneED(milestoneListComplete[m].description);
 			var info = yoda.getMilestoneInfo(milestoneListComplete[m].description);
 		} else {
 			var capacity = null;
+			var ed = null;
 			var info = null;
 		}
-		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, duedate, state, info);
+		var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info);
 		console.log(urlData);
 
 		// Ok, let's see. Does milestone already exist
@@ -354,6 +360,9 @@ function displayRepoMilestones() {
 	cell.innerHTML = '<span id="capacityheader"></span>';
 
 	var cell = headerRow.insertCell();
+	cell.innerHTML = '<span id="edheader"></span>';
+
+	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Actions</b>";
 	
 	table.appendChild(document.createElement('tbody'));
@@ -390,9 +399,13 @@ function displayRepoMilestones() {
 	cell.innerHTML = "";
 	
 	cell = row.insertCell();
+	cell.innerHTML = "";
+
+	cell = row.insertCell();
 	cell.innerHTML = '<button id="createbutton" onclick="createMilestone()" class="tablebutton">Create milestone</button>';
 	
 	var totalCapacity = 0;
+	var totalED = 0;
 	for (var m = 0; m < milestoneListComplete.length; m++) {
 		var milestone = milestoneListComplete[m];
 		var row = bodyRef.insertRow();
@@ -439,7 +452,15 @@ function displayRepoMilestones() {
 		cell = row.insertCell();
 		if (capacity == null)
 			capacity = "";
-		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="5" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">';
+		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="3" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">';
+		
+		var ed = yoda.getMilestoneED(milestone.description);
+		if (ed != null)
+			totalED += parseInt(ed);
+		else
+			ed = "";
+		cell = row.insertCell();
+		cell.innerHTML = '<input type="number" id="ed' + m + '" size="3" onchange="updateMilestoneData(' + m + ')" value="' + ed + '">';
 		
 		cell = row.insertCell();
 		var html = '<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Copy/Update</button>';
@@ -448,6 +469,7 @@ function displayRepoMilestones() {
 
 	}
 	$("#capacityheader").html('<span id="capacityheader"><b>Capacity (total ' + totalCapacity + ')</b></span>');
+	$("#edheader").html('<span id="edheader"><b>ED (total ' + totalED + ')</b></span>');
 	
 	yoda.updateUrl(getUrlParams());
 
