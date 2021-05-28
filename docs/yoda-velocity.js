@@ -113,7 +113,9 @@ function updateMilestones(repoIndex) {
 		}
 		
 		// Sort and add. If URL argument has specified the milestone, select it.
-		commonMilestones.sort();
+		commonMilestones.sort(function(a, b) {
+			return (a < b);
+		});
 		console.log("The common milestones are: " + commonMilestones);
 		
 		var milestoneListUrl = yoda.decodeUrlParam(null, "milestonelist");
@@ -180,6 +182,7 @@ function addMilestone(issues) {
 	// We will pick up any capacity value and add to a total. We will assume that dates are set 
 	// equally, so will just pick up what is there.... Warnings could be another option...
 	var totalCapacity = 0;
+	var totalED = 0;
 	for (var r = 0; r < repoList.length; r++) {
 		for (var m = 0; m < repoMilestones[r].length; m++) {
 			var title = repoMilestones[r][m].title;
@@ -197,13 +200,20 @@ function addMilestone(issues) {
 					console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
 					totalCapacity += parseInt(capacity);
 				}
+				
+				var ed = yoda.getMilestoneED(milestone.description);
+				if (ed != null) {
+					console.log("Adding ed " + ed + " from repo " + repoList[r]);
+					totalED += parseInt(ed);
+				}
 			}
 		}
 	}
 
 	var milestoneCapacity = totalCapacity;
+	var milestoneED = totalED;
 	console.log("Adding milestone. " + milestoneTitle + ", No of issues: " + issues.length + ", startDate: " + milestoneStartdate + 
-			", dueDate: " + milestoneDuedate + ", capacity: " + milestoneCapacity);
+			", dueDate: " + milestoneDuedate + ", capacity: " + milestoneCapacity, ", milestoneED: " + milestoneED);
 
 	var estimateArray = [];
 	for (var b = 0; b < noStoryBars; b++) {
@@ -254,6 +264,15 @@ function addMilestone(issues) {
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
 	} else {
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(0); // We cannot work out estimate/capacity, put 0
+	}
+	
+	// If we have a ED number in the milestone, we may work out story point/ED
+	if (milestoneED != null && milestoneED > 0 && yoda.getEstimateInIssues() != "noissues") {
+ 		var edFactor = (estimate/milestoneED).toFixed(1);
+		console.log("edFactor = " + edFactor);
+		window.myMixedChart.data.datasets[noStoryBars + 2].data.push(edFactor);
+	} else {
+		window.myMixedChart.data.datasets[noStoryBars + 2].data.push(0); // We cannot work out estimate/ed, put 0
 	}
 	
 	// Update chart
@@ -378,6 +397,19 @@ function startChart() {
 	});
 	labels.push("Storypoints / capacity");
 	
+	// Then vs. ED (may not be avail)
+	datasets.push({
+		type : 'bar',
+		stack : 'ed',
+		label : 'Storypoints / ED',
+		borderWidth : 2,
+		fill : false,
+		data : [],
+		yAxisID: "yright",
+		backgroundColor : 'rgb(0,180,180)' 
+	});
+	labels.push("Storypoints / ED");
+	
 	var stacked = true; 
 	window.myMixedChart = new Chart(ctx, {
 		type : 'bar',	
@@ -410,7 +442,7 @@ function startChart() {
 				yright: {    
 					title: {
 						display: true,
-						text: axis + " per day & story points vs. capacity",
+						text: axis + " per day / story points vs. capacity/ED",
 					},
 					position: "right",
 					beginAtZero: true
