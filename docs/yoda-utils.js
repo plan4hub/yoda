@@ -531,6 +531,8 @@ var yoda = (function() {
 			res = removeFromBody(res, "^> capacity .*$");
 			res = removeFromBody(res, "^> ed .*$");
 			res = removeFromBody(res, "^> info .*$");
+			res = removeFromBody(res, "^> subteam-capacity .*$");
+			res = removeFromBody(res, "^> subteam-ed .*$");
 			return res;
 		},
 		
@@ -660,6 +662,15 @@ var yoda = (function() {
 				}
 				return 0;
 			}
+		},
+		
+		// Get all data from getBodyFields (by iterating)
+		getAllBodyFields: function(body, start, data) {
+			var result = [];
+			for (var i = 0; (r = getBodyField(body, start, data, i)) != null; i++) {
+				result.push(r);
+			}
+			return result;
 		},
 		
 		issueRemainingMeta: function(issue, estimate) {

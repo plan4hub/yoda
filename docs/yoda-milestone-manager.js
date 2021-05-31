@@ -181,7 +181,7 @@ function createMilestone() {
 	selectMilestones += "," + title;
 }
 
-function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info) {
+function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info, subteamCapacity, subteamED) {
 	var urlData = {};
 	
 	if ((info != "") && (info != null))
@@ -198,6 +198,14 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 	
 	if ((ed != "") && (ed != null))
 		description += "\n> ed " + ed;
+		
+	if ((subteamCapacity != "") && (subteamCapacity != null)) {
+		description += "\n" + subteamCapacity.replace(/^(.+)$/mg, "> subteam-capacity $1");
+	}
+	
+	if ((subteamED != "") && (subteamED != null)) {
+		description += "\n" + subteamED.replace(/^(.+)$/mg, "> subteam-ed $1");
+	}
 	
 	urlData["description"] = description;
 
@@ -222,15 +230,17 @@ function updateMilestoneData(index) {
 	var ed = $('#ed' + index).val();
 	var state = $('#state' + index).val();
 	var info = $('#info' + index).val();
+	var subteamCapacity = $('#subteamcap' + index).val();
+	var subteamED = $('#subteamed' + index).val();
 	
 	console.log("description: " + description + ", startdate: " + startdate + ", duedate: " + duedate + ", burndownduedate: " + burndownduedate + ", capacity: " + 
-			capacity + ", ed: " + ed + ", state:" + state + ", info:" + info);
+			capacity + ", ed: " + ed + ", state:" + state + ", info:" + info + ", subteamCapacity: " + subteamCapacity + ", subteamED: " + subteamED);
 	
 	// Ok, let's prepare a PATCH request to update the data.
 	var updateMilestoneUrl = milestone.url;
 	console.log("updateUrl: " + updateMilestoneUrl);
 
-	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info);
+	var urlData = buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info, subteamCapacity, subteamED);
 	
 	$.ajax({
 		url: updateMilestoneUrl,
@@ -241,6 +251,42 @@ function updateMilestoneData(index) {
 		complete: function(jqXHR, textStatus) {	/* NOP */ }
 	});
 }
+
+// This will act as open/close by clicking on the magnifying class. Opening will show the field. Closing it will update the main field (total capacity) and update the milestone itself, then refresh.
+function subteamMilestone(index, fieldId, totalField) {
+	console.log("subteamMilestone called. ", index, fieldId, totalField);
+	console.log(milestoneListComplete);  
+	var milestone = milestoneListComplete[index];
+	console.log(milestone);
+	
+	// Are we visible? Then work on totals.
+	if ($(fieldId).is(":visible")) {
+		
+		var f = $(fieldId).val();
+		console.log($(fieldId).val())
+
+		if (f != "") {
+			var total = 0;
+			var entries = f.split("\n");
+			console.log(entries);
+			for (var e = 0; e < entries.length; e++) {
+				if (entries[e] == "")
+					continue;
+				total += parseInt(entries[e].split(",")[0]);
+			}
+			console.log("Setting total:", total);
+			$(totalField).val(total);
+			updateMilestoneData(index); 
+		}
+		
+		// Validate, then Edit should finish off by calling updateMilestoneData.
+		$(fieldId).hide();
+
+	} else {
+		$(fieldId).show();
+	}
+}
+
 
 function replicateMilestone(index) {
 	var milestone = milestoneListComplete[index];
@@ -452,19 +498,38 @@ function displayRepoMilestones() {
 		cell = row.insertCell();
 		if (capacity == null)
 			capacity = "";
-		cell.innerHTML = '<input type="number" id="capacity' + m + '" size="3" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">';
-		
+			
+		var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$").join("\n");
+		console.log(subteamCapacity); 
+		cell.innerHTML = '<span><input type="number" id="capacity' + m + '" size="3" style="float: left" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">' + 
+						 '<img id="subteamc-' + m + '" src="yoda-magni.png" style="float: right"></span>' +
+		                 '<textarea id="subteamcap' + m + '" rows=5 style="display:none;width:200px">' + subteamCapacity + '</textarea>';
+		// <span class="tooltip">Enter subteam capacity. One team each line as capacity,team label</span>
+		$('#subteamc-' + m).click(function(e) {
+			var index = e.target.id.split("-")[1];
+  			subteamMilestone(index, "#subteamcap" + index, "#capacity" + index);
+		});
+
 		var ed = yoda.getMilestoneED(milestone.description);
 		if (ed != null)
 			totalED += parseInt(ed);
 		else
 			ed = "";
+			
+		var subteamED = yoda.getAllBodyFields(milestone.description, "> subteam-ed ", ".*$").join("\n");
+		console.log(subteamED); 
+			
 		cell = row.insertCell();
-		cell.innerHTML = '<input type="number" id="ed' + m + '" size="3" onchange="updateMilestoneData(' + m + ')" value="' + ed + '">';
+		cell.innerHTML = '<span><input type="number" id="ed' + m + '" size="3" style="float: left" onchange="updateMilestoneData(' + m + ')" value="' + ed + '">' +
+			      		 '<img id="subteamed-' + m + '" src="yoda-magni.png" style="float: right"></span>' +
+		                 '<textarea id="subteamed' + m + '" rows=5 style="display:none;width:200px">' + subteamED + '</textarea>';
+		$('#subteamed-' + m).click(function(e) {
+			var index = e.target.id.split("-")[1];
+  			subteamMilestone(index, "#subteamed" + index, "#ed" + index);
+		});
 		
 		cell = row.insertCell();
-		var html = '<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Copy/Update</button>';
-		console.log(html);
+		var html = '<button id="replicate" onclick="replicateMilestone(' + m + ')" class="tablebutton">Copy/Update</button>'; 
 		cell.innerHTML = html;
 
 	}

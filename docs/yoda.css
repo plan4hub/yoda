@@ -23,6 +23,19 @@ body {
     min-width: 1020px;
     word-wrap: break-word;
 }
+
+/* HATE spinners */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .field {
     float: left;
     box-sizing: border-box;
@@ -50,6 +63,7 @@ body {
  	opacity: 0;
     transition: opacity 1s;
 }
+
 .field .tooltip::after,
 .flatfield .tooltip::after {
     content: " ";
