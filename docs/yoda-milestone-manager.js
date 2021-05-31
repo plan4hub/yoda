@@ -184,27 +184,32 @@ function createMilestone() {
 function buildMilestoneUrlData(description, startdate, burndownduedate, capacity, ed, duedate, state, info, subteamCapacity, subteamED) {
 	var urlData = {};
 	
+	if (!description.endsWith("\n"))
+		description += "\n";
+	
 	if ((info != "") && (info != null))
-		description += "\n> info " + info;
+		description += "> info " + info + "\n";
 	
 	if ((startdate != "") && (startdate != null))
-		description += "\n> startdate " + startdate;
+		description += "> startdate " + startdate + "\n";
 	
 	if ((burndownduedate != "") && (burndownduedate != null))
-		description += "\n> burndownduedate " + burndownduedate;
+		description += "> burndownduedate " + burndownduedate + "\n";
 	
 	if ((capacity != "") && (capacity != null))
-		description += "\n> capacity " + capacity;
+		description += "> capacity " + capacity + "\n";
 	
 	if ((ed != "") && (ed != null))
-		description += "\n> ed " + ed;
+		description += "> ed " + ed + "\n";
 		
 	if ((subteamCapacity != "") && (subteamCapacity != null)) {
-		description += "\n" + subteamCapacity.replace(/^(.+)$/mg, "> subteam-capacity $1");
+		description += subteamCapacity.replace(/^$/mg, "").replace(/^(.+)$/mg, "> subteam-capacity $1");
 	}
 	
 	if ((subteamED != "") && (subteamED != null)) {
-		description += "\n" + subteamED.replace(/^(.+)$/mg, "> subteam-ed $1");
+		if (!description.endsWith("\n"))
+			description += "\n";
+		description += subteamED.replace(/^$/mg, "").replace(/^(.+)$/mg, "> subteam-ed $1");
 	}
 	
 	urlData["description"] = description;
