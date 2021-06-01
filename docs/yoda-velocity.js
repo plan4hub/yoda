@@ -195,16 +195,38 @@ function addMilestone(issues) {
 				console.log("  Milestone due: " + milestoneDuedate);
 				milestoneStartdate = yoda.getMilestoneStartdate(milestone.description);
 
-				var capacity = yoda.getMilestoneCapacity(milestone.description);
-				if (capacity != null) {
-					console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
+				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
+				console.log("subteamCapacity:");
+				console.log(subteamCapacity);
+				if (subteamCapacity.length > 0 && $("#labelfilter").val() != "" && 
+					(si = subteamCapacity.findIndex(function(e) {	return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
+					// Use that
+					var capacity = subteamCapacity[si].split(",")[0];
+					console.log("Adding sub-team capacity " + capacity + " from repo " + repoList[r]);
 					totalCapacity += parseInt(capacity);
+				} else {
+					var capacity = yoda.getMilestoneCapacity(milestone.description);
+					if (capacity != null) {
+						console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
+						totalCapacity += parseInt(capacity);
+					}
 				}
 				
-				var ed = yoda.getMilestoneED(milestone.description);
-				if (ed != null) {
-					console.log("Adding ed " + ed + " from repo " + repoList[r]);
-					totalED += parseInt(ed);
+				var ed = yoda.getAllBodyFields(milestone.description, "> subteam-ed ", ".*$");
+				console.log("ed:");
+				console.log(ed);
+				if (ed.length > 0 && $("#labelfilter").val() != "" && 
+					(ei = ed.findIndex(function(e) { return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
+					// Use that
+					var edVal = ed[ei].split(",")[0];
+					console.log("Adding sub-team ed " + edVal + " from repo " + repoList[r]);
+					totalED += parseInt(edVal);
+				} else {
+					var ed = yoda.getMilestoneED(milestone.description);
+					if (ed != null) {
+						console.log("Adding ed " + ed + " from repo " + repoList[r]);
+						totalED += parseInt(ed);
+					}
 				}
 			}
 		}

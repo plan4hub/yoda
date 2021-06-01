@@ -1258,7 +1258,6 @@ function showMilestoneData() {
 					$("#burndown_due").val("");
 				}
 
-				// TODO: yoda#168. Handle subteam capacity
 				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
 				console.log("subteamCapacity:");
 				console.log(subteamCapacity);
