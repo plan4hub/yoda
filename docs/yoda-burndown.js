@@ -759,7 +759,7 @@ function burndown(issues) {
 		var dateString = yoda.formatDate(date);
 		
 		// Burndown due date? If so, set index.
-		console.log("dateString: " + dateString + ", burndown_due: " + $("#burndown_due").val());
+		// console.log("dateString: " + dateString + ", burndown_due: " + $("#burndown_due").val());
 		if (dateString == $("#burndown_due").val())
 			burndownDateIndex = labels.length; 
 
@@ -817,7 +817,7 @@ function burndown(issues) {
 			if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 				continue;
 
-			console.log("Looking at issue index " + i + ": " + issues[i].url);
+			// console.log("Looking at issue index " + i + ": " + issues[i].url);
 			// First, let's get the estimate at start
 			var issueEstimate = AP(issues[i], yoda.issueEstimateBeforeDate(issues[i], yoda.formatDate(milestoneStartdate)));
 			if (issueEstimate != null) {
@@ -833,7 +833,7 @@ function burndown(issues) {
 					if (remainingNumber > issueEstimate)
 						console.log("  NOTE: Below remaining is higher than estimate.");
 					lastRemainingNumber = remainingNumber;
-					console.log("  Remaining entry (" + index + "): " + remainingDate + ", " + remainingNumber);
+				//	console.log("  Remaining entry (" + index + "): " + remainingDate + ", " + remainingNumber);
 
 					var closedAtString = null;
 					if (issues[i].closed_at != null)
@@ -849,7 +849,7 @@ function burndown(issues) {
 					// closure. The graph already has the effect of the closure (going to 0).
 					for (var d = 0; d < labels.length; d++) {
 						if (remainingDate == labels[d]) {
-							console.log("  Starting reduction from date: " + labels[d] + ", remaining: " + remainingArray[d]);
+						//	console.log("  Starting reduction from date: " + labels[d] + ", remaining: " + remainingArray[d]);
 							// Loop for future estimates, but only until either closed date (if issue was closed OR current date).
 							for (var e = d + 1; e < labels.length; e++) {
 								if (closedAtString != null && labels[e] > closedAtString) 
@@ -859,7 +859,7 @@ function burndown(issues) {
 									continue;
 								
 								var delta = (issueEstimate - remainingNumber - issueWorkDoneBefore);
-								console.log("    For date: " + labels[e] + ", remaining: " + remainingArray[e] + ", delta: " + delta);
+							//	console.log("    For date: " + labels[e] + ", remaining: " + remainingArray[e] + ", delta: " + delta);
 								
 								if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
 									remainingTentativeArray[e] -= delta;
@@ -1258,10 +1258,23 @@ function showMilestoneData() {
 					$("#burndown_due").val("");
 				}
 
-				var capacity = yoda.getMilestoneCapacity(milestone.description);
-				if (capacity != null) {
-					console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
+				// TODO: yoda#168. Handle subteam capacity
+				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
+				console.log("subteamCapacity:");
+				console.log(subteamCapacity);
+				if (subteamCapacity.length > 0 && $("#labelfilter").val() != "" && 
+					(si = subteamCapacity.findIndex(function(e) {	return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
+					// Use that
+					var capacity = subteamCapacity[si].split(",")[0];
+					console.log("Adding sub-team capacity " + capacity + " from repo " + repoList[r]);
 					totalCapacity += parseInt(capacity);
+				} else {
+					// Normal case (not subteam)
+					var capacity = yoda.getMilestoneCapacity(milestone.description);
+					if (capacity != null) {
+						console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
+						totalCapacity += parseInt(capacity);
+					}
 				}
 			}
 		}

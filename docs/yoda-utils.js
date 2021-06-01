@@ -571,7 +571,7 @@ var yoda = (function() {
 //				console.log("Adjusted date (day < 10): '" + remainingDate + "'");
 			}
 			
-			console.log("remainingEntry='" + remainingEntry + "' dateEnd = " + dateEnd + ", reaminingDate='" + remainingDate + "' firstDash = " + firstDash + ", secondDash=" + secondDash);
+			// console.log("remainingEntry='" + remainingEntry + "' dateEnd = " + dateEnd + ", reaminingDate='" + remainingDate + "' firstDash = " + firstDash + ", secondDash=" + secondDash);
 			return remainingDate;
 		},
 		
@@ -621,9 +621,9 @@ var yoda = (function() {
 					var remaining = yoda.getRemainingFromEntry(remainingEntry);
 					if (remainingDate < startdate) {
 						estimate = parseFloat(remaining);
-						console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
+				//		console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 					} else {
-						console.log("NOT reducing initial estimate as after " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
+				//		console.log("NOT reducing initial estimate as after " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 					}
 				}
 			}
