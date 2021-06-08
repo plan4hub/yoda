@@ -508,8 +508,8 @@ function displayRepoMilestones() {
 		console.log(subteamCapacity); 
 		cell.innerHTML = '<span><input type="number" id="capacity' + m + '" size="3" style="float: left" onchange="updateMilestoneData(' + m + ')" value="' + capacity + '">' + 
 						 '<img id="subteamc-' + m + '" src="yoda-magni.png" style="float: right"></span>' +
-		                 '<textarea id="subteamcap' + m + '" rows=5 style="display:none;width:200px">' + subteamCapacity + '</textarea>';
-		// <span class="tooltip">Enter subteam capacity. One team each line as capacity,team label</span>
+		                 '<div><span class="tooltip">Enter subteam capacity. One team each line as capacity,team label</span><textarea id="subteamcap' + m + '" rows=5 style="display:none;width:200px">' + subteamCapacity + '</textarea></div>';
+		 
 		$('#subteamc-' + m).click(function(e) {
 			var index = e.target.id.split("-")[1];
   			subteamMilestone(index, "#subteamcap" + index, "#capacity" + index);

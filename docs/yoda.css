@@ -44,6 +44,8 @@ input[type=number] {
     display: inline-block;
     
 }
+
+.tooltip,
 .field .tooltip,
 .flatfield .tooltip{
     visibility: hidden;
@@ -64,6 +66,7 @@ input[type=number] {
     transition: opacity 1s;
 }
 
+.tooltip,
 .field .tooltip::after,
 .flatfield .tooltip::after {
     content: " ";

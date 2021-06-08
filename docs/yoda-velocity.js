@@ -281,7 +281,7 @@ function addMilestone(issues) {
 
 	// If we have a capacity number in the milestone, we may work out estimate/capacity
 	if (milestoneCapacity != null && milestoneCapacity > 0&& yoda.getEstimateInIssues() != "noissues") {
- 		var capacityFactor = (estimate/milestoneCapacity).toFixed(1);
+ 		var capacityFactor = (estimate/milestoneCapacity).toFixed(2);
 		console.log("Capacity factor = " + capacityFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
 	} else {
@@ -290,7 +290,7 @@ function addMilestone(issues) {
 	
 	// If we have a ED number in the milestone, we may work out story point/ED
 	if (milestoneED != null && milestoneED > 0 && yoda.getEstimateInIssues() != "noissues") {
- 		var edFactor = (estimate/milestoneED).toFixed(1);
+ 		var edFactor = (estimate/milestoneED).toFixed(2);
 		console.log("edFactor = " + edFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 2].data.push(edFactor);
 	} else {

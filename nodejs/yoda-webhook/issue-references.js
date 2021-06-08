@@ -51,7 +51,7 @@ function getChildren(octokit, ownRef, body) {
 
 				// Map searchResponse to children entries.
 				// Remove all elements except the first (the "> issuesearch ..." line itself) AND any potential "> headline" lin~e
-				if (issues.length > 1 && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
+				if (children.issueRefs.length > 1 && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
 					children.issueRefs.splice(2);
 				else
 					children.issueRefs.splice(1); 
