@@ -695,7 +695,7 @@ function updateIssuesKnownLoop(repoRemainList, issues) {
 
 	console.log(repoRemainList);
 	if (repoRemainList.length == 0) {
-		makeRN("Known limitations and issues", "Known issues for ", "known");
+		makeRN("Known limitations and issues ", "Known issues for ", "known");
 		return;
 	}
 	
