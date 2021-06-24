@@ -202,6 +202,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
+			<label>Release Note Known Issue Types</label>
+			<input type="text" id="burndown_rnknownlabeltypes" size="25" onchange="setLocalStorage('yoda.burndown.rnknownlabeltypes', this.value)">
+			<span class="tooltip">Issue types (labels) to output to Known RN sections). Comma-separated list of Label|Header</span>
+		</div>
+
+		<div class="field">
 			<label>Release Note Skip Label</label>
 			<input type="text" id="burndown_rnskiplabel" size="25" onchange="setLocalStorage('yoda.burndown.rnskiplabel', this.value)">
 			<span class="tooltip">Label value causing issue to be skipped into RN (default "Q - No RN")</span>
@@ -270,6 +276,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#burndown_labelsplit").val(localStorage.getItem("yoda.burndown.labelsplit"));
 			$("#burndown_additionaldata").val(localStorage.getItem("yoda.burndown.additionaldata"));
 			$("#burndown_rnlabeltypes").val(localStorage.getItem("yoda.burndown.rnlabeltypes"));
+			$("#burndown_rnknownlabeltypes").val(localStorage.getItem("yoda.burndown.rnknownlabeltypes"));
 			$("#burndown_rnskiplabel").val(localStorage.getItem("yoda.burndown.rnskiplabel"));
 			$("#burndown_rnknownlabel").val(localStorage.getItem("yoda.burndown.rnknownlabel"));
 			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));

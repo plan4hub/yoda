@@ -212,6 +212,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Label value causing issue to be listed into Known Issues RN (default "Q - Known Issue")</span>
 		</div>
  
+		<div class="field">
+			<label>Known Issue Types</label>
+			<input type="text" id="rnknownlabeltypes" size="30" value="T2 - Enhancement|Known Limitations,T1 - Defect|Known Issues">
+			<span class="tooltip">Issue types (labels) to output to Known RN sections). Comma-separated list of Label|Header</span>
+		</div>
+	
 		<button id="drawKnownbutton" onclick="startKnown(false)">Show Known Issues</button>
 		<button id="downloadKnownbutton" onclick="startKnown(true)">Download Known Issues</button>
 	</div>
@@ -227,7 +233,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
 		yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+		
 		yoda.getDefaultLocalStorage("#rnlabeltypes", "yoda.burndown.rnlabeltypes");
+		yoda.getDefaultLocalStorage("#rnknownlabeltypes", "yoda.burndown.rnknownlabeltypes");
 		yoda.getDefaultLocalStorage("#rnskiplabel", "yoda.burndown.rnskiplabel");
 		yoda.getDefaultLocalStorage("#rnmetalabel", "yoda.burndown.rnmetalabel");
 		yoda.getDefaultLocalStorage("#rnknownlabel", "yoda.burndown.rnknownlabel");
@@ -235,6 +243,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
 		yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
+		yoda.decodeUrlParam("#rnknownlabeltypes", "rnknownlabeltypes");
 		yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
 		yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");
 		yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");

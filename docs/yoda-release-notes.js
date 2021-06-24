@@ -56,6 +56,7 @@ function getUrlParams() {
 		params += "&milestonelist=" + $("#milestonelist").val();
 	params = addIfNotDefault(params, "labelfilter");	
 	params = addIfNotDefault(params, "rnlabeltypes");
+	params = addIfNotDefault(params, "rnknownlabeltypes");
 	params = addIfNotDefault(params, "rnskiplabel");
 	params = addIfNotDefault(params, "rnmetalabel");
 	params = addIfNotDefault(params, "rnknownlabel");
@@ -259,7 +260,10 @@ function makeRN(headline, changesOrKnown, draw) {
 	var rnText = "";
 	
 	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
-	var rnLabelTypes = $("#rnlabeltypes").val();
+	if (draw == "known")
+		var rnLabelTypes = $("#rnknownlabeltypes").val();
+	else
+		var rnLabelTypes = $("#rnlabeltypes").val();
 	var rnLabelTypesList = rnLabelTypes.split(",");
 	
 	// Skip label
@@ -691,7 +695,7 @@ function updateIssuesKnownLoop(repoRemainList, issues) {
 
 	console.log(repoRemainList);
 	if (repoRemainList.length == 0) {
-		makeRN("Known issues for ", "Known issues for ", "known");
+		makeRN("Known limitations and issues", "Known issues for ", "known");
 		return;
 	}
 	
