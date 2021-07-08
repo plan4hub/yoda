@@ -31,6 +31,7 @@ var repoIssues = []; // List of issues. Full structure as returned from github.
 
 var issueLabels = []; // List of labels found for all issues. (full structure)
 var issueLabelFiltered = []; // selected labels (just names)
+var issueLabelFilteredOr = []; // selected labels (just names)
 
 var issueAssignees = []; // List of assignee found for all issues. (just names)
 var issueAssigneesFiltered = []; // selected assignees (just names)
@@ -51,6 +52,8 @@ function getUrlParams() {
 		params += "&columns=" + $("#columns").val();
 	if ($("#labellist").val() != "") 
 		params += "&labellist=" + $("#labellist").val();
+	if ($("#labellistor").val() != "") 
+		params += "&labellistor=" + $("#labellistor").val();
 	if ($("#assigneelist").val() != "")
 		params += "&assigneelist=" + $("#assigneelist").val();
 	if ($('#closedmilestones').is(":checked")) {
@@ -95,6 +98,7 @@ function formatLabel(label) {
 
 var firstLabelShow = true;
 var urlLabelList = yoda.decodeUrlParam(null, "labellist");
+var urlLabelOrList = yoda.decodeUrlParam(null, "labellistor");
 function updateIssueLabelList() {
 	issueLabels = [];
 	issueLabelFiltered = [];
@@ -123,14 +127,17 @@ function updateIssueLabelList() {
 	console.log(issueLabels);
 	
 	var selectLabels = [];
+	var selectLabelsOr = [];
 	if (firstLabelShow) {
 		firstLabelShow = false;
 	
 		if (urlLabelList != null) 
 			selectLabels = urlLabelList.split(",");
+		if (urlLabelOrList != null)
+			selectLabelsOr = urlLabelOrList.split(",");
 	}
 	
-	// Now add to selection list
+	// Now add to selection list (AND)
 	$("#labellist").empty();
 	var labelsSelected = false;
 	for (var is = 0; is < issueLabels.length; is++) {
@@ -145,7 +152,23 @@ function updateIssueLabelList() {
 	
 	if (labelsSelected) 
 		$("#labellist").trigger('change');
+
+	// Now add to selection list (OR)
+	$("#labellistor").empty();
+	var labelsSelected = false;
+	for (var is = 0; is < issueLabels.length; is++) {
+		var selectLabel = false;
+		if (selectLabelsOr.indexOf(issueLabels[is].name) != -1) {
+			selectLabel = true;
+			labelsSelected = true;
+		}
+		var newOption = new Option(issueLabels[is].name, issueLabels[is].name, selectLabel, selectLabel);
+		$('#labellistor').append(newOption);
+	}
 	
+	if (labelsSelected) 
+		$("#labellistor").trigger('change');
+
 //	$("#labellist").select2({
 //		  templateResult: formatLabel
 //	});
@@ -441,7 +464,20 @@ function drawKanban() {
 
 		if (!labelsMatch)
 			continue;
-
+			
+		// Ok, if we have labels for OR filtering?
+		if (issueLabelFilteredOr.length > 0) {
+			labelsMatch = false;
+			for (var il = 0; il < issueLabelFilteredOr.length; il++) {
+				if (yoda.isLabelInIssue(repoIssues[ri], issueLabelFilteredOr[il]) == true) {
+					labelsMatch = true;
+					break;
+				}
+			}
+		}
+		if (!labelsMatch)
+			continue;
+			
 		// Ok, labels ok. What about assigee? Need to check full list....
 		var assigneeMatch = false;
 		var assignee = "unassigned";

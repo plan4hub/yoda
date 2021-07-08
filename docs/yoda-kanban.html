@@ -208,9 +208,15 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Labels</label>
+			<label>Labels (AND)</label>
 			<select id="labellist" style="width: 350px" class="select2" multiple></select>
 			<span class="tooltip">Label filter (AND)</span>
+		</div>
+
+		<div class="field">
+			<label>Labels (OR)</label>
+			<select id="labellistor" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Label filter (OR)</span>
 		</div>
 
 		<div class="field">
@@ -264,6 +270,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$('#milestonelist').select2();
 			$('#assigneelist').select2();
 			$('#labellist').select2();
+			$('#labellistor').select2();
 			$('#columns').select2({tags:true});
 
 			// Special handling for columns URL arg
@@ -315,6 +322,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				drawKanban();
 			});
 			
+			$('#labellistor').on('change.select2', function (e) {
+				issueLabelFilteredOr = $("#labellistor").val();			
+				console.log("List of selected labels (OR) is now: " + issueLabelFilteredOr);
+				drawKanban();
+			});
+
 			$('#assigneelist').on('change.select2', function (e) {
 				issueAssigneesFiltered = $("#assigneelist").val();			
 				console.log("List of selected assignees: " + issueAssigneesFiltered);
