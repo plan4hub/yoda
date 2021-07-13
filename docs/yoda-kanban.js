@@ -300,20 +300,28 @@ function createCard(issue) {
 	return [card, estimate, remaining];
 }
 
-function tabOpenIssues(c) {
-	console.log("tabOpenIssues: " + c);
-	console.log(columnUrls[c]);
-	
-	for (i = 0; i < columnUrls[c].length; i++) {
-		console.log("  Opening " + columnUrls[c][i])
-		window.open(columnUrls[c][i]);
+var issueTabs = [];
+function tabOpenCloseIssues(c) {
+	console.log("tabOpenCloseIssues: " + c);
+
+	if (issueTabs[c].length > 0) {
+		// Close
+		for (i = 0; i < issueTabs[c].length; i++)
+			issueTabs[c][i].close();
+		issueTabs[c] = [];
+	} else {
+		// Open
+		for (i = 0; i < columnUrls[c].length; i++) {
+			console.log("  Opening " + columnUrls[c][i])
+			var tabId = window.open(columnUrls[c][i]);
+			issueTabs[c].push(tabId);
+		}
 	}
 }
 
-
 // Create the HTML representation for a new column
 function createColumn(c, columnId, columnName) {
-	openFunc = 'tabOpenIssues(' + c + ')';
+	openFunc = 'tabOpenCloseIssues(' + c + ')';
 	console.log(openFunc);
 	var column = $(
 			'<div class="cardcolumn">' +
@@ -532,6 +540,7 @@ function drawKanban() {
 		columnTotalNoIssues[c] = 0;
 		columnTotalRemaining[c] = 0;
 		columnUrls[c] = [];
+		issueTabs[c] = [];
 		
 		$("#kanban").append(createColumn(c, "column" + c, columnNameList[c]));
 		console.log("Added column: column" + c + ", name: " + columnNameList[c]);
