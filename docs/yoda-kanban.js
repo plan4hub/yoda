@@ -300,12 +300,25 @@ function createCard(issue) {
 	return [card, estimate, remaining];
 }
 
+function tabOpenIssues(c, columnName) {
+	console.log("tabOpenIssues: " + c + ", " + columnName);
+	console.log(columnUrls[c]);
+	
+	for (i = 0; i < columnUrls[c].length; i++) {
+		console.log("  Opening " + columnUrls[c][i])
+		window.open(columnUrls[c][i], columnName + i);
+	}
+}
+
+
 // Create the HTML representation for a new column
-function createColumn(columnId, columnName) {
+function createColumn(c, columnId, columnName) {
+	openFunc = 'tabOpenIssues(' + c + ',"' + columnName + '")';
+	console.log(openFunc);
 	var column = $(
 			'<div class="cardcolumn">' +
 				'<div id="' + columnId + '" class="cardsincolumn">' +
-					'<div id ="' + columnId + '-header" class="columnheader">' + columnName +
+					'<div id ="' + columnId + '-header" class="columnheader"><button onclick=' + openFunc + '>' + columnName + '</button>' +
 					   '<div id ="' + columnId + '-total" style="float: right"></div>' + 
 					'</div>' +
 				'</div>' +
@@ -444,6 +457,7 @@ function setupSortable() {
 	enableDisableSortable();
 }
 
+var columnUrls = [];
 function drawKanban() {
 	console.log("Draw kanban");
 
@@ -517,8 +531,9 @@ function drawKanban() {
 		columnTotalEstimate[c] = 0;
 		columnTotalNoIssues[c] = 0;
 		columnTotalRemaining[c] = 0;
+		columnUrls[c] = [];
 		
-		$("#kanban").append(createColumn("column" + c, columnNameList[c]));
+		$("#kanban").append(createColumn(c, "column" + c, columnNameList[c]));
 		console.log("Added column: column" + c + ", name: " + columnNameList[c]);
 	}
 	// Adjust width of kanban board
@@ -548,6 +563,7 @@ function drawKanban() {
 					columnTotalNoIssues[c]++;
 					columnTotalEstimate[c] += estimate;
 					columnTotalRemaining[c] += remaining;
+					columnUrls[c].push(issues[i].html_url);
 					
 					columnTotalEstimate[c] = yoda.strip2Digits(columnTotalEstimate[c]);
 					columnTotalRemaining[c] = yoda.strip2Digits(columnTotalRemaining[c]);
