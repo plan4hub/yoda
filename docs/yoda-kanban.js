@@ -300,20 +300,20 @@ function createCard(issue) {
 	return [card, estimate, remaining];
 }
 
-function tabOpenIssues(c, columnName) {
-	console.log("tabOpenIssues: " + c + ", " + columnName);
+function tabOpenIssues(c) {
+	console.log("tabOpenIssues: " + c);
 	console.log(columnUrls[c]);
 	
 	for (i = 0; i < columnUrls[c].length; i++) {
 		console.log("  Opening " + columnUrls[c][i])
-		window.open(columnUrls[c][i], columnName + i);
+		window.open(columnUrls[c][i]);
 	}
 }
 
 
 // Create the HTML representation for a new column
 function createColumn(c, columnId, columnName) {
-	openFunc = 'tabOpenIssues(' + c + ',"' + columnName + '")';
+	openFunc = 'tabOpenIssues(' + c + ')';
 	console.log(openFunc);
 	var column = $(
 			'<div class="cardcolumn">' +
