@@ -115,6 +115,12 @@ const optionDefinitions = [
 		defaultValue: 'https://github.hpe.com/api/v3'
 	},
 	{
+		name: 'baseurlui',
+		type: String,
+		description: 'Base endpoint for GitHub as seen from the UI. Optional, if not set will be derived from baseurl',
+		defaultValue: ''
+	},
+	{
 		name: 'logfile',
 		type: String,
 		description: 'Log file path. Default: /var/tmp/yoda-webhook/yoda-webhook.log',
@@ -259,8 +265,10 @@ function parseOptions() {
 	});
 
 	// Derived detauls
-	var url = new URL(options['baseurl']);
-	options['baseurlui'] = url.protocol + "//" + url.hostname + "/"; 
+	if (options['baseurlui'] == "") {
+		var url = new URL(options['baseurl']);
+		options['baseurlui'] = url.protocol + "//" + url.hostname + "/";
+	} 
 	
 	logger.info(options);
 }
