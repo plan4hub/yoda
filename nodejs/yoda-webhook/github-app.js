@@ -62,7 +62,10 @@ function authorize(payload) {
 				userAgent: 'yoda-webhook',
 				baseUrl: configuration.getOption('baseurl'),
 				log: logger,
-				auth: authString
+				auth: authString,
+				request: {
+		      		agent: configuration.getProxy()
+				} 
 			});
 
 			resolve(octokit);

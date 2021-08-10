@@ -18,6 +18,8 @@
     "eventsource": "",
     "http": "",
     "https": "",
-    "log4js": "^6.1.0"
+    "log4js": "^6.1.0",
+    "http-proxy-agent": "",
+    "https-proxy-agent": ""
   }
 }
