@@ -21,7 +21,7 @@ function init() {
 	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));
 	
 	auth = createAppAuth({
-		  id: configuration.getOption('app-appid'),
+		  appId: configuration.getOption('app-appid'),
 		  privateKey: pem,
 		  clientId: configuration.getOption('app-clientid'),
 		  clientSecret: configuration.getOption('app-clientsecret'),
