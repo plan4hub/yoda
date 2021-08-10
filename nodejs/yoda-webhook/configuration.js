@@ -167,6 +167,12 @@ const optionDefinitions = [
 		description: 'HTTPS certificate key.'
 	},
 	{
+		name: 'noproxy',
+		type: Boolean,
+		description: 'Do not use proxy even if http_proxy/https_proxy environment variable set. Default false.',
+		defaultValue: false
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
@@ -274,17 +280,19 @@ function parseOptions() {
 		options['baseurlui'] = url.protocol + "//" + url.hostname + "/";
 	} 
 	
-	// Using http proxy?
-	if (process.env.http_proxy != undefined && process.env.http_proxy != "" && url.protocol.replace(":", "") === "http") {
-		options['agent'] = process.env.http_proxy;
-		proxy = new HttpProxyAgent(process.env.http_proxy);
-
-	}
+	if (options['noproxy'] == false) {
+		// Using http proxy?
+		if (process.env.http_proxy != undefined && process.env.http_proxy != "" && url.protocol.replace(":", "") === "http") {
+			options['agent'] = process.env.http_proxy;
+			proxy = new HttpProxyAgent(process.env.http_proxy);
 	
-	// or maybe https proxy?
-	if (process.env.https_proxy != undefined && process.env.https_proxy != "" && url.protocol.replace(":", "") === "https") {
-		options['agent'] = process.env.https_proxy;
-		proxy = new HttpsProxyAgent(process.env.https_proxy);
+		}
+		
+		// or maybe https proxy?
+		if (process.env.https_proxy != undefined && process.env.https_proxy != "" && url.protocol.replace(":", "") === "https") {
+			options['agent'] = process.env.https_proxy;
+			proxy = new HttpsProxyAgent(process.env.https_proxy);
+		}
 	}
 
 	logger.info(options);
