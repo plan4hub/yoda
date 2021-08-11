@@ -18,6 +18,7 @@
     "eventsource": "",
     "http": "",
     "https": "",
-    "log4js": "^6.1.0"
+    "log4js": "^6.1.0",
+    "octokit": "^1.4.0"
   }
 }
