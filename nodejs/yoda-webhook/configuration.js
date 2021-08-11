@@ -1,15 +1,11 @@
-module.exports = {parseOptions, getOption, getProxy};
+module.exports = {parseOptions, getOption};
 
 // Main options array
 var options;
-var proxy;
 
 var log4js = require('log4js');
 var logger = log4js.getLogger();
 logger.level = "INFO"; // To be sure we get some tracing during options parsing and final log level setting.
-
-const HttpProxyAgent = require('http-proxy-agent');
-const HttpsProxyAgent = require('https-proxy-agent');
 
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
@@ -167,12 +163,6 @@ const optionDefinitions = [
 		description: 'HTTPS certificate key.'
 	},
 	{
-		name: 'noproxy',
-		type: Boolean,
-		description: 'Do not use proxy even if http_proxy/https_proxy environment variable set. Default false.',
-		defaultValue: false
-	},
-	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
@@ -274,34 +264,15 @@ function parseOptions() {
 	  }
 	});
 
-	// Derived / environment given defaults
-	var url = new URL(options['baseurl']);
+	// Derived detauls
 	if (options['baseurlui'] == "") {
+		var url = new URL(options['baseurl']);
 		options['baseurlui'] = url.protocol + "//" + url.hostname + "/";
 	} 
 	
-	if (options['noproxy'] == false) {
-		// Using http proxy?
-		if (process.env.http_proxy != undefined && process.env.http_proxy != "" && url.protocol.replace(":", "") === "http") {
-			options['agent'] = process.env.http_proxy;
-			proxy = new HttpProxyAgent(process.env.http_proxy);
-	
-		}
-		
-		// or maybe https proxy?
-		if (process.env.https_proxy != undefined && process.env.https_proxy != "" && url.protocol.replace(":", "") === "https") {
-			options['agent'] = process.env.https_proxy;
-			proxy = new HttpsProxyAgent(process.env.https_proxy);
-		}
-	}
-
 	logger.info(options);
 }
 
 function getOption(option) {
 	return options[option];
-}
-
-function getProxy() {
-	return proxy;
 }

@@ -21,7 +21,7 @@ function init() {
 	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));
 	
 	auth = createAppAuth({
-		  appId: configuration.getOption('app-appid'),
+		  id: configuration.getOption('app-appid'),
 		  privateKey: pem,
 		  clientId: configuration.getOption('app-clientid'),
 		  clientSecret: configuration.getOption('app-clientsecret'),
@@ -62,10 +62,7 @@ function authorize(payload) {
 				userAgent: 'yoda-webhook',
 				baseUrl: configuration.getOption('baseurl'),
 				log: logger,
-				auth: authString,
-				request: {
-		      		agent: configuration.getProxy()
-				} 
+				auth: authString
 			});
 
 			resolve(octokit);

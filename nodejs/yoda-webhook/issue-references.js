@@ -16,10 +16,7 @@ function authorizeUser() {
 		userAgent: 'yoda-webhook',
 		baseUrl: configuration.getOption('baseurl'),
 		log: logger,
-		auth: authString,
-		request: {
-      		agent: configuration.getProxy()
-		} 
+		auth: authString
 	});
 	return octokit;
 }
