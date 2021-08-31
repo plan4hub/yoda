@@ -973,7 +973,7 @@ var yoda = (function() {
 			} else if (fullExport == "textMatch") {
 				headers['Accept'] = 'application/vnd.github.symmetra-preview.text-match+json';
 			} else {
-				headers['Accept'] = 'application/vnd.github.symmetra-preview+json';
+				headers['Accept'] = 'application/vnd.github.mercy-preview+json';
 			}
 
 			if (userId == "" || accessToken == "") {
@@ -1212,6 +1212,8 @@ var yoda = (function() {
 		getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
 			var directory = path.split("/").slice(0, -1).join("/"); 
 			var file = path.split("/").slice(-1);
+			console.log("owner: " + owner + ", repo: " + repo + ", path: " + path + ", branch: " + branch + ", directory: " + directory + ", file: " + file);
+			
 			// First we will get the directory information in order to retrieve the git_url (blob) reference for the file
 			var getFileUrl = yoda.getGithubUrl() + "repos/" + owner + "/" + repo + "/contents/" + directory;
 			if (branch != "" && branch != null)
@@ -1224,12 +1226,14 @@ var yoda = (function() {
 				console.log(response);
 				
 				// Now, let's search the response / directory entries looking for the filename requested.
-				blobUrl = null;
+				var blobUrl = null;
 				for (var i = 0; i < response.length; i++)
 					if (response[i].name == file)
 						blobUrl = response[i].git_url;
-				if (blobUrl == null)
-					errorFunc("No such file"); 
+				if (blobUrl == null || blobUrl == "null") {
+					errorFunc("No such file");
+					return; 
+				}
 				console.log("blob_url: " + blobUrl);
 				
 				$.ajax({
