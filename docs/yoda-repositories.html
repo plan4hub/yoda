@@ -153,6 +153,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Check to scan all branches for JSON descriptor file.</span>
 		</div>
 		
+		<div class="field">
+			<label>Branch filter</label>
+			<input type="text" id="branchfilter" size="10" value="">
+			<span class="tooltip">Regular expression used to filter off branches (for getting JSON descriptors). Blank to skip.</span>
+		</div>
+		
+		<div class="field">
+			<label>Title</label>
+			<input type="text" id="title" size="40" value="">
+			<span class="tooltip">Table title</span>
+		</div>
 	
 		<button id="drawbutton" onclick="startTable(false)">Draw</button>
 		<button id="downloadbutton" onclick="startTable(true)">Download</button>
@@ -171,7 +182,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
 		
 		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#catlabel", "catlabel");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
@@ -182,6 +192,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#descfile", "descfile");
 		yoda.decodeUrlParamBoolean("#allbranches", "allbranches");
 
+		yoda.decodeUrlParam("#title", "title");
+		yoda.decodeUrlParam("#branchfilter", "branchfilter");
+		
 		yoda.decodeUrlParam("#hlformat", "hlformat");
 		yoda.decodeUrlParam("#sformat", "sformat");
 		yoda.decodeUrlParam("#ssformat", "ssformat");

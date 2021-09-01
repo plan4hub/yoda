@@ -52,6 +52,8 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "topicformat");
 	params = addIfNotDefault(params, "repoformat");
 	params = addIfNotDefault(params, "descfile");
+	params = addIfNotDefault(params, "title");
+	params = addIfNotDefault(params, "branchfilter");
 	
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
@@ -108,38 +110,9 @@ function getFormat(formatArray, index) {
 	return f;
 }
 
-//Parse RN markdown to HTML (if any)
-function parseRNMarkdown(markdown) {
-//	console.log(markdown);
-	var markdownUrl = yoda.getGithubUrl() + "markdown";
-	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
-//	console.log("markdownUrl: " + markdownUrl);
-
-	
-	var urlData = {
-			"text": markdown
-	};
-	
-	var result = "";
-	$.ajax({
-		url: markdownUrl,
-		type: 'POST',
-		async: false, 
-		data: JSON.stringify(urlData),
-		success: function(data) { result = data;},
-		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
-		complete: function(jqXHR, textStatus) { }
-	});
-	
-//	console.log(result);
-	return result;
-}
-
-
 //Create a List node to based on the given issue.
 function formatRepo(repo) {
 	var repoFormat = $("#repoformat").val();
-	var repo = yoda.getUrlRepo(issue.url);
 	
 	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
 		var newLine = "<br>";
@@ -148,165 +121,46 @@ function formatRepo(repo) {
 	
 	var repoText = "";
 	
-	// HTML?
-	if ($('input:radio[name="outputformat"]:checked').val()== "html") {
-		rnText = parseRNMarkdown(rnText);
-	}
 	
 	// substitude into template
 	repoText = repoFormat;
 	repoText = repoText.replace(/%t/, repo.description);
 	repoText = repoText.replace(/%d/, $('#owner').val() + "/" + repo.name);
 	repoText = repoText.replace(/%n/, repo.name);
-	repoText = repoText.replace(/%r/, rnText);
 
 	
-	repoText = repoText.replace(/%x/, "");
-	repoText = repoText.replace(/%y/, title);
+//	repoText = repoText.replace(/%x/, "");
+//	repoText = repoText.replace(/%y/, title);
 	
 	return repoText;
 }
 
-function makeTable(headline, changesOrKnown, draw) {
-	var rn = document.getElementById("RN");
+function makeTable() {
+	var rn = document.getElementById("REPOS");
 	
 	var repoList = $("#repolist").val();
-	var rnText = "";
-	
-	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
-	if (draw == "known")
-		var rnLabelTypes = $("#rnknownlabeltypes").val();
-	else
-		var rnLabelTypes = $("#rnlabeltypes").val();
-	var rnLabelTypesList = rnLabelTypes.split(",");
-	
-	// Skip label
-	var rnSkipLabel = $("#rnskiplabel").val();
-
-//  Will be something like...
-//	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
-//	var issueTypeHeading = ["Added Features", "Solved Issues"];
+	var repoText = "";
 	
 	// Get formatting
 	var hlFormat = $("#hlformat").val().split(",");
 	var sFormat = $("#sformat").val().split(",");
 	var ssFormat = $("#ssformat").val().split(",");
 	var listFormat = $("#listformat").val().split(",");
-	var catFormat = $("#catformat").val();
 
 	// Headline
-	rnText += getFormat(hlFormat, 0) + headline + $("#milestonelist").val() + getFormat(hlFormat, 1);
+	repoText += getFormat(hlFormat, 0) + $("#title").val() + getFormat(hlFormat, 1);
 	
-	// Categories. First build list based on regular expression (if any)
-	var categories = [];
-	var catLabel = $("#catlabel").val().split(",");
-	if (catLabel.length == 2) {
-		var catReg = new RegExp(catLabel[1]);
-		for (var i = 0; i < repoIssues.length; i++) {
-			for (var l=0; l < repoIssues[i].labels.length; l++) {
-				var labelName = repoIssues[i].labels[l].name;
-				var res = labelName.match(catReg);
-				if (res != null) {
-					catName = labelName;
-					if (res[1] != undefined)
-						catName = res[1];
-					if (categories.findIndex(function(c) {return (c.labelName == labelName)}) == -1) {
-						console.log("Found new category: " + catName);
-						categories.push({labelName: labelName, catName: catName});
-					}
-				}
-			}
-		}
-		
-		// Sort the labels (before generic) alphabetically
-		categories = categories.sort(function(a,b) {return (a.catName < b.catName?-1:1);});
-		
-		// Add fallback category
-		categories.push({labelName: "_FALLBACK_", catName: catLabel[0]});
-		
-		console.log("List of categories:");
-		console.log(categories);
-	} else {
-		// Synthesize a category (hack to allow looping overit below).
-		categories.push({labelName: "_DUMMY_"});
-	}
-			
 	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += getFormat(sFormat, 0) + changesOrKnown + repoList[r] + getFormat(sFormat, 1);
-
-		// Loop over labelTypes (typically Defects, Fixes)
-		for (var t = 0; t < rnLabelTypesList.length; t++) {
-			var rnList = "";
-
-			// Loop over categories (possibly the single _DUMMY_ entry - see above
-			for (var c = 0; c < categories.length; c++) {
-				var categoryEstimate = 0;
-				var categoryHeader = "";
-				if (categories[c].labelName != "_DUMMY_") {
-					categoryHeader = getFormat(listFormat, 2) + catFormat + getFormat(listFormat, 3);
-					categoryHeader = categoryHeader.replace(/%c/, categories[c].catName);
-				}
-				var issuesInCategory = 0;
-
-				// Loop over the issues putting into the right categories.
-				for (var i = 0; i < repoIssues.length; i++) {
-					// Match repo?.
-					var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
-					if (repository != repoList[r])
-						continue;
-
-					// Match issue type (in label)
-					if (!yoda.isLabelInIssue(repoIssues[i], rnLabelTypesList[t].split("|")[0]))
-						continue;
-
-					// Match category (if using categories at all)
-					// What if several labels match- suggest we add them in both/all places where there is a match.
-					if (!yoda.isLabelInIssue(repoIssues[i], categories[c].labelName) &&
-							categories[c].labelName != "_FALLBACK_" && categories[c].labelName != "_DUMMY_")
-						continue;
-
-					// FALLBACK handling
-					if (categories[c].labelName == "_FALLBACK_") {
-						var otherFound = false;
-						// Check if labels match any of the categories.
-						for (var c1 = 0; c1 < categories.length; c1++)
-							if (c != c1 && yoda.isLabelInIssue(repoIssues[i], categories[c1].labelName))
-								otherFound = true;
-						if (otherFound)
-							continue;
-					}
-
-					// Should issue be skipped
-					if (yoda.isLabelInIssue(repoIssues[i], rnSkipLabel))
-						continue;
-
-					if (issuesInCategory++ == 0)
-						rnList += categoryHeader;
-					
-					var issueEstimate = yoda.getBodyEstimate(repoIssues[i].body);
-					if (issueEstimate != null)
-						categoryEstimate += issueEstimate;
-					
-					rnList += getFormat(listFormat, 2) + formatIssueRN(repoIssues[i]) + getFormat(listFormat, 3);
-				}
-				
-				// Update category total
-				rnList = rnList.replace(/%z/, categoryEstimate);
-			}
-
-			if (rnList != "") {
-				// Put header and list, but only if non-empty.
-				rnText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
-				rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
-			}
-		}
+		repoText += getFormat(sFormat, 0) + repoDetails[r].name + " "  + getFormat(sFormat, 1);
+//		repoText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
+//		repoText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
 	}
 
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
-		rn.innerHTML = rnText;
+		rn.innerHTML = repoText;
 	} else {
-		rn.innerHTML = "<pre>" + rnText + "</pre>";
+		rn.innerHTML = "<pre>" + repoText + "</pre>";
 	}
 
 	// Download?
@@ -314,12 +168,12 @@ function makeTable(headline, changesOrKnown, draw) {
 		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
 		console.log("Downloading to " + fileName);
 		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
-		yoda.downloadFileWithType(appType, rnText, fileName);		
+		yoda.downloadFileWithType(appType, repoText, fileName);		
 	}
 
 	// Copy to clipboard
-	copy_text("RN");
-	yoda.updateUrl(getUrlParams() + "&draw=" + draw);
+	copy_text("REPOS");
+	yoda.updateUrl(getUrlParams() + "&draw=table");
 }
 
 // -----------
@@ -338,12 +192,11 @@ function updateRepos() {
 
 // -------------
 
-
 function updateDescriptorLoop(repoIndex, branchIndex) {
 	console.log("updateDescriptorLoop", repoIndex, branchIndex);
 	if (repoIndex < repoList.length && $("#descfile").val() != "") {
 		if (branchIndex < repoDetails[repoIndex].branches.length) {
-			// Get file   - 		getGitFile(owner, repo, path, branch, finalFunc, errorFunc)
+			// Get file- 
 			yoda.getGitFile($("#owner").val(), repoDetails[repoIndex].name, $("#descfile").val(), repoDetails[repoIndex].branches[branchIndex].name, 
 			function(data) {
 				repoDetails[repoIndex].branches[branchIndex].file = JSON.parse(data);
@@ -360,10 +213,9 @@ function updateDescriptorLoop(repoIndex, branchIndex) {
 	} else {
 		console.log("RepoDetails:");
 		console.log(repoDetails);
+		makeTable();
 	}
 }
-
-
 
 
 function updateRepoDetails(repoIndex) {
