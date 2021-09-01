@@ -95,48 +95,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Output format</span>
 		</div>
 		
-		<div class="field">
-			<label>Table Layout</label>
-			<input type="checkbox" id="tablelayout" checked="checked" onchange="changeOutput()">
-			<span class="tooltip">Table Layout</span>
-		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
-			<label>Headline format</label>
-			<input type="text" id="hlformat" size="20"></input>
-			<span class="tooltip">Headline formatting. Put pre-text (comma) post-text</span>
+			<label>Title format</label>
+			<input type="text" id="titleformat" size="20"></input>
+			<span class="tooltip">Title formatting. Put pre-text (comma) post-text</span>
 		</div>
 		
 		<div class="field">
-			<label>Section format</label>
-			<input type="text" id="sformat" size="20"></input>
-			<span class="tooltip">Section formatting. Put pre-text (comma) post-text</span>
-		</div>
-		
-		<div class="field">
-			<label>Subsection format</label>
-			<input type="text" id="ssformat" size="20"></input>
-			<span class="tooltip">Subsection formatting. Put pre-text (comma) post-text</span>
-		</div>
-		
-		<div class="field">
-			<label>List format</label>
-			<input type="text" id="listformat" size="55"></input>
-			<span class="tooltip">List formatting. Put pre-text (comma) post-text (comma) pre-item (comma) post-item</span>
-		</div>
-		
-		<div class="field">
-			<label>Topic format</label>
-			<input type="text" id="topicformat" size="30"></input>
-			<span class="tooltip">Formatting for reposity topics (%t).</span>
-		</div>
-
-		<div class="field">
-			<label>Repository format</label>
-			<input type="text" id="repoformat" size="30"></input>
-			<span class="tooltip">Formatting for repository. Special fields are repository name (%n), id (org/name) (%d), title (%t)<br>. TODO: Extra fields</span>
+			<label>Fields</label>
+			<input type="text" id="fields" size="80"></input>
+			<span class="tooltip">Fields. Comma separated list. (more)</span>
 		</div>
 	</div>
 
@@ -184,7 +155,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#owner", "owner");
 		
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
-		yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
 
 		yoda.decodeUrlParamRadio("outputformat", "outputformat");
 		yoda.decodeUrlParam("#filename", "filename");
@@ -195,12 +165,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParam("#branchfilter", "branchfilter");
 		
-		yoda.decodeUrlParam("#hlformat", "hlformat");
-		yoda.decodeUrlParam("#sformat", "sformat");
-		yoda.decodeUrlParam("#ssformat", "ssformat");
-		yoda.decodeUrlParam("#listformat", "listformat");
-		yoda.decodeUrlParam("#topicformat", "topicformat");
-		yoda.decodeUrlParam("#repoformat", "repoformat");
+		yoda.decodeUrlParam("#titleformat", "titleformat");
+		yoda.decodeUrlParam("#fields", "fields");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

@@ -45,12 +45,8 @@ function getUrlParams() {
 		params += "&repolist=" + $("#repolist").val();
 	if ($("#milestonelist").val() != "")
 		params += "&milestonelist=" + $("#milestonelist").val();
-	params = addIfNotDefault(params, "hlformat");
-	params = addIfNotDefault(params, "sformat");
-	params = addIfNotDefault(params, "ssformat");
-	params = addIfNotDefault(params, "listformat");
-	params = addIfNotDefault(params, "topicformat");
-	params = addIfNotDefault(params, "repoformat");
+	params = addIfNotDefault(params, "titleformat");
+	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "descfile");
 	params = addIfNotDefault(params, "title");
 	params = addIfNotDefault(params, "branchfilter");
@@ -142,20 +138,69 @@ function makeTable() {
 	var repoText = "";
 	
 	// Get formatting
-	var hlFormat = $("#hlformat").val().split(",");
-	var sFormat = $("#sformat").val().split(",");
-	var ssFormat = $("#ssformat").val().split(",");
-	var listFormat = $("#listformat").val().split(",");
+	var titleFormat = $("#titleformat").val().split(",");
+	var fields = $("#fields").val().split(",");
 
 	// Headline
-	repoText += getFormat(hlFormat, 0) + $("#title").val() + getFormat(hlFormat, 1);
+	repoText += getFormat(titleFormat, 0) + $("#title").val() + getFormat(titleFormat, 1);
+	
+	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+		repoText += "<table><thead><tr>";
+		fields.forEach((f, fIndex) => {
+			repoText += "<td>" + f.split(":")[0] + "</td>";
+		});
+		repoText += "</tr><thead>";
+		repoText += "<tbody>";	
+	} else {
+		fields.forEach((f, fIndex) => {
+			repoText += f.split(":")[0] + " | ";
+		});
+		repoText += "\n";
+		fields.forEach((f, fIndex) => {
+			repoText += '-'.repeat(f.split(":")[0].length) + " | ";
+		});
+		repoText += "\n";
+	}
+	
 	
 	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
-		repoText += getFormat(sFormat, 0) + repoDetails[r].name + " "  + getFormat(sFormat, 1);
-//		repoText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
-//		repoText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
+		if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+			repoText += "<tr>";
+		
+		fields.forEach((f, fIndex) => {
+			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+				repoText += "<td>";
+			
+			// Value
+			switch (f.split(":")[1]) {
+				case '%r':
+					repoText += repoDetails[r].name;
+					break;
+				case '%d':
+					repoText += (repoDetails[r].description == null)? "" : repoDetails[r].description;
+					break;
+				case '%u':
+					if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+						repoText += '<a href="' + repoDetails[r].html_url + '" target="_blank">' + repoDetails[r].owner.login + "/" +  repoDetails[r].name + '</a>';
+					else
+						repoText += "[" + repoDetails[r].owner.login + "/" +  repoDetails[r].name + "](" + repoDetails[r].html_url + ")"; 
+					break;
+			}
+			
+			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+				repoText += "</td>";
+			else
+				repoText += " | ";
+		});
+		
+		if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+			repoText += "</tr>";
+		else
+			repoText += "\n";
+		
 	}
+	repoText += "</tbody>";
 
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		rn.innerHTML = repoText;
@@ -281,42 +326,15 @@ function changeOutput() {
 	
 	switch (value) {
 	case "html":
-		if ($('#tablelayout').is(":checked")) {
-			// HPE SA format
-			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
-			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
-			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
-			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
-			setDefaultAndValue("topicformat", "<td>" + "</td><td>%t%r</td>");
-			setDefaultAndValue("repoformat", '<td colspan=2 class="ic"><b>' + '</b></td>');
-			
-		} else {
-			setDefaultAndValue("hlformat", "<H1>,</H1>\\n");
-			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
-			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
-			setDefaultAndValue("listformat", "<UL>\\n,</UL>\\n,<LI>\\n,</LI>\\n");
-			setDefaultAndValue("topicformat", "%t (" +  ")<BLOCKQUOTE>%r</BLOCKQUOTE>");
-			setDefaultAndValue("repoformat", "<H4>" +  "</H4>");
-		}
+		// HPE SA format
+		setDefaultAndValue("titleformat", "<H1>,</H1>\\n");
+		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u");
 		break;
 
 	case "md":
 	case "rst":  // Note: for now same as md
-		if ($('#tablelayout').is(":checked")) {
-			setDefaultAndValue("hlformat", "# ,\\n\\n");
-			setDefaultAndValue("sformat", "## ,\\n\\n");
-			setDefaultAndValue("ssformat", "### ,\\n\\n");
-			setDefaultAndValue("listformat", "Number | Description\\n--------|-------------\\n,\\n,,\\n");
-			setDefaultAndValue("topicformat",  " | %t%x");
-			setDefaultAndValue("repoformat", "*"  + "*");
-		} else {
-			setDefaultAndValue("hlformat", "# ,\\n\\n");
-			setDefaultAndValue("sformat", "## ,\\n\\n");
-			setDefaultAndValue("ssformat", "### ,\\n\\n");
-			setDefaultAndValue("listformat", ",,-  ,\\n");
-			setDefaultAndValue("topicformat", "%t (" + ")%x");
-			setDefaultAndValue("repoformat", "*" + "*");
-		}
+		setDefaultAndValue("titleformat", "# ,\\n\\n");
+		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u");
 		break;
 	}
 }
