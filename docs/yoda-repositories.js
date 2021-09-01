@@ -173,7 +173,8 @@ function makeTable() {
 				repoText += "<td>";
 			
 			// Value
-			switch (f.split(":")[1]) {
+			var w = f.split(":")[1];
+			switch (w) {
 				case '%r':
 					repoText += repoDetails[r].name;
 					break;
@@ -185,6 +186,17 @@ function makeTable() {
 						repoText += '<a href="' + repoDetails[r].html_url + '" target="_blank">' + repoDetails[r].owner.login + "/" +  repoDetails[r].name + '</a>';
 					else
 						repoText += "[" + repoDetails[r].owner.login + "/" +  repoDetails[r].name + "](" + repoDetails[r].html_url + ")"; 
+					break;
+				case '%t':
+					repoText += repoDetails[r].topics.join(",");
+					break;
+				default:
+					if (w.startsWith("%o-")) {
+						var topic = w.substr(3);
+						if (repoDetails[r].topics.indexOf(topic) != -1) {
+							repoText += "Yes";
+						}
+					}
 					break;
 			}
 			
@@ -328,13 +340,13 @@ function changeOutput() {
 	case "html":
 		// HPE SA format
 		setDefaultAndValue("titleformat", "<H1>,</H1>\\n");
-		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u");
+		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u,Topics:%t");
 		break;
 
 	case "md":
 	case "rst":  // Note: for now same as md
 		setDefaultAndValue("titleformat", "# ,\\n\\n");
-		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u");
+		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u,Topics:%t");
 		break;
 	}
 }
