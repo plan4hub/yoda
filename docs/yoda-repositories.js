@@ -78,7 +78,7 @@ function copy_text(element) {
       }
 
     // Remove selection. TBD: Remove, when copy works.
-    // selection.removeAllRanges();
+    selection.removeAllRanges();
 }
 
 // Utility function
@@ -342,7 +342,6 @@ function updateRepoData() {
 		updateRepoDetails(0);
 	}, null);
 }
-
 
 // --------------
 
