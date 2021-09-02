@@ -224,12 +224,13 @@ function makeTable() {
 				else
 					repoText += " | ";
 			});
+			
+			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+				repoText += "</tr>";
+			else
+				repoText += "\n";
 		}
 		
-		if ($('input:radio[name="outputformat"]:checked').val() == "html") 
-			repoText += "</tr>";
-		else
-			repoText += "\n";
 		
 	}
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") 
