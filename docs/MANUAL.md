@@ -32,6 +32,7 @@ _________
 	- [Velocity Report](#velocity-report)
 	- [CFD Chart](#cfd-chart)
 	- [Release Notes](#release-notes)
+	- [Repository Overview](#repositories)
 - [Issue Tools](#issue-tools)
 	- [Kanban Board](#kanban-board)
 	- [Milestone Manager](#milestone-manager)
@@ -294,6 +295,24 @@ URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, 
 The report is available [here](yoda-release-notes.html).
 
 [Example](yoda-release-notes.html?owner=HewlettPackard&repolist=yoda-demo).  
+
+
+## Repositories
+
+Yoda has a tool to generate a table of repositories and their attributes. This can provide a good overview of repositories. It is possible to scope as well by name JSON files (in default branch or even per-branch) containing additional information related to the repository.
+
+Table columns can be defined by given a comma-separate list of "Column Header:tag". Possible tags are:
+
+- `%r`: The name of the repository
+- `%b`: The name of the branch
+- `%d`: The repository description
+- `%u`: The repository URL
+- `%t`: The list of topics for the repository separated by commas.
+- `%o-(topic)`: A true/false column for a given topic. If the topic is present, put `Yes` in the table cell, otherwise blank. Example: `%o-public`
+- `%j-(attribute)`: Assume JSON file as supplied is present in the branch (default or specific), search this file in order to find the attribute value. If not found, show blank. Attribute can be multi-level. Example: `%j-basicinfo.vendor`
+- `%i-(attribute)`: Access repository values returned from the GitHub API directly to return the value of attribute given. If note found, show blank. Can be multi-level.
+
+The report is available [here](yoda-repositories.html).
 
 
 # Issue Tools
