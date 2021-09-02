@@ -43,21 +43,14 @@ function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	if ($("#repolist").val() != "")
 		params += "&repolist=" + $("#repolist").val();
-	if ($("#milestonelist").val() != "")
-		params += "&milestonelist=" + $("#milestonelist").val();
-	params = addIfNotDefault(params, "titleformat");
 	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "descfile");
 	params = addIfNotDefault(params, "title");
-	params = addIfNotDefault(params, "branchfilter");
 	
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;
 
-	if ($('#tablelayout').is(":checked")) {
-		params += "&tablelayout=true";
-	}
 	if ($('#allbranches').is(":checked")) {
 		params += "&allbranches=true";
 	}
@@ -88,48 +81,21 @@ function copy_text(element) {
     // selection.removeAllRanges();
 }
 
-// Remove elements in array that have duplicates based on a given field.
-function uniqueArray(arr, field) {
-	return arr.filter(function(element, index, array, thisArg) {return array.findIndex(function(e, i, a, t) 
-			{if (index != i && element[field] == e[field]) return true; else return false;}) == -1;});
+// Utility function
+function accessAsString(object,properties){
+   	for(var index=0; index < properties.length; index++){
+    	// go to deeper into object until your reached time
+		if (object[properties[index]] == undefined)
+			return ""; 
+		object = object[properties[index]];
+	}
+   	// here we have reached time and can do something with it or just returning it
+   	var res = JSON.stringify(object);
+	if (res.startsWith('"') && res[res.length - 1] == '"')
+		res = res.substr(1, res.length - 2);
+	return res;
 }
 
-// --------
-// Add issues, making sure to avoid duplicates.
-function addIssues(oldIssues, newIssues) {
-	return uniqueArray(oldIssues.concat(newIssues), "url");
-}
-
-function getFormat(formatArray, index) {
-	var f = formatArray[index]; 
-	f = f.replace(/\\n/g, '\n');
-	return f;
-}
-
-//Create a List node to based on the given issue.
-function formatRepo(repo) {
-	var repoFormat = $("#repoformat").val();
-	
-	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
-		var newLine = "<br>";
-	else
-		var newLine = "&lt;br&gt;";
-	
-	var repoText = "";
-	
-	
-	// substitude into template
-	repoText = repoFormat;
-	repoText = repoText.replace(/%t/, repo.description);
-	repoText = repoText.replace(/%d/, $('#owner').val() + "/" + repo.name);
-	repoText = repoText.replace(/%n/, repo.name);
-
-	
-//	repoText = repoText.replace(/%x/, "");
-//	repoText = repoText.replace(/%y/, title);
-	
-	return repoText;
-}
 
 function makeTable() {
 	var rn = document.getElementById("REPOS");
@@ -138,11 +104,14 @@ function makeTable() {
 	var repoText = "";
 	
 	// Get formatting
-	var titleFormat = $("#titleformat").val().split(",");
 	var fields = $("#fields").val().split(",");
 
 	// Headline
-	repoText += getFormat(titleFormat, 0) + $("#title").val() + getFormat(titleFormat, 1);
+	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+		repoText += "<h1>" + $("#title").val() + "</h1>";
+	} else {
+		repoText += "# " + $("#title").val() + "\n";
+	}
 	
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		repoText += "<table><thead><tr>";
@@ -162,49 +131,100 @@ function makeTable() {
 		repoText += "\n";
 	}
 	
-	
 	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
-		if ($('input:radio[name="outputformat"]:checked').val() == "html") 
-			repoText += "<tr>";
-		
-		fields.forEach((f, fIndex) => {
-			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
-				repoText += "<td>";
-			
-			// Value
-			var w = f.split(":")[1];
-			switch (w) {
-				case '%r':
-					repoText += repoDetails[r].name;
-					break;
-				case '%d':
-					repoText += (repoDetails[r].description == null)? "" : repoDetails[r].description;
-					break;
-				case '%u':
-					if ($('input:radio[name="outputformat"]:checked').val() == "html") 
-						repoText += '<a href="' + repoDetails[r].html_url + '" target="_blank">' + repoDetails[r].owner.login + "/" +  repoDetails[r].name + '</a>';
-					else
-						repoText += "[" + repoDetails[r].owner.login + "/" +  repoDetails[r].name + "](" + repoDetails[r].html_url + ")"; 
-					break;
-				case '%t':
-					repoText += repoDetails[r].topics.join(",");
-					break;
-				default:
-					if (w.startsWith("%o-")) {
-						var topic = w.substr(3);
-						if (repoDetails[r].topics.indexOf(topic) != -1) {
-							repoText += "Yes";
-						}
-					}
-					break;
+		for (var b = 0; b < repoDetails[r].branches.length; b++) {
+			// Need to handle the situation that there is NO descriptor file...
+			if ($("#descfile").val() != "" && repoDetails[r].branches[b].file == undefined) {
+				console.log("Skipping branch " + repoDetails[r].branches[b].name + " as there is no descriptor file.");
+				continue; 
 			}
-			
+
 			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
-				repoText += "</td>";
-			else
-				repoText += " | ";
-		});
+				repoText += "<tr>";
+			
+			fields.forEach((f, fIndex) => {
+				if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+					repoText += "<td>";
+				
+				// Value
+				var w = f.split(":")[1];
+				switch (w) {
+					case '%r':
+						repoText += repoDetails[r].name;
+						break;
+					case '%b':
+						repoText += repoDetails[r].branches[b].name;
+						break;
+					case '%d':
+						repoText += (repoDetails[r].description == null)? "" : repoDetails[r].description;
+						break;
+					case '%u':
+						if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+							repoText += '<a href="' + repoDetails[r].html_url + '" target="_blank">' + repoDetails[r].owner.login + "/" +  repoDetails[r].name + '</a>';
+						else
+							repoText += "[" + repoDetails[r].owner.login + "/" +  repoDetails[r].name + "](" + repoDetails[r].html_url + ")"; 
+						break;
+					case '%t':
+						repoText += repoDetails[r].topics.join(",");
+						break;
+					default:
+						if (w.startsWith("%o-")) {
+							var topic = w.substr(3);
+							if (repoDetails[r].topics.indexOf(topic) != -1) {
+								repoText += "Yes";
+							}
+						}
+						if (w.startsWith("%j-")) {
+							// Need to go into JSON file. Let's hope it exists ... check that
+							if (repoDetails[r].branches[b].file != undefined) {
+								var aName = w.substr(3);
+								var aValue = accessAsString(repoDetails[r].branches[b].file, aName.split("."));
+								if (aValue.startsWith("http://") || aValue.startsWith("https://")) {
+									// Lookslike a link... Let's be smart about that.
+									if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+										repoText += '<a href="' + aValue + '" target="_blank">' + aValue + '</a>';
+									else
+										repoText += '[' + aValue + '](' + aValue + ')';
+								} else {
+									if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+										// Just add the value 
+										repoText += aValue;
+									} else {
+										// For MD, need to protect against new lines. will not work.
+										repoText += aValue.replace(/(\r\n|\n|\r)/gm, "");
+									}
+								}
+							}
+						}
+						if (w.startsWith("%i-")) {
+							var aName = w.substr(3);
+							var aValue = accessAsString(repoDetails[r], aName.split("."));
+							if (aValue.startsWith("http://") || aValue.startsWith("https://")) {
+								// Lookslike a link... Let's be smart about that.
+								if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+									repoText += '<a href="' + aValue + '" target="_blank">' + aValue + '</a>';
+								else
+									repoText += '[' + aValue + '](' + aValue + ')';
+							} else {
+								if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+									// Just add the value 
+									repoText += aValue;
+								} else {
+									// For MD, need to protect against new lines. will not work.
+									repoText += aValue.replace(/(\r\n|\n|\r)/gm, "");
+								}
+							}
+						}						
+						break;
+				}
+				
+				if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+					repoText += "</td>";
+				else
+					repoText += " | ";
+			});
+		}
 		
 		if ($('input:radio[name="outputformat"]:checked').val() == "html") 
 			repoText += "</tr>";
@@ -212,7 +232,8 @@ function makeTable() {
 			repoText += "\n";
 		
 	}
-	repoText += "</tbody>";
+	if ($('input:radio[name="outputformat"]:checked').val() == "html") 
+		repoText += "</tbody></table>";
 
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		rn.innerHTML = repoText;
@@ -250,7 +271,7 @@ function updateRepos() {
 // -------------
 
 function updateDescriptorLoop(repoIndex, branchIndex) {
-	console.log("updateDescriptorLoop", repoIndex, branchIndex);
+	// console.log("updateDescriptorLoop", repoIndex, branchIndex);
 	if (repoIndex < repoList.length && $("#descfile").val() != "") {
 		if (branchIndex < repoDetails[repoIndex].branches.length) {
 			// Get file- 
@@ -282,15 +303,20 @@ function updateRepoDetails(repoIndex) {
 		yoda.getLoop(getTopicsUrl, 1, [], function(data) {
 			repoDetails[repoIndex].topics = data[0].names;
 			
-			// Get branches?
-			if ($("#descfile").val() != "" && $('#allbranches').is(":checked")) {
+			// Get all branches?
+			if ($('#allbranches').is(":checked")) {
 				var getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches";
 				yoda.getLoop(getBranchUrl, 1, [], function(data) {
 					repoDetails[repoIndex].branches = data;
 					updateRepoDetails(repoIndex + 1);
 				}, null);
 			} else {
-				updateRepoDetails(repoIndex + 1);
+				// Not getting branches. BUT we do want to get the default branch always.
+				var getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches/" + repoDetails[repoIndex].default_branch;
+				yoda.getLoop(getBranchUrl, 1, [], function(data) {
+					repoDetails[repoIndex].branches = data;
+					updateRepoDetails(repoIndex + 1);
+				}, null);
 			}
 		}, null);
 	} else {
@@ -333,20 +359,3 @@ function setDefaultAndValue(id, value) {
 	element.value = value;
 }
 
-function changeOutput() {
-	value = $('input:radio[name="outputformat"]:checked').val();
-	
-	switch (value) {
-	case "html":
-		// HPE SA format
-		setDefaultAndValue("titleformat", "<H1>,</H1>\\n");
-		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u,Topics:%t");
-		break;
-
-	case "md":
-	case "rst":  // Note: for now same as md
-		setDefaultAndValue("titleformat", "# ,\\n\\n");
-		setDefaultAndValue("fields", "Repository:%r,Description:%d,URL:%u,Topics:%t");
-		break;
-	}
-}
