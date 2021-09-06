@@ -83,7 +83,7 @@ function copy_text(element) {
 
 
 function stripQuotes(str) {
-	if (str.startsWith('"') && str[str.length - 1] == '"')
+	if (str.startsWith('"') && str.length > 1 && str[str.length - 1] == '"')
 		return str.substr(1, str.length - 2);
 	else
 		return str;
@@ -131,7 +131,7 @@ function makeTable() {
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		repoText += "<table><thead><tr>";
 		fields.forEach((f, fIndex) => {
-			repoText += "<td>" + f.split(":")[0] + "</td>";
+			repoText += "<th>" + f.split(":")[0] + "</th>";
 		});
 		repoText += "</tr><thead>";
 		repoText += "<tbody>";	

@@ -163,6 +163,11 @@ td, th {
     padding: 8px;
 }
 
+thead {
+	top: 0;
+	position: sticky;
+}
+
 tr:nth-child(even){background-color: #f2f2f2}
 
 thead {
