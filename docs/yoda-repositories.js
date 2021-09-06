@@ -81,6 +81,14 @@ function copy_text(element) {
     selection.removeAllRanges();
 }
 
+
+function stripQuotes(str) {
+	if (str.startsWith('"') && str[str.length - 1] == '"')
+		return str.substr(1, str.length - 2);
+	else
+		return str;
+}
+
 // Utility function
 function accessAsString(object,properties){
    	for(var index=0; index < properties.length; index++){
@@ -89,13 +97,20 @@ function accessAsString(object,properties){
 			return ""; 
 		object = object[properties[index]];
 	}
-   	// here we have reached time and can do something with it or just returning it
-   	var res = JSON.stringify(object);
-	if (res.startsWith('"') && res[res.length - 1] == '"')
-		res = res.substr(1, res.length - 2);
+	
+	// If end result is an Array, we can do better than JSON.stringify.
+	var res = "";
+	if (Array.isArray(object)) {
+		for (var i = 0; i < object.length; i++) {
+			if (res != "")
+				res += ", ";
+			res += stripQuotes(JSON.stringify(object[i]));
+		}
+	} else {
+		res = stripQuotes(JSON.stringify(object));
+	}
 	return res;
 }
-
 
 function makeTable() {
 	var rn = document.getElementById("REPOS");
