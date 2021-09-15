@@ -175,7 +175,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Export events instead of issues</span>
 		</div>
 
-		<button id="exportbutton" onclick="startExport()">Export</button>
+		<button id="exportbutton" onclick="startExport(true)">Export</button>
+		<button id="tablebutton" onclick="startExport(false)">Show Table</button>
 	</div>
 
 	<div class="frame" id="exportorgframe" style="display:none">
@@ -184,12 +185,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	
 	<br>
-	<div class="frame">
+	<div class="frame" id="consoleframe">
 		<div class="field">
 			<label>Console</label>
 			<textarea cols="140" rows="15" id="console" readonly></textarea>
 		</div>
 	</div>
+	
+	<table id="issuesTable"></table>
 	
 	<div id="snackbar">Message goes here</div>
 	
@@ -234,9 +237,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			// Should we draw directly?
 			// Should we start export directly?
 			if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
-				startExport();
+				startExport(true);
+			}
+			if (yoda.decodeUrlParamBoolean(null, "table") == "true") {
+				startExport(false);
 			}
 		}, null);
+		
+		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+			$(".frame").hide();
+		}
 		
 		$(document).ready(function() {
 			$('#repolist').select2({

@@ -197,6 +197,8 @@ function exportIssues(issues) {
 	var data = [];
 	var fieldErrors = [];
 	for (var i = 0; i < issues.length; i++) {
+		var skipIssue = false;
+		
 //		console.log(issues[i]);
 		var el = {};
 		
@@ -369,6 +371,8 @@ function exportIssues(issues) {
 
 		// Add singlelabels
 		for (var s = 0; s < singleLabels.length; s++) {
+			if (singleLabels[s] == "")
+				continue;
 			if (yoda.isLabelInIssue(issues[i], singleLabels[s])) {
 				el[singleLabels[s]] = labelIndicator;
 			} else {
@@ -387,9 +391,15 @@ function exportIssues(issues) {
 		
 		// Add splitbody fields
 		for (var s = 0; s < splitbodyDef.length; s++) {
+			var fieldRequired = false;
 			// Right. Let's split into header and field
 			var header = splitbodyDef[s].split(":")[0];
 			var field = splitbodyDef[s].split(":")[1];
+			
+			if (field.startsWith("!")) {
+				fieldRequired = true;
+				field = field.substr(1);
+			}
 			
 			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
 			console.log(header, field, value);
@@ -405,34 +415,65 @@ function exportIssues(issues) {
 					d = new Date(year, month, day, hour, minute);
 					value = d.getUTCDate() + "-" + d.getUTCMonth() + "-" + d.getUTCFullYear(); // + " " + d.getUTCHours() + ":" + d.getUTCMinutes();
 				}
-				console.log(value);
 				el[header] = value;
+			} else {
+				if (fieldRequired)
+					skipIssue = true;
 			}
 		}
-		
-		data.push(el);
+
+		if (!skipIssue)
+			data.push(el);
 	}
 	
-	config = {
-			quotes: false,
-			quoteChar: '"',
-			delimiter: csvDelimiter,
-			header: true,
-			newline: "\r\n"
-		};
-
-	if (!$('#exportevents').is(":checked")) {
-		// Normal case
-		result = Papa.unparse(data, config);
-		yoda.downloadFile(result, outputFile);
-		logMessage("Info: Issues succesfully exported.");
+	if (exportToCsv) {
+		config = {
+				quotes: false,
+				quoteChar: '"',
+				delimiter: csvDelimiter,
+				header: true,
+				newline: "\r\n"
+			};
+	
+		if (!$('#exportevents').is(":checked")) {
+			// Normal case
+			result = Papa.unparse(data, config);
+			yoda.downloadFile(result, outputFile);
+			logMessage("Info: Issues succesfully exported.");
+		} else {
+			// Events case
+			// Ok, now we may want to continue doing the historic events per issue...
+			getIssuesEventStart(issues);
+		} 
+			
+		yoda.updateUrl(getUrlParams() + "&export=true");
 	} else {
-		// Events case
-		// Ok, now we may want to continue doing the historic events per issue...
-		getIssuesEventStart(issues);
-	} 
-		
-	yoda.updateUrl(getUrlParams() + "&export=true");
+		// Export to table instead
+		var table = document.getElementById("issuesTable");
+		table.innerHTML = "";
+		$("#consoleframe").hide();
+		var header = table.createTHead();
+		var headerRow = header.insertRow();     
+
+		if (data.length > 0) {
+			for (var h in data[0]) {
+				var cell = headerRow.insertCell();
+				cell.innerHTML = h;
+			}
+			
+			table.appendChild(document.createElement('tbody'));
+			var bodyRef = document.getElementById('issuesTable').getElementsByTagName('tbody')[0];
+
+			for (var r = 0; r < data.length; r++) {
+				var row = bodyRef.insertRow();
+				for (var h in data[0]) {
+					cell = row.insertCell();
+					cell.innerHTML = data[r][h];
+				}
+			}
+		}
+		yoda.updateUrl(getUrlParams() + "&table=true");
+	}
 }
 
 // 
@@ -556,8 +597,9 @@ function showRepos(repos) {
 
 	
 // -------------------------
-
-function startExport() {
+var exportToCsv = true;
+function startExport(exp) {
+	exportToCsv = exp;
 	$("#console").val("");
 	
 	if ($("#repolist").val() == "") 
