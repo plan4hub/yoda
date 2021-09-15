@@ -222,7 +222,10 @@ function exportIssues(issues) {
 				el["Number"] = issues[i].number;
 				break;
 			case "URL":
-				el["URL"] = '=HYPERLINK("' + issues[i].html_url + '")';
+				if (exportToCsv)
+					el["URL"] = '=HYPERLINK("' + issues[i].html_url + '")';
+				else
+					el["URL"] = '<a href="' + issues[i].html_url + '" target="_blank">' + issues[i].html_url + '</a>';
 				break;
 			case "State":
 				el["State"] = issues[i].state;
@@ -306,7 +309,10 @@ function exportIssues(issues) {
 			case "Epic URL":
 				var result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
-					el["Epic URL"] = '=HYPERLINK("' + result[0].url + '")';
+					if (exportToCsv)
+						el["Epic URL"] = '=HYPERLINK("' + result[0].url + '")';
+					else
+						el["Epic URL"] = '<a href="' + result[0].url + '" target="_blank">' + result[0].url + '</a>';
 				} else {
 					el["Epic URL"] = "";
 				}
