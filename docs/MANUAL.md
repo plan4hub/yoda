@@ -386,6 +386,8 @@ Columns mentioned in "Single label column definitions" are added based on the la
 
 Correspondingly, "Single label column regexps" add columns with label indicators to the CSV file. In this case, however, the colums are not explicitly named, only their pattern. For example, assuming that the labelling convention calls for prefixing customer encountered issues with "C - <customer name>", then the prefix "^C -" will cause all customer labels to received their own column, like "C - Acme Corp".
 
+It is also possible to define columns which will be extracted from value fields (using the `> (field) (value)` notation) from the body of the issue. Define those into the "Body Fields" line. Such columns are defined as a comma-separate list with the headline, then the field name. Default is "Fix Date:fix-date,Resolution Date:resolution-date"
+
 Finally, it is possible to detail if only open issues, only closed issues, or simply all issues should be exported. Further, the file name, CSV separator, and "Label indicator" may be specified as options.
 
 Issues exporter is available [here](yoda-exporter.html).

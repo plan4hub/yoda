@@ -33,6 +33,7 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "singlelabeldef");
 	params = addIfNotDefault(params, "sharedlabeldef");
 	params = addIfNotDefault(params, "splitlabeldef");
+	params = addIfNotDefault(params, "splitbodydef");
 	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "csvdelimiter");
 	params = addIfNotDefault(params, "labelindicator");
@@ -145,6 +146,7 @@ function exportIssues(issues) {
 	var singleLabelDef = $("#singlelabeldef").val();
 	var sharedLabelDef = $("#sharedlabeldef").val();
 	var splitLabelDef = $("#splitlabeldef").val();
+	var splitbodyDef = $("#splitbodydef").val().split(",");
 	var fieldValue = $("#fields").val();
 	var labelIndicator = $("#labelindicator").val();
 	var csvDelimiter = $("#csvdelimiter").val();
@@ -382,6 +384,32 @@ function exportIssues(issues) {
 				el[splitLabels[s]] = "";
 			}
 		}
+		
+		// Add splitbody fields
+		for (var s = 0; s < splitbodyDef.length; s++) {
+			// Right. Let's split into header and field
+			var header = splitbodyDef[s].split(":")[0];
+			var field = splitbodyDef[s].split(":")[1];
+			
+			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
+			console.log(header, field, value);
+			if (value != null) {
+				if (value.indexOf("GMT+1") != -1) { 
+					// This looks like a date. Let's assume that it has format DD/MM/YY HH:MM GMT+1
+					// new Date(year, monthIndex, day, hours, minut
+					day = parseInt(value.substr(0, 2));
+					month =  parseInt(value.substr(3, 2));
+					year =  parseInt(value.substr(6, 2)) + 2000;
+					hour = parseInt(value.substr(9, 2)) + 1;
+					minute = parseInt(value.substr(12, 2));
+					d = new Date(year, month, day, hour, minute);
+					value = d.getUTCDate() + "-" + d.getUTCMonth() + "-" + d.getUTCFullYear(); // + " " + d.getUTCHours() + ":" + d.getUTCMinutes();
+				}
+				console.log(value);
+				el[header] = value;
+			}
+		}
+		
 		data.push(el);
 	}
 	
