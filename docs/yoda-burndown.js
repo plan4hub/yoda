@@ -906,7 +906,10 @@ function burndown(issues) {
 
 	remainingIdealFullArray[remainingIdealArray.length - 1] = 0;
 	if (burndownDateIndex != -1) {
-		remainingIdealArray[burndownDateIndex] = 0;
+		if (burndownDateIndex + 1 < remainingIdealArray.length)
+			remainingIdealArray[burndownDateIndex + 1] = 0;
+		else 
+			remainingIdealArray[burndownDateIndex] = 0;
 	} else {
 		// Burndown to second to last day
 		remainingIdealArray[remainingIdealArray.length - 1] = 0;
