@@ -408,7 +408,6 @@ function exportIssues(issues) {
 			}
 			
 			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
-			console.log(header, field, value);
 			if (value != null) {
 				if (value.indexOf("GMT+1") != -1) { 
 					// This looks like a date. Let's assume that it has format DD/MM/YY HH:MM GMT+1
@@ -425,6 +424,8 @@ function exportIssues(issues) {
 			} else {
 				if (fieldRequired)
 					skipIssue = true;
+				else
+					el[header] = "";
 			}
 		}
 
