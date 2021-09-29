@@ -415,7 +415,7 @@ function exportIssues(issues) {
 					day = parseInt(value.substr(0, 2));
 					month =  parseInt(value.substr(3, 2));
 					year =  parseInt(value.substr(6, 2)) + 2000;
-					value = year + "-" + month + "-" + day; 
+					value = year + "-" + String(month).padStart(2, '0') + "-" + String(day).padStart(2, '0'); 
 				}
 				el[header] = value;
 			} else {
