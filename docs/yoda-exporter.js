@@ -415,10 +415,7 @@ function exportIssues(issues) {
 					day = parseInt(value.substr(0, 2));
 					month =  parseInt(value.substr(3, 2));
 					year =  parseInt(value.substr(6, 2)) + 2000;
-					hour = parseInt(value.substr(9, 2)) + 1;
-					minute = parseInt(value.substr(12, 2));
-					d = new Date(year, month, day, hour, minute);
-					value = d.getUTCDate() + "-" + d.getUTCMonth() + "-" + d.getUTCFullYear(); // + " " + d.getUTCHours() + ":" + d.getUTCMinutes();
+					value = year + "-" + month + "-" + day; 
 				}
 				el[header] = value;
 			} else {
