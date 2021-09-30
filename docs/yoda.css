@@ -60,7 +60,7 @@ input[type=number] {
     position: absolute;
     z-index: 1;
     top: 5px;
-    left: 95%;
+    /* left: 95%; */
     
  	opacity: 0;
     transition: opacity 1s;
