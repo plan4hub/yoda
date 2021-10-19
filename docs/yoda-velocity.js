@@ -122,7 +122,7 @@ function updateMilestones(repoIndex) {
 		var milestonesSelected = false;
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (firstMilestoneShow && milestoneListUrl != null && milestoneListUrl.indexOf(commonMilestones[c]) != -1) { 
+			if (firstMilestoneShow && milestoneListUrl != null && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) {
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
