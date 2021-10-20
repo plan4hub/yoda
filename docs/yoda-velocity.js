@@ -119,10 +119,16 @@ function updateMilestones(repoIndex) {
 		console.log("The common milestones are: " + commonMilestones);
 		
 		var milestoneListUrl = yoda.decodeUrlParam(null, "milestonelist");
+		console.log("milestoneListUrl: " + milestoneListUrl);
+		
+		// We need to consider that milestoneListUrl can be either a regular expression (if we see a *) OR a list of specific milestones.
+		
 		var milestonesSelected = false;
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (firstMilestoneShow && milestoneListUrl != null && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) {
+			if (firstMilestoneShow && 
+				(milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
+				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1)) {
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
