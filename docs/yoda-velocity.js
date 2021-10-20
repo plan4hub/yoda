@@ -127,8 +127,8 @@ function updateMilestones(repoIndex) {
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
 			if (firstMilestoneShow && 
-				(milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
-				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1)) {
+				((milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
+				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1))) {
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
