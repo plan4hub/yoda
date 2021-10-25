@@ -692,7 +692,7 @@ var yoda = (function() {
 		
 		// Count number of completed tasks (lines in body starting with "- [x]" or "- [X]"
 		getbodyCompletedTasks: function(body) {
-			if (body == undefined || body == null)
+			if (body == undefined || body == null) 
 				return 0;
 			var res = body.match(/^- \[(x|X)\]/mg);
 			if (res != null) {
