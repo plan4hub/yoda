@@ -120,12 +120,13 @@ var yoda = (function() {
 	// The data part is returned.
 	// Optional parameter index is used to indicate that subsequent matches should be returned.
 	function getBodyField(body, start, data, index) {
+		
 		if (index == undefined) {
 			index = 0;
 		}
-		if (body == null) {
-			return null;
-		}
+		if (body == undefined || body == null) 
+				return null;
+
 		var reg = new RegExp(start + data, 'mg');
 		var res = body.match(reg);
 
@@ -667,6 +668,8 @@ var yoda = (function() {
 		// Get all data from getBodyFields (by iterating)
 		getAllBodyFields: function(body, start, data) {
 			var result = [];
+			if (body == undefined || body == null) 
+				return result;
 			for (var i = 0; (r = getBodyField(body, start, data, i)) != null; i++) {
 				result.push(r);
 			}
@@ -705,6 +708,8 @@ var yoda = (function() {
 		// Retrieve # of tasks (including completed)
 		// Count number of tasks (lines in body starting with "- [x]" or "- [X]" or "- [ ]"
 		getbodyTasks: function(body) {
+			if (body == undefined || body == null) 
+				return 0;
 			var res = body.match(/^- \[(x|X| )\]/mg);
 			if (res != null) {
 				return res.length;
