@@ -258,8 +258,8 @@ function isParentOf(issue1, issue2) {
 	var refOption1 = "> partof " + owner1 + "/" + repo1 + "#" + number1 +" ";
 	var refOption2 = "> partof #" + number1 + " ";
 	
-	if ((issue2.body.indexOf(refOption1) != -1) ||
-		((owner1 == owner2) && (repo1 == repo2) && issue2.body.indexOf(refOption2) != -1)) {
+	if ((issue2.body != undefined && issue2.body != null) && ((issue2.body.indexOf(refOption1) != -1) ||
+		((owner1 == owner2) && (repo1 == repo2) && issue2.body.indexOf(refOption2) != -1))) {
 //		console.log(issue1.url + " is a parent of " + issue2.url);
 		return true;
 	} 
