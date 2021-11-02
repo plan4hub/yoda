@@ -146,7 +146,11 @@ function exportIssues(issues) {
 	var singleLabelDef = $("#singlelabeldef").val();
 	var sharedLabelDef = $("#sharedlabeldef").val();
 	var splitLabelDef = $("#splitlabeldef").val();
-	var splitbodyDef = $("#splitbodydef").val().split(",");
+	if ($("#splitbodydef").val() == "")
+		var splitbodyDef = [];
+	else
+		var splitbodyDef = $("#splitbodydef").val().split(",");
+ 
 	var fieldValue = $("#fields").val();
 	var labelIndicator = $("#labelindicator").val();
 	var csvDelimiter = $("#csvdelimiter").val();
