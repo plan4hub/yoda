@@ -200,6 +200,7 @@ function exportIssues(issues) {
 	console.log("fields: " + fieldValue);
 	var data = [];
 	var fieldErrors = [];
+	var numberRoll = 0;
 	for (var i = 0; i < issues.length; i++) {
 		var skipIssue = false;
 		
@@ -215,6 +216,9 @@ function exportIssues(issues) {
 			switch (fName) {
 			case "":
 				// Never mind, not a field.
+				break;
+			case "Index":
+				el["Index"] = ++numberRoll;
 				break;
 			case "Owner":
 				el["Owner"] = $("#owner").val();
