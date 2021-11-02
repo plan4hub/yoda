@@ -1581,6 +1581,37 @@ var yoda = (function() {
 			}, failFunc);
 		},
 
+		updateIssueCommentsLoop: function(issues, okFunc, failFunc, index) {
+			if (index == undefined)
+				index = 0;
+			if (index == issues.length) {
+				okFunc(issues);
+			} else {
+				yoda.getLoop(issues[index].comments_url, 1, [], 
+					function(comments) {
+						issues[index].comments_array = comments; 
+						yoda.updateIssueCommentsLoop(issues, okFunc, failFunc, index + 1); 
+					}, 
+					function(errorText) { 
+						failFunc(errorText); 
+					});
+			}
+		},
+		
+		updateGitHubIssuesReposWithComments: function (owner, repoList, labelFilter, stateFilter, addFilterFunc, okFunc, failFunc) {
+			yoda.updateGitHubIssuesRepos(owner, repoList, labelFilter, stateFilter, addFilterFunc, function(issues) {
+				// Now retrive comments for all issues. Can be time consuming!
+				yoda.updateIssueCommentsLoop(issues, okFunc, failFunc);
+			}, failFunc);
+        },
+
+		updateGitHubIssuesOrgWithComments: function (owner, labelFilter, stateFilter, okFunc, failFunc) {
+			yoda.updateGitHubIssuesOrg(owner, labelFilter, stateFilter, function(issues) {
+				// Now retrive comments for all issues. Can be time consuming!
+				yoda.updateIssueCommentsLoop(issues, okFunc, failFunc);
+			}, failFunc); 
+		},
+
 		// ----------------------------------
 		
 		// Deep copy an object by making an intermediate JSON object.

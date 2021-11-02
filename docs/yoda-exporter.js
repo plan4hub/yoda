@@ -353,6 +353,42 @@ function exportIssues(issues) {
 					el["Epic Repo"] = "";
 				}
 				break;
+			case "Comments":
+				var comment = "";
+				for (var ca = 0; ca < issues[i].comments_array.length; ca++) {
+					var date = new Date(issues[i].comments_array[ca].created_at)
+					var body = issues[i].comments_array[ca].body;
+					var rcStart = body.indexOf('> RC');
+					if (rcStart == -1)
+						rcStart = body.indexOf('>RC');
+					if (rcStart == -1)
+						continue;
+						
+					var lineStart = body.indexOf('\n', rcStart) + 1;
+					var lineEnd = body.indexOf('\n', lineStart);
+					if (lineEnd == -1)
+						var line = body.substr(lineStart);
+					else
+						var line = body.substr(lineStart, lineEnd - lineStart - 1);
+					console.log(lineStart, lineEnd, line);
+					
+					if (exportToCsv) {
+//						if (comment == "")
+//							comment = '"';
+//						else
+//							comment += "\n";
+					} else {
+						if (comment != "")
+							comment += "<br>";	
+					}
+					
+					comment += yoda.formatDate(date) + ": " + line;
+				}
+//				if (exportToCsv && comment != "")
+//					comment += '"';
+				
+				el["Comments"] = comment;
+				break;
 
 			default:
 				// Let's search between sharedLabels.
@@ -627,10 +663,20 @@ function startExport(exp) {
 	exportToCsv = exp;
 	$("#console").val("");
 	
-	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	// Need comments?
+	if ($("#fields").val().indexOf("Comments") != -1) {
+		// Yes, need comments
+		if ($("#repolist").val() == "") 
+			yoda.updateGitHubIssuesOrgWithComments($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		else
+			yoda.updateGitHubIssuesReposWithComments($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	} else {
+		// No not need comments
+		if ($("#repolist").val() == "") 
+			yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		else
+			yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	}
 
 	logMessage("Info: Initiated Github request.");
 }
