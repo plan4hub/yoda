@@ -35,6 +35,7 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "splitlabeldef");
 	params = addIfNotDefault(params, "splitbodydef");
 	params = addIfNotDefault(params, "fields");
+	params = addIfNotDefault(params, "translation");
 	params = addIfNotDefault(params, "csvdelimiter");
 	params = addIfNotDefault(params, "labelindicator");
 	params = addIfNotDefault(params, "epiclabel");
@@ -438,6 +439,11 @@ function exportIssues(issues) {
 			data.push(el);
 	}
 	
+	if ($("#translation").val() == "")
+		var translation = [];
+	else
+		var translation = $("#translation").val().split(",");
+	
 	if (exportToCsv) {
 		config = {
 				quotes: false,
@@ -470,7 +476,14 @@ function exportIssues(issues) {
 		if (data.length > 0) {
 			for (var h in data[0]) {
 				var cell = headerRow.insertCell();
+				
 				cell.innerHTML = h;
+
+				// Translation overwrite?
+				for (var t = 0; t < translation.length; t++) {
+					if (translation[t].split(":")[0] == h)
+						cell.innerHTML = translation[t].split(":")[1];											
+				}				
 			}
 			
 			table.appendChild(document.createElement('tbody'));

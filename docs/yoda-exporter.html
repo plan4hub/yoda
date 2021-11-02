@@ -79,7 +79,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame">
 		<div class="field">
 			<label>Multi-label column definitions</label> <input type="text"
-				id="sharedlabeldef" size="140"
+				id="sharedlabeldef" size="180"
 				value="Severity=^S[1-4] -,Issue Type=^T[1-9] - "> <span
 				class="tooltip">Comma separated list of fields to merge into
 				single column</span>
@@ -89,7 +89,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame">
 		<div class="field">
 			<label>Single label column definitions (fiels automatically
-				added to the end)</label> <input type="text" id="singlelabeldef" size="140"
+				added to the end)</label> <input type="text" id="singlelabeldef" size="180"
 				value="Support,Customer Encountered,P - Tentative"> <span
 				class="tooltip">Comma separate list of boolean fields defined
 				by labels</span>
@@ -99,7 +99,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame">
 		<div class="field">
 			<label>Single label column regexps (fields automatically
-				added to the end)</label> <input type="text" id="splitlabeldef" size="140"
+				added to the end)</label> <input type="text" id="splitlabeldef" size="180"
 				value="^C - ,^Th - "> <span class="tooltip">Comma
 				separate list of boolean fields defined by regular expressions</span>
 		</div>
@@ -107,17 +107,26 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<div class="frame">
 		<div class="field">
-			<label>Body fields (fields automatically added to the end)</label> <input type="text" id="splitbodydef" size="140"
-				value="Fix Date:fix-date,Resolution Date:resolution-date"> <span class="tooltip">Comma separate list of Header:<body-field-name> field</span>
+			<label>Body fields (fields automatically added to the end)</label> <input type="text" id="splitbodydef" size="180"
+				value="Fix Date:fix-date,Resolution Date:resolution-date"> <span class="tooltip">Comma separate list of <i>Header</i>:<i>body-field-name</i> field</span>
 		</div>
 	</div>
 
 	<div class="frame">
 		<div class="field">
 			<label>Fields (further fields are: Index, Body,Report Date, Assignees)</label> <input
-				type="text" id="fields" size="140"
+				type="text" id="fields" size="180"
 				value="Owner,Repo,Number,Issue Type,Severity,State,Submitter,Assignee,Milestone,MilestoneDate,Created at,Closed at,Duration,DurationMilestone,Title,Estimate,Remaining,URL,Epic Repo,Epic Number,Epic URL,Epic Title">
 			<span class="tooltip">Base fields to export</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="translation">
+			<label>Header translation (comma separated list of <i>Header</i>:<i>Localized Header</i>)</label> 
+			    <input type="text" id="translation" size="180"
+				value="">
+			<span class="tooltip">Allow to translate header fields.</span>
 		</div>
 	</div>
 
@@ -138,10 +147,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>Epic Label</label> <input type="text" id="epiclabel"
 				size="15" value='T6 - Epic'> <span class="tooltip">Label for Epic issues</span>
 		</div>
-	</div>
 
-
-	<div class="frame">
 		<div class="field">
 			<label>Issue state</label> <select id="state">
 				<option selected value="open">open</option>
@@ -188,7 +194,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<div class="frame" id="consoleframe">
 		<div class="field">
 			<label>Console</label>
-			<textarea cols="140" rows="15" id="console" readonly></textarea>
+			<textarea cols="180" rows="15" id="console" readonly></textarea>
 		</div>
 	</div>
 	
@@ -214,6 +220,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#splitbodydef", "splitbodydef");
 		yoda.decodeUrlParam("#splitlabeldef", "splitlabeldef");
 		yoda.decodeUrlParam("#fields", "fields");
+		yoda.decodeUrlParam("#translation", "translation");
 		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParam("#labelindicator", "labelindicator");
 		yoda.decodeUrlParam("#state", "state");
