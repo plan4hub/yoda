@@ -150,7 +150,7 @@ function exportIssues(issues) {
 		var splitbodyDef = [];
 	else
 		var splitbodyDef = $("#splitbodydef").val().split(",");
- 
+  
 	var fieldValue = $("#fields").val();
 	var labelIndicator = $("#labelindicator").val();
 	var csvDelimiter = $("#csvdelimiter").val();
