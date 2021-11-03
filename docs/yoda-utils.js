@@ -1587,14 +1587,20 @@ var yoda = (function() {
 			if (index == issues.length) {
 				okFunc(issues);
 			} else {
-				yoda.getLoop(issues[index].comments_url, 1, [], 
-					function(comments) {
-						issues[index].comments_array = comments; 
-						yoda.updateIssueCommentsLoop(issues, okFunc, failFunc, index + 1); 
-					}, 
-					function(errorText) { 
-						failFunc(errorText); 
+				// Let's look at the issue. Maybe it doesn't have any comments and we can safe doing a dummy call.
+				if (issues[index].comments == 0) {
+					issues[index].comments_array = [];
+					yoda.updateIssueCommentsLoop(issues, okFunc, failFunc, index + 1);
+				} else {
+					yoda.getLoop(issues[index].comments_url, 1, [], 
+						function(comments) {
+							issues[index].comments_array = comments; 
+							yoda.updateIssueCommentsLoop(issues, okFunc, failFunc, index + 1); 
+						}, 
+						function(errorText) { 
+							failFunc(errorText); 
 					});
+				}
 			}
 		},
 		

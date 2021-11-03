@@ -373,10 +373,6 @@ function exportIssues(issues) {
 					console.log(lineStart, lineEnd, line);
 					
 					if (exportToCsv) {
-//						if (comment == "")
-//							comment = '"';
-//						else
-//							comment += "\n";
 					} else {
 						if (comment != "")
 							comment += "<br>";	
@@ -384,8 +380,6 @@ function exportIssues(issues) {
 					
 					comment += yoda.formatDate(date) + ": " + line;
 				}
-//				if (exportToCsv && comment != "")
-//					comment += '"';
 				
 				el["Comments"] = comment;
 				break;
