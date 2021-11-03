@@ -357,20 +357,13 @@ function exportIssues(issues) {
 				var comment = "";
 				for (var ca = 0; ca < issues[i].comments_array.length; ca++) {
 					var date = new Date(issues[i].comments_array[ca].created_at)
-					var body = issues[i].comments_array[ca].body;
-					var rcStart = body.indexOf('> RC');
-					if (rcStart == -1)
-						rcStart = body.indexOf('>RC');
-					if (rcStart == -1)
-						continue;
-						
-					var lineStart = body.indexOf('\n', rcStart) + 1;
-					var lineEnd = body.indexOf('\n', lineStart);
-					if (lineEnd == -1)
-						var line = body.substr(lineStart);
+					
+					if (exportToCsv) 
+						var line = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
 					else
-						var line = body.substr(lineStart, lineEnd - lineStart - 1);
-					console.log(lineStart, lineEnd, line);
+						var line = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "<br>");
+					if (line == "")
+						continue;
 					
 					if (!exportToCsv && comment == "") 
 						comment = '<ul style="padding-left: 1em; margin-top: 0; margin-bottom: 0">';
@@ -380,7 +373,7 @@ function exportIssues(issues) {
 							comment += " / ";
 						comment += yoda.formatDate(date) + ": " + line;
 					} else {
-						comment += "<li>" + yoda.formatDate(date) + ": " + line + "</li>";
+						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + line + '</li>';
 					}
 				}
 				

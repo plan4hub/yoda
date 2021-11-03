@@ -1723,6 +1723,52 @@ var yoda = (function() {
 			return body.substring(valueStart + 1, valueEnd);
 		},
 		
+		// Extract fields from body which are positioned after a keyword line, e.g. "> RN", "> RNT", "> RC"
+		// lineMode can be "single", "paragraph", "rest"
+		extractKeywordField: function(body, key, lineMode, newLine) {
+			var start = body.indexOf("> " + key);
+			if (start == -1)
+				start = body.indexOf(">" + key);
+			
+			if (start == -1)
+				return ""; // Empty, nothing.
+				
+			var lineStart = body.indexOf('\n', start) + 1;
+			
+			if (lineMode == 'rest') {
+				// Simply return the rest
+				return body.substr(lineStart).replaceAll("\n", newLine);
+			}
+				
+			if (lineMode == 'single') {
+				var lineEnd = body.indexOf('\n', lineStart);
+				if (lineEnd == -1)
+					var line = body.substr(lineStart);
+				else
+					var line = body.substr(lineStart, lineEnd - lineStart - 1);
+				return line;
+			}
+					
+			// Now multiline, which will be the default.	
+			var text = "";
+			do {
+				var lineEnd = body.indexOf('\n', lineStart);
+				if (lineEnd == -1)
+					var line = body.substr(lineStart);
+				else
+					var line = body.substr(lineStart, lineEnd - lineStart - 1);
+				if (line.length == 0)
+					break;
+				if (text != "") 
+					text += newLine;
+				text += line;
+				if (lineEnd == -1)
+					break;
+				lineStart = lineEnd + 1;
+			} while (true);
+			return text;
+		},
+		
 		// Remove offending part of date ("+0000" at end).
 		cleanDate: function(dateString) {
 			if (dateString == null)
