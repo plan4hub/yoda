@@ -26,6 +26,30 @@ function addIfNotDefault(params, field) {
 	}
 }
 
+//Parse markdown to HTML (if any)
+function parseMarkdown(markdown) {
+//	console.log(markdown);
+	var markdownUrl = yoda.getGithubUrl() + "markdown";
+	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
+	
+	var urlData = {
+			"text": markdown
+	};
+	
+	var result = "";
+	$.ajax({
+		url: markdownUrl,
+		type: 'POST',
+		async: false, 
+		data: JSON.stringify(urlData),
+		success: function(data) { result = data;},
+		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+		complete: function(jqXHR, textStatus) { }
+	});
+	
+	return result;
+}
+
 function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
 	params += "&repolist=" + $("#repolist").val();
@@ -359,10 +383,10 @@ function exportIssues(issues) {
 					var date = new Date(issues[i].comments_array[ca].created_at)
 					
 					if (exportToCsv) 
-						var line = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
+						var rcText = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
 					else
-						var line = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "<br>");
-					if (line == "")
+						var rcText = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "<br>");
+					if (rcText == "")
 						continue;
 					
 					if (!exportToCsv && comment == "") 
@@ -371,9 +395,9 @@ function exportIssues(issues) {
 					if (exportToCsv) {
 						if (comment != "")
 							comment += " / ";
-						comment += yoda.formatDate(date) + ": " + line;
+						comment += yoda.formatDate(date) + ": " + rcText;
 					} else {
-						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + line + '</li>';
+						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parseMarkdown(rcText) + '</li>';
 					}
 				}
 				
