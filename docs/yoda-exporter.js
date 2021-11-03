@@ -46,6 +46,12 @@ function parseMarkdown(markdown) {
 		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
 		complete: function(jqXHR, textStatus) { }
 	});
+
+	// Let's remove initial <p> and ending </p>'
+	if (result.indexOf("<p>") == 0)
+		result = result.substring(3);
+	if (result.indexOf("</p>") != -1)
+		result = result.substring(0, result.indexOf("</p>"));
 	
 	return result;
 }
@@ -397,7 +403,9 @@ function exportIssues(issues) {
 							comment += " / ";
 						comment += yoda.formatDate(date) + ": " + rcText;
 					} else {
-						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parseMarkdown(rcText) + '</li>';
+						var parsedText = parseMarkdown(rcText);
+						console.log("parsed text:" + parsedText + ":");
+						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parsedText  + '</li>';
 					}
 				}
 				
