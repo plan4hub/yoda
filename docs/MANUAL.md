@@ -388,6 +388,10 @@ Correspondingly, "Single label column regexps" add columns with label indicators
 
 It is also possible to define columns which will be extracted from value fields (using the `> (field) (value)` notation) from the body of the issue. Define those into the "Body Fields" line. Such columns are defined as a comma-separate list with the headline, then the field name. Default is "Fix Date:fix-date,Resolution Date:resolution-date"
 
+In order to support localized table headers (table format only, has no effect for CSV file), it is possible to translate the normal/English headers in a "Translation" line using a comma-separated list of *<header>:<localized header>* entries.
+
+As a special feature, it is possible to extract a brief summary of the comments entered against the issue. Only comments containing the `> RC` (Report Comment) keyword will be added.
+
 Finally, it is possible to detail if only open issues, only closed issues, or simply all issues should be exported. Further, the file name, CSV separator, and "Label indicator" may be specified as options.
 
 Issues exporter is available [here](yoda-exporter.html).
