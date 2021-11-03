@@ -372,14 +372,20 @@ function exportIssues(issues) {
 						var line = body.substr(lineStart, lineEnd - lineStart - 1);
 					console.log(lineStart, lineEnd, line);
 					
-					if (exportToCsv) {
-					} else {
-						if (comment != "")
-							comment += "<br>";	
-					}
+					if (!exportToCsv && comment == "") 
+						comment = '<ul style="padding-left: 1em; margin-top: 0; margin-bottom: 0">';
 					
-					comment += yoda.formatDate(date) + ": " + line;
+					if (exportToCsv) {
+						if (comment != "")
+							comment += " / ";
+						comment += yoda.formatDate(date) + ": " + line;
+					} else {
+						comment += "<li>" + yoda.formatDate(date) + ": " + line + "</li>";
+					}
 				}
+				
+				if (!exportToCsv && comment != "") 
+					comment += "</ul>";
 				
 				el["Comments"] = comment;
 				break;
