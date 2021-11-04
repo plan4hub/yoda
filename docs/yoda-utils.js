@@ -1728,7 +1728,6 @@ var yoda = (function() {
 		extractKeywordField: function(body, key, lineMode, newLine) {
 			var reg = new RegExp(">[ ]?" + key + "[^A-Za-z]");
 			var res = body.match(reg);
-			console.log(res);
 			if (res == null)
 				return "";
 				

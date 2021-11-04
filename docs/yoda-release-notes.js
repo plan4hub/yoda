@@ -173,14 +173,14 @@ function formatIssueRN(issue) {
 	var issueText = "";
 
 	var line = yoda.extractKeywordField(issue.body, "RNT", "single", newLine);
-	console.log("line:" + line + ":");
+//	console.log("line:" + line + ":");
 	if (line != "")
 		var title = line;
 	else
 		var title = issue.title;
 
 	var rnText = yoda.extractKeywordField(issue.body, "RN", "paragraph", newLine);
-	console.log("rnText:" + rnText + ":");
+//	console.log("rnText:" + rnText + ":");
 	
 	// HTML?
 	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "")
