@@ -171,59 +171,20 @@ function formatIssueRN(issue) {
 		var newLine = "&lt;br&gt;";
 	
 	var issueText = "";
-	var issueRNTStart = issue.body.indexOf('> RNT');
-	if (issueRNTStart == -1)
-		issueRNTStart = issue.body.indexOf('>RNT');
-	
-	if (issueRNTStart != -1) {
-		var lineStart = issue.body.indexOf('\n', issueRNTStart) + 1;
-		var lineEnd = issue.body.indexOf('\n', lineStart);
-		if (lineEnd == -1)
-			var line = issue.body.substr(lineStart);
-		else
-			var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
+
+	var line = yoda.extractKeywordField(issue.body, "RNT", "single", newLine);
+	console.log("line:" + line + ":");
+	if (line != "")
 		var title = line;
-	} else {
+	else
 		var title = issue.title;
-	}
 
-	var rnText = "";
+	var rnText = yoda.extractKeywordField(issue.body, "RN", "paragraph", newLine);
+	console.log("rnText:" + rnText + ":");
 	
-	var issueRNSearchStart = 0;
-	if (issueRNTStart != -1)
-		issueRNSearchStart = issueRNTStart + 1;
-	var issueRNStart = issue.body.indexOf('> RN', issueRNSearchStart);
-	if (issueRNStart == -1)
-		issueRNStart = issue.body.indexOf('>RN', issueRNSearchStart);
-	if (issueRNStart != -1) {
-		var lineStart = issue.body.indexOf('\n', issueRNStart) + 1;
-		rnText = "";
-
-		do {
-			var lineEnd = issue.body.indexOf('\n', lineStart);
-			if (lineEnd == -1)
-				var line = issue.body.substr(lineStart);
-			else
-				var line = issue.body.substr(lineStart, lineEnd - lineStart - 1);
-			if (line.length == 0)
-				break;
-			if (rnText != "") 
-				rnText += newLine;
-			rnText += line;
-
-			if (lineEnd == -1) {
-				break;
-			}
-
-			lineStart = lineEnd + 1;
-		} while (true);
-
-		// HTML?
-		if ($('input:radio[name="outputformat"]:checked').val()== "html") {
-			rnText = parseRNMarkdown(rnText);
-		}
-	}
-	
+	// HTML?
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "")
+		rnText = parseRNMarkdown(rnText);
 
 	// substitude into template
 	issueText = rnFormat;

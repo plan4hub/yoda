@@ -386,7 +386,7 @@ function exportIssues(issues) {
 			case "Comments":
 				var comment = "";
 //				for (var ca = 0; ca < issues[i].comments_array.length; ca++) {
-				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) {
+				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) { // Show comments newest first... 
 					var date = new Date(issues[i].comments_array[ca].created_at)
 					
 					if (exportToCsv) 

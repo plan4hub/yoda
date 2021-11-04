@@ -1726,13 +1726,13 @@ var yoda = (function() {
 		// Extract fields from body which are positioned after a keyword line, e.g. "> RN", "> RNT", "> RC"
 		// lineMode can be "single", "paragraph", "rest"
 		extractKeywordField: function(body, key, lineMode, newLine) {
-			var start = body.indexOf("> " + key);
-			if (start == -1)
-				start = body.indexOf(">" + key);
-			
-			if (start == -1)
-				return ""; // Empty, nothing.
+			var reg = new RegExp(">[ ]?" + key + "[^A-Za-z]");
+			var res = body.match(reg);
+			console.log(res);
+			if (res == null)
+				return "";
 				
+			var start = res.index;
 			var lineStart = body.indexOf('\n', start) + 1;
 			
 			if (lineMode == 'rest') {
