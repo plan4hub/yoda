@@ -98,7 +98,13 @@ function yodaTrim(str, exc) {
 		return str;
 }
 
-function getEpicData(issues, issue) {
+function getEpicData(issues, issue, level) {
+	if (level == undefined)
+		level = 0;
+		
+	if (level > 5)
+		return [];
+	
 	// Search for lines in the issue description matching something like below:
 	// > partof #3638 [Co - FF, T6 - Epic]  *ETSILifeCycle Suite split in base+functionallity*
 	// If found will return a structure. Otherwise null.
@@ -150,7 +156,7 @@ function getEpicData(issues, issue) {
 	if (epicMatches.length == 0 && otherMatches.length > 0) {
 		for (var m = 0; m < otherMatches.length; m++) {
 			// console.log("HERE", otherMatches[m].index, issue.html_url, issues[otherMatches[m].index].html_url);
-			var result = getEpicData(issues, issues[otherMatches[m].index]);
+			var result = getEpicData(issues, issues[otherMatches[m].index], level + 1);
 			if (result.length > 0)
 				return result;
 		}
