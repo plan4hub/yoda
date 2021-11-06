@@ -527,6 +527,8 @@ var yoda = (function() {
 		
 		// Get the milestone or project description filed without any annotations, ie. "> (keyworkd) (value)"
 		getPureDescription: function(description) {
+			if (description == null)
+				return "";
 			res = removeFromBody(description, "^> startdate .*$");
 			res = removeFromBody(res, "^> burndownduedate .*$");
 			res = removeFromBody(res, "^> capacity .*$");
