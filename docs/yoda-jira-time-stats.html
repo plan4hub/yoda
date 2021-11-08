@@ -137,6 +137,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed</span>
 		</div>
 
+		<div class="field">
+			<label>Percentage</label>
+			<input type="checkbox" id="percentage">
+			<span class="tooltip">Show relative percentage (so relative weight) instead of numbers</span>
+		</div>
+
 		<button id="drawbutton" onclick="startChart()">Draw chart</button>
 	</div>
 
@@ -167,6 +173,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
 		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
+		yoda.decodeUrlParamBoolean("#righttotal", "percentage");
 		yoda.decodeUrlParamBoolean("#history", "history");
 		yoda.decodeUrlParamRadio("count", "count");
 		

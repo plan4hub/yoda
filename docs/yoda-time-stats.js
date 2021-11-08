@@ -55,6 +55,10 @@ function getUrlParams() {
 	if ($('#righttotal').is(":checked")) {
 		params += "&righttotal=true";
 	}
+	if ($('#percentage').is(":checked")) {
+		params += "&percentage=true";
+	}
+
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 
@@ -404,6 +408,12 @@ function createChart() {
 		var rightTotal = false;
 	}
 	
+	if ($('#percentage').is(":checked")) {
+		var percentage = true;
+	} else {
+		var percentage = false;
+	}
+	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
 	today.setHours(0);
@@ -677,10 +687,25 @@ function createChart() {
 		} else {
 			// Normal, i.e. not duration
 			// We will push data to the data array
-			for (var i=0; i < bars.length; i++) {
-				dataArray[i].push(dataArrayForDay[i]); 
+			
+			// Are we doing percentages?
+			if (percentage) {
+				// Percentage. Let's first calc total.
+				var total = otherForDay;
+				for (var i=0; i < bars.length; i++)
+					total += dataArrayForDay[i];   
+							
+				for (var i=0; i < bars.length; i++) { 
+					dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
+				} 
+				otherArray.push((100.0 * otherForDay / total).toFixed(1));
+
+			} else {			
+				// Normal case.			
+				for (var i=0; i < bars.length; i++) 
+					dataArray[i].push(dataArrayForDay[i]); 
+				otherArray.push(otherForDay);
 			}
-			otherArray.push(otherForDay);
 		}
 		
 //		console.log(dataArrayForDay);
@@ -780,7 +805,7 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: leftLabel[countType],
+				text: percentage?"Percentage":leftLabel[countType],
 			},
 			stacked: stacked,
 			position: "left",

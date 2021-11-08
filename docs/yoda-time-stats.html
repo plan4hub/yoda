@@ -166,6 +166,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="checkbox" id="righttotal">
 			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed.<br>For velocity chart, show story points per day.</span>
 		</div>
+		
+		<div class="field">
+			<label>Percentage</label>
+			<input type="checkbox" id="percentage">
+			<span class="tooltip">Show relative percentage (so relative weight) instead of numbers</span>
+		</div>
 
 		<div class="field" style="display: none;">
 			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
@@ -211,6 +217,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#title", "title");
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
 		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
+		yoda.decodeUrlParamBoolean("#percentage", "percentage");
 		yoda.decodeUrlParamBoolean("#history", "history");
 //		yoda.decodeUrlParamBoolean("#velocityperday", "velocityperday");
 		

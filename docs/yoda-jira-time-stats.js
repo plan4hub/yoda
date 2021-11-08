@@ -51,6 +51,9 @@ function getUrlParams() {
 	if ($('#righttotal').is(":checked")) {
 		params += "&righttotal=true";
 	}
+	if ($('#percentage').is(":checked")) {
+		params += "&percentage=true";
+	}
 	var countType = $("#countradio input[type='radio']:checked").val();
 	if (countType != "noissues") {
 		params += "&count=" + countType;
