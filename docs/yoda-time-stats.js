@@ -805,7 +805,7 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage?"Percentage":leftLabel[countType],
+				text: percentage?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
 			},
 			stacked: stacked,
 			position: "left",
