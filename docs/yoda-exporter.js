@@ -166,6 +166,30 @@ function getEpicData(issues, issue, level) {
 }
 
 
+// -- Helper function for formatting RC comments (as also used in body)
+function formatComment(oldComment, body, date, exportToCsv) {
+	var comment = oldComment;
+	if (exportToCsv) 
+		var rcText = yoda.extractKeywordField(body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
+	else
+		var rcText = yoda.extractKeywordField(body, "RC", "paragraph", "<br>");
+	if (rcText == "")
+		return comment;
+					
+	if (!exportToCsv && comment == "") 
+		comment = '<ul style="padding-left: 1em; margin-top: 0; margin-bottom: 0">';
+					
+	if (exportToCsv) {
+		if (comment != "")
+			comment += " / ";
+		comment += yoda.formatDate(date) + ": " + rcText;
+	} else {
+		var parsedText = parseMarkdown(rcText);
+		// console.log("parsed text:" + parsedText + ":");
+		comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parsedText  + '</li>';
+	}
+	return comment;
+}
 
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
@@ -390,36 +414,24 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Comments":
-				var comment = "";
+				var comments = "";
 //				for (var ca = 0; ca < issues[i].comments_array.length; ca++) {
-				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) { // Show comments newest first... 
-					var date = new Date(issues[i].comments_array[ca].created_at)
-					
-					if (exportToCsv) 
-						var rcText = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
-					else
-						var rcText = yoda.extractKeywordField(issues[i].comments_array[ca].body, "RC", "paragraph", "<br>");
-					if (rcText == "")
-						continue;
-					
-					if (!exportToCsv && comment == "") 
-						comment = '<ul style="padding-left: 1em; margin-top: 0; margin-bottom: 0">';
-					
-					if (exportToCsv) {
-						if (comment != "")
-							comment += " / ";
-						comment += yoda.formatDate(date) + ": " + rcText;
-					} else {
-						var parsedText = parseMarkdown(rcText);
-						console.log("parsed text:" + parsedText + ":");
-						comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parsedText  + '</li>';
-					}
+				// Show comments newest first...
+				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) {  
+					var date = new Date(issues[i].comments_array[ca].created_at);
+					comments = formatComment(comments, issues[i].comments_array[ca].body, date, exportToCsv);
+					console.log(i, ca, comments);
 				}
 				
-				if (!exportToCsv && comment != "") 
-					comment += "</ul>";
+				// Add (as last, being first as we are doing in reverse any comments into body field.)
+				var date = new Date(issues[i].created_at);
+				if (issues[i].body != null && issues[i].body != undefined)
+					comments = formatComment(comments, issues[i].body, date, exportToCsv);
 				
-				el["Comments"] = comment;
+				if (!exportToCsv && comments != "") 
+					comments += "</ul>";
+				
+				el["Comments"] = comments;
 				break;
 
 			default:
