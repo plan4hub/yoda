@@ -78,8 +78,8 @@ function getUrlParams() {
 	if ($('#closedmilestones').is(":checked")) {
 		params += "&closedmilestones=true";
 	}
-	if ($('#tablelayout').is(":checked")) {
-		params += "&tablelayout=true";
+	if (!$('#tablelayout').is(":checked")) {
+		params += "&tablelayout=false";
 	}
 	if ($('#estimatecategory').is(":checked")) {
 		params += "&estimatecategory=true";
@@ -167,7 +167,7 @@ function formatIssueRN(issue) {
 	
 	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
 		var newLine = "<br>";
-	else
+	else 
 		var newLine = "&lt;br&gt;";
 	
 	var issueText = "";
@@ -188,6 +188,7 @@ function formatIssueRN(issue) {
 
 	// substitude into template
 	issueText = rnFormat;
+//	issueText = issueText.replaceAll(/\\n/g, "\n");
 	issueText = issueText.replace(/%t/, title);
 	issueText = issueText.replace(/%d/, repo + "#" + issue.number);
 	issueText = issueText.replace(/%n/, issue.number);
@@ -241,8 +242,9 @@ function makeRN(headline, changesOrKnown, draw) {
 	var listFormat = $("#listformat").val().split(",");
 	var catFormat = $("#catformat").val();
 
-	// Headline
-	rnText += getFormat(hlFormat, 0) + headline + $("#milestonelist").val() + getFormat(hlFormat, 1);
+	// Headline - if present. Otherwise skip.
+	if ($("#hlformat").val().indexOf(",") != -1)
+		rnText += getFormat(hlFormat, 0) + headline + $("#milestonelist").val() + getFormat(hlFormat, 1);
 	
 	// Categories. First build list based on regular expression (if any)
 	var categories = [];
@@ -280,7 +282,9 @@ function makeRN(headline, changesOrKnown, draw) {
 			
 	// Loop over repos
 	for (var r = 0; r < repoList.length; r++) {
-		rnText += getFormat(sFormat, 0) + changesOrKnown + repoList[r] + getFormat(sFormat, 1);
+		// Section - if present. Otherwise skip.
+		if ($("#sformat").val().indexOf(",") != -1)
+			rnText += getFormat(sFormat, 0) + changesOrKnown + repoList[r] + getFormat(sFormat, 1);
 
 		// Loop over labelTypes (typically Defects, Fixes)
 		for (var t = 0; t < rnLabelTypesList.length; t++) {
@@ -342,9 +346,11 @@ function makeRN(headline, changesOrKnown, draw) {
 				rnList = rnList.replace(/%z/, categoryEstimate);
 			}
 
-			if (rnList != "") {
-				// Put header and list, but only if non-empty.
-				rnText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
+			if (rnList != "" ) {
+				// Put header and list, but only if non-empty.  
+				// If ssformat is blank, forget starting over, skip the header
+				if ($("#ssformat").val().indexOf(",") != -1)
+					rnText += getFormat(ssFormat, 0) + rnLabelTypesList[t].split("|")[1] + getFormat(ssFormat, 1);
 				rnText += getFormat(listFormat, 0) + rnList + getFormat(listFormat, 1);
 			}
 		}
@@ -737,7 +743,7 @@ function changeOutput() {
 			setDefaultAndValue("hlformat", "# ,\\n\\n");
 			setDefaultAndValue("sformat", "## ,\\n\\n");
 			setDefaultAndValue("ssformat", "### ,\\n\\n");
-			setDefaultAndValue("listformat", ",,-  ,\\n");
+			setDefaultAndValue("listformat", ",,-  ,\\n\\n");
 			setDefaultAndValue("rnformat", "%t (" + iss + ")%x");
 			setDefaultAndValue("catformat", "*" + cat + "*");
 		}
