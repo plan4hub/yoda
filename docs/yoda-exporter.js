@@ -420,7 +420,6 @@ function exportIssues(issues) {
 				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) {  
 					var date = new Date(issues[i].comments_array[ca].created_at);
 					comments = formatComment(comments, issues[i].comments_array[ca].body, date, exportToCsv);
-					console.log(i, ca, comments);
 				}
 				
 				// Add (as last, being first as we are doing in reverse any comments into body field.)
