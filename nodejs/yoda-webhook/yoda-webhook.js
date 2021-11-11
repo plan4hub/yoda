@@ -22,7 +22,7 @@ if (configuration.getOption('url') != undefined) {
 	logger.info("Server starting ...");
 
 	//	install with: npm install @octokit/webhooks
-	const { Webhooks } = require('@octokit/webhooks')
+	const { Webhooks, createNodeMiddleware } = require('@octokit/webhooks')
 	const webhooks = new Webhooks({
 		secret: configuration.getOption('secret')
 	});
@@ -50,6 +50,11 @@ if (configuration.getOption('url') != undefined) {
 	webhooks.on('issues', ({id, name, payload}) => {
 		yodaRefModule.checkEvent(id, name, payload);
 	});
+	
+	webhooks.onError(({id, name, payload}) => {
+		logger.debug("ERORR during event", id, name);
+		logger.debug(payload);
+	});
 
 	//	If we are running in GitHub App mode, let's listen as well for installation events. They are interesting....
 	if (configuration.getOption('app-mode')) {
@@ -60,13 +65,13 @@ if (configuration.getOption('url') != undefined) {
 
 	if (configuration.getOption('cert') == undefined) {
 		// HTTP
-		//	Start the server.
+		// Start the server.
 		logger.info("Bringing up server in HTTP mode.");
-		const server = require('http').createServer(webhooks.middleware).listen(configuration.getOption('port'));
+		const server = require('http').createServer(createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
 		logger.trace(server);
 	} else {
 		// HTTPS
-		//	Start the server. Can consider express if better than http
+		// Start the server. 
 		logger.info("Bringing up server in HTTPS mode.");
 		const https = require("https"),
 		fs = require("fs");
@@ -76,7 +81,7 @@ if (configuration.getOption('url') != undefined) {
 		  cert: fs.readFileSync(configuration.getOption('cert'))
 		};
 
-		const server = https.createServer(options, webhooks.middleware).listen(configuration.getOption('port'));
+		const server = https.createServer(options, createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
 		logger.trace(server);
 	}
 
