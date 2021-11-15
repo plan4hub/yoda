@@ -497,7 +497,7 @@ function exportIssues(issues) {
 			
 			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
 			if (value != null) {
-				if (value.indexOf("GMT+1") != -1) { 
+				if (value.indexOf("GMT") != -1) { 
 					// This looks like a date. Let's assume that it has format DD/MM/YY HH:MM GMT+1
 					// new Date(year, monthIndex, day, hours, minut
 					day = parseInt(value.substr(0, 2));
