@@ -479,6 +479,34 @@ function processIssue(octokit, issue) {
 	});
 }
 
+// Event hold
+var eventHold = [];
+// Check if we have done processing for this issue recently. If so, return null (and schedule an update)
+function delayEvent(id, name, payload) {
+	var issueUrl = payload.issue.url;
+
+	// Do we already have the issue in the list? If so, clear previous timer.
+	var i = eventHold.findIndex((element) => (element.url == issueUrl));
+	if (i != -1)
+		clearTimeout(eventHold[i].timeOut);
+
+	logger.debug("Scheduling later execution for: " + issueUrl);
+	timeOut = setTimeout(function() {
+		// Remove element from list.
+		var i = eventHold.findIndex((element) => (element.url == issueUrl));
+		if (i != -1)
+			eventHold.splice(i, 1);
+					
+		// Call to process the event, first marking that it comes via eventHold
+		payload.eventHold = true;
+		checkEvent(id, name, payload);	
+	}, configuration.getOption('eventtimeout'));
+	
+	if (i ==-1)
+		eventHold.push({url: issueUrl, timeOut: timeOut});
+	else
+		eventHold[i].timeOut = timeOut;
+} 
 
 //Main entry point for checking events.
 function checkEvent(id, name, payload) {
@@ -486,7 +514,10 @@ function checkEvent(id, name, payload) {
 	var issueAction = payload.action;
 	var issueRef = yoda.getRefFromUrl(issueUrl);
 
-	logger.info("Checking issues event (" + issueAction + ") with id " + id + " by " + payload.sender.login + " for " + issueUrl);
+	if (payload.eventHold == undefined)
+		logger.info("Checking issues event (" + issueAction + ") with id " + id + " by " + payload.sender.login + " for " + issueUrl);
+	else
+		logger.info("Resuming scheduled issue processing for event (" + issueAction + ") with id " + id + " by " + payload.sender.login + " for " + issueUrl);
 	logger.trace(issueRef);
 	logger.trace(payload);
 
@@ -501,13 +532,6 @@ function checkEvent(id, name, payload) {
 		return;
 	} 
 	
-	// More special handling for label/unlabeled events. Only events for Types (i.e. starting with T) are of interest.
-	// OBS: Since introducing the "> headline" feature, we cannot afford to discard any events.
-//	if ((issueAction == 'labeled' || issueAction == 'unlabeled') && !yoda.labelMatch(payload.label.name, configuration.getOption('labelre'))) {
-//		logger.info("  Disgarding label/unlabeled event as we are not interested in this label: " + payload.label.name);
-//		return;
-//	} 
-	
 	// First of, lets disgard events if they originate from us, i.e. the same user as used for doing the edit.
 	// If running App mode, then we can identify based on presense of lack of [bot]
 	if (issueAction == 'edited' && 
@@ -517,6 +541,14 @@ function checkEvent(id, name, payload) {
 		return;
 	} 
 	
+	// Let's worry about event hold here. Cannot ignore edited, don't hold if coming from scheduled execution, etc.
+	if (payload.eventHold == undefined && !(issueAction == "edited" && payload.changes != undefined && payload.changes.body != undefined)) {
+		// We will stop here for now. Event will be rescheduled in a while.
+		logger.debug("  Delaying event for now.");
+		delayEvent(id, name, payload);
+		return;
+	}
+
 	logger.debug("  Event is of interest. Proceeding with processing.");
 	
 	// Authorize (user or GitHub App mode, then continue)

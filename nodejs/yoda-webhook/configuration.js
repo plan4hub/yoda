@@ -163,6 +163,12 @@ const optionDefinitions = [
 		description: 'HTTPS certificate key.'
 	},
 	{
+		name: 'eventtimeout',
+		type: Number,
+		description: 'Event timeout (suspress events if repeating for same issue within this interval). Default: 300 (ms).',
+		defaultValue: 300
+	},
+	{
 		name: 'help',
 		alias: 'h',
 		type: Boolean,
