@@ -764,7 +764,7 @@ var yoda = (function() {
 			result += (date.getMonth() + 1) + "-";
 			if (date.getDate() < 10)
 				result += "0";
-			result += (date.getDate());
+			result += (date.getUTCDate());
 			return result;
 		},
 		
