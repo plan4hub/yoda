@@ -183,8 +183,12 @@ function formatIssueRN(issue) {
 //	console.log("rnText:" + rnText + ":");
 	
 	// HTML?
-	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "")
+	var mdChars = /[*`_~]+>-/;
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "" && mdChars.test(rnText)) 
 		rnText = parseRNMarkdown(rnText);
+		
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && title != "" && mdChars.test(title)) 
+		title = parseRNMarkdown(title);
 
 	// substitude into template
 	issueText = rnFormat;
