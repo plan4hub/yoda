@@ -313,7 +313,8 @@ function createChart() {
 			fill : false,
 			yAxisID: "yright",
 			data : totalArray,
-			lineTension: 0
+			lineTension: 0,
+			borderColor: yoda.getColor("lineBackground")
 		});
 	} else {
 		// Normal case. Right total line against right axis.
@@ -323,7 +324,8 @@ function createChart() {
 			fill : false,
 			yAxisID: "yleft",
 			data : totalArray,
-			lineTension: 0
+			lineTension: 0,
+			borderColor: yoda.getColor("lineBackground")
 		});
 	} 
 	
@@ -343,10 +345,16 @@ function createChart() {
 			position: "left",
 			ticks: {
 				beginAtZero: true
+			},
+			grid: {
+				color: yoda.getColor('gridColor')
 			}
 		},
 		x: {
 			stacked: stacked,
+			grid: {
+				color: yoda.getColor('gridColor')
+			}
 		}
 	};
 	
@@ -360,6 +368,9 @@ function createChart() {
 			position: "right",
 			ticks: {
 				beginAtZero: true
+			},
+			grid: {
+				display: false
 			}
 		};		
 	}
@@ -655,9 +666,9 @@ Chart.register({
 				meta.data.forEach(function(element, index) {
 					// Draw the text in black (line) or whitish (bar) with the specified font
 					if (dataset.type == "bar" && stacked == true)
-						ctx.fillStyle = 'rgb(255, 255, 255)';
+						ctx.fillStyle = yoda.getColor('fontAsBackground')
 					else
-						ctx.fillStyle = 'rgb(0, 0, 0)';
+						ctx.fillStyle = yoda.getColor('fontContrast')
 					ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 				
 					// Just naively convert to string for now
@@ -695,7 +706,7 @@ Chart.register({
 	id: "yoda-background",
 	beforeDraw: function(c) {
 		var ctx = c.ctx;
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = yoda.getColor('htmlBackground');
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
