@@ -270,7 +270,8 @@ function createChartLT(issues) {
 				intersect: true
 			},
 			scales: {
-				yAxes: [{
+				y: {
+					beginAtZero: true,
 					scaleLabel: {
 						display: true,
 						labelString: 'days',
@@ -281,7 +282,7 @@ function createChartLT(issues) {
 					ticks: {
 						beginAtZero: true
 					}
-				}],
+				},
 				xAxes: [{
 					stacked: true
 				}]
