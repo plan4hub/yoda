@@ -465,7 +465,10 @@ function startChart() {
 					},
 					stacked: stacked,
 					position: "left",
-					beginAtZero: true
+					beginAtZero: true,
+					grid: {
+						color: yoda.getColor('gridColor')
+					}
 				},
 				yright: {    
 					title: {
@@ -473,10 +476,16 @@ function startChart() {
 						text: axis + " per day / story points vs. capacity/ED",
 					},
 					position: "right",
-					beginAtZero: true
+					beginAtZero: true,
+					grid: {
+						display: false
+					}
 				},
 				xAxes: {
-					stacked: stacked
+					stacked: stacked,
+					grid: {
+						color: yoda.getColor('gridColor')
+					}
 				} 
 			},
 			tooltips: {
@@ -513,7 +522,7 @@ Chart.register({
          if (!meta.hidden && meta.type == 'bar') {
              meta.data.forEach(function(element, index) {
                  // Draw the text in black, with the specified font
-                 ctx.fillStyle = 'rgb(0, 0, 0)';
+                 ctx.fillStyle = yoda.getColor('fontContrast');
  				 ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
                  // Just naively convert to string for now
@@ -539,7 +548,7 @@ Chart.register({
 	id: "yoda-background",
 	beforeDraw: function(c) {
 		var ctx = c.ctx;
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = yoda.getColor('htmlBackground');
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });

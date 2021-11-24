@@ -64,12 +64,32 @@ var yoda = (function() {
 
 	console.log("URL: " + window.location.href);
 	console.log("URL hostname: " + window.location.hostname);
-	
+
 	// If page is served from github.hpe.com, then change URL defaults to HPE GitHub Enterprise Instance
 	if (window.location.hostname.indexOf("github.hpe.com") != -1) {
 		var gitHubApiBaseUrl = "https://github.hpe.com/api/v3/";
 		var gitHubBaseUrl = "https://github.hpe.com/";
 	}
+	
+	// Color Scheme stuff.
+	var currentColorScheme = "default";
+	var colorSchemes = { 
+		default: {
+			htmlBackground: 'white',
+			fontContrast: 'black',
+			fontAsBackground: 'white',
+			lineBackground: Chart.defaults.backgroundColor,
+			gridColor: Chart.defaults.backgroundColor		
+		},
+		dark: {
+			htmlBackground: 'black',
+			fontContrast: 'white',
+			// fontAsBackground: 'black',
+			fontAsBackground: 'white',
+			lineBackground: 'white',
+			gridColor: 'grey'		
+		}
+	};
 	
 	// Retrieve URL parameters
 	GetURLParameter = function (sParam) {
@@ -223,9 +243,32 @@ var yoda = (function() {
     // -----------------------------	
 	// Interface functions
 	return {
+		
 		strip2Digits: function(number) {
 			places = 2;
 			return +(Math.round(number + "e+" + places)  + "e-" + places);
+		},
+		
+		
+		// Color scheme I/F functions
+		getColor: function(attribute) {
+			return colorSchemes[currentColorScheme][attribute];
+		},
+		 
+		getColorScheme() {
+			return currentColorScheme;
+		},
+	
+		setDarkColorScheme: function() {
+			console.log("Changing to dark color scheme");
+			currentColorScheme = "dark";
+			Chart.defaults.color = 'white';
+		},
+
+		setDefaultColorScheme: function() {
+			console.log("Changing to default color scheme");
+			currentColorScheme = "default";
+			Chart.defaults.color = '#666';
 		},
 		
 		// A mix of nice bar colors for bar charts. 
@@ -419,6 +462,9 @@ var yoda = (function() {
 		updateUrl: function(searchParams) {
 			if (yoda.topPanelHidden)
 				searchParams += "&hidepanel=true";
+			if (yoda.getColorScheme() == "dark")
+				searchParams += "&dark=true";
+			
 //			var baseUrl = window.location.origin + window.location.pathname;
 			var baseUrl = window.location.pathname;
 			searchParams = searchParams.replace(/%/g, "%25");
@@ -1684,9 +1730,15 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Panel</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Panel</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.setDarkColorScheme();'>Dark Theme</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.setDefaultColorScheme();'>Default Theme</a>");
 			
 			if (yoda.decodeUrlParam(null, "hidepanel") == "true") {
 				yoda.hideTopPanel();
+			}
+			
+			if (yoda.decodeUrlParam(null, "dark") == "true") {
+				yoda.setDarkColorScheme("dark");
 			}
 
 			// Close the dropdown menu if the user clicks outside of it
@@ -1857,6 +1909,5 @@ var yoda = (function() {
 			var fileName = "yoda-data.csv"; 
 			yoda.downloadFile(result, fileName);
 		}
-		
 	}
 })();

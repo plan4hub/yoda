@@ -944,7 +944,8 @@ function burndown(issues) {
 				borderColor: '#004d1a',
 				pointRadius: 0,
 				spanGaps: true,
-				yAxisID: "yline"
+				yAxisID: "yline",
+				borderColor: yoda.getColor("lineBackground")
 			}]
 	};
 	
@@ -967,10 +968,11 @@ function burndown(issues) {
 			label : 'Ideal Full Sprint',
 			fill : false,
 			data : remainingIdealFullArray,
-			borderColor: '#004d1a',
+			// borderColor: '#004d1a',
 			pointRadius: 0,
 			spanGaps: true,
-			yAxisID: "yline"
+			yAxisID: "yline",
+			borderColor: yoda.getColor("lineBackground")
 		});
 //	}
 	
@@ -1067,7 +1069,10 @@ function burndown(issues) {
 					beginAtZero: true,
 					min: 0,
 					max: yMaxValue,
-					position: "left" 
+					position: "left",
+					grid: {
+						color: yoda.getColor('gridColor')
+					}
 				},
 				yline: {
 					stacked: false,
@@ -1078,7 +1083,10 @@ function burndown(issues) {
 					display: false
 				},
 				x: {
-					stacked: true
+					stacked: true,
+					grid: {
+						color: yoda.getColor('gridColor')
+					}
 				}
 			},
 			tooltips: {
@@ -1362,7 +1370,8 @@ Chart.register({
          if (!meta.hidden && meta.type == 'bar') {
              meta.data.forEach(function(element, index) {
                  // Draw the text in black, with the specified font
-                 ctx.fillStyle = 'rgb(0, 0, 0)';
+				 ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, yoda.getColor('fontContrast'), yoda.getColor('htmlBackgound'));
+                 // ctx.fillStyle = yoda.getColor('fontContrast');
                  ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
                  // Just naively convert to string for now
@@ -1389,7 +1398,7 @@ Chart.register({
 	id: "yoda-background",
 	beforeDraw: function(c) {
 		var ctx = c.ctx;
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = yoda.getColor('htmlBackground');
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });

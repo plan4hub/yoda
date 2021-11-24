@@ -853,6 +853,7 @@ function createChart() {
 			grid: {
 				display: false
 			}
+
 		};		
 	}
 

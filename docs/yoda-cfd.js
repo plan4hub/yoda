@@ -255,7 +255,8 @@ function createChartLT(issues) {
 				label: 'Lead time',
 				borderWidth: 3,
 				fill: false,
-				data: leadTimeArray
+				data: leadTimeArray,
+				borderColor: yoda.getColor("lineBackground")
 			}]
 		},
 		options: {
@@ -281,11 +282,17 @@ function createChartLT(issues) {
 					id: "y-axis-left",
 					ticks: {
 						beginAtZero: true
+					},
+					grid: {
+						color: yoda.getColor('gridColor')
 					}
 				},
-				xAxes: [{
-					stacked: true
-				}]
+				xAxes: {
+					stacked: true,
+					grid: {
+						color: yoda.getColor('gridColor')
+					}
+				}
 			}
 		}
 	});
@@ -440,10 +447,16 @@ function createChartCFD(issues) {
 			position: "left",
 			ticks: {
 				beginAtZero: true
+			},
+			grid: {
+				color: yoda.getColor('gridColor')
 			}
 		},
 		x: {
-			stacked: true
+			stacked: true,
+			grid: {
+				color: yoda.getColor('gridColor')
+			}
 		}
 	};
 
@@ -572,9 +585,9 @@ Chart.register({
 					if (m++ % mod == 0) {
 						// Draw the text in black, with the specified font
 						if (i == 0)
-							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, 'rgb(230,230,230)', 'rgb(0,0,0)');
+							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, yoda.getColor('htmlBackgound'), yoda.getColor('fontContrast'));
 						else
-							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, 'rgb(0,0,0)', 'rgb(230,230,230)');
+							ctx.fillStyle = yoda.bestForeground(dataset.backgroundColor, yoda.getColor('fontContrast'), yoda.getColor('htmlBackgound'));
 						ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
 						// Just naively convert to string for now
@@ -603,7 +616,7 @@ Chart.register({
 	id: "yoda-background",
 	beforeDraw: function(c) {
 		var ctx = c.ctx;
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = yoda.getColor('htmlBackground');
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
