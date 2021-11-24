@@ -756,15 +756,20 @@ var yoda = (function() {
 			return info;
 		},
 		
-		// Format date as YYYY-MM-DD
-		formatDate: function(date) {
+		// Format date as YYYY-MM-DD. If UTC argument given (as true), will go by UTC dates
+		formatDate: function(date, utc) {
+			if (utc == true)
+				var day = date.getUTCDate();
+			else
+				var day = date.getDate();
+				
 			var result = date.getFullYear() + "-";
 			if (date.getMonth() + 1 < 10)
 				result += "0";
 			result += (date.getMonth() + 1) + "-";
-			if (date.getDate() < 10)
+			if (day  < 10)
 				result += "0";
-			result += (date.getUTCDate());
+			result += day;
 			return result;
 		},
 		

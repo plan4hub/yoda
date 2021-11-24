@@ -352,7 +352,7 @@ function exportIssues(issues) {
                 break;
             case "MilestoneDate":
 				if (issues[i].milestone != undefined && issues[i].milestone.due_on != null) {
-                    el["MilestoneDate"] = yoda.formatDate(new Date(issues[i].milestone.due_on));
+                    el["MilestoneDate"] = yoda.formatDate(new Date(issues[i].milestone.due_on), true);
                 } else {
                     el["MilestoneDate"] = "";
                 }
