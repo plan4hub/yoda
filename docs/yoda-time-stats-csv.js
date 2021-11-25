@@ -340,6 +340,9 @@ function createChart() {
 			title: {
 				display: true,
 				text: "# " + axisCategory,
+				font: {
+	           		size: 20                    
+				}
 			},
 			stacked: stacked,
 			position: "left",
@@ -364,6 +367,9 @@ function createChart() {
 			title: {
 				display: true,
 				text: "Total " + axisCategory,
+				font: {
+	           		size: 20                    
+				}
 			},
 			position: "right",
 			ticks: {
@@ -395,7 +401,10 @@ function createChart() {
 			plugins: {
 				title : {
 					display : true,
-					text : chartTitle
+					text : chartTitle,
+					font: {
+		           		size: 20                    
+					}
 				}
 			},
 			tooltips : {
@@ -654,7 +663,7 @@ function githubAuth() {
 	yoda.gitAuth($("#user").val(), $("#token").val());
 }
 
-Chart.defaults.font.size = 14;
+Chart.defaults.font.size = 16;
 Chart.register({
 	id: "yoda-label",
 	afterDatasetsDraw: function(chartInstance, easing) {
