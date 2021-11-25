@@ -265,7 +265,10 @@ function createChartLT(issues) {
 			plugins: {
 				title: {
 					display: true,
-					text: chartTitle
+					text: chartTitle,
+					font: {
+                        size: 20                    
+					}
 				}
 			},
 			tooltips: {
@@ -274,6 +277,13 @@ function createChartLT(issues) {
 			},
 			scales: {
 				y: {
+					title: {
+						display: true,
+						text: 'Days',
+						font: {
+                	   		size: 20                    
+						}
+					},
 					beginAtZero: true,
 					scaleLabel: {
 						display: true,
@@ -444,6 +454,9 @@ function createChartCFD(issues) {
 			title: {
 				display: true,
 				text: '# of issues',
+				font: {
+                   size: 20                    
+				}
 			},
 			stacked: true,
 			position: "left",
@@ -482,7 +495,10 @@ function createChartCFD(issues) {
 			plugins: {
 				title: {
 					display: true,
-					text: chartTitle
+					text: chartTitle,
+					font: {
+                        size: 20                    
+					}
 				},
 			},
 			tooltips: {
@@ -566,7 +582,7 @@ function githubAuth() {
 // --------------
 
 //Label drawing
-Chart.defaults.font.size = 14;
+Chart.defaults.font.size = 16;
 Chart.register({
 	id: 'yoda-label',
 	afterDatasetsDraw: function(chartInstance, easing) {
