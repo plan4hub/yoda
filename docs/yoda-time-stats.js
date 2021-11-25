@@ -813,7 +813,7 @@ function createChart() {
 				display: true,
 				text: percentage?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
 				font: {
-	           		size: 20                    
+	           		size: 16                    
 				}
 			},
 			stacked: stacked,
@@ -852,7 +852,7 @@ function createChart() {
 				display: true,
 				text: rightLabel[countType],
 				font: {
-	           		size: 20                    
+	           		size: 16                    
 				}
 			},
 			position: "right",

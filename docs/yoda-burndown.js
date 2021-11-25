@@ -1068,7 +1068,7 @@ function burndown(issues) {
 						display: true,
 						text: axis,
 						font: {
-			           		size: 20                    
+			           		size: 16                    
 						}
 					},
 					stacked: true,

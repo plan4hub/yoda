@@ -341,7 +341,7 @@ function createChart() {
 				display: true,
 				text: "# " + axisCategory,
 				font: {
-	           		size: 20                    
+	           		size: 16                    
 				}
 			},
 			stacked: stacked,
@@ -368,7 +368,7 @@ function createChart() {
 				display: true,
 				text: "Total " + axisCategory,
 				font: {
-	           		size: 20                    
+	           		size: 16                    
 				}
 			},
 			position: "right",

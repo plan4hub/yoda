@@ -466,7 +466,7 @@ function startChart() {
 						display: true,
 						text: axis,
 						font: {
-							size: 20
+							size: 16
 						}
 					},
 					stacked: stacked,
@@ -481,7 +481,7 @@ function startChart() {
 						display: true,
 						text: axis + " per day / story points vs. capacity/ED",
 						font: {
-							size: 20
+							size: 16
 						}
 					},
 					position: "right",

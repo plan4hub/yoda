@@ -281,7 +281,7 @@ function createChartLT(issues) {
 						display: true,
 						text: 'Days',
 						font: {
-                	   		size: 20                    
+                	   		size: 16                    
 						}
 					},
 					beginAtZero: true,
@@ -451,7 +451,7 @@ function createChartCFD(issues) {
 				display: true,
 				text: '# of issues',
 				font: {
-                   size: 20                    
+                   size: 16                    
 				}
 			},
 			stacked: true,
