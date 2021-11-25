@@ -1052,7 +1052,10 @@ function burndown(issues) {
 			plugins: {
 				title : {
 					display : true,
-					text : titleText
+					text : titleText,
+					font: {
+		           		size: 20                    
+					}
 				},
 			},
 			tooltips : {
@@ -1063,7 +1066,10 @@ function burndown(issues) {
 				yleft: {
 					title: {
 						display: true,
-						text: axis
+						text: axis,
+						font: {
+			           		size: 20                    
+						}
 					},
 					stacked: true,
 					beginAtZero: true,
