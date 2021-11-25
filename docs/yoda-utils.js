@@ -78,8 +78,8 @@ var yoda = (function() {
 			htmlBackground: 'white',
 			fontContrast: 'black',
 			fontAsBackground: 'white',
-			lineBackground: Chart.defaults.backgroundColor,
-			gridColor: Chart.defaults.backgroundColor		
+			lineBackground: (typeof Chart !== 'undefined')? Chart.defaults.backgroundColor: 'black',
+			gridColor: (typeof Chart !== 'undefined')? Chart.defaults.backgroundColor: 'black'		
 		},
 		dark: {
 			htmlBackground: 'black',
@@ -262,13 +262,15 @@ var yoda = (function() {
 		setDarkColorScheme: function() {
 			console.log("Changing to dark color scheme");
 			currentColorScheme = "dark";
-			Chart.defaults.color = 'white';
+			if (typeof Chart !== 'undefined')
+				Chart.defaults.color = 'white';
 		},
 
 		setDefaultColorScheme: function() {
 			console.log("Changing to default color scheme");
 			currentColorScheme = "default";
-			Chart.defaults.color = '#666';
+			if (typeof Chart !== 'undefined')
+				Chart.defaults.color = '#666';
 		},
 		
 		// A mix of nice bar colors for bar charts. 
