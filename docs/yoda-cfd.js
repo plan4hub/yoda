@@ -262,9 +262,11 @@ function createChartLT(issues) {
 		options: {
 			showDatapoints: true,
 			responsive: true,
-			title: {
-				display: true,
-				text: chartTitle
+			plugins: {
+				title: {
+					display: true,
+					text: chartTitle
+				}
 			},
 			tooltips: {
 				mode: 'index',
