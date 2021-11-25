@@ -450,7 +450,10 @@ function startChart() {
 			plugins: {
 				title : {
 					display : true,
-					text : 'Velocity chart for ' + $("#owner").val() + "/" + $("#repolist").val()
+					text : 'Velocity chart for ' + $("#owner").val() + "/" + $("#repolist").val(),
+					font: {
+						size: 20
+					}
 				}
 			},
 			tooltips : {
@@ -462,6 +465,9 @@ function startChart() {
 					title: {
 						display: true,
 						text: axis,
+						font: {
+							size: 20
+						}
 					},
 					stacked: stacked,
 					position: "left",
@@ -474,6 +480,9 @@ function startChart() {
 					title: {
 						display: true,
 						text: axis + " per day / story points vs. capacity/ED",
+						font: {
+							size: 20
+						}
 					},
 					position: "right",
 					beginAtZero: true,
@@ -511,7 +520,7 @@ function githubAuth() {
 // --------------
 
 //Label drawing
-Chart.defaults.font.size = 14;
+Chart.defaults.font.size = 16;
 Chart.register({
 	id: "yoda-label",
  afterDatasetsDraw: function(chartInstance, easing) {
