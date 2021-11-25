@@ -285,10 +285,6 @@ function createChartLT(issues) {
 						}
 					},
 					beginAtZero: true,
-					scaleLabel: {
-						display: true,
-						labelString: 'days',
-					},
 					stacked: true,
 					position: "left",
 					id: "y-axis-left",
