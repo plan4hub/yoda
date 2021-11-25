@@ -313,7 +313,10 @@ function createCommentsChart(dateIndex) {
 				responsive : true,
 				title : {
 					display : true,
-					text : chartTitle
+					text : chartTitle,
+					font: {
+                		size: 20                    
+					}
 				},
 				tooltips : {
 					mode : 'index',
@@ -809,6 +812,9 @@ function createChart() {
 			title: {
 				display: true,
 				text: percentage?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
+				font: {
+	           		size: 20                    
+				}
 			},
 			stacked: stacked,
 			position: "left",
@@ -845,6 +851,9 @@ function createChart() {
 			title: {
 				display: true,
 				text: rightLabel[countType],
+				font: {
+	           		size: 20                    
+				}
 			},
 			position: "right",
 			ticks: {
@@ -879,7 +888,10 @@ function createChart() {
 			plugins: {
 				title : {
 					display : true,
-					text : chartTitle
+					text : chartTitle,
+					font: {
+		           		size: 20                    
+					}
 				},
 			},
 			tooltips : {
@@ -987,7 +999,7 @@ function githubAuth() {
 
 // --------------
 
-Chart.defaults.font.size = 14;
+Chart.defaults.font.size = 16;
 Chart.register({
 	id: "yoda-label",
 	afterDatasetsDraw: function(chartInstance, easing) {
