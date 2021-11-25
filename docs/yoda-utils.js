@@ -1732,8 +1732,11 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Panel</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Panel</a>");
-			$("#yodamenu").append("<a href='javascript:yoda.setDarkColorScheme();'>Dark Theme</a>");
-			$("#yodamenu").append("<a href='javascript:yoda.setDefaultColorScheme();'>Default Theme</a>");
+			
+			if (typeof Chart !== 'undefined') {
+				$("#yodamenu").append("<a href='javascript:yoda.setDarkColorScheme();'>Dark Theme</a>");
+				$("#yodamenu").append("<a href='javascript:yoda.setDefaultColorScheme();'>Default Theme</a>");
+			}
 			
 			if (yoda.decodeUrlParam(null, "hidepanel") == "true") {
 				yoda.hideTopPanel();
