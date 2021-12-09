@@ -206,11 +206,12 @@ function formatIssueRN(issue) {
 	
 	if (rnText != "") {
 		issueText = issueText.replace(/%y/, rnText);
-		if ($('input:radio[name="outputformat"]:checked').val()== "html") { 
-			issueText = issueText.replace(/%x/, rnText);
-		} else {
+		// Don't add newLines if there is already a paragraph.
+		if (rnText.indexOf("<p>") == -1)
 			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
-		}
+		else
+			issueText = issueText.replace(/%x/, rnText);
+		console.log(":" + issueText + ":");
 	} else { 
 		issueText = issueText.replace(/%x/, "");
 		issueText = issueText.replace(/%y/, title);
@@ -721,7 +722,7 @@ function changeOutput() {
 			setDefaultAndValue("sformat", "<H2>,</H2>\\n");
 			setDefaultAndValue("ssformat", "<H3>,</H3>\\n");
 			setDefaultAndValue("listformat", "<table><thead><tr><th width=10%>Number</th><th width=90%>Description</th></tr></thead><tbody>\n,</tbody></table>\n,<tr>\n,</tr>\n");
-			setDefaultAndValue("rnformat", "<td>" + iss + "</td><td>%t%r</td>");
+			setDefaultAndValue("rnformat", "<td>" + iss + "</td><td>%t%x</td>");
 			setDefaultAndValue("catformat", '<td colspan=2 class="ic"><b>' + cat + '</b></td>');
 			
 		} else {
