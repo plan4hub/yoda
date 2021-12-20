@@ -52,8 +52,8 @@ function getUrlParams() {
 	if ($('#history').is(":checked")) {
 		params += "&history=true";
 	}
-	if ($('#righttotal').is(":checked")) {
-		params += "&righttotal=true";
+	if (!($('#righttotal').is(":checked"))) {
+		params += "&righttotal=false";
 	}
 	if ($('#percentage').is(":checked")) {
 		params += "&percentage=true";
@@ -781,7 +781,8 @@ function createChart() {
 		}
 	} else {	
 		// Add line for total, but only if bars (and not stacked)
-		if (bars.length > 0 && stacked == false) {
+	//	if (bars.length > 0 && stacked == false) {
+		if (rightTotal) {
 			datasetArray.push({
 				type : 'line',
 				label : 'Total',
@@ -846,7 +847,8 @@ function createChart() {
 	}
 	
 	// Add second axis.
-	if ((bars.length > 0 && stacked == false) || rightTotal) {
+//	if ((bars.length > 0 && stacked == false) || rightTotal) {
+	if (rightTotal) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
