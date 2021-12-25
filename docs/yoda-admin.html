@@ -254,6 +254,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 	</div>
 
+	<div class="frame">
+		<div class="frameheader">
+			<h3>Other Global Settings</h3>
+		</div>
+
+		<div class="field">
+			<label>Frame background color</label> <input type="text" id="framebackground" size="15" value="" onchange="setLocalStorage('yoda.global.framebackground', this.value)">
+			 <span class="tooltip">Frame background color (default green #01a982)</span>
+		</div>
+	</div>
+
 	<div id="snackbar">Some text some message..</div>
 
 	<script>
@@ -282,6 +293,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));
 			$("#kanban_columns").val(localStorage.getItem("yoda.kanban.columns"));
 			$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));
+			$("#framebackground").val(localStorage.getItem("yoda.global.framebackground"));
 			if (yoda.getDefaultLocalStorageValue("yoda.estimate") == null)
 			     $('input[name=estimate][value=""]').attr('checked',true);
 			else

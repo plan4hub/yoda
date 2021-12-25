@@ -1760,6 +1760,13 @@ var yoda = (function() {
 				}
 			}
 			
+			// Adjust frame, menu, etc. background color?
+			var background = yoda.getDefaultLocalStorageValue("yoda.global.framebackground");
+			if (background != "") {
+					let root = document.documentElement;
+  					root.style.setProperty("--main-bg-color", background);
+			}
+			
 			// A slight hack to put here, but this is where everything goes.
 			try {
 				Chart.defaults.global.defaultFontSize = 14;

@@ -24,6 +24,10 @@ body {
     word-wrap: break-word;
 }
 
+:root {
+  --main-bg-color: #01a982;
+}
+
 /* HATE spinners */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -134,7 +138,7 @@ select, input, label, textarea {
  	overflow: hidden;
 	margin: 0 0 3px 0px;
 	padding: 3px;
-	background: #01a982;       /* HPE Green */ 
+	background: var(--main-bg-color);       /* HPE Green */ 
 /*	background: #00a3cc;  */   /* Nice blue */ 
 }
 button {
@@ -173,12 +177,12 @@ tr:nth-child(even){background-color: #f2f2f2}
 thead {
     padding-top: 11px;
     padding-bottom: 11px;
-    background-color: #01a982;
+    background-color: var(--main-bg-color);
     color: white;
 }
 
 .ic {
-    background-color: #01a982;
+    background-color: var(--main-bg-color);
     color: white;
 }
 
@@ -230,7 +234,7 @@ thead {
     visibility: hidden;
     min-width: 250px;
     margin-left: -125px;
-    background-color: #01a982;
+    background-color: var(--main-bg-color);
     color: #fff;
     text-align: center;
     border-radius: 2px;
@@ -314,7 +318,7 @@ thead {
 }
 .dropdown-content a:hover {
 	color: white; 
-	background-color: #01a982;
+	background-color: var(--main-bg-color);
 }
 .show {
 	display:block;
