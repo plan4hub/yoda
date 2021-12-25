@@ -766,7 +766,6 @@ function createChart() {
 				lineTension: 0,
 				borderColor: yoda.getColor("lineBackground")
 			});
-			
 		} else {
 			// Normal case. Right total line against right axis.
 			datasetArray.push({
@@ -774,21 +773,7 @@ function createChart() {
 				label : 'Total',
 				fill : false,
 				yAxisID: "yright",
-				data : totalAlwaysArray,
-				lineTension: 0,
-				borderColor: yoda.getColor("lineBackground")
-			});
-		}
-	} else {	
-		// Add line for total, but only if bars (and not stacked)
-	//	if (bars.length > 0 && stacked == false) {
-		if (rightTotal) {
-			datasetArray.push({
-				type : 'line',
-				label : 'Total',
-				fill : false,
-				yAxisID: "yright",
-				data : totalArray,
+				data : (countType == "closed" || countType == "opened")?totalAlwaysArray : totalArray,
 				lineTension: 0,
 				borderColor: yoda.getColor("lineBackground")
 			});
@@ -838,16 +823,10 @@ function createChart() {
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
 	rightLabel["velocity"] = "Story points per day";
-	if (rightTotal) { 
-		rightLabel["opened"] = "No open issues";
-		rightLabel["closed"] = "No open issues";
-	} else {
-		rightLabel["opened"] = "Total issues opened";
-		rightLabel["closed"] = "Total issues closed";
-	}
+	rightLabel["opened"] = "No open issues";
+	rightLabel["closed"] = "No open issues";
 	
 	// Add second axis.
-//	if ((bars.length > 0 && stacked == false) || rightTotal) {
 	if (rightTotal) {
 		chartScales["yright"] = {    
 			title: {
