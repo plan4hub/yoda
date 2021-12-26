@@ -24,6 +24,9 @@ globalLabels["srclabels"] = {};
 globalLabels["dstlabels"] = {};
 
 function showLabels(labelTag, labels, operationFunc) {
+	// Let's sort the labels.
+	labels.sort((a, b) => (a.name < b.name)? -1 : 1);
+	
 	$("#" + labelTag).html("");
 	globalLabels[labelTag] = labels;
 	
