@@ -29,6 +29,9 @@ function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
 	params += "&milestonelist=" + $("#milestonelist").val();
+	if ($('#closedmilestones').is(":checked")) {
+		params += "&closedmilestones=true";
+	}
 	return params;
 }
 
@@ -103,10 +106,17 @@ function updateMilestones(repoIndex) {
 		// Sort and add
 		commonMilestones.sort();
 		console.log("The common milestones are: " + commonMilestones);
+		
+		var milestoneListUrl = yoda.decodeUrlParam(null, "milestonelist");
+		console.log("milestoneListUrl: " + milestoneListUrl);
+
 		var milestonesSelected = false;
 		for (var c = 0; c < commonMilestones.length; c++) {
 			var selectMilestone = false;
-			if (selectMilestones.indexOf(commonMilestones[c]) != -1) { 
+			if (firstMilestoneShow && 
+				((milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
+				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1))) {
+ 
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
@@ -120,6 +130,8 @@ function updateMilestones(repoIndex) {
 		
 		updateCompleteMilestoneList();
 		displayRepoMilestones();
+		
+		firstMilestoneShow = false;
 	}
 }
 

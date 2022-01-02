@@ -98,9 +98,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.enableMenu();
 		
 		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		var selectMilestones = yoda.decodeUrlParam(null, "milestonelist");
-		if (selectMilestones == null)
-			selectMilestones = [];
+		selectMilestones = [];
+		
+		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
 
 		yoda.decodeUrlParam("#owner", "owner");
 		
