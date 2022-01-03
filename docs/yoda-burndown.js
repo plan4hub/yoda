@@ -934,7 +934,8 @@ function burndown(issues) {
 				barPercentage: 1,
 				borderWidth : 2,
 				categoryPercentage: 1,
-				yAxisID: "yleft"
+				yAxisID: "yleft",
+				order: 1
 			},
 			{
 				type : 'line',
@@ -960,7 +961,8 @@ function burndown(issues) {
 			data : remainingNoFreezeArray,
 			backgroundColor : 'rgb(0, 100, 38, 0.6)',  // some color - TODO
 			barPercentage: 1,
-			categoryPercentage: 1
+			categoryPercentage: 1,
+			order: 1
 		});
 		
 		chartData.datasets.push({
@@ -986,7 +988,8 @@ function burndown(issues) {
 			borderWidth : 2,
 			backgroundColor : 'rgb(255, 255, 51)',  // Yellow
 			barPercentage: 1,
-			categoryPercentage: 1
+			categoryPercentage: 1,
+			order: 1
 		});
 	}
 
@@ -994,33 +997,38 @@ function burndown(issues) {
 	if ($('#trendline').is(":checked")) {
 		console.log("Calculating trendline. remainingArray (length " + remainingArray.length + ") = " + remainingArray);
 		remainingTrendArray[0] = remainingArray[0];
-		console.log("Startinmg at " + remainingTrendArray[0]);
+		console.log("Starting at " + remainingTrendArray[0]);
 		
 	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). 
 		// Let's accept to couble the duration
-		for (tryIndex = 1; tryIndex < remainingArray.length && !isNaN(remainingArray[tryIndex]); tryIndex++);
-		tryIndex--;
-		var slope = (remainingArray[0] - remainingArray[tryIndex]) / tryIndex;
-		remainingTrendArray[tryIndex] = remainingArray[tryIndex];
-		for (; tryIndex < remainingArray.length - 1; tryIndex++)
-			remainingTrendArray[tryIndex + 1] = remainingTrendArray[tryIndex] - slope;
-
-		// Add the trendLine end date (the tryIndex) to trendline legend, if later than duedate
-		var trendLabel = "TrendLine";
-		
-		console.log(remainingTrendArray);
-		
-		chartData.datasets.push({
-			type : 'line',
-			label : trendLabel,
-			borderColor: '#414d8a',
-			borderDash: [15, 5],
-			fill : false,
-			data : remainingTrendArray,
-			pointRadius: 0,
-			spanGaps: true,
-			yAxisID: "yline"
-		});
+		for (tryIndex = 0; tryIndex < remainingArray.length && !isNaN(remainingArray[tryIndex + 1]) && remainingArray[tryIndex + 1] != 0; tryIndex++);
+		if (tryIndex > 0) {
+			var slope = (remainingArray[0] - remainingArray[tryIndex]) / tryIndex;
+			console.log("tryIndex: " + tryIndex + ", remainingArray[tryIndex]:" + remainingArray[tryIndex] + ", slope:" + slope);
+			remainingTrendArray[tryIndex] = remainingArray[tryIndex];
+			for (; tryIndex < remainingIdealFullArray.length - 1; tryIndex++) {
+				if (remainingTrendArray[tryIndex] - slope < 0)
+					break;
+				remainingTrendArray[tryIndex + 1] = remainingTrendArray[tryIndex] - slope;
+			}
+	
+			// Add the trendLine end date (the tryIndex) to trendline legend, if later than duedate
+			var trendLabel = "TrendLine";
+			
+			console.log(remainingTrendArray);
+			
+			chartData.datasets.push({
+				type : 'line',
+				label : trendLabel,
+				borderColor: '#414d8a',
+				borderDash: [15, 5],
+				fill : false,
+				data : remainingTrendArray,
+				pointRadius: 0,
+				spanGaps: true,
+				yAxisID: "yline"
+			});
+		}
 	}
 
 	// Axis legend depend on whether working from estimates in issues, or simply number of issues.
