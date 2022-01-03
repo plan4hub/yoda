@@ -736,7 +736,8 @@ function createChart() {
 			label : actualBar,
 			fill : false,
 			data : dataArray[b],
-			backgroundColor : yoda.barColors[b]
+			backgroundColor : yoda.barColors[b],
+			order: 2
 		});
 	}
 
@@ -748,7 +749,8 @@ function createChart() {
 			fill : false,
 			data : otherArray,
 			yAxisID: "yleft",
-			backgroundColor : 'rgb(191, 191, 191)' // grey'ish
+			backgroundColor : 'rgb(191, 191, 191)', // grey'ish
+			order: 2
 		});
 	}
 
@@ -764,7 +766,8 @@ function createChart() {
 				yAxisID: "yright",
 				data : storyPointsPerDayArray,
 				lineTension: 0,
-				borderColor: yoda.getColor("lineBackground")
+				borderColor: yoda.getColor("lineBackground"),
+				order: 1
 			});
 		} else {
 			// Normal case. Right total line against right axis.
@@ -775,7 +778,8 @@ function createChart() {
 				yAxisID: "yright",
 				data : (countType == "closed" || countType == "opened")?totalAlwaysArray : totalArray,
 				lineTension: 0,
-				borderColor: yoda.getColor("lineBackground")
+				borderColor: yoda.getColor("lineBackground"),
+				order: 1
 			});
 		}
 	}
