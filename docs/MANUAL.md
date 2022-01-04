@@ -364,7 +364,7 @@ Label manager can also delete labels, but only in case no issues (open or closed
 
 Label manager is available [here](yoda-label-manager.html).
 
-[Example](yoda-kanban.html?srcowner=hewlettpackard&srcrepo=yoda-demo&dstowner=hewlettpackard&dstrepo=yoda-demo2).
+[Example](yoda-label-manager.html?srcowner=hewlettpackard&srcrepo=yoda-demo&dstowner=hewlettpackard&dstrepo=yoda-demo2).
 
 
 ## Issue Exporter
