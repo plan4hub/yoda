@@ -822,6 +822,9 @@ function createChart() {
 			}
 		}
 	};
+	// If percentage scale, make sure we go only to 100
+	if (percentage)
+		chartScales.yleft.max = 100;
 	
 	rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
