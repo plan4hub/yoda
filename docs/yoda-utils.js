@@ -1728,7 +1728,8 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-export-web.html\", true)'>Export to Web Pages</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats-csv.html\", true)'>CSV based Statistics</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-repositories.html\", true)'>Repository Overview</a>");
-			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
+//			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
+			$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html" target="_blank">User Manual</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Panel</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Panel</a>");
