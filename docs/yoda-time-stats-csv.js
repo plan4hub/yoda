@@ -292,7 +292,8 @@ function createChart() {
 				label : actualBar,
 				fill : false,
 				data : dataArray[b],
-				backgroundColor : yoda.barColors[b]
+				backgroundColor : yoda.barColors[b],
+				order: 1
 			});
 		}
 	} else {
@@ -302,7 +303,8 @@ function createChart() {
 			label : 'Total',
 			fill : false,
 			data : totalArray,
-			backgroundColor : yoda.barColors[0]
+			backgroundColor : yoda.barColors[0],
+			order: 1
 		});
 	}
 
