@@ -33,6 +33,7 @@ _________
 	- [CFD Chart](#cfd-chart)
 	- [Release Notes](#release-notes)
 	- [Repository Overview](#repositories)
+	- [CSV Statistics Report](#csv-statistics-report)
 - [Issue Tools](#issue-tools)
 	- [Kanban Board](#kanban-board)
 	- [Milestone Manager](#milestone-manager)
@@ -445,7 +446,7 @@ It is possible to scope repositories based on a comma-separate list of topics th
 It is also possible to use the `repolist` argument to specify a search argument using a wildcard at the end of a `repolist` argument (only one element). Exampe `repolist=yoda*`. This will mirror the repository selection search facility available in Yoda.
 
 
-# Using Yoda to split CSV time-series files stored on GitHub
+# CSV Statistics Report
 
 A special version of the statistics time based report is available. The main focus is to plot occurances of events (initial scope was security vulnerability events reported by scanning tools) in a similar way as is done for issues. Instead of scoping GitHub issues, the first line is used to point to a CSV file stored in GitHub.
 

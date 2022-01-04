@@ -1712,7 +1712,7 @@ var yoda = (function() {
 		},
 		
 		// Menu stuff
-		enableMenu: function() {
+		enableMenu: function(helpTarget) {
 			// Build the menu
 			$("#yodamenu").append('<a href="index.html">Landing Page</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats.html\", true)'>Time Statistics Report</a>");
@@ -1729,7 +1729,10 @@ var yoda = (function() {
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats-csv.html\", true)'>CSV based Statistics</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-repositories.html\", true)'>Repository Overview</a>");
 //			$("#yodamenu").append('<a href="MANUAL.html">User Manual</a>');
-			$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html" target="_blank">User Manual</a>');
+			if (helpTarget != undefined)
+				$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html' + helpTarget + '" target="_blank">User Manual</a>');
+			else
+				$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html" target="_blank">User Manual</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-admin.html\", false)'>Admin Settings</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.hideTopPanel()'>Hide Panel</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.showTopPanel()'>Show Panel</a>");
