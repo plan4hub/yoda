@@ -36,6 +36,9 @@ function getUrlParams() {
 	if ($("#milestonefilter").val() != "") {
 		params += "&milestonefilter=" + $("#milestonefilter").val();
 	}
+	if ($("#assigneefilter").val() != "") {
+		params += "&assigneefilter=" + $("#assigneefilter").val();
+	}
 	if ($("#title").val() != "") {
 		params += "&title=" + $("#title").val();
 	}
@@ -561,12 +564,20 @@ function storeIssuesThenCreateChart(issues) {
 
 // -------------------------
 
+function addAssigneeFilter(repo) {
+	if ($("#assigneefilter").val() == "")
+		return "";
+	else
+		return "&assignee=" + $("#assigneefilter").val(); 
+}
+
+
 function startChart(chartType) {
 	_chartType = chartType
 	if ($("#repolist").val() == "")
 		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000); });
 	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000); });
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addAssigneeFilter, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000); });
 }
 
 // --------------
