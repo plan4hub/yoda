@@ -202,8 +202,7 @@ function formatIssueRN(issue) {
 	if (estimate == null)
 		estimate = "";
 	issueText = issueText.replace(/%e/, estimate);
-	
-	
+
 	if (rnText != "") {
 		issueText = issueText.replace(/%y/, rnText);
 		// Don't add newLines if there is already a paragraph.
@@ -216,6 +215,9 @@ function formatIssueRN(issue) {
 		issueText = issueText.replace(/%x/, "");
 		issueText = issueText.replace(/%y/, title);
 	}
+	
+	// Make sure that there is no blank space before any possible paragraph.
+	issueText = issueText.replaceAll('<p>', '<p style="margin-top: 0">');
 	
 	return issueText;
 }
