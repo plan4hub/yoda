@@ -207,7 +207,7 @@ function formatIssueRN(issue) {
 	if (rnText != "") {
 		issueText = issueText.replace(/%y/, rnText);
 		// Don't add newLines if there is already a paragraph.
-		if (rnText.indexOf("<p>") == -1)
+		if (issueText.indexOf("<p>") == -1)
 			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
 		else
 			issueText = issueText.replace(/%x/, rnText);
