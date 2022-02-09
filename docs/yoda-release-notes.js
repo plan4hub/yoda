@@ -184,11 +184,21 @@ function formatIssueRN(issue) {
 	
 	// HTML?
 	var mdChars = /[*`_~>]+/;
-	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "" && mdChars.test(rnText)) 
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "" && mdChars.test(rnText)) { 
 		rnText = parseRNMarkdown(rnText);
 		
-	if ($('input:radio[name="outputformat"]:checked').val()== "html" && title != "" && mdChars.test(title)) 
+		// If <p> formatted, let's get rid of any bottom or top margin.
+		rnText = rnText.replaceAll('<p>', '<p style="margin: 0">');
+	}
+	console.log("rnText:" + rnText);
+		
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && title != "" && mdChars.test(title)) { 
 		title = parseRNMarkdown(title);
+
+		// If <p> formatted, let's get rid of any top margin.
+		title = title.replaceAll('<p>', '<p style="margin-top: 0">');
+	}
+	console.log("title:" + title);
 
 	// substitude into template
 	issueText = rnFormat;
@@ -206,7 +216,7 @@ function formatIssueRN(issue) {
 	if (rnText != "") {
 		issueText = issueText.replace(/%y/, rnText);
 		// Don't add newLines if there is already a paragraph.
-		if (issueText.indexOf("<p>") == -1)
+		if (issueText.indexOf("<p") == -1)
 			issueText = issueText.replace(/%x/, newLine + newLine + rnText);
 		else
 			issueText = issueText.replace(/%x/, rnText);
@@ -215,9 +225,6 @@ function formatIssueRN(issue) {
 		issueText = issueText.replace(/%x/, "");
 		issueText = issueText.replace(/%y/, title);
 	}
-	
-	// Make sure that there is no blank space before any possible paragraph.
-	issueText = issueText.replaceAll('<p>', '<p style="margin-top: 0">');
 	
 	return issueText;
 }
