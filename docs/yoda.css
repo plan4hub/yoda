@@ -177,12 +177,14 @@ tr:nth-child(even){background-color: #f2f2f2}
 thead {
     padding-top: 11px;
     padding-bottom: 11px;
-    background-color: var(--main-bg-color);
+/*    background-color: var(--main-bg-color); */
+    background-color: #01a982; 
     color: white;
 }
 
 .ic {
-    background-color: var(--main-bg-color);
+/*    background-color: var(--main-bg-color); */
+    background-color: #01a982; 
     color: white;
 }
 
