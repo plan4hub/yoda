@@ -421,7 +421,8 @@ function startChart() {
 		fill : false,
 		data : [],
 		yAxisID: "yright",
-		backgroundColor : 'rgb(255, 255, 26)' 
+//		backgroundColor : 'rgb(255, 255, 26)' 
+		backgroundColor : 'rgb(220, 220, 26)'
 	});
 	labels.push("Storypoints / capacity");
 	
