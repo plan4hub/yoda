@@ -1831,8 +1831,8 @@ var yoda = (function() {
 				if (lineEnd == -1)
 					var line = body.substr(lineStart);
 				else
-					var line = body.substr(lineStart, lineEnd - lineStart);  
-				if (line.length == 0)
+					var line = body.substr(lineStart, lineEnd - lineStart);
+				if (line.length == 0 || (line.length == 1 && line.charCodeAt(0) == 13))
 					break;
 				if (text != "") 
 					text += newLine;
