@@ -126,25 +126,25 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>Start date</label>
-			<input type="text" id="milestone_start" size="10" value="">
+			<input type="text" id="milestone_start" size="8" value="">
 			<span class="tooltip">Sprint start date</span>
 		</div>
 
 		<div class="field">
 			<label>Due date</label>
-			<input type="text" id="milestone_due" size="10" value="">
+			<input type="text" id="milestone_due" size="8" value="">
 			<span class="tooltip">Sprint due/end date</span>
 		</div>
 
 		<div class="field">
 			<label>Burndown date</label>
-			<input type="text" id="burndown_due" size="10" value="">
+			<input type="text" id="burndown_due" size="8" value="">
 			<span class="tooltip">Burndown date (optional)</span>
 		</div>
 
 		<div class="field">
 			<label>Capacity</label>
-			<input type="text" id="capacity" size="6" value="">
+			<input type="text" id="capacity" size="5" value="">
 			<span class="tooltip">Sprint capacity (story points)</span>
 		</div>
 		
@@ -161,7 +161,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
-			<label>Trendline</label>
+			<label>Title</label>
+			<input type="text" id="title" size="20" value="">
+			<span class="tooltip">Chart title</span>
+		</div>
+
+		<div class="field">
+			<label>Trend</label>
 			<input type="checkbox" id="trendline">
             <span class="tooltip">Draw a burndown trendline</span>
 		</div>
@@ -224,6 +230,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#additionaldata", "additionaldata");
 		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
 		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.decodeUrlParam("#title", "title");
 		
 		yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
 		yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");

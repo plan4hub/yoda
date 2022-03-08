@@ -56,6 +56,10 @@ function getUrlParams() {
 	if (capacity != null) {
 		params += "&capacity=" + capacity;
 	}
+	if ($("#title").val() != "") {
+		params += "&title=" + $("#title").val();
+	}
+
 
 	return params;
 }
@@ -1040,9 +1044,13 @@ function burndown(issues) {
 	}
 	
 	// Chart title
-	var titleText = "Burndown chart for ";
-	if ($("#milestonelist").val() != "") 
-		titleText +=  $("#owner").val() + "/" + $("#repolist").val() + " for milestone " + $("#milestonelist").val();
+	if ($("#title").val() != "")
+		var titleText = $("#title").val();
+	else {
+		var titleText = "Burndown chart for ";
+		if ($("#milestonelist").val() != "") 
+			titleText +=  $("#owner").val() + "/" + $("#repolist").val() + " for milestone " + $("#milestonelist").val();
+	}
 	
 	// Find yMaxValue
 	var yMaxValue = -1;
