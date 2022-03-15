@@ -276,10 +276,16 @@ function createCommentsChart(dateIndex) {
 				position: "left",
 				ticks: {
 					beginAtZero: true
+				},
+				grid: {
+					color: yoda.getColor('gridColor')
 				}
 			},
 			x: {
-				stacked: stacked
+				stacked: stacked,
+				grid: {
+					color: yoda.getColor('gridColor')
+				}
 			}
 		};
 		
@@ -293,6 +299,9 @@ function createCommentsChart(dateIndex) {
 				position: "right",
 				ticks: {
 					beginAtZero: true
+				},
+				grid: {
+					display: false
 				}
 			};
 		};
