@@ -239,7 +239,9 @@ function createCommentsChart(dateIndex) {
 					fill : false,
 					yAxisID: "yright",
 					data : comTotalArray,
-					lineTension: 0
+					lineTension: 0,
+					borderColor: yoda.getColor("lineBackground"),
+					order: 1
 				});
 		} else {	
 			// Add line for total, but only if bars (and not stacked)
@@ -251,7 +253,9 @@ function createCommentsChart(dateIndex) {
 					fill : false,
 					yAxisID: "yright",
 					data : totalArray,
-					lineTension: 0
+					lineTension: 0,
+					borderColor: yoda.getColor("lineBackground"),
+					order: 1
 				});
 			}
 		}
