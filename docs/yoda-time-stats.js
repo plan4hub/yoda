@@ -227,7 +227,7 @@ function createCommentsChart(dateIndex) {
 				backgroundColor : yoda.barColors[0]
 			});
 		}
-
+		
 		// What should we put on right axis
 		// TBD: If velocity, play on right axis instead 
 		if (rightTotal) {
@@ -237,7 +237,7 @@ function createCommentsChart(dateIndex) {
 					label : 'Total',
 					borderWidth : 2,
 					fill : false,
-					yAxisID: "y-axis-right",
+					yAxisID: "yright",
 					data : comTotalArray,
 					lineTension: 0
 				});
@@ -249,51 +249,49 @@ function createCommentsChart(dateIndex) {
 					label : 'Total',
 					borderWidth : 2,
 					fill : false,
-					yAxisID: "y-axis-right",
+					yAxisID: "yright",
 					data : totalArray,
 					lineTension: 0
 				});
 			}
 		}
 		
-		// We will push data to a 
-		var chartData = {
-				labels : comDateArray,
-				datasets : datasetArray
+        // We will push data to a
+        var chartData = {
+			labels : comDateArray,
+			datasets : datasetArray
 		};
 		
 		var chartScales = {
-				yAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: "No of comments",
-					},
-					stacked: stacked,
-					position: "left",
-					id: "y-axis-left",
-					ticks: {
-						beginAtZero: true
-					}
-				}],
-				xAxes: [{
-					stacked: stacked
-				}]
+			yleft: {
+				title: {
+					display: true,
+					text: "No of comments",
+				},
+				stacked: stacked,
+				position: "left",
+				ticks: {
+					beginAtZero: true
+				}
+			},
+			x: {
+				stacked: stacked
+			}
 		};
 		
 		// Add second axis.
 		if ((bars.length > 0 && stacked == false) || rightTotal) {
-			chartScales.yAxes.push({    
-				scaleLabel: {
+			chartScales["yright"] = {    
+				title: {
 					display: true,
-					labelString: "Total comments",
+					text: "Total comments",
 				},
 				position: "right",
-				id: "y-axis-right",
 				ticks: {
 					beginAtZero: true
 				}
-			});		
-		}
+			};
+		};
 
 		// -----------------------------------------------------------
 		// DATA. Draw the chart
