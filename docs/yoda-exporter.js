@@ -438,7 +438,13 @@ function exportIssues(issues) {
 				for (var s = 0; s < sharedLabels.length; s++) {
 					if (sharedLabels[s].name == fName) {
 						el[fName] = "";
-						var splitReg = new RegExp(sharedLabels[s].regexp);
+						if (sharedLabels[s].regexp.startsWith("!")) { 
+							var splitReg = new RegExp(sharedLabels[s].regexp.substring(1));
+							var mustMatch = true;
+						} else {
+							var splitReg = new RegExp(sharedLabels[s].regexp);
+							var mustMatch = false;
+						}
 						for (var l=0; l<issues[i].labels.length; l++) {
 							var labelName = issues[i].labels[l].name;
 							var res = labelName.match(splitReg);
@@ -451,6 +457,8 @@ function exportIssues(issues) {
 								el[fName] = labelName;
 							}
 						}
+						if (el[fName] == "" && mustMatch)
+							skipIssue = true;
 					}
 				}
 				if (el[fName] == undefined) {
