@@ -1273,6 +1273,7 @@ var yoda = (function() {
 		
 		// Retrieve GitHub file contents for a file under github control. 
 		getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
+			console.log(owner, repo, path, branch);
 			var directory = path.split("/").slice(0, -1).join("/"); 
 			var file = path.split("/").slice(-1);
 			console.log("owner: " + owner + ", repo: " + repo + ", path: " + path + ", branch: " + branch + ", directory: " + directory + ", file: " + file);
@@ -1710,6 +1711,13 @@ var yoda = (function() {
 				// Ignore
 			} 
 			yoda.topPanelHidden = false;
+			
+			// Show CSS frame if there?
+			try {	
+				$("#cssowner").closest(".frame").show();
+			} catch(e) {
+				// Ignore
+			}
 		},
 		
 		// Menu stuff

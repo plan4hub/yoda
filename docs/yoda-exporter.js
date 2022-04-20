@@ -18,6 +18,9 @@
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+// Global variable for any css overwrite
+var css = "";
+
 function addIfNotDefault(params, field) {
 	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
 		return params + "&" + field + "=" + $("#" + field).val(); 
@@ -70,6 +73,12 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "labelindicator");
 	params = addIfNotDefault(params, "epiclabel");
 	params = addIfNotDefault(params, "outputfile");
+	
+	params = addIfNotDefault(params, "cssowner");
+	params = addIfNotDefault(params, "cssrepo");
+	params = addIfNotDefault(params, "csspath");
+	params = addIfNotDefault(params, "cssbranch");
+	
 	params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#state").val() != "open") {
 		params += "&state=" + $("#state").val(); 
@@ -555,7 +564,7 @@ function exportIssues(issues) {
 	} else {
 		// Export to table instead
 		var table = document.getElementById("issuesTable");
-		table.innerHTML = "";
+		table.innerHTML = css;
 		$("#consoleframe").hide();
 		var header = table.createTHead();
 		var headerRow = header.insertRow();     
@@ -714,22 +723,35 @@ function startExport(exp) {
 	exportToCsv = exp;
 	$("#console").val("");
 	
-	// Need comments?
-	if ($("#fields").val().indexOf("Comments") != -1) {
-		// Yes, need comments
-		if ($("#repolist").val() == "") 
-			yoda.updateGitHubIssuesOrgWithComments($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-		else
-			yoda.updateGitHubIssuesReposWithComments($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+	if (exportToCsv == false && $("#cssowner").val() != "" && $("#cssrepo").val() != "" && $("#csspath").val() != "" && css == "") {
+		// Let's get the css, then call again.
+		yoda.getGitFile($("#cssowner").val(), $("#cssrepo").val(), $("#csspath").val(), $("#cssbranch").val(), 
+		function(data) {
+			css = "<style>" + data + "</style>";
+			startExport(exp);
+		}, 
+		function(errorText) {
+			yoda.showSnackbarError(errorText);
+		});
 	} else {
-		// No not need comments
-		if ($("#repolist").val() == "") 
-			yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-		else
-			yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		// Get the issues - and maybe comments as well.
+		 
+		// Need comments?
+		if ($("#fields").val().indexOf("Comments") != -1) {
+			// Yes, need comments
+			if ($("#repolist").val() == "") 
+				yoda.updateGitHubIssuesOrgWithComments($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+			else
+				yoda.updateGitHubIssuesReposWithComments($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		} else {
+			// No not need comments
+			if ($("#repolist").val() == "") 
+				yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#state").val(), exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+			else
+				yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#state").val(), null, exportIssues, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		}
+		logMessage("Info: Initiated Github request.");
 	}
-
-	logMessage("Info: Initiated Github request.");
 }
 
 //-------------------------

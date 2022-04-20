@@ -33,8 +33,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
-
 </head>
+
 <body>
 	<script type='text/javascript' src="./yoda-utils.js"></script>
 	<script type='text/javascript' src="./yoda-exporter.js"></script>
@@ -72,6 +72,32 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>Label filter</label> <input type="text" size="37"
 				id="labelfilter" value=""> <span class="tooltip">Label
 				filter as comma separated list w/o spaces (AND)</span>
+		</div>
+	</div>
+
+	<div class="frame" style="display: none;">
+		<div class="field">
+			<label>CSS Owner</label>
+			<input type="text" id="cssowner" size="15">
+			<span class="tooltip">GitHub organization or user for CSS file</span>
+		</div>
+
+		<div class="field">
+			<label>CSS Repository</label>
+			<input id="cssrepo" size="15">
+			<span class="tooltip">Repo for CSS file</span>
+		</div>
+		
+		<div class="field">
+			<label>CSS Path</label>
+			<input type="text" size="50" id="csspath" value="">
+			<span class="tooltip">Path for CSS file</span>
+		</div>
+
+		<div class="field">
+			<label>CSS Branch / Commit</label>
+			<input type="text" size="20" id="cssbranch" value="">
+			<span class="tooltip">Optional branch for CSS file</span>
 		</div>
 	</div>
 
@@ -129,6 +155,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 	</div>
 
+
 	<div class="frame">
 		<div class="field">
 			<label>CSV delimiter</label> <input type="text" id="csvdelimiter"
@@ -181,14 +208,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<button id="exportbutton" onclick="startExport(true)">Export</button>
-		<button id="tablebutton" onclick="startExport(false)">Show Table</button>
+		<button id="tablebutton" onclick='css=""; startExport(false)'>Show Table</button>
 	</div>
 
 	<div class="frame" id="exportorgframe" style="display:none">
 		<button id="exportorgbutton" onclick="startExportOrg()">Export Organizations</button>
 	</div>
 
-	
 	<br>
 	<div class="frame" id="consoleframe">
 		<div class="field">
@@ -228,7 +254,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParamRadio("estimate", "estimate");
 		yoda.updateEstimateRadio();
 		yoda.decodeUrlParamBoolean("#exportevents", "exportevents");
-	
+
+		
+		// CSS stuff
+		yoda.decodeUrlParam("#cssowner", "cssowner");
+		yoda.decodeUrlParam("#cssrepo", "cssrepo");
+		yoda.decodeUrlParam("#csspath", "csspath");
+		yoda.decodeUrlParam("#cssbranch", "cssbranch");
+		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");
 
