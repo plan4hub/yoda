@@ -119,6 +119,33 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 	</div>
+	
+	<div class="frame" style="display: none;">
+		<div class="field">
+			<label>CSS Owner</label>
+			<input type="text" id="cssowner" size="15">
+			<span class="tooltip">GitHub organization or user for CSS file</span>
+		</div>
+
+		<div class="field">
+			<label>CSS Repository</label>
+			<input id="cssrepo" size="15">
+			<span class="tooltip">Repo for CSS file</span>
+		</div>
+		
+		<div class="field">
+			<label>CSS Path</label>
+			<input type="text" size="50" id="csspath" value="">
+			<span class="tooltip">Path for CSS file</span>
+		</div>
+
+		<div class="field">
+			<label>CSS Branch / Commit</label>
+			<input type="text" size="20" id="cssbranch" value="">
+			<span class="tooltip">Optional branch for CSS file</span>
+		</div>
+	</div>
+	
 
 	<div class="frame">
 		<div class="field">
@@ -267,6 +294,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#listformat", "listformat");
 		yoda.decodeUrlParam("#catformat", "catformat");
 		yoda.decodeUrlParam("#rnformat", "rnformat");
+		
+		// CSS stuff
+		yoda.decodeUrlParam("#cssowner", "cssowner");
+		yoda.decodeUrlParam("#cssrepo", "cssrepo");
+		yoda.decodeUrlParam("#csspath", "csspath");
+		yoda.decodeUrlParam("#cssbranch", "cssbranch");
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

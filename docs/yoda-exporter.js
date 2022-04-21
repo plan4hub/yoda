@@ -731,7 +731,7 @@ function startExport(exp) {
 			startExport(exp);
 		}, 
 		function(errorText) {
-			yoda.showSnackbarError(errorText);
+			yoda.showSnackbarError("Error retriving CCS file: " + errorText);
 		});
 	} else {
 		// Get the issues - and maybe comments as well.

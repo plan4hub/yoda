@@ -33,6 +33,8 @@ var repoIssues = []; // List of issues. Full structure as returned from github.
 
 var download = false; // global - a bit of a hack.
 
+var css = "";
+
 function addIfNotDefault(params, field) {
 	var defaultValue = $("#" + field).prop('defaultValue');
 	// Hack. Make sure no real newlines into default value.
@@ -67,6 +69,11 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "catformat");
 	params = addIfNotDefault(params, "rnformat");
 	params = addIfNotDefault(params, "catlabel");
+	
+	params = addIfNotDefault(params, "cssowner");
+	params = addIfNotDefault(params, "cssrepo");
+	params = addIfNotDefault(params, "csspath");
+	params = addIfNotDefault(params, "cssbranch");
 	
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
@@ -371,7 +378,10 @@ function makeRN(headline, changesOrKnown, draw) {
 	}
 
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
-		rn.innerHTML = rnText;
+		if (css != "")
+			rn.innerHTML = "<style>" + css + "</style>" + rnText;
+		else
+			rn.innerHTML = rnText;
 	} else {
 		rn.innerHTML = "<pre>" + rnText + "</pre>";
 	}
@@ -393,12 +403,42 @@ function makeRN(headline, changesOrKnown, draw) {
 
 function startRN(_download) {
 	download = _download;
-	updateIssuesForRN();
+	css = "";
+	
+	// Custom CSS stuff
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && $("#cssowner").val() != "" && $("#cssrepo").val() != "" && $("#csspath").val() != "") {
+		// Let's get the css
+		yoda.getGitFile($("#cssowner").val(), $("#cssrepo").val(), $("#csspath").val(), $("#cssbranch").val(), 
+		function(data) {
+			css = "<style>" + data + "</style>";
+			updateIssuesForRN();
+		}, 
+		function(errorText) {
+			yoda.showSnackbarError("Error retriving CSS file: " + errorText);
+		});
+	} else {
+		updateIssuesForRN();
+	}
 }
 
 function startKnown(_download) {
 	download = _download;
-	updateIssuesKnown();
+	css = "";
+	
+	// Custom CSS stuff
+	if ($('input:radio[name="outputformat"]:checked').val()== "html" && $("#cssowner").val() != "" && $("#cssrepo").val() != "" && $("#csspath").val() != "") {
+		// Let's get the css
+		yoda.getGitFile($("#cssowner").val(), $("#cssrepo").val(), $("#csspath").val(), $("#cssbranch").val(), 
+		function(data) {
+			css = "<style>" + data + "</style>";
+			updateIssuesKnown();
+		}, 
+		function(errorText) {
+			yoda.showSnackbarError("Error retriving CSS file: " + errorText);
+		});
+	} else {
+			updateIssuesKnown();
+	}
 }
 
 // ---------------
