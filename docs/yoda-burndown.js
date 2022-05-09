@@ -80,6 +80,7 @@ function prepareSums(sums, labelItem) {
 	if (sums[labelItem] == undefined) {
 		var entry = {
 				totalEstimate: 0,
+				totalEstimateCodeFreeze: 0,
 				totalRemaining: 0,
 				totalTentative: 0,
 				totalTasks: 0,
@@ -164,6 +165,14 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalEstimateCodeFreeze, 1) + "</b>";
+	cell.style.textAlign = "right";
+
+	var cell = row.insertCell();
+	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalTentative, 1) + "</b>";
+	cell.style.textAlign = "right";
+
+	var cell = row.insertCell();
 	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalRemaining, 1) + "</b>";
 	cell.style.textAlign = "right";
 
@@ -173,10 +182,6 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 
 	var cell = row.insertCell();
 	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalCompletedTasks, 1) + "</b>";
-	cell.style.textAlign = "right";
-
-	var cell = row.insertCell();
-	cell.innerHTML = "<b>" + round(sums[labelItem][issueState].totalTentative, 1) + "</b>";
 	cell.style.textAlign = "right";
 
 	var cell = row.insertCell();
@@ -411,7 +416,6 @@ function makeTable(issues) {
 		prepareSums(sums, labels[l]);
 	}
 
-
 	// Find table
 	var table = document.getElementById("issuesTable");
 	var header = table.createTHead();
@@ -438,7 +442,13 @@ function makeTable(issues) {
 	cell.innerHTML = "<b>Issue Title</b>";
 
 	var cell = headerRow.insertCell();
-	cell.innerHTML = "<b>Estimate</b>";
+	cell.innerHTML = "<b>Estimate<br>.. Code Freeze</b>";
+
+	var cell = headerRow.insertCell();
+	cell.innerHTML = "<b>Estimate<br>Code Freeze ..</b>";
+
+	var cell = headerRow.insertCell();
+	cell.innerHTML = "<b>Estimate<br>Tentative</b>";
 
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>Remaining</b>";
@@ -449,9 +459,6 @@ function makeTable(issues) {
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b># Tasks done</b>";
 	
-	var cell = headerRow.insertCell();
-	cell.innerHTML = "<b>Tentative</b>";
-
 	var cell = headerRow.insertCell();
 	cell.innerHTML = "<b>State</b>";
 	
@@ -539,10 +546,10 @@ function makeTable(issues) {
 		// # of issues
 		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalIssues", 1, issues[i]);
 		
-		// Estimate
+		// Estimate - before codefreeze
 		cell = row.insertCell();
 		cell.style.textAlign = "right";
-		if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
+		if (yoda.isLabelInIssue(issues[i], tentativeLabel) || yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
 			console.log("  Estimate for isue " + issues[i].number + " = 0 (tentative)");
 			cell.innerHTML = "0";
 		} else {
@@ -550,6 +557,31 @@ function makeTable(issues) {
 			console.log("  Estimate for isue " + issues[i].number + " = " + est);
 			cell.innerHTML = est;
 			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalEstimate", est, issues[i]);
+		}
+		
+		// Estimate - after codefreeze
+		cell = row.insertCell();
+		cell.style.textAlign = "right";
+		if (yoda.isLabelInIssue(issues[i], tentativeLabel) || !yoda.isLabelInIssue(issues[i], notcodefreezeLabel)) {
+			console.log("  Estimate for isue " + issues[i].number + " = 0 (codefreeze)");
+			cell.innerHTML = "0";
+		} else {
+			var est = yoda.issueEstimate(issues[i]);
+			console.log("  Estimate for isue " + issues[i].number + " = " + est);
+			cell.innerHTML = est;
+			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalEstimateCodeFreeze", est, issues[i]);
+		}
+
+		// Tentative
+		cell = row.insertCell();
+		cell.style.textAlign = "right";
+		if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
+			var remaining = yoda.issueRemaining(issues[i], yoda.issueEstimate(issues[i]));
+			cell.innerHTML = remaining;
+			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalTentative", remaining, issues[i]);
+			console.log("For tentative issue: " + issues[i].number + " added remaining: " + remaining);
+		} else {
+			cell.innerHTML = "0";
 		}
 		
 		// Remaining
@@ -578,18 +610,6 @@ function makeTable(issues) {
 		var noCompletedTasks = yoda.getbodyCompletedTasks(issues[i].body);
 		incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalCompletedTasks", noCompletedTasks, issues[i]);
 		cell.innerHTML = noCompletedTasks;
-		
-		// Tentative
-		cell = row.insertCell();
-		cell.style.textAlign = "right";
-		if (yoda.isLabelInIssue(issues[i], tentativeLabel)) {
-			var remaining = yoda.issueRemaining(issues[i], yoda.issueEstimate(issues[i]));
-			cell.innerHTML = remaining;
-			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalTentative", remaining, issues[i]);
-			console.log("For tentative issue: " + issues[i].number + " added remaining: " + remaining);
-		} else {
-			cell.innerHTML = "0";
-		}
 		
 		cell = row.insertCell();
 		if (issues[i].closed_at != null) {
