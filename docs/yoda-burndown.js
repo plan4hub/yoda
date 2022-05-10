@@ -191,7 +191,7 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 
 function insertBlankRow(bodyRef, firstField) { 
 	var row = bodyRef.insertRow();
-	for (var i = 0; i < 11; i++) {
+	for (var i = 0; i < 12; i++) {
 		cell = row.insertCell();
 		if (i == 0 && firstField != undefined) {
 			cell.innerHTML = firstField;
