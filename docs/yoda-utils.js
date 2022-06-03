@@ -1370,7 +1370,7 @@ var yoda = (function() {
 					// 	This would be a good place to remove any archieved repos.
 					var r = data.length;
 					while (r--) {
-						if (data[r].archived != null && data[r].archived == true)
+						if (data[r] == null || (typeof data[r].archived !== 'undefined' && data[r].archived == true))
 							data.splice(r, 1);
 					}
 
