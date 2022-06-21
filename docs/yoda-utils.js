@@ -1411,8 +1411,12 @@ var yoda = (function() {
 			console.log("Topics: " + topics);
 			var getReposUrl = yoda.getGithubUrl() + "search/repositories?q=org:" + $("#owner").val() + "+archived:false";
 			
+			var negative_topic = [];
 			for (var t = 0; t < topics.length; t++)
-				getReposUrl += "+topic:" + topics[t];
+				if (topics[t].charAt(0) == "-")
+					negative_topic.push(topics[t].substring(1))
+				else
+					getReposUrl += "+topic:" + topics[t];
 			console.log("Url: " + getReposUrl);
 			yoda.getLoop(getReposUrl, 1, [],
 				// Ok func
@@ -1423,6 +1427,19 @@ var yoda = (function() {
 					while (r--) {
 						if (data[r].archived != null && data[r].archived == true)
 							data.splice(r, 1);
+					}
+
+					// Handle any negative matches
+					if (negative_topic.length > 0) {
+						r = data.length;
+						while (r--) {
+							for (var t = 0; t < data[r].topics.length; t++) {
+								if (negative_topic.indexOf(data[r].topics[t]) != -1) {
+									data.splice(r, 1);
+									break;
+								}
+							}				
+						}
 					}
 
 					// Sort and store repos.

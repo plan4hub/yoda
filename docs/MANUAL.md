@@ -441,7 +441,7 @@ Example:
 
 # Selecting repos based on topics or name wildcarding
 
-It is possible to scope repositories based on a comma-separate list of topics that must be presents on the repository. This is done using the `repotopic` argument.
+It is possible to scope repositories based on a comma-separate list of topics that must be presents on the repository. This is done using the `repotopic` argument. It is possible to also use negative matching, i.e. one or more topics that must NOT be a topic. Prepend such topics with a minus (`-`).
 
 It is also possible to use the `repolist` argument to specify a search argument using a wildcard at the end of a `repolist` argument (only one element). Exampe `repolist=yoda*`. This will mirror the repository selection search facility available in Yoda.
 
