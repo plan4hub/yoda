@@ -327,12 +327,16 @@ function updateRepoDetails(repoIndex) {
 					updateRepoDetails(repoIndex + 1);
 				}, null);
 			} else {
-				// Not getting branches. BUT we do want to get the default branch always.
+				// Not getting branches. BUT we do want to get the default branch always (IF there is a branch at all)
 				var getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches/" + repoDetails[repoIndex].default_branch;
 				yoda.getLoop(getBranchUrl, 1, [], function(data) {
 					repoDetails[repoIndex].branches = data;
 					updateRepoDetails(repoIndex + 1);
-				}, null);
+				}, function(data) {
+					console.log("PROBLEMS GETTING BRANCH" + getBranchUrl);
+					repoDetails[repoIndex].branches = [];
+					updateRepoDetails(repoIndex + 1);	
+				});
 			}
 		}, null);
 	} else {
