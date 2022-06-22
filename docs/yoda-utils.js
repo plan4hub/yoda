@@ -1421,7 +1421,10 @@ var yoda = (function() {
 			yoda.getLoop(getReposUrl, 1, [],
 				// Ok func
 				function(d) {
-					data = d[0].items;
+					// For some strange reason the response here is container within an array structure in the "items" part. Must concatenate.
+					data = [];
+					for (var i = 0; i < d.length; i++)
+						data = data.concat(d[i].items);
 					// 	This would be a good place to remove any archieved repos.
 					var r = data.length;
 					while (r--) {
