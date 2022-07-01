@@ -15,7 +15,7 @@ public class Github extends Base {
 
 	public void login(String username, String password) {
 		try {
-			click("//a[text()='Sign in with SAML']");
+			click("//a[contains(text(),'Sign in with SAML')]");
 			write("//input[@id='username']", username);
 			write("//input[@id='password']", password, true);
 			click("//input[@type='submit']");
@@ -34,23 +34,23 @@ public class Github extends Base {
 	}
 	
 	public String createIssue(String title, String body, String label, String milestone) {
-		click("//nav[@aria-label='Repository']//span[text()='Issues']");
+		click("//nav[@aria-label='Repository']//span[contains(text(),'Issues')]");
 		click("//div[contains(@class,'repository-content')]//span[contains(text(),'New issue')]");
 		if (label != null) {
 			click("//details[@id='labels-select-menu']//summary");
 			write("//input[@id='label-filter-field']", label);
-			click("//div[@class='select-menu-item-text']//span[text()='" + label + "']");
+			click("//div[contains(@class,'select-menu-item-text')]//span[contains(text(),'" + label + "')]");
 			click("//details[@id='labels-select-menu']//summary");
 		}
 		if (milestone != null) {
 			click("//details[@id='milestone-select-menu']//summary");
 			write("//input[@id='context-milestone-filter-field']", milestone);
-			click("//span[text()='" + milestone + "']");
+			click("//span[contains(text(),'" + milestone + "')]");
 		}
 		write("//input[@name='issue[title]']", title);
 		write("//textarea[@name='issue[body]']", body);
 		click("//button[contains(text(),'Submit new issue')]");
-		return getText("//span[@class='gh-header-number']");
+		return getText("//span[contains(@class,'gh-header-number')]");
 	}
 	
 	public String createIssue(String title, String body) {
@@ -67,7 +67,7 @@ public class Github extends Base {
 		click("//div[contains(@class,'timeline-comment-actions')]/details[2]");
 		click("//button[@aria-label='Edit comment']");
 		write("//textarea[@name='issue[body]']", buildBody(issue));
-		click("//button[text()='Update comment']");
+		click("//button[contains(text(),'Update comment')]");
 	}
 	
 	public void updateLabel(Issue issue, String newLabel) {
@@ -75,11 +75,11 @@ public class Github extends Base {
 		click("//details[@id='labels-select-menu']//summary");
 		if (issue.getLabel() != null) {
 			write("//input[@id='label-filter-field']", issue.getLabel());
-			click("//div[@class='select-menu-item-text']//span[text()='" + issue.getLabel() + "']");
+			click("//div[contains(@class,'select-menu-item-text')]//span[contains(text(),'" + issue.getLabel() + "')]");
 		}
 		if (newLabel != null) {
 			write("//input[@id='label-filter-field']", newLabel);
-			click("//div[@class='select-menu-item-text']//span[text()='" + newLabel + "']");
+			click("//div[contains(@class,'select-menu-item-text')]//span[contains(text(),'" + newLabel + "')]");
 		}
 		click("//details[@id='labels-select-menu']//summary");
 		issue.setLabel(newLabel);
@@ -90,7 +90,7 @@ public class Github extends Base {
 		click("//details[@id='milestone-select-menu']//summary");
 		if (newMilestone != null) {
 			write("//input[@id='context-milestone-filter-field']", newMilestone);
-			click("//span[text()='" + newMilestone + "']");
+			click("//span[contains(text(),'" + newMilestone + "')]");
 		} else {
 			click("//div[contains(text(),'Clear this milestone')]");
 		}
@@ -131,10 +131,10 @@ public class Github extends Base {
 	}
 	
 	private void searchIssue(Issue issue) {
-		click("//nav[@aria-label='Repository']//span[text()='Issues']");
+		click("//nav[@aria-label='Repository']//span[contains(text(),'Issues')]");
 		write("//input[@id='js-issues-search']", "in:title " + issue.getTitle());
 		sendReturn("//input[@id='js-issues-search']");
-		click("//a[text()='" + issue.getTitle() + "']");
+		click("//a[contains(text(),'" + issue.getTitle() + "')]");
 	}
 	
 	private String buildBody(Issue issue) {
