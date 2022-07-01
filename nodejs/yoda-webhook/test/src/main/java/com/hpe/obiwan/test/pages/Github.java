@@ -50,7 +50,7 @@ public class Github extends Base {
 		write("//input[@name='issue[title]']", title);
 		write("//textarea[@name='issue[body]']", body);
 		click("//button[contains(text(),'Submit new issue')]");
-		return getText("//span[contains(@class,'gh-header-number')]");
+		return getText("//h1[contains(@class,'gh-header-title')]/span[2]");
 	}
 	
 	public String createIssue(String title, String body) {
