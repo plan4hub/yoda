@@ -25,7 +25,7 @@ import com.hpe.obiwan.test.driver.Driver;
 
 public abstract class Base {
 
-	private final static int DELAY_SECONDS = 10;
+	private final static int DELAY_SECONDS = 15;
 
 	private WebDriver driver;
 
@@ -414,6 +414,11 @@ public abstract class Base {
 	protected int getElementsSize(String xpath) {
 		List<WebElement> elements = getElements(xpath);
 		return elements.size();
+	}
+
+	protected void sleep(int seconds) {
+		getLogger().log(Level.FINE, "Sleeping " + seconds + " seconds");
+		delay(seconds);
 	}
 
 	public void saveScreenshot(File path) {

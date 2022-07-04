@@ -35,6 +35,7 @@ public class Github extends Base {
 	
 	public String createIssue(String title, String body, String label, String milestone) {
 		click("//nav[@aria-label='Repository']//span[contains(text(),'Issues')]");
+		sleep(2);
 		click("//div[contains(@class,'repository-content')]//span[contains(text(),'New issue')]");
 		if (label != null) {
 			click("//details[@id='labels-select-menu']//summary");
@@ -135,6 +136,7 @@ public class Github extends Base {
 		write("//input[@id='js-issues-search']", "in:title " + issue.getTitle());
 		sendReturn("//input[@id='js-issues-search']");
 		click("//a[contains(text(),'" + issue.getTitle() + "')]");
+		sleep(5);
 	}
 	
 	private String buildBody(Issue issue) {
