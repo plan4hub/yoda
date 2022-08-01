@@ -807,15 +807,18 @@ var yoda = (function() {
 		
 		// Format date as YYYY-MM-DD. If UTC argument given (as true), will go by UTC dates
 		formatDate: function(date, utc) {
-			if (utc == true)
+			if (utc == true) {
 				var day = date.getUTCDate();
-			else
+				var month = date.getUTCMonth();
+			} else {
 				var day = date.getDate();
+				var month = date.getMonth();
+			}				
 				
 			var result = date.getFullYear() + "-";
-			if (date.getMonth() + 1 < 10)
+			if (month + 1 < 10)
 				result += "0";
-			result += (date.getMonth() + 1) + "-";
+			result += (month + 1) + "-";
 			if (day  < 10)
 				result += "0";
 			result += day;

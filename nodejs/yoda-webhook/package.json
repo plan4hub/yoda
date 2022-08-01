@@ -9,16 +9,17 @@
   "author": "Jens Vedel Markussen",
   "license": "MIT",
   "dependencies": {
+    "@octokit/auth-app": "^3.6.0",
     "@octokit/core": "^3.5.1",
+    "@octokit/request": "^5.6.1",
     "@octokit/rest": "^18.11.1",
     "@octokit/webhooks": "^9.15.0",
-    "@octokit/request": "^5.6.1",
-    "@octokit/auth-app": "^3.6.0",
     "command-line-args": "^5.2.0",
     "command-line-usage": "^6.1.1",
+    "eventsource": "^1.1.0",
     "http": "",
     "https": "",
-    "eventsource": "^1.1.0",
-    "log4js": "^6.3.0"
+    "log4js": "^6.3.0",
+    "throttled-promise": "^1.0.1"
   }
 }

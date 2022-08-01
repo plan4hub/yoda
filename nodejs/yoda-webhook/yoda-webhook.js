@@ -12,7 +12,9 @@ const yodaAppModule = require('./github-app.js');
 // Run as GitHub App?
 if (configuration.getOption("app-mode")) {
 	yodaAppModule.init();
-}
+} 
+
+yodaRefModule.init();
 
 // Are we being asked to process just a single issue. If so, no need for server stuff.
 if (configuration.getOption('url') != undefined) {
