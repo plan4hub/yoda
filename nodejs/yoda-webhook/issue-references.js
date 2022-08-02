@@ -14,6 +14,9 @@ const { Octokit } = require('@octokit/rest');
 userOctokit = null;
 fallbackOctokit = null;
 
+var instDay, instHour, instMin;
+var instDayCount = 0, instHourCount = 0, instMinCount = 0;
+
 function init() {
 	// We will built a userOctokit IF a password (token) is given
 //	if (!configuration.getOption("app-mode")) {
@@ -32,9 +35,48 @@ function init() {
 			log: logger
 		});
 	}
+	
+	var d = new Date();
+	instDay = d.getUTCDate();
+	instHour = d.getUTCHours();
+	instMin = d.getUTCMinutes();
+}
+
+function instOctokit() {
+	var d = new Date();
+	if (instDay == d.getUTCDate()) {
+		instDayCount++;
+		
+		if (instHour == d.getUTCHours()) {
+			instHourCount++;
+			
+			if (instMin == d.getUTCMinutes()) {
+				instMinCount++;				
+			} else {
+				logger.info("Instrumentation. " + instDay + " " + instHour + ":" + instMin + ", Min Count: " + instMinCount);
+				instMinCount = 1;
+				instMin = d.getUTCMinutes();
+			}
+		} else {
+			logger.info("Instrumentation. " + instDay + " " + instHour + ", Hour Count: " + instHourCount);
+			instHourCount = 1;
+			instMinCount = 1;
+			instHour = d.getUTCHours();
+			instMin = d.getUTCMinutes();
+		}
+	} else {
+		logger.info("Instrumentation. " + instDay + ", Day Count: " + instDayCount);
+		instDayCount = 1;
+		instHourCount = 1;
+		instMinCount = 1;
+		instDay = d.getUTCDate();
+		instHour = d.getUTCHours();
+		instMin = d.getUTCMinutes();
+	}
 }
 
 function getOctokit(issueRef) {
+	instOctokit();
 	if (configuration.getOption("app-mode")) {
 		ok = yodaAppModule.getAppOctokit(issueRef);
 		if (ok != null)
