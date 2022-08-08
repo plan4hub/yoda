@@ -501,7 +501,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	
 	// Careful... oldIssue.body may actually not be defined (if it is completely empty!). Must take care of this as well.
 	if (oldIssue.body == undefined) 
-		oldIssue.body = "";
+		oldIssue.body = ""; 
 	
 	// Careful... we may not have an existing block! Note, that the block created will NOT have a newline at the end, so in order to force
 	// a blank line, we add two newlines in this case.
