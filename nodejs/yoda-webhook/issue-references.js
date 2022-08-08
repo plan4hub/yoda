@@ -500,7 +500,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	logger.debug("BlockStart: " + blockStart + ", blockLength: " + blockLength);
 	
 	// Careful... oldIssue.body may actually not be defined (if it is completely empty!). Must take care of this as well.
-	if (oldIssue.body == undefined)
+	if (oldIssue.body == undefined) 
 		oldIssue.body = "";
 	
 	// Careful... we may not have an existing block! Note, that the block created will NOT have a newline at the end, so in order to force
