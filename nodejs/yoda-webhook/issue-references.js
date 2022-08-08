@@ -334,7 +334,7 @@ function processIssueAsParent(issueRef, includeRefs, excludeRefs) {
 		// We will get the issue again to make sure we have a current picture. // TODO: Is this really always necessary. Need to analyze ... 
 		getOctokit(issueRef).issues.get(issueRef).then((response) => {
 			logger.trace(response);
-			getChildren(issueRef, response.data.body).then((children) => {
+			getChildren(issueRef, response.data.body).then((children) => { // TODO: This will be expensive if using issuesearch; which may already have been done as part of receiving event.
 				logger.debug("Child references:");
 				logger.debug(children);
 
@@ -498,6 +498,10 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	logger.debug(block); 
 
 	logger.debug("BlockStart: " + blockStart + ", blockLength: " + blockLength);
+	
+	// Careful... oldIssue.body may actually not be defined (if it is completely empty!). Must take care of this as well.
+	if (oldIssue.body == undefined)
+		oldIssue.body = "";
 	
 	// Careful... we may not have an existing block! Note, that the block created will NOT have a newline at the end, so in order to force
 	// a blank line, we add two newlines in this case.
@@ -671,7 +675,7 @@ function checkEvent(id, name, payload) {
 				logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
 				logger.debug(deletedChildRefs);
 
-				processIssueAsParent(issueRef, [], deletedChildRefs).then(() => {
+				processIssueAsParent(issueRef, [], deletedChildRefs).then(() => {  // Hmm. if doing issueSearch , does this setup not mean that we are searching twice?
 					logger.debug("Event - done with child deletions");
 					processParentRefIssues(issueRef, newParentRefs, false).then(() => {
 						logger.debug("Event - done with following parent refs.");
