@@ -90,7 +90,7 @@ function getOctokit(issueRef) {
 	}
 }
 
-function getSearchOctokit(search) {
+function getSearchOctokit(issueRef, search) {
 	if (!configuration.getOption("app-mode")) {
 		return userOctokit;
 	} else {
@@ -117,7 +117,8 @@ function getSearchOctokit(search) {
 			}
 		}
 		if (owner == null) {
-			logger.warn("Unable to determine owner from search term: " + search);
+			owner = issueRef.owner;
+			logger.warn("No repo or org in search term: " + search);
 		}
 		
 		// build pseudo child
@@ -134,7 +135,7 @@ function getChildren(ownRef, body) {
 			// Identify issues using a search criteria
 			var searchExpr = children.issueRefs[0].line.substr(configuration.getOption("issuesearch").length);
 			logger.debug("  Searching for issues using term: " + searchExpr);
-			getSearchOctokit(searchExpr).paginate(getSearchOctokit(searchExpr).search.issuesAndPullRequests, {
+			getSearchOctokit(ownRef, searchExpr).paginate(getSearchOctokit(ownRef, searchExpr).search.issuesAndPullRequests, {
 				q: 'is:issue ' + searchExpr,
 				sort: "created",
 				order: "asc",
