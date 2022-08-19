@@ -642,7 +642,7 @@ var yoda = (function() {
 		// Should be run in a loop with index = 0 first.  
 		getFirstRemaining: function(body, index) {
 			var remaining = getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ][0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$', index);
-			console.log(remaining);
+//			console.log(remaining);
 			return remaining;
 		},
 		

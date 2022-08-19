@@ -514,13 +514,22 @@ function exportIssues(issues) {
 			
 			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
 			if (value != null) {
-				if (value.indexOf("GMT") != -1) { 
-					// This looks like a date. Let's assume that it has format DD/MM/YY HH:MM GMT+1
-					// new Date(year, monthIndex, day, hours, minut
-					day = parseInt(value.substr(0, 2));
-					month =  parseInt(value.substr(3, 2));
-					year =  parseInt(value.substr(6, 2)) + 2000;
-					value = year + "-" + String(month).padStart(2, '0') + "-" + String(day).padStart(2, '0'); 
+				var t = Date.parse(value.trim());
+				// Does this look like a date - from Javascript perspective? 
+				if (!isNaN(t)) {
+					var d = new Date();
+					d.setTime(t);
+					value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
+				} else {
+					// // Does this look like a date - anyway?
+					if (value.split('/').length == 3) {
+						[tDay, tMonth, tYear] = value.split(" ")[0].split("/");
+						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
+							var d = new Date();
+							d.setUTCFullYear(tYear, tMonth - 1, tDay);
+							value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
+						}
+					}
 				}
 				el[header] = value;
 			} else {
