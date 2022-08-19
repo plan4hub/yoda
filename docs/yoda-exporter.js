@@ -526,6 +526,9 @@ function exportIssues(issues) {
 						[tDay, tMonth, tYear] = value.split(" ")[0].split("/");
 						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
 							var d = new Date();
+							if (tYear < 2000)
+								tYear = parseInt(tYear) + 2000;
+							console.log(value, tYear, tMonth, tDay)
 							d.setUTCFullYear(tYear, tMonth - 1, tDay);
 							value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
 						}
