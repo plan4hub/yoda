@@ -62,7 +62,8 @@ function parseMarkdown(markdown) {
 function getUrlParams() {
 	var params = addIfNotDefault("", "owner");
 	params += "&repolist=" + $("#repolist").val();
-	params = addIfNotDefault(params, "labelfilter");	
+	params = addIfNotDefault(params, "labelfilter");
+	params = addIfNotDefault(params, "milestonefilter");
 	params = addIfNotDefault(params, "singlelabeldef");
 	params = addIfNotDefault(params, "sharedlabeldef");
 	params = addIfNotDefault(params, "splitlabeldef");
@@ -204,6 +205,12 @@ function formatComment(oldComment, body, date, exportToCsv) {
 // Issues have been retrieved. Time to analyse data and draw the chart.
 function exportIssues(issues) {
 	console.log("Exporting issues. No issues (after filtering out pull requests): " + issues.length);
+	
+	// Let's filter out issues based on milestoneFilter (if set)
+	if ($("#milestonefilter").val() != "") {
+		yoda.filterIssuesMilestone(issues, $("#milestonefilter").val());
+		console.log("  Filtered issues based on milestone filter. Now # of issues: " + issues.length);
+	}
 	logMessage("Info: Received " + issues.length + " issues. Now analyzing and converting to CSV.");
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)

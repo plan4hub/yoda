@@ -69,9 +69,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
-			<label>Label filter</label> <input type="text" size="37"
+			<label>Label filter</label> <input type="text" size="40"
 				id="labelfilter" value=""> <span class="tooltip">Label
 				filter as comma separated list w/o spaces (AND)</span>
+		</div>
+
+		<div class="field">
+			<label>Milestone filter</label> <input type="text" size="40"
+				id="milestonefilter" value=""> <span class="tooltip">Milestone filter (regexp)</span>
 		</div>
 	</div>
 
@@ -241,6 +246,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 		yoda.decodeUrlParam("#owner", "owner");
 		yoda.decodeUrlParam("#labelfilter", "labelfilter");
+		yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
 		yoda.decodeUrlParam("#singlelabeldef", "singlelabeldef");
 		yoda.decodeUrlParam("#sharedlabeldef", "sharedlabeldef");
 		yoda.decodeUrlParam("#splitbodydef", "splitbodydef");

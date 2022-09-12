@@ -1274,6 +1274,20 @@ var yoda = (function() {
 			}
 		},
 		
+		// Filter issues based on milestone filter (can be regexp).
+		filterIssuesMilestone: function(issues, milestoneFilter) {
+			milestoneRegExp = new RegExp(milestoneFilter);
+			for (var i = 0; i < issues.length;) {
+//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
+				if (issues[i].milestone == undefined || !issues[i].milestone.title.match(milestoneRegExp)) {
+					console.log("Throwing out issue with milestone: " + (issues[i].milestone == undefined? "(no milestone)": issues[i].milestone.title));
+					issues.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+		},
+		
 		// Retrieve GitHub file contents for a file under github control. 
 		getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
 			console.log(owner, repo, path, branch);
