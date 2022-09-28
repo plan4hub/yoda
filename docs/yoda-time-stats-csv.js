@@ -186,17 +186,20 @@ function createChart() {
 	var groupColumns = $("#groupcolumns").val().split(",");
 	console.log("Group:");
 	console.log(groupColumns);
+	
+	// scans is a double linked array, indexed by mText.. Add to that then the dates.
 	var scans = [];
 	for (var i = 0; i < issues.length; i++) {
 		var mText = "";
 		for (var m = 0; m < groupColumns.length; m++)
 			mText += issues[i][groupColumns[m]] + ",";
-		if (scans.findIndex(element => element.mText == mText && element.date == issues[i][dateColumn]) == -1) 
-			scans.push({mText: mText, date: issues[i][dateColumn]});
+		if (scans[mText] == undefined)
+			scans[mText] = [];
+		if (scans[mText].findIndex(element => element.date == issues[i][dateColumn]) == -1) 
+			scans[mText].push({date: issues[i][dateColumn]});
 	}
-	scans.sort(function(a, b) { if (a.date < b.date) return -1; else return 1;});
-	console.log("# of unique scans: " + scans.length);
-	console.log(scans);
+	for (const s in scans)
+		scans[s].sort(function(a, b) { if (a.date < b.date) return -1; else return 1;});
 	
 	// date loop
 	// Start at startDate
@@ -237,7 +240,7 @@ function createChart() {
 			var mText = "";
 			for (var m = 0; m < groupColumns.length; m++)
 				mText += issues[i][groupColumns[m]] + ",";
-			var sIndex = scans.findIndex(element => element.mText == mText && element.date == issues[i][dateColumn]);
+			var sIndex = scans[mText].findIndex(element => element.date == issues[i][dateColumn]);
 			if (sIndex == -1) {
 				console.log("AHHHH. Could not find scan report. That is bad: i=" + i);
 				console.log(issues[i]);
@@ -246,7 +249,7 @@ function createChart() {
 			// Right. We found the report that the issue belongs to. Now the question(s) is if there are more recent reports
 			// which are still done before (or on) this date. If so, skip issue.
 //			console.log("Found scan: " + sIndex);
-			if (scans.findIndex((element, index) => element.mText == mText && index > sIndex && element.date <= dateString) != -1) {
+			if (scans[mText].findIndex((element, index) => index > sIndex && element.date <= dateString) != -1) {
 //				console.log("Ignoring issue from date. " + issues[i][dateColumn]);
 				continue;
 			}
