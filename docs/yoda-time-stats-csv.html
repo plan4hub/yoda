@@ -179,6 +179,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<input type="checkbox" id="stacked" checked>
 			<span class="tooltip">Stack bars</span>
 		</div>
+		
+		<div class="field">
+			<label>Percentage</label>
+			<input type="checkbox" id="percentage">
+			<span class="tooltip">Show relative percentage (so relative weight) instead of numbers</span>
+		</div>
 
 		<div class="field" style="display: none;">
 			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
@@ -217,6 +223,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#title", "title"); 
 		yoda.decodeUrlParam("#axiscategory", "axiscategory"); 
 		yoda.decodeUrlParamBoolean("#stacked", "stacked");
+		yoda.decodeUrlParamBoolean("#percentage", "percentage");
+
 		
 		// Local storage
 		yoda.getUserTokenLocalStorage("#user", "#token");

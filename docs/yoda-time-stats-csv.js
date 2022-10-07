@@ -57,6 +57,10 @@ function getUrlParams() {
 		params += "&stacked=false";
 	}
 	
+	if ($('#percentage').is(":checked")) {
+		params += "&percentage=true";
+	}
+	
 	var filters = getFilters();
 	if (filters.length > 0)
 		params += "&filters=" + JSON.stringify(filters);
@@ -77,7 +81,13 @@ function createChart() {
 	} else {
 		stacked = false;
 	}
-	
+
+	if ($('#percentage').is(":checked")) {
+		var percentage = true;
+	} else {
+		var percentage = false;
+	}
+
 	var maxAge = $('#maxage').val();
 	var axisCategory = $('#axiscategory').val();
 	
@@ -117,7 +127,6 @@ function createChart() {
 	console.log("Label split: " + barSplit);
 
 	countField = $("#countfield").val();
-
 	
 	// Let's get the filters
 	var filters = getFilters();
@@ -274,9 +283,22 @@ function createChart() {
 			} 
 		}
 		
-		// We will push data to the data array
-		for (var b=0; b < bars.length; b++) {
-			dataArray[b].push(dataArrayForDay[b]); 
+		// Are we doing percentages?
+		if (percentage) {
+			total = 0;
+			// Percentage. Let's first calc total.
+			for (var i=0; i < bars.length; i++)
+				total += dataArrayForDay[i];   
+							
+			for (var i=0; i < bars.length; i++) { 
+				dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
+			}
+		} else {
+			// Normal case			
+			// We will push data to the data array
+			for (var b=0; b < bars.length; b++) {
+				dataArray[b].push(dataArrayForDay[b]); 
+			}
 		}
 		
 //		console.log(dataArrayForDay);
@@ -311,27 +333,30 @@ function createChart() {
 		});
 	}
 
-	if (bars.length > 0 && stacked == false) {
-		datasetArray.push({
-			type : 'line',
-			label : 'Total',
-			fill : false,
-			yAxisID: "yright",
-			data : totalArray,
-			lineTension: 0,
-			borderColor: yoda.getColor("lineBackground")
-		});
-	} else {
-		// Normal case. Right total line against right axis.
-		datasetArray.push({
-			type : 'line',
-			label : 'Total',
-			fill : false,
-			yAxisID: "yleft",
-			data : totalArray,
-			lineTension: 0,
-			borderColor: yoda.getColor("lineBackground")
-		});
+	// Total line
+	if (!percentage) {
+		if (bars.length > 0 && stacked == false) {
+			datasetArray.push({
+				type : 'line',
+				label : 'Total',
+				fill : false,
+				yAxisID: "yright",
+				data : totalArray,
+				lineTension: 0,
+				borderColor: yoda.getColor("lineBackground")
+			});
+		} else {
+			// Normal case. Right total line against right axis.
+			datasetArray.push({
+				type : 'line',
+				label : 'Total',
+				fill : false,
+				yAxisID: "yleft",
+				data : totalArray,
+				lineTension: 0,
+				borderColor: yoda.getColor("lineBackground")
+			});
+		}
 	} 
 	
 	// We will push data to a 
@@ -344,7 +369,7 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: "# " + axisCategory,
+				text: percentage?"Relative Percentage: " +axisCategory: ("# " + axisCategory),
 				font: {
 	           		size: 16                    
 				}
@@ -366,8 +391,13 @@ function createChart() {
 		}
 	};
 	
+	// If percentage scale, make sure we go only to 100
+	if (percentage)
+		chartScales.yleft.max = 100;
+
+	
 	// Add second axis.
-	if ((bars.length > 0 && stacked == false)) {
+	if ((bars.length > 0 && stacked == false && !percentage)) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
@@ -567,6 +597,10 @@ function updateBarSplit() {
 		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
 			continue;
 
+		// Must NOT be an integer field
+		if (!isNaN(parseInt(issues[0][columns[c]])))
+			continue;
+			
 		if (firstBarUpdate && barSplit != null && columns[c] == barSplit) {
 			var newOption = new Option(columns[c], columns[c], true, true);
 			$("#barsplit").append(newOption);			
@@ -594,7 +628,7 @@ function updateCountField() {
 			continue;
 			
 		// Must be an integer field
-		if (isNaN(parseInt(issues[c][columns[c]])))
+		if (isNaN(parseInt(issues[0][columns[c]])))
 			continue;
 		
 		if (firstCountUpdate && ((countField != null && columns[c] == countField) || (countField == null && columns[c] == "count"))) {
@@ -606,7 +640,7 @@ function updateCountField() {
 		}
 	}
 	$('#countfield').trigger('change');	
-	firstCountField = false;
+	firstCountUpdate = false;
 }
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
