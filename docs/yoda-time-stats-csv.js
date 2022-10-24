@@ -648,7 +648,6 @@ issues = [];
 var firstCSVRead = true;
 function readCSV() {
 	removeAllFilters();
-
 	
 	console.log("readCSV");
 	yoda.getGitFile($("#owner").val(), $("#repo").val(), $("#path").val(), $("#branch").val(), function(data) {

@@ -1316,6 +1316,7 @@ var yoda = (function() {
 					return; 
 				}
 				console.log("blob_url: " + blobUrl);
+	 			$("*").css("cursor", "wait");
 				
 				$.ajax({
 					url: blobUrl,
@@ -1328,9 +1329,13 @@ var yoda = (function() {
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						console.log("Failed to download " + blobUrl + ": " + textStatus);
-					}
+					},
+					complete: function(jqXHR, textStatus) {
+						$("*").css("cursor", "default");						
+					} 
 				});
 			}).fail(function(jqXHR, textStatus, errorThrown) { 
+				$("*").css("cursor", "default");
 				if (errorFunc != null) 
 					errorFunc(errorThrown + " " + jqXHR.status);
 			});
