@@ -1084,6 +1084,23 @@ var yoda = (function() {
 		    }
 		},
 		
+		// Download PNG canvas as file.
+		downloadFilePNG: function(dataURL, fileName) {
+		    if (window.navigator.msSaveBlob) {
+		        // FOR IE BROWSER
+		        navigator.msSaveBlob(dataURL, fileName);
+		    } else {
+		        // FOR OTHER BROWSERS
+		        var link = document.createElement("a");
+		        link.href = dataURL;
+		        link.style = "visibility:hidden";
+		        link.download = fileName;
+		        document.body.appendChild(link);
+		        link.click();
+		        document.body.removeChild(link);
+		    }
+		},
+		
 		// CSV version
 		downloadFile: function(data, fileName) {
 			yoda.downloadFileWithType("application/csv;charset=utf-8;", data, fileName);
@@ -1935,12 +1952,21 @@ var yoda = (function() {
 		},
 		
 		// Generic chart data export. A bit rudamentary, but will get you the data in the graph.
-		chartCSVExport: function(csvDelimiter) {
-			console.log("Exporting graph data to csv. Delimiter: " + csvDelimiter);
+		chartCSVExport: function(csvDelimiter, event) {
 			if (window.myMixedChart == undefined || window.myMixedChart == null) {
 				yoda.showSnackbarError("No current chart", 3000);
 				return;
 			}
+
+			if (event != undefined && event.ctrlKey) {
+				// we are actually asked to download canvas as graphics to a file instead.
+				
+				canvas = document.getElementById('canvas');
+				yoda.downloadFilePNG(canvas.toDataURL('image/png'), 'yoda-graph.png');
+				return;
+			}
+
+			console.log("Exporting graph data to csv. Delimiter: " + csvDelimiter);
 			var chartData = window.myMixedChart.data;
 			
 			var data = []; 
