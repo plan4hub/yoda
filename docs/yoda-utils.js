@@ -1381,8 +1381,8 @@ var yoda = (function() {
 				var cacheLiveTime = yoda.getDefaultLocalStorageValue("yoda.repolistcache");
 				if (cacheLiveTime == null)
 					cacheLiveTime = 60;
-				if (elapsedMinutes < cacheLiveTime) { 
-					console.log("  .. reusing repoList. Newer than interval.");
+				if (cacheLiveTime == -1 || elapsedMinutes < cacheLiveTime) { 
+					console.log("  .. reusing repoList. Newer than interval or set to indefinate");
 					// Let's use that
 					yoda_repoList = JSON.parse(localRepoList);
 					okFunc();
