@@ -149,6 +149,12 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
+			<label>X-axis column</label>
+			<select id="axiscolumn" style="width: 150px" class="select2"></select>
+			<span class="tooltip">X-axis column (if not doing date based)</span>
+		</div>
+
+		<div class="field">
 			<label>Bar Splitting</label>
 			<select id="barsplit" style="width: 150px" class="select2"></select>
 			<span class="tooltip">Split into bars (by CSV field)</span>
@@ -212,6 +218,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		yoda.decodeUrlParam("#path", "path");
 		yoda.decodeUrlParam("#branch", "branch");
 		yoda.decodeUrlParam("#datecolumn", "datecolumn");
+		yoda.decodeUrlParam("#axiscolumn", "axiscolumn");
+		
 		yoda.decodeUrlParam("#groupcolumns", "groupcolumns");
 
 		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
@@ -238,7 +246,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		}
 
 		$('#countfield').select2();
-		$('#barslit').select2();
+		$('#barsplit').select2();
+		$('#axiscolumn').select2();
 		$('#filters').select2();
 		
 		// Login

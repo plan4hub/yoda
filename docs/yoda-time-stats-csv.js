@@ -46,6 +46,7 @@ function getUrlParams() {
 	params = addIfNotDefault(params, "path");
 	params = addIfNotDefault(params, "branch");
 	params = addIfNotDefault(params, "datecolumn");
+	params = addIfNotDefault(params, "axiscolumn");
 	params = addIfNotDefault(params, "groupcolumns"); 
 
 	params = addIfNotDefault(params, "barsplit");	
@@ -72,6 +73,9 @@ function getUrlParams() {
 // Issues have been retrieved. Time to analyse data and draw the chart.
 var bars = [];
 function createChart() {
+	if ($('#axiscolumn').val() != "") 
+		return createChartNonDate();
+	
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
@@ -453,6 +457,186 @@ function createChart() {
 	yoda.updateUrl(getUrlParams() + "&draw=true");
 }
 
+// NonDate versions. We neeed to plot all values.
+function createChartNonDate() {
+	if ($('#stacked').is(":checked")) {
+		stacked = true;
+	} else {
+		stacked = false;
+	}
+
+	if ($('#percentage').is(":checked")) {
+		var percentage = true;
+	} else {
+		var percentage = false;
+	}
+
+	var axisCategory = $('#axiscategory').val();
+	var axisColumn = $('#axiscolumn').val();
+
+	var barSplit = $("#barsplit").val();
+	console.log("Label split: " + barSplit);
+
+	countField = $("#countfield").val();
+	
+	// Let's get the filters
+	var filters = getFilters();
+	
+	// Label magic (splitting based on label split filter, if specified)
+	// Let's build a map of labels
+	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
+	bars = [];
+	barsIds = [];
+	console.log("wow2: " + barSplit + ":" + issues[0][barSplit]);
+
+	if (barSplit != "" && issues[0][barSplit] != undefined) {
+		console.log("Splitting by field: " + barSplit);
+		for (var i = 0; i < issues.length; i++) {
+			if (!filterIssue(filters, issues[i]))
+				continue;
+
+			if (countField != "" && parseFloat(issues[i][countField]) == 0)
+				continue;
+			
+			v = issues[i][barSplit];
+			if (bars.indexOf(v) == -1)
+				bars.push(v);
+		}
+
+		bars.sort();
+	}
+	console.log("Labels:");
+	console.log(bars);
+
+	// We will be looping through the issues (entries) of the CSV file. 
+	axisValue = "";
+	var axisArray = [];
+	var dataArray = new Array(bars.length);
+	for (var l=0; l<bars.length; l++)
+		dataArray[l] = [];
+
+	var totalArray = [];
+	for (var i=0; i < issues.length; i++) {
+		if (!filterIssue(filters, issues[i]))
+			continue;
+			
+		axisValue = issues[i][axisColumn];
+		axisIndex = axisArray.indexOf(axisValue);
+		if (axisIndex == -1) {
+			// New axis entry
+			axisArray.push(axisValue);
+			for (var l=0; l<bars.length; l++)
+				dataArray[l].push(0);
+			totalArray.push(0);
+			axisIndex = totalArray.length - 1;
+		}
+
+		// Let's add to the relevant bars.
+		for (var l=0; l<bars.length; l++) {
+			if (bars[l] == issues[i][barSplit]) 
+				dataArray[l][axisIndex] = dataArray[l][axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
+		}
+		totalArray[axisIndex] = totalArray[axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
+	}
+	
+	var datasetArray = [];
+	// Ready, let's push the bars. If we don't have any bars, let's use the total bar.
+	if (bars.length > 0) {
+		for (var b = 0; b < bars.length; b++) {
+			actualBar = bars[b];
+
+			datasetArray.push({
+				type : 'bar',
+				label : actualBar,
+				fill : false,
+				data : dataArray[b],
+				backgroundColor : yoda.barColors[b],
+				order: 1
+			});
+		}
+	} else {
+		// Just make a bar from the total
+		datasetArray.push({
+			type : 'bar',
+			label : 'Total',
+			fill : false,
+			data : totalArray,
+			backgroundColor : yoda.barColors[0],
+			order: 1
+		});
+	}
+
+	// We will push data to a 
+	var chartData = {
+			labels : axisArray,
+			datasets : datasetArray
+	};
+	
+	var chartScales = {
+		yleft: {
+			title: {
+				display: true,
+				text: axisCategory,
+				font: {
+	           		size: 16                    
+				}
+			},
+			stacked: stacked,
+			position: "left",
+			ticks: {
+				beginAtZero: true
+			},
+			grid: {
+				color: yoda.getColor('gridColor')
+			}
+		},
+		x: {
+			stacked: stacked,
+			grid: {
+				color: yoda.getColor('gridColor')
+			}
+		}
+	};
+	
+	
+	// -----------------------------------------------------------
+	// DATA. Draw the chart
+	var ctx = document.getElementById("canvas").getContext("2d");
+	if (window.myMixedChart != null)
+		window.myMixedChart.destroy();
+	
+	var chartTitle = "Plot of " + $("#path").val();
+	if ($("#title").val() != "") {
+		chartTitle = $("#title").val(); 
+	}
+	
+	window.myMixedChart = new Chart(ctx, {
+		type : 'bar',	
+		data : chartData,
+		options : {
+			showDatapoints: true,
+			responsive : true,
+			plugins: {
+				title : {
+					display : true,
+					text : chartTitle,
+					font: {
+		           		size: 20                    
+					}
+				}
+			},
+			tooltips : {
+				mode : 'index',
+				intersect : true
+			},
+			scales: chartScales,
+		},
+	});
+
+	yoda.updateUrl(getUrlParams() + "&draw=true"); 
+}
+
+
 var firstFilterUpdate = true;
 function updateFilterColumns() {
 	var filters = JSON.parse(yoda.decodeUrlParam(null, "filters"));
@@ -598,8 +782,9 @@ function updateBarSplit() {
 			continue;
 
 		// Must NOT be an integer field
-		if (!isNaN(parseInt(issues[0][columns[c]])))
-			continue;
+		// Hmm... versions are like integers.... 
+//		if (!isNaN(parseInt(issues[0][columns[c]])))
+//			continue;
 			
 		if (firstBarUpdate && barSplit != null && columns[c] == barSplit) {
 			var newOption = new Option(columns[c], columns[c], true, true);
@@ -613,11 +798,43 @@ function updateBarSplit() {
 	firstBarUpdate = false;
 }
 
+var firstAxisUpdate = true;
+function updateAxisColumn() {
+	$("#axiscolumn").val(null).empty();
+	
+	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
+	var newOption = new Option("", "", true, true);
+	$("#axiscolumn").append(newOption);			
+	
+	var axisColumn = yoda.decodeUrlParam(null, "axiscolumn");
+	var columns = Object.keys(issues[0]);
+	for (var c = 0; c < columns.length; c++) {
+		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
+			continue;
+
+		// Must NOT be an integer field
+		// Hmm... versions are like integers.... 
+//		if (!isNaN(parseInt(issues[0][columns[c]])))
+//			continue;
+			
+		if (firstAxisUpdate && axisColumn != null && columns[c] == axisColumn) {
+			var newOption = new Option(columns[c], columns[c], true, true);
+			$("#axiscolumn").append(newOption);			
+		} else {
+			var newOption = new Option(columns[c], columns[c], false, false);
+			$("#axiscolumn").append(newOption);			
+		}
+	}
+	$('#axiscolumn').trigger('change');	
+	firstAxisUpdate = false;
+}
+
+
 var firstCountUpdate = true;
 function updateCountField() {
 	$("#countfield").val(null).empty();
 	
-	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
+	// We will include blank option. This means 
 	var newOption = new Option("", "", true, true);
 	$("#countfield").append(newOption);			
 	
@@ -682,6 +899,7 @@ function readCSV() {
 			updateBarSplit();
 			updateCountField();
 			updateFilterColumns();
+			updateAxisColumn();
 			
 			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true") {
 				setTimeout(createChart, 0);

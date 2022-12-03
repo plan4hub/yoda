@@ -452,4 +452,6 @@ A special version of the statistics time based report is available. The main foc
 
 It is possible to apply filters based on the identified columns and their values, and further to split the bars according to one of the columns. Hopefully the tool should be fairly self-explanatory (read: lazy documentation). As usual URL arguments will be updated to reflect graph parameters in order that the URL can be stored and reused, for example by embedding into another Web Page as previously described.
 
+Normally CSV Statistics Report will be time based. However, it is possible to plot instead a bar chart based on putting on the X-axis values from a selected CSV field (the axis column). In this case, the time arguments have no effort. This feature can be very useful to plot simply bar charts easily from CSV files.
+
 CSV based issue statistics tool available [here](yoda-time-stats-csv.html).
