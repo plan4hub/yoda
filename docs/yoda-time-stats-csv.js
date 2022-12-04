@@ -69,25 +69,28 @@ function getUrlParams() {
 	return params;
 }
 
+function sevSort(arr) {
+	var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
+	arr.sort(function (a, b) {
+		if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
+			return (a < b);
+		if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) != -1)
+			return 1;
+		if (sevOrder.indexOf(a) != -1 && sevOrder.indexOf(b) == -1)
+			return -1;
+		return (sevOrder.indexOf(a) - sevOrder.indexOf(b));
+	});
+}
+
 // Sorts bars, but take special attention to Severity sorting
 function barSort() {
 	var barSplit = $("#barsplit").val();
 
 	// Special sorting for severities
-	if (barSplit == "Severity") {
-		var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
-		bars.sort(function (a, b) {
-			if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
-				return (a < b);
-			if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) != -1)
-				return 1;
-			if (sevOrder.indexOf(a) != -1 && sevOrder.indexOf(b) == -1)
-				return -1;
-			return (sevOrder.indexOf(a) - sevOrder.indexOf(b));
-		});
-	} else {
+	if (barSplit == "Severity") 
+		sevSort(bars);
+	else
 		bars.sort();
-	}
 	console.log("Sorted bars:");
 	console.log(bars);
 }
@@ -521,6 +524,7 @@ function createChartNonDate() {
 		dataArray[l] = [];
 
 	var totalArray = [];
+	//  First run - create axisArray and prepare for values.
 	for (var i=0; i < issues.length; i++) {
 		if (!filterIssue(filters, issues[i]))
 			continue;
@@ -533,8 +537,20 @@ function createChartNonDate() {
 			for (var l=0; l<bars.length; l++)
 				dataArray[l].push(0);
 			totalArray.push(0);
-			axisIndex = totalArray.length - 1;
 		}
+	}
+	
+	// Sort? If severity, then yes.
+	if (axisColumn == "Severity") 
+		sevSort(axisArray);
+	
+	// Second run. Add data
+	for (var i=0; i < issues.length; i++) {
+		if (!filterIssue(filters, issues[i]))
+			continue;
+			
+		axisValue = issues[i][axisColumn];
+		axisIndex = axisArray.indexOf(axisValue);
 
 		// Let's add to the relevant bars.
 		for (var l=0; l<bars.length; l++) {
