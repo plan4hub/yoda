@@ -698,6 +698,8 @@ function updateFilterColumns() {
 }
 
 function addFilter(column, selectedValues) {
+	columnId = column.replace(/ /g,"_");
+
 	console.log("Add filter column: " + column);
 	console.log(selectedValues);
 	if (selectedValues == undefined)
@@ -711,21 +713,21 @@ function addFilter(column, selectedValues) {
 //		</div>
 	var div = document.createElement("div");
 	div.className = "field";
-	div.id = "f-" + column;
+	div.id = "f-" + columnId;
 	
 	var label = document.createElement("label");
 	label.innerText = column + " filter";
 	div.appendChild(label);
 	
 	var select = document.createElement("select");
-	select.id = "sel-" + column;
+	select.id = "sel-" + columnId;
 	select.class = "select2 colfilter";
 	select.style = "width: 300px";
 	select.multiple = true;
 	div.appendChild(select);
 	
 	ff.appendChild(div);
-	$("#sel-" + column).select2({
+	$("#sel-" + columnId).select2({
 		sorter: yoda.select2Sorter,
 	    matcher: yoda.select2Matcher
 	});
@@ -734,23 +736,27 @@ function addFilter(column, selectedValues) {
 	var values = [];
 	for (var i = 0; i < issues.length; i++) {
 		var v = issues[i][column];
+		if (v == undefined || v == "")
+			continue;
 		if (values.indexOf(v) == -1) {
 			values.push(v);
+			
 			if (selectedValues.indexOf(v) != -1)
 				var newOption = new Option(v, v, true, true);
 			else
 				var newOption = new Option(v, v, false, false);
-			$("#sel-" + column).append(newOption);		
+			$("#sel-" + columnId).append(newOption);		
 		}
 	}
-	$("#sel-" + column).trigger('change');	
-	$("#sel-" + column).on('select2:select', yoda.select2SelectEvent("#sel-" + column));
+	$("#sel-" + columnId).trigger('change');	
+	$("#sel-" + columnId).on('select2:select', yoda.select2SelectEvent("#sel-" + columnId));
 } 
 
 function removeFilter(column) {
 	console.log("Remove filter column: " + column);
+	columnId = column.replace(/ /g,"_");
 	
-	var ff = document.getElementById("f-" + column);
+	var ff = document.getElementById("f-" + columnId);
 	if (ff != null)
 		ff.remove();
 } 
@@ -776,7 +782,7 @@ function getFilters() {
 			for (var s = 0; s < selections.length; s++)
 				values.push(selections[s].value);
 			if (values.length > 0)  // Ignore of nothing is selected. That filter would be stupid, as it would just discard everything.
-				filterArray.push({id: selectDoms[f].id.substr(4), values: values});
+				filterArray.push({id: selectDoms[f].id.substr(4).replace(/_/g," "), values: values});
 		}
 	} 
 	console.log(filterArray);
