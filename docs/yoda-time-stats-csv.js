@@ -69,6 +69,29 @@ function getUrlParams() {
 	return params;
 }
 
+// Sorts bars, but take special attention to Severity sorting
+function barSort() {
+	var barSplit = $("#barsplit").val();
+
+	// Special sorting for severities
+	if (barSplit == "Severity") {
+		var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
+		bars.sort(function (a, b) {
+			if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
+				return (a < b);
+			if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) != -1)
+				return 1;
+			if (sevOrder.indexOf(a) != -1 && sevOrder.indexOf(b) == -1)
+				return -1;
+			return (sevOrder.indexOf(a) - sevOrder.indexOf(b));
+		});
+	} else {
+		bars.sort();
+	}
+	console.log("Sorted bars:");
+	console.log(bars);
+}
+
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 var bars = [];
@@ -155,23 +178,8 @@ function createChart() {
 				bars.push(v);
 		}
 
-		// Special sorting for severities
-		if (barSplit == "Severity") {
-			var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
-			bars.sort(function (a, b) {
-				if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
-					return (a < b);
-				if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) != -1)
-					return 1;
-				if (sevOrder.indexOf(a) != -1 && sevOrder.indexOf(b) == -1)
-					return -1;
-				return (sevOrder.indexOf(a) - sevOrder.indexOf(b));
-			});
-		} else {
-			bars.sort();
-		}
+		barSort();
 	}
-	console.log("Labels: " + bars);
 		
 	// Besides the bars for the data identified, possibly none if no label split, we will maintain
 	// 1. A bar chart for others (i.e. issues not having labels matching the ones identified
@@ -487,7 +495,6 @@ function createChartNonDate() {
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
 	bars = [];
 	barsIds = [];
-	console.log("wow2: " + barSplit + ":" + issues[0][barSplit]);
 
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
@@ -502,11 +509,9 @@ function createChartNonDate() {
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
 		}
-
-		bars.sort();
 	}
-	console.log("Labels:");
-	console.log(bars);
+
+	barSort();
 
 	// We will be looping through the issues (entries) of the CSV file. 
 	axisValue = "";
@@ -537,6 +542,15 @@ function createChartNonDate() {
 				dataArray[l][axisIndex] = dataArray[l][axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
 		}
 		totalArray[axisIndex] = totalArray[axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
+	}
+
+	// Percentage? If so, we need to adjust all values.
+	if (percentage) {
+		for (var ai = 0; ai < totalArray.length; ai++) {
+			for (var l = 0; l < bars.length; l++) 
+				dataArray[l][ai] = (100.0 * dataArray[l][ai] / totalArray[ai]).toFixed(1); 
+			totalArray[ai] = 100.0;
+		}
 	}
 	
 	var datasetArray = [];
@@ -576,7 +590,7 @@ function createChartNonDate() {
 		yleft: {
 			title: {
 				display: true,
-				text: axisCategory,
+				text: percentage?"Relative Percentage: " +axisCategory: axisCategory,
 				font: {
 	           		size: 16                    
 				}
@@ -598,6 +612,9 @@ function createChartNonDate() {
 		}
 	};
 	
+	// If percentage scale, make sure we go only to 100
+	if (percentage)
+		chartScales.yleft.max = 100;
 	
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
