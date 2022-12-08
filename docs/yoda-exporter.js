@@ -373,6 +373,22 @@ function exportIssues(issues) {
                     el["MilestoneDate"] = "";
                 }
                 break;
+            case "MilestoneStartDate":
+				if (issues[i].milestone != undefined && issues[i].milestone.description != null) {
+                    el["MilestoneStartDate"] = yoda.getMilestoneStartdate(issues[i].milestone.description);
+                } else {
+                    el["MilestoneStartDate"] = "";
+                }
+                break;
+            case "MilestoneIssueDuration":
+				if (issues[i].milestone != undefined && issues[i].state == "closed" && issues[i].milestone.description != null) {
+                    var closedDate = yoda.formatDate(new Date(issues[i].closed_at));
+					var milestoneStartDate = yoda.getMilestoneStartdate(issues[i].milestone.description);
+                    el["MilestoneIssueDuration"] = yoda.dateDiff(milestoneStartDate, closedDate); 
+                } else {
+                    el["MilestoneIssueDuration"] = "";
+                }
+                break;
             case "DurationMilestone": 
 				if (issues[i].milestone != undefined && issues[i].state == "closed" && issues[i].milestone.due_on != null) {
                     var createdDate = yoda.formatDate(new Date(issues[i].created_at));
