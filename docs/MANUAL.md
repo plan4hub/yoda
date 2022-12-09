@@ -181,6 +181,8 @@ Yet a further option focuses on issues comments rather than issues. This can be 
 
 All arguments may be supplied directly using the URL using default "parameter=<value>" notation with & between. The possible arguments are: owner, repolist, startdate, enddate, interval, labelfilter, labelsplit, other, title, user, token, count.
 
+The tool may also show the so-called ECT (Engineering Cycle Time). This is defined as the number of days between when work started on the issue and when it was close. The start date is aligned to the start of the milestone to which the issue is assigned or the start date of the issue - whichever is the latest.
+
 *Note*: The URL field repo is supported for backwards compatbility.
 
 *Note*: Dates (startdate, enddate) may also be specified as delta ref. current date. Example: startdate=-14  (set start date to 2 weeks ago) or startdate=-10m (set start date 10 month back).

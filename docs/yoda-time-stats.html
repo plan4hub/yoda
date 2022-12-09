@@ -95,6 +95,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					<label><input type="radio" name="count" value="noissues" checked="checked"># Issues</label> 
 					<label><input type="radio" name="count" value="durationopen">Days open</label>
 					<label><input type="radio" name="count" value="velocity" onchange="velocitySelected()">Velocity</label>
+					<label><input type="radio" name="count" value="ect" onchange="ectSelected()">ECT</label>
 				</div>
 				<div> 
 					<label><input type="radio" name="count" value="opened">Opened</label> 
@@ -102,15 +103,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					<label><input type="radio" name="count" value="comments" onChange="commentsSelected()">Comments</label>
 				</div>
 			</div>
-			<span class="tooltip">Issue display options..</span>
+			<span class="tooltip">Issue display options. ETC = Engineering Cycle Time</span>
 		</div>
 		
 		
 		<div class="field">
 			<label>Estimates</label>
 			<div id="estimateradio">
-				<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label>
-				<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label> 
+				<div>
+					<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label>
+				</div>
+				<div>
+					<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label>
+				</div> 
 			</div>
 			<span class="tooltip">Where to get estimates</span>
 		</div>

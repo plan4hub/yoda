@@ -381,14 +381,9 @@ function exportIssues(issues) {
                 }
                 break;
             case "MilestoneIssueDuration":
-				if (issues[i].milestone != undefined && issues[i].state == "closed" && issues[i].milestone.description != null) {
-                    var closedDate = yoda.formatDate(new Date(issues[i].closed_at));
-					var milestoneStartDate = yoda.getMilestoneStartdate(issues[i].milestone.description);
-					var milestoneIssueDuration = yoda.dateDiff(milestoneStartDate, closedDate);
-					if (milestoneIssueDuration < 0)
-						el["MilestoneIssueDuration"] = "";
-					else
-                    	el["MilestoneIssueDuration"] = yoda.dateDiff(milestoneStartDate, closedDate); 
+				var milestoneIssueDuration = yoda.getMilestoneIssueDuration(issues[i]);
+				if (milestoneIssueDuration != null) {
+					el["MilestoneIssueDuration"] = milestoneIssueDuration;
                 } else {
                     el["MilestoneIssueDuration"] = "";
                 }

@@ -88,6 +88,22 @@ function velocitySelected() {
 	$('#righttotal').attr('checked', true);
 }
 
+function ectSelected() {
+	if ($("#countradio input[type='radio']:checked").val() == "etc") {	
+		console.log("ECT selected. Let's set some solid defaults.");
+		var sixMAgo = new Date();
+		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+		if ($('#startdate').val() == "")
+			$('#startdate').val(yoda.formatDate(sixMAgo)); 
+	//	$('#enddate').val(''); 
+		$('#interval').val('1m');
+		$('#labelsplit').val('^T[1-9][0-9]? -');
+		$('#other').val('');
+		$('#stacked').attr('checked', false);
+		$('#righttotal').attr('checked', false);
+	}
+}
+
 function commentsSelected() {
 	console.log("Comments selected. Let's deselect some fields.");
 	var sixMAgo = new Date();
@@ -562,15 +578,16 @@ function createChart() {
 		// Prepare data array
 		var dataArrayForDay = new Array(bars.length);
 		var dataDurationOpenForDay = new Array(bars.length);
-		var dataDurationClosedForDay = new Array(bars.length);
+		var dataECTDurationForDay = new Array(bars.length);
 		for (var l=0; l<bars.length; l++) {
 			dataArrayForDay[l] = 0;
 			dataDurationOpenForDay[l] = 0;
-			dataDurationClosedForDay[l] = 0;
+			dataECTDurationForDay[l] = 0;
 		};
 		var otherForDay = 0;
 		var totalForDay = 0;
 		var otherDurationOpenForDay = 0;
+		var otherETCDurationForDay = 0;
 		var totalAlways = 0;
 		
 		// Ok, now let's count issues
@@ -608,6 +625,10 @@ function createChart() {
 				if ((countType == "closed" || countType == "velocity") && closedDate > date) {
 					continue;
 				}
+				
+				// If we are counting ECT and required data is not available, disregard the issue 
+				if (countType == "ect" && yoda.getMilestoneIssueDuration(issues[i]) == null)
+					continue;
 			} else {
 				if (issues[i].state != "open") {
 					console.log("SUPER AHAHHHHHHH");
@@ -665,10 +686,12 @@ function createChart() {
 					var duration = yoda.dateDiff(submitDate, date);
 //					console.log("For issue: " + issues[i].number + ", submit: " + submitDate + ", duration at " + date + " is " + duration);
 					dataDurationOpenForDay[index] += duration;
-
+					
+					if (countType == "ect")
+						dataECTDurationForDay[index] += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
 				}
 			}
-			if (foundLabel == false && 	$("#other").val() != "") {
+			if (foundLabel == false &&	$("#other").val() != "") {
 //				console.log("Could not find label for issue " + issues[i].url);
 //				console.log(labelList);
 				
@@ -683,6 +706,9 @@ function createChart() {
 				// Add the total duration, we will divide by # of issues later.
 				var duration = yoda.dateDiff(submitDate, date);
 				otherDurationOpenForDay += duration;
+
+				if (countType == "ect") 
+					otherETCDurationForDay += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
 				
 //				console.log(" =>> Adding issue: " + issues[i].number + ", no label match, submitted: " + issues[i].created_at + 
 //					", closed: " + issues[i].closed_at);
@@ -690,14 +716,25 @@ function createChart() {
 		}
 		
 		// Switch to duration?
-		if (countType == "durationopen") {
-			// We now need to move to dataArrayForDay to contain instead of the # of issues the averation duration of the open time.
-			for (var i=0; i < bars.length; i++) {
-				var average = dataDurationOpenForDay[i] / dataArrayForDay[i];
-//				console.log("Adding average: " + average + ", calculated as " + dataDurationOpenForDay[i] + " days total div by " + dataArrayForDay[i] + " issues.");
-				dataArray[i].push(average.toFixed(0));
+		if (countType == "durationopen" || countType == "ect") {
+			if (countType == "durationopen") {
+				// We now need to move to dataArrayForDay to contain instead of the # of issues the averation duration of the open time.
+				for (var i=0; i < bars.length; i++) {
+					var average = dataDurationOpenForDay[i] / dataArrayForDay[i];
+	//				console.log("Adding average: " + average + ", calculated as " + dataDurationOpenForDay[i] + " days total div by " + dataArrayForDay[i] + " issues.");
+					dataArray[i].push(average.toFixed(0));
+				}
+				otherArray.push((otherDurationOpenForDay / otherForDay).toFixed(0));
+			} else { 
+				// ect
+				for (var i=0; i < bars.length; i++) {
+					var average = dataECTDurationForDay[i] / dataArrayForDay[i];
+	//				console.log("Adding average: " + average + ", calculated as " + dataDurationOpenForDay[i] + " days total div by " + dataArrayForDay[i] + " issues.");
+					dataArray[i].push(average.toFixed(0));
+				}
+				
+				otherArray.push((otherETCDurationForDay / otherForDay).toFixed(0));
 			}
-			otherArray.push((otherDurationOpenForDay / otherForDay).toFixed(0));
 		} else {
 			// Normal, i.e. not duration
 			// We will push data to the data array
@@ -807,6 +844,7 @@ function createChart() {
 	leftLabel["opened"] = "No of issues opened";
 	leftLabel["closed"] = "No of issues closed";
 	leftLabel["velocity"] = "Story Points";
+	leftLabel["ect"] = "ECT - Engineering Cycle Time (days)"
 
 	var chartScales = {
 		yleft: {

@@ -804,6 +804,27 @@ var yoda = (function() {
 				info = "";
 			return info;
 		},
+
+		// null if non-existing (or strange/wrong)
+		getMilestoneIssueDuration: function (issue) {
+			if (issue.state != "closed")
+				return null;
+           	var closedDate = yoda.formatDate(new Date(issue.closed_at));
+			var milestoneStartDate = null;
+			if (issue.milestone != undefined && issue.milestone.description != null) 
+				var milestoneStartDate = yoda.getMilestoneStartdate(issue.milestone.description);
+			if (milestoneStartDate == null)
+				return null;
+			var startDate = yoda.formatDate(new Date(issue.created_at));
+			if (milestoneStartDate > startDate)
+				startDate = milestoneStartDate;
+			var duration = yoda.dateDiff(startDate, closedDate);
+			if (duration < 0)
+				return null;
+			if (duration > 100)
+				console.log("LONG ISSUE" + duration + ": " + issue.html_url);
+			return duration;
+		},
 		
 		// Format date as YYYY-MM-DD. If UTC argument given (as true), will go by UTC dates
 		formatDate: function(date, utc) {
