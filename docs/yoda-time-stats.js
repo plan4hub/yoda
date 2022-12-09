@@ -89,19 +89,17 @@ function velocitySelected() {
 }
 
 function ectSelected() {
-	if ($("#countradio input[type='radio']:checked").val() == "etc") {	
-		console.log("ECT selected. Let's set some solid defaults.");
-		var sixMAgo = new Date();
-		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
-		if ($('#startdate').val() == "")
-			$('#startdate').val(yoda.formatDate(sixMAgo)); 
+	console.log("ECT selected. Let's set some solid defaults.");
+	var sixMAgo = new Date();
+	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+	if ($('#startdate').val() == "")
+		$('#startdate').val(yoda.formatDate(sixMAgo)); 
 	//	$('#enddate').val(''); 
-		$('#interval').val('1m');
-		$('#labelsplit').val('^T[1-9][0-9]? -');
-		$('#other').val('');
-		$('#stacked').attr('checked', false);
-		$('#righttotal').attr('checked', false);
-	}
+	$('#interval').val('1m');
+	$('#labelsplit').val('^T[1-9][0-9]? -');
+	$('#other').val('');
+	$('#stacked').attr('checked', false);
+	$('#righttotal').attr('checked', false);
 }
 
 function commentsSelected() {
