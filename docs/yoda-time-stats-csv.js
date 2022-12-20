@@ -330,6 +330,7 @@ function createChart() {
 			datasetArray.push({
 				type : 'bar',
 				label : actualBar,
+				yAxisID: "yleft",
 				fill : false,
 				data : dataArray[b],
 				backgroundColor : yoda.barColors[b],
@@ -341,6 +342,7 @@ function createChart() {
 		datasetArray.push({
 			type : 'bar',
 			label : 'Total',
+			yAxisID: "yleft",
 			fill : false,
 			data : totalArray,
 			backgroundColor : yoda.barColors[0],
@@ -578,6 +580,7 @@ function createChartNonDate() {
 			datasetArray.push({
 				type : 'bar',
 				label : actualBar,
+				yAxisID: "yleft",
 				fill : false,
 				data : dataArray[b],
 				backgroundColor : yoda.barColors[b],
@@ -589,6 +592,7 @@ function createChartNonDate() {
 		datasetArray.push({
 			type : 'bar',
 			label : 'Total',
+			yAxisID: "yleft",
 			fill : false,
 			data : totalArray,
 			backgroundColor : yoda.barColors[0],

@@ -981,6 +981,7 @@ function burndown(issues) {
 			type : 'bar',
 			label : 'NotCodeFreeze',
 			fill : false,
+			yAxisID: "yleft",
 			borderWidth : 2,
 			data : remainingNoFreezeArray,
 			backgroundColor : 'rgb(0, 100, 38, 0.6)',  // some color - TODO
@@ -1009,6 +1010,7 @@ function burndown(issues) {
 			label : 'Tentative',
 			fill : false,
 			data : remainingTentativeArray,
+			yAxisID: "yleft",
 			borderWidth : 2,
 			backgroundColor : 'rgb(255, 255, 51)',  // Yellow
 			barPercentage: 1,

@@ -257,6 +257,7 @@ function createChartLT(issues) {
 				type: 'line',
 				label: 'Lead time',
 				borderWidth: 3,
+				yAxisID: "yleft",
 				fill: false,
 				data: leadTimeArray,
 				borderColor: yoda.getColor("lineBackground")
@@ -279,7 +280,7 @@ function createChartLT(issues) {
 				intersect: true
 			},
 			scales: {
-				y: {
+				yleft: {
 					title: {
 						display: true,
 						text: 'Days',
@@ -290,7 +291,6 @@ function createChartLT(issues) {
 					beginAtZero: true,
 					stacked: true,
 					position: "left",
-					id: "y-axis-left",
 					ticks: {
 						beginAtZero: true
 					},
@@ -298,7 +298,7 @@ function createChartLT(issues) {
 						color: yoda.getColor('gridColor')
 					}
 				},
-				xAxes: {
+				x: {
 					stacked: true,
 					grid: {
 						color: yoda.getColor('gridColor')
@@ -434,6 +434,7 @@ function createChartCFD(issues) {
 	for (var b = 0; b < dataArraySize; b++) {
 		datasetArray.push({
 			type: 'line',
+			yAxisID: "yleft",
 			label: bars[b],
 			fill: true,
 			data: dataArray[b],

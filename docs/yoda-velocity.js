@@ -491,7 +491,7 @@ function startChart() {
 						display: false
 					}
 				},
-				xAxes: {
+				x: {
 					stacked: stacked,
 					grid: {
 						color: yoda.getColor('gridColor')

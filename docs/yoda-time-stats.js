@@ -227,6 +227,7 @@ function createCommentsChart(dateIndex) {
 					label : repoList[r],
 					borderWidth : 2,
 					fill : false,
+					yAxisID: "yleft",
 					data : comRepoArray[r],
 					backgroundColor : yoda.barColors[r]
 				});
@@ -236,6 +237,7 @@ function createCommentsChart(dateIndex) {
 				type : 'bar',
 				label : "Comments",
 				borderWidth : 2,
+				yAxisID: "yleft",
 				fill : false,
 				data : comTotalArray,
 				backgroundColor : yoda.barColors[0]
@@ -783,6 +785,7 @@ function createChart() {
 			fill : false,
 			data : dataArray[b],
 			backgroundColor : yoda.barColors[b],
+			yAxisID: "yleft",
 			order: 2
 		});
 	}
