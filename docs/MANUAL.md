@@ -201,13 +201,13 @@ The report is available [here](yoda-time-stats.html).
 
 [Example](yoda-time-stats.html?owner=HewlettPackard&repolist=yoda-demo&draw=true)
 
-[Example. Issues over time for Kubernetes into CoreOS](yoda-time-stats.html?owner=coreos&repolist=coreos-kubernetes&startdate=2015-08-01&interval=1m&labelsplit=&other=Issues&draw=true)
+[Example. Issues over time for coreos-installer in CoreOS](yoda-time-stats.html?owner=coreos&repolist=coreos-installer&startdate=2019-05-01&interval=1m&labelsplit=&other=Issues&draw=true)
 
-[Example. Opened issues over time for typings repo](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
+[Example. Opened issues over time for typings/api repo](yoda-time-stats.html?owner=typings&repolist=api&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
 
-[Example. Closed issues over time for typings repo - with right axis showing total # issues](yoda-time-stats.html?owner=typings&repolist=typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=closed&righttotal=true&draw=true)
+[Example. Closed issues over home-assistant/operating-system - with right axis showing total # issues](yoda-time-stats.html?owner=home-assistant&repolist=operating-system&startdate=2021-12-20&interval=1m&labelfilter=bug&labelsplit=^board&title=Home%20Assistant%20IO%20Closed%20Bugby%20board&stacked=true&count=closed&draw=true)
 
-[Example. Multiple repos over time](yoda-time-stats.html?owner=typings&repolist=core,discussions,typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=repo&other=&draw=true)
+[Example. Multiple repos over time](yoda-time-stats.html?owner=typings&repolist=registry,discussions,typings&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=repo&other=&draw=true)
 
 
 
@@ -342,7 +342,7 @@ The Kanban Board is available [here](yoda-kanban.html).
 
 [Example](yoda-kanban.html?owner=HewlettPackard&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
 
-[Example - typings repo](yoda-kanban.html?owner=typings&repolist=typings&estimate=noissues&milestonelist=All%20milestones&columns=[Bug]open:bug,[Enhancement]open:enhancement,[Question]open:question,[Other]open:*,[Closed]closed:*)
+[Example - typings/registry repo](yoda-kanban.html?owner=typings&repolist=registry&estimate=noissues&milestonelist=All%20milestones&columns=[Bug]open:bug,[Enhancement]open:enhancement,[Question]open:question,[Other]open:*,[Closed]closed:*)
 
 
 ## Milestone Manager
