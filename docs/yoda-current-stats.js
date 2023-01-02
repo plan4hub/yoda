@@ -161,6 +161,9 @@ function createChart() {
 	[categories, categorySplitUsingRegExp] = issue_split(categorySplit);
 	console.log("Category Labels: " + categories);
 	
+	if (categories.length == 0)
+		categories = ["All Issues"]
+	
 	// Besides the bars for the data identified, possibly none if no label split, we will maintain
 	// 1. A bar chart for others (i.e. issues not having labels matching the ones identified
 	// 2. A line for total # issues (only if we have splitting)
@@ -222,7 +225,7 @@ function createChart() {
 			if (categorySplit == "repo") 
 				catLabelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 				
-			if (catLabelList.findIndex(label => label.name == category) == -1) 
+			if (category != "All Issues" && catLabelList.findIndex(label => label.name == category) == -1) 
 				continue;
 
 			// Ok, that matches this category. That is nice. Let's mark it with used so as to avoid to have it into several categories.
