@@ -1804,6 +1804,7 @@ var yoda = (function() {
 			// Build the menu
 			$("#yodamenu").append('<a href="index.html">Landing Page</a>');
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-time-stats.html\", true)'>Time Statistics Report</a>");
+			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-current-stats.html\", true)'>Current Statistics Report</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-cfd.html\", true)'>CFD Report</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-burndown.html\", true)'>Burndown Report</a>");
 			$("#yodamenu").append("<a href='javascript:yoda.openYodaTool(\"yoda-velocity.html\", true)'>Velocity Report</a>");

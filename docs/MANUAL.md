@@ -193,6 +193,14 @@ The tool may also show the so-called ECT (Engineering Cycle Time). This is defin
 
 *Note*: Across all reports, it is possible to hide the top panel (set of fields). This is done from the Yoda menu (the "Hamburger"). You may also request this by setting the URL argument `hidepanel=true`.
 
+
+## Issue Statistics Report (Current View)
+
+A variant of the issues statistics report that focuses strictly on open issues is also available. This case considers naturally only the current situation. Consequently, all parameters related to dates (start date, end date, interval, etc.) is of course not valid and thus not present. Instead the issues may be grouped along the X-axis into different categories. The splitting into categories works in exactly the same way as when splitting issues into different bars. 
+
+In effect, this allows issues to be split according to two dimensions; a category along the X-axis and the actual bars (stacked or non-stacked) along the Y-axis.
+
+
 ### Use for time based velocity charts
 
 As a further option, it is possible to set-up the tool to work out velocity based on estimates (in the body of the issue or in labels). The velocity is calculated as the total story points estimates for all issues *closed* during the interval (note that this is the interval leading *up to* the date shown). Right right side axis will change in this case to display the average story points per day.

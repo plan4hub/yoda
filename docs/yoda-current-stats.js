@@ -208,9 +208,9 @@ function createChart() {
 
 		// Ok, now let's count issues
 		for (var i=0; i < issues.length; i++) {
-			// Already used?
-			if (issues[i]["used"] != undefined)
-				continue;
+			// Already used?  THIS IS QUESTIONABLE..... TURNING OFF FOR NOW
+//			if (issues[i]["used"] != undefined)
+//				continue;
 				
 			var submitDateString = yoda.createDate(issues[i]);    
 			var submitDate = new Date(submitDateString);
@@ -386,7 +386,9 @@ function createChart() {
 				yAxisID: "yright",
 				data : storyPointsPerDayArray,
 				lineTension: 0,
-				borderColor: yoda.getColor("lineBackground"),
+				pointRadius: 5,
+				pointBackgroundColor: yoda.getColor("lineBackground"), 
+				showLine: false,
 				order: 1
 			});
 		} else {
@@ -396,9 +398,11 @@ function createChart() {
 				label : 'Total',
 				fill : false,
 				yAxisID: "yright",
-				data : (countType == "closed" || countType == "opened")?totalAlwaysArray : totalArray,
+				data : totalArray,
 				lineTension: 0,
-				borderColor: yoda.getColor("lineBackground"),
+				pointRadius: 5,
+				pointBackgroundColor: yoda.getColor("lineBackground"), 
+				showLine: false,
 				order: 1
 			});
 		}

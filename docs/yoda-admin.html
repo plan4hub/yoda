@@ -156,6 +156,30 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<div class="frame">
 		<div class="frameheader">
+			<h3>Current Statistics defaults overwrites</h3>
+		</div>
+		
+		<div class="field">
+			<label>Category Splitting</label>
+			<input type="text" id="time_labelsplit" size="20" onchange="setLocalStorage('yoda.current.categorysplit', this.value)">
+			<span class="tooltip">Split issues into categories (X-axis)</span>
+		</div>
+
+		<div class="field">
+			<label>Label Bar Splitting</label>
+			<input type="text" id="time_labelsplit" size="20" onchange="setLocalStorage('yoda.current.labelsplit', this.value)">
+			<span class="tooltip">Split issues into bars (reg. exp or comma sep. list)</span>
+		</div>
+		
+		<div class="field">
+			<label>Other ("blank" for blank)</label>
+			<input type="text" id="time_other" size="13" onchange="setLocalStorage('yoda.current.other', this.value)">
+			<span class="tooltip">Bar label for other issues</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="frameheader">
 			<h3>Burndown defaults overwrites</h3>
 		</div>
 		
