@@ -498,8 +498,7 @@ var yoda = (function() {
 		// Look at date field. Here a "+/- # of days vs current date" notation is allowed.
 		// Also +/-(m) notation for adding/subtracting months.
 		handleDateDelta: function(value) {
-			console.log(value);
-			if (value.charAt(0) == "+" || value.charAt(0) == "-") {
+			if (value.charAt(0) == "+" || value.charAt(0) == "-" || value == "0") {
 				var today = new Date();
 				today.setHours(0);
 				today.setMinutes(0);
@@ -512,7 +511,7 @@ var yoda = (function() {
 					deltaDate.addMonths(parseInt(value));
 				} else {
 					// Days.
-					var delta = parseInt(value.slice(1));
+					var delta = Math.abs(parseInt(value));
 
 					console.log("Subtracting: " + delta + " days from " + deltaDate);
 					if (value.charAt(0) == "+") {
