@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 
+
+ Copyright 2018 Hewlett Packard Enterprise Development LP
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or 
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ -->
+
+<title>GitHub Issue Current Chart</title>
+<link rel="icon" href="current-stats-icon-32.png" type="image/png" />
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.0.1/chart.umd.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<link rel="stylesheet" type="text/css" href="yoda.css">
+<style>
+.miniframe {
+	display: block;
+	float: left;
+	font-size: 14px;
+	font-weight: bold;
+	color: white;
+}
+.miniframeelement {
+	float: top;
+}
+</style>
+</head>
+<body>
+	<script type='text/javascript' src="./yoda-utils.js"></script>
+	<script type='text/javascript' src="./yoda-current-stats.js"></script>
+
+	<div class="frame">
+		<div class="dropdown">
+			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
+		</div>
+	
+		<div class="field">
+			<label>Owner</label>
+			<input type="text" id="owner" size="15" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<span class="tooltip">GitHub organisation or user</span>
+		</div>
+
+		<div class="field">
+			<label>Repositories</label>
+			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<span class="tooltip">Repositories to show</span>
+		</div>
+		
+		<div class="field" style="display: none;">
+			<label>GitHub user</label>
+			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			<span class="tooltip">Your GitHub user-id</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>GitHub token</label>
+			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
+			<span class="tooltip">GitHub personal token</span>
+		</div>
+
+		<div class="field">
+			<label>Label filter</label>
+			<input type="text" size="40" id="labelfilter" value="">
+			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
+		</div>
+
+		<div class="field">
+			<label>Count</label>
+			<div id="countradio">
+				<div>
+					<label><input type="radio" name="count" value="noissues" checked="checked"># Issues</label> 
+					<label><input type="radio" name="count" value="durationopen">Days open</label>
+					<label><input type="radio" name="count" value="velocity">Velocity</label>
+				</div>
+			</div>
+			<span class="tooltip">Issue display options.</span>
+		</div>
+		
+		<div class="field">
+			<label>Estimates</label>
+			<div id="estimateradio">
+				<div>
+					<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label>
+					<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label>
+				</div> 
+			</div>
+			<span class="tooltip">Where to get estimates</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Category Splitting</label>
+			<input type="text" id="categorysplit" size="13" value="^T[1-4] -">
+			<span class="tooltip">Split issues into categories along the X axis</span>
+		</div>
+
+		<div class="field">
+			<label>Label Bar Splitting</label>
+			<input type="text" id="labelsplit" size="13" value="^S[1-4] -">
+			<span class="tooltip">Split issues into bars (reg. exp or comma sep. list)</span>
+		</div>
+
+		<div class="field">
+			<label>Other (blank to omit)</label>
+			<input type="text" id="other" size="13" value="Other">
+			<span class="tooltip">Bar label for other issues</span>
+		</div>
+		
+		<div class="field">
+			<label>Title</label>
+			<input type="text" id="title" size="30" value="">
+			<span class="tooltip">Chart title</span>
+		</div>
+		
+		<button id="drawbutton" onclick="startChart()">Draw chart</button>
+
+		<div class="field">
+			<label>Stacked</label>
+			<input type="checkbox" id="stacked">
+			<span class="tooltip">Stack bars</span>
+		</div>
+
+		<div class="field">
+			<label>Right total</label>
+			<input type="checkbox" id="righttotal" checked="checked">
+			<span class="tooltip">Show # open issues on right axis - instead of total opened/closed.<br>For velocity chart, show story points per day.</span>
+		</div>
+		
+		<div class="field">
+			<label>Percentage</label>
+			<input type="checkbox" id="percentage">
+			<span class="tooltip">Show relative percentage (so relative weight) instead of numbers</span>
+		</div>
+
+		<div class="field" style="display: none;">
+			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
+			<span class="tooltip">CSV field delimiter</span>
+		</div>
+	</div>
+
+	<div style="width: 90%">
+		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val(), event)'></canvas>
+	</div>
+
+	<div id="snackbar">Some text some message..</div>
+
+	<script>
+		// Enable yodamenu
+		yoda.enableMenu("#issue-statistics-report");
+
+		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+		yoda.getDefaultLocalStorage("#labelsplit", "yoda.current.labelsplit");
+		yoda.getDefaultLocalStorage("#categorysplit", "yoda.current.categorysplit");
+		yoda.getDefaultLocalStorage("#other", "yoda.current.other");
+		if ($("#other").val() == "blank")
+			$("#other").val("");
+		
+		yoda.decodeUrlParam("#owner", "owner");
+		yoda.decodeUrlParamRadio("count", "count");
+
+		// repo and repoList handled later, both are supported.
+		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+		yoda.decodeUrlParam("#labelfilter", "labelfilter");
+		yoda.decodeUrlParam("#categorysplit", "categorysplit");
+		yoda.decodeUrlParam("#labelsplit", "labelsplit");
+		yoda.decodeUrlParam("#other", "other");
+		yoda.decodeUrlParam("#title", "title");
+		yoda.decodeUrlParamBoolean("#stacked", "stacked");
+		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
+		yoda.decodeUrlParamBoolean("#percentage", "percentage");
+		
+		yoda.decodeUrlParamRadio("estimate", "estimate");
+		yoda.updateEstimateRadio();
+		
+		// Local storage
+		yoda.getUserTokenLocalStorage("#user", "#token");
+
+		// Do it after getting from localStorage
+		yoda.decodeUrlParam("#user", "user");
+		yoda.decodeUrlParam("#token", "token");
+				
+		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+			$(".frame").hide();
+		}
+
+		// Login
+		githubAuth();
+		
+		$(document).ready(function() {
+			$('#repolist').select2({
+				// minimumInputLength: 2,
+				sorter: yoda.select2Sorter,
+    		    matcher: yoda.select2Matcher
+			});
+		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+			
+			// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+				// Should we draw directly? Only check this after the repo updates complete.
+				if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+					startChart();
+				}
+			}, null);
+		});
+	</script>
+
+</body>
+</html>
