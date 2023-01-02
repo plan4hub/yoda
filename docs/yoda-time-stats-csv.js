@@ -351,8 +351,10 @@ function createChart() {
 	}
 
 	// Total line
-	if (!percentage) {
-		if (bars.length > 0 && stacked == false) {
+	console.log("BAR LENGTH " + bars.length)
+	if (!percentage && bars.length > 1) {
+		if (stacked == false) {
+			// Normal case. Right total line against right axis.
 			datasetArray.push({
 				type : 'line',
 				label : 'Total',
@@ -363,7 +365,6 @@ function createChart() {
 				borderColor: yoda.getColor("lineBackground")
 			});
 		} else {
-			// Normal case. Right total line against right axis.
 			datasetArray.push({
 				type : 'line',
 				label : 'Total',
@@ -414,7 +415,7 @@ function createChart() {
 
 	
 	// Add second axis.
-	if ((bars.length > 0 && stacked == false && !percentage)) {
+	if ((bars.length > 1 && stacked == false && !percentage)) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
