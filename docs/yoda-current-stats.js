@@ -378,7 +378,6 @@ function createChart() {
 	}
 
 	// What should we put on right axis
-	// TBD: If velocity, play on right axis instead 
 	if (rightTotal) {
 		if (countType == "velocity") {
 			// 
