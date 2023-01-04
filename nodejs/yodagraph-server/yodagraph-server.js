@@ -7,6 +7,8 @@
 
 // This is the server version
 
+// docker start command: docker run -i --init --cap-add=SYS_ADMIN -p 8899:8899 --rm ghcr.io/puppeteer/puppeteer:latest node -e "$(cat yodagraph-server.js)"
+
 const puppeteer = require('puppeteer');
 const http = require('http');
 const https = require('https')
@@ -45,7 +47,6 @@ async function listener(req, res) {
     } else {
         url = req.url.substring(ui + 4);
     }
-    console.log("DEBUG: Received request with url: " + url);
 
     // then we need to start a browser tab
     let page = await browser.newPage();
@@ -88,6 +89,7 @@ async function listener(req, res) {
     var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
     res.writeHead(200,{'Content-type':'image/png'});
     res.end(buf);
+    console.log("DEBUG: Succesfully responded with graph for url: " + url);
 
     // close page
     // Don't close last page as this will be keeping application storage stuff.
