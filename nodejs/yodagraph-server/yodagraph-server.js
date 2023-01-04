@@ -6,7 +6,7 @@
 
 // This is the server version
 
-// docker start command: docker run -i --init --cap-add=SYS_ADMIN -p 8899:8899 --rm ghcr.io/puppeteer/puppeteer:latest node -e "$(cat yodagraph-server.js)"
+// docker start command:  docker run -i --init --cap-add=SYS_ADMIN -p 8899:8899 -e YODAGRAPH_SERVER_OPTIONS="--loglevel debug" --rm yodagraph-server:latest
 
 const puppeteer = require('puppeteer');
 const http = require('http');
@@ -44,24 +44,43 @@ async function stop() {
     logger.info("Succesfully closed browser.")
 }
 
+
+var usage = `<html>
+<body>
+    <h1>Yodagraph Server</h1>
+    <p>Usage:</p>
+    <p>width=(width of canvas in pixels). Optional</p>
+    <p>url=(full Yoda url). MUST be last argument</p>
+</body>
+</html>`;
+
+
 // The main listener
 async function listener(req, res) {
     ui = req.url.indexOf('url=');
     if (ui == -1) {
         logger.warn("WARNING: Received request without url: " + req.url);
-        res.writeHead(404,{'Content-type':'text/html'});
-        res.end("No url argument given.");
+        res.writeHead(200,{'Content-type':'text/html'});
+        res.end(usage);
         return
     } else {
         url = req.url.substring(ui + 4);
     }
+
+    // Width?
+    var w = req.url.match(/width=([0-9]*)/);
+    if (w != undefined) 
+        width = parseInt(w[1]);
+    else
+        width = configuration.getOption('width');
+
     logger.debug("Received url: " + url);
 
     // then we need to start a browser tab
     let page = await browser.newPage();
 
     await page.setViewport({
-        width: configuration.getOption('width'),
+        width: width,
         height: 2000,
         deviceScaleFactor: 1,
       });
