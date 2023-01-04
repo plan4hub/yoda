@@ -3,16 +3,19 @@
 // returned in an HTTP response (server version). 
 
 // As the server version will make use of Puppeteer in container build (https://pptr.dev/guides/docker) that script (yodagraph-server.js) will
-// not include several additional libraries (like command line parsing) as that would require the docker image to be modified.
+// not include several additional libraries (like command line parsing) as that would require the docker image to be modified. KISS.
 
 // This is the server version
 
 const puppeteer = require('puppeteer');
 const http = require('http');
+const https = require('https')
+const fs = require('fs')
 
 var browser;
 
 async function init() {
+    console.log("INFO: Launching browser ...")
     browser = await puppeteer.launch({
         args: [
             '--no-sandbox',
@@ -21,26 +24,28 @@ async function init() {
         ignoreHTTPSErrors: true,
 
     });
+    console.log("INFO: Succesfully launched browser")
+
     browser.on('disconnected', init);  // restart on crash
 }
 
 async function stop() {
-    console.log("Puppetteer stopping .. ")
+    console.log("INFO: Puppetteer stopping .. ")
     await browser.close();
 }
 
-//    res.writeHead(200);
-//    res.end('Hello, World!');
+// The main listener
 async function listener(req, res) {
     ui = req.url.indexOf('url=');
-//    console.log(req.url, ui);
     if (ui == -1) {
+        console.log("WARNING: Received request without url: " + req.url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("No url argument given.");
         return
     } else {
         url = req.url.substring(ui + 4);
     }
+    console.log("DEBUG: Received request with url: " + url);
 
     // then we need to start a browser tab
     let page = await browser.newPage();
@@ -56,15 +61,16 @@ async function listener(req, res) {
             waitUntil: 'domcontentloaded'
         });
     } catch (err) {
+        console.log("ERROR failed loading page for url: " + url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("Error doing GET on specified url");
         return
     }
 
     var data = null;
-    // const watchDog = page.waitForFunction('document.querySelector("#canvas").height > 400');
     try {
         await page.evaluate('Chart.defaults.animation = false;'); // turn off Chartjs animations.
+
         await page.waitForFunction('document.querySelector("#canvas").height > 400', {
             timeOut: 90000
         });
@@ -72,6 +78,7 @@ async function listener(req, res) {
             return document.querySelector('#canvas').toDataURL('image/png');
         });
     }  catch (err) {
+        console.log("ERROR: Error building or getting graph for url: " + url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("Error waiting for graph - likely timeout");
         return
@@ -94,7 +101,7 @@ init();
 
 //	Be prepared for shutdown
 process.on('SIGINT', () => {
-    console.log('Received SIGINT. Shutting down.');
+    console.log('INFO: Received SIGINT. Shutting down.');
     server.close(function() {stop(); process.exit(0)});
 });
 
