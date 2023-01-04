@@ -74,6 +74,7 @@ async function listener(req, res) {
         width = parseInt(w[1]);
     else
         width = configuration.getOption('width');
+    logger.trace("Width set at " + width);
 
     // Add user/token?
    if (url.indexOf("user=") == -1 && configuration.getOption('user') != undefined) {
@@ -84,16 +85,20 @@ async function listener(req, res) {
 
     // then we need to start a browser tab
     let page = await browser.newPage();
+    logger.trace("New page created");
 
     await page.setViewport({
         width: width,
         height: 2000,
         deviceScaleFactor: 1,
-      });
+    });
+    logger.trace("View port set.");
 
     try {
         await page.goto(url, {
-            waitUntil: 'domcontentloaded'
+//            waitUntil: 'domcontentloaded'
+            waitUntil: 'networkidle0'
+
         });
     } catch (err) {
         logger.error("Failed loading page for url: " + url);
