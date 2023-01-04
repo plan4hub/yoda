@@ -19,6 +19,7 @@ configuration.parseOptions();
 
 // log4js
 const log4js = require('log4js');
+const { url } = require('inspector');
 var logger = log4js.getLogger();
 
 var browser;
@@ -64,7 +65,7 @@ async function listener(req, res) {
         res.end(usage);
         return
     } else {
-        url = req.url.substring(ui + 4);
+        var url = req.url.substring(ui + 4);
     }
 
     // Width?
@@ -74,7 +75,12 @@ async function listener(req, res) {
     else
         width = configuration.getOption('width');
 
-    logger.debug("Received url: " + url);
+    // Add user/token?
+   if (url.indexOf("user=") == -1 && configuration.getOption('user') != undefined) {
+        logger.trace("Added default user and password");
+        url += "&user=" + configuration.getOption('user') + "&token=" + configuration.getOption('password');
+    }
+    logger.debug("Url: " + url);
 
     // then we need to start a browser tab
     let page = await browser.newPage();

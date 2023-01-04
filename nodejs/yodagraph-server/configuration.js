@@ -77,7 +77,7 @@ const optionDefinitions = [
 const sections = [
 	  {
 	    header: 'Yodagraph server',
-	    content: 'Server process that may invoke youda tools to generate graphs and return result as PNG images.'
+	    content: 'Server process that may invoke Yoda tools to generate graphs and return result as PNG images.'
 	  },
 	  {
 	    header: 'Options',
@@ -95,6 +95,7 @@ function parseOptions() {
 		} else {
 			options = commandLineArgs(optionDefinitions);
 		}
+		console.log(options);
 		
 		if (options['help'] == true) {
 			logger.info(usage);
@@ -103,15 +104,24 @@ function parseOptions() {
 
 		error = false;
 
-		if (options['--cert'] != undefined && options['--cert-key'] == undefined) {
+
+		if (options['cert'] != undefined && options['cert-key'] == undefined) {
 			logger.error("Need --cert-key to match --cert");
 			error = true;
 		}
-		if (options['--cert-key'] != undefined && options['--cert'] == undefined) {
+		if (options['cert-key'] != undefined && options['cert'] == undefined) {
 			logger.error("Need --cert to match --cert-key");
 			error = true;
 		}
+		if (options['user'] != undefined && options['password'] == undefined) {
+			logger.error("Need --password to match --user");
+			error = true;
+		}
 
+		if (options['password'] != undefined && options['user'] == undefined) {
+			logger.error("Need --user to match --password");
+			error = true;
+		}
 		if (error) {
 			logger.error(usage);
 			process.exit(1);
