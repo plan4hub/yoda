@@ -158,7 +158,7 @@ if (configuration.getOption('cert') == undefined) {
       cert: fs.readFileSync(configuration.getOption('cert'))
     };
 
-    const server = http.createServer(options, listener);
+    const server = https.createServer(options, listener);
     server.listen(configuration.getOption('port'));
 }
 
