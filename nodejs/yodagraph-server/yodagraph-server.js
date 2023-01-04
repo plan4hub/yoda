@@ -2,8 +2,7 @@
 // and then wait for the "canvas" selector to product the graph. At this point it will be either saved to a file (command line version) OR 
 // returned in an HTTP response (server version). 
 
-// As the server version will make use of Puppeteer in container build (https://pptr.dev/guides/docker) that script (yodagraph-server.js) will
-// not include several additional libraries (like command line parsing) as that would require the docker image to be modified. KISS.
+// The server version will extend docker images as defined in https://pptr.dev/guides/docker) 
 
 // This is the server version
 
@@ -14,10 +13,18 @@ const http = require('http');
 const https = require('https')
 const fs = require('fs')
 
+// First do config. This will get things rolling
+const configuration = require('./configuration.js');
+configuration.parseOptions();
+
+// log4js
+const log4js = require('log4js');
+var logger = log4js.getLogger();
+
 var browser;
 
 async function init() {
-    console.log("INFO: Launching browser ...")
+    logger.info("Launching browser ...");
     browser = await puppeteer.launch({
         args: [
             '--no-sandbox',
@@ -26,34 +33,36 @@ async function init() {
         ignoreHTTPSErrors: true,
 
     });
-    console.log("INFO: Succesfully launched browser")
+    logger.info("Succesfully launched browser");
 
     browser.on('disconnected', init);  // restart on crash
 }
 
 async function stop() {
-    console.log("INFO: Puppetteer stopping .. ")
+    logger.info("Closing browser .. ")
     await browser.close();
+    logger.info("Succesfully closed browser.")
 }
 
 // The main listener
 async function listener(req, res) {
     ui = req.url.indexOf('url=');
     if (ui == -1) {
-        console.log("WARNING: Received request without url: " + req.url);
+        logger.warn("WARNING: Received request without url: " + req.url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("No url argument given.");
         return
     } else {
         url = req.url.substring(ui + 4);
     }
+    logger.debug("Received url: " + url);
 
     // then we need to start a browser tab
     let page = await browser.newPage();
 
     await page.setViewport({
-        width: 1200,
-        height: 1000,
+        width: configuration.getOption('width'),
+        height: 2000,
         deviceScaleFactor: 1,
       });
 
@@ -62,7 +71,7 @@ async function listener(req, res) {
             waitUntil: 'domcontentloaded'
         });
     } catch (err) {
-        console.log("ERROR failed loading page for url: " + url);
+        logger.error("Failed loading page for url: " + url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("Error doing GET on specified url");
         return
@@ -73,13 +82,13 @@ async function listener(req, res) {
         await page.evaluate('Chart.defaults.animation = false;'); // turn off Chartjs animations.
 
         await page.waitForFunction('document.querySelector("#canvas").height > 400', {
-            timeOut: 90000
+            timeOut: configuration.getOption('timeout')
         });
         data = await page.evaluate(() => {
             return document.querySelector('#canvas').toDataURL('image/png');
         });
     }  catch (err) {
-        console.log("ERROR: Error building or getting graph for url: " + url);
+        logger.error("Failed building or getting graph for url: " + url);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("Error waiting for graph - likely timeout");
         return
@@ -89,7 +98,7 @@ async function listener(req, res) {
     var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
     res.writeHead(200,{'Content-type':'image/png'});
     res.end(buf);
-    console.log("DEBUG: Succesfully responded with graph for url: " + url);
+    logger.debug("Succesfully responded with graph for url: " + url);
 
     // close page
     // Don't close last page as this will be keeping application storage stuff.
@@ -103,7 +112,7 @@ init();
 
 //	Be prepared for shutdown
 process.on('SIGINT', () => {
-    console.log('INFO: Received SIGINT. Shutting down.');
+    logger.info("Received SIGINT. Shutting down.");
     server.close(function() {stop(); process.exit(0)});
 });
 

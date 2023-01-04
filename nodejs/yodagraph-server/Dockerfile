@@ -11,6 +11,6 @@ RUN mkdir /home/pptruser/app
 WORKDIR /home/pptruser/app
 COPY package.json .
 RUN npm install
-COPY yodagraph-server.js /home/pptruser/app
+COPY *.js /home/pptruser/app
 
 CMD ["node", "/home/pptruser/app/yodagraph-server.js"]
