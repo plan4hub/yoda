@@ -86,6 +86,8 @@ async function run(options){
         waitUntil: 'domcontentloaded',
     });
 
+    await page.evaluate('Chart.defaults.animation = false;');
+
     const watchDog = page.waitForFunction('document.querySelector("#canvas").height > 400');
     await watchDog;
 

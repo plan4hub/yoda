@@ -13,15 +13,14 @@ const http = require('http');
 var browser;
 
 async function init() {
-    // First, we must launch a browser instance
     browser = await puppeteer.launch({
-        // Headless option allows us to disable visible GUI, so the browser runs in the "background"
-        // for development lets keep this to true so we can see what's going on but in
-        // on a server we must set this to true
-        headless: false,
-        // This setting allows us to scrape non-https websites easier
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+        ],
         ignoreHTTPSErrors: true,
-    })
+
+    });
     browser.on('disconnected', init);  // restart on crash
 }
 
