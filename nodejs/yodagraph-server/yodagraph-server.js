@@ -141,5 +141,24 @@ process.on('SIGINT', () => {
     server.close(function() {stop(); process.exit(0)});
 });
 
-const server = http.createServer(listener);
-server.listen(8899);
+if (configuration.getOption('cert') == undefined) {
+    // HTTP
+    // Start the server.
+    logger.info("Bringing up server in HTTP mode.");
+    const server = http.createServer(listener);
+    server.listen(configuration.getOption('port'));
+    logger.trace(server);
+} else {
+    // HTTPS
+    // Start the server. 
+    logger.info("Bringing up server in HTTPS mode.");
+
+    const options = {
+      key: fs.readFileSync(configuration.getOption('cert-key')),
+      cert: fs.readFileSync(configuration.getOption('cert'))
+    };
+
+    const server = http.createServer(options, listener);
+    server.listen(configuration.getOption('port'));
+}
+
