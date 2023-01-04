@@ -1,0 +1,28 @@
+{
+  "name": "yodagraph-server",
+  "version": "1.0.0",
+  "description": "Server proxy tool to get Yoda graph using puppeteer",
+  "main": "yodagraph-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hewlettpackard/yoda.git"
+  },
+  "keywords": [
+    "yoda",
+    "puppeteer",
+    "graph",
+    "server"
+  ],
+  "author": "Jens Vedel Markussen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hewlettpackard/yoda/issues"
+  },
+  "homepage": "https://github.com/hewlettpackard/yoda#readme",
+  "dependencies": {
+    "puppeteer": "^19.4.1"
+  }
+}
