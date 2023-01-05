@@ -29,7 +29,7 @@ async function init() {
     browser = await puppeteer.launch({
         args: [
             '--no-sandbox',
-            '--disable-setuid-sandbox'
+//            '--disable-setuid-sandbox'
         ],
         ignoreHTTPSErrors: true,
 
@@ -97,9 +97,8 @@ async function listener(req, res) {
     try {
         await page.goto(url, {
 //            waitUntil: 'domcontentloaded'
-            waitUntil: 'networkidle0'
-
-        });
+//            waitUntil: 'networkidle0'
+      });
     } catch (err) {
         logger.error("Failed loading page for url: " + url);
         res.writeHead(404,{'Content-type':'text/html'});
