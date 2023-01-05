@@ -101,6 +101,7 @@ async function listener(req, res) {
       });
     } catch (err) {
         logger.error("Failed loading page for url: " + url);
+        logger.error(err);
         res.writeHead(404,{'Content-type':'text/html'});
         res.end("Error doing GET on specified url");
         return
