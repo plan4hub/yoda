@@ -410,6 +410,12 @@ function createChart() {
 		}
 	}
 	
+	if (categorySplitUsingRegExp && categorySplit.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
+		var splitReg = new RegExp(categorySplit);
+		for (var c = 0; c < categoryArray.length; c++)
+			categoryArray[c] = categoryArray[c].replace(splitReg, '$1');
+	}
+
 	// We will push data to a 
 	var chartData = {
 			labels : categoryArray,
