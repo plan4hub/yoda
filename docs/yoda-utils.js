@@ -1692,7 +1692,7 @@ var yoda = (function() {
 				if (repoList.length == 1) {
 					// Last call completed.
 					yoda.filterPullRequests(yoda_issues);
-					yoda.synthesizeMilestoneLabels(issues);
+					yoda.synthesizeMilestoneLabels(yoda_issues);
 					yoda.filterIssuesReqExp(labelFilter);
 					if (okFunc != null)
 						okFunc(yoda_issues);
