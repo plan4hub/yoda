@@ -1310,6 +1310,17 @@ var yoda = (function() {
 				}
 			}
 		},
+
+		// If issue has milestone set, synthesize a special "MS - (milestone)" label
+		synthesizeMilestoneLabels: function(issues) {
+			for (var i = 0; i < issues.length; i++)  {
+				//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
+				if (issues[i].milestone != undefined) {
+					issues[i].labels.push({ "name": "MS - " + issues[i].milestone.title});
+					console.log("Added label:" + "MS - " + issues[i].milestone.title);
+				} 
+			}
+		},
 		
 		// Filter issues based on milestone filter (can be regexp).
 		filterIssuesMilestone: function(issues, milestoneFilter) {
@@ -1681,6 +1692,7 @@ var yoda = (function() {
 				if (repoList.length == 1) {
 					// Last call completed.
 					yoda.filterPullRequests(yoda_issues);
+					yoda.synthesizeMilestoneLabels(issues);
 					yoda.filterIssuesReqExp(labelFilter);
 					if (okFunc != null)
 						okFunc(yoda_issues);
@@ -1709,6 +1721,7 @@ var yoda = (function() {
 			console.log("Get Issues URL:" + getIssuesUrl);
 			yoda.getLoop(getIssuesUrl, 1, [], function(issues) {
 				yoda.filterPullRequests(issues);
+				yoda.synthesizeMilestoneLabels(issues);
 				yoda.filterIssuesReqExp(labelFilter);
 				yoda_issues = issues;
 
