@@ -131,7 +131,7 @@ async function listener(req, res) {
     var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
     res.writeHead(200,{'Content-type':'image/png'});
     res.end(buf);
-    logger.debug("Succesfully responded with graph for url: " + url);
+    logger.info("Succesfully responded with graph for url: " + url);
 
     // close page
     // Don't close last page as this will be keeping application storage stuff.
