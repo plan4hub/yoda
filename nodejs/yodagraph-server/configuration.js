@@ -26,6 +26,11 @@ const optionDefinitions = [
 		description: 'The GitHub user name. We are assuming that this is a non-standard user. Events received from this user are ignored. Required (if not running as GitHub App)'
 	},
 	{
+		name: 'proxy',
+		type: String,
+		description: 'Proxy server to use (optional).'
+	},
+	{
 		name: 'password',
 		alias: 'p',
 		type: String,

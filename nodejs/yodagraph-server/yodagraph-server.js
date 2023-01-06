@@ -25,12 +25,15 @@ var logger = log4js.getLogger();
 var browser;
 
 async function init() {
-    logger.info("Launching browser ...");
+    args = ['--no-sandbox']; // '--disable-setuid-sandbox'
+    if (configuration.getOption('proxy') != undefined) {
+        args.push('--proxy-server=' + configuration.getOption('proxy'));
+    }
+
+    logger.info("Launching browser with args:");
+    logger.info(args);
     browser = await puppeteer.launch({
-        args: [
-            '--no-sandbox',
-//            '--disable-setuid-sandbox'
-        ],
+        args: args,
         ignoreHTTPSErrors: true,
 
     });
@@ -45,7 +48,7 @@ async function stop() {
     logger.info("Succesfully closed browser.")
 }
 
-
+// Usage
 var usage = `<html>
 <body>
     <h1>Yodagraph Server</h1>
