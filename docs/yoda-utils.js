@@ -1933,7 +1933,7 @@ var yoda = (function() {
 					var line = body.substr(lineStart);
 				else
 					var line = body.substr(lineStart, lineEnd - lineStart);
-				if (line.length == 0 || (line.length == 1 && line.charCodeAt(0) == 13))
+				if (line.length == 0 || (line.length == 1 && line.charCodeAt(0) == 13) || (line.length > 0 && line.charAt(0) == '>'))
 					break;
 				if (text != "") 
 					text += newLine;
