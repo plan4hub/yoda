@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,149 +17,60 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-// Global variable controlling whether bars should be stacked or not.
-// If stacked, then tool will not do a "totals" line and a corresponding right axis.
-var stacked = false;
-
-var repoList = [];
-
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
+import * as yoda from './yoda-utils.js'
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
-	if ($("#startdate").val() != "") {
-		params += "&startdate=" + $("#startdate").val(); 
-	}
-	if ($("#enddate").val() != "") {
-		params += "&enddate=" + $("#enddate").val(); 
-	}
-	params = addIfNotDefault(params, "interval");	
-	params = addIfNotDefault(params, "labelfilter");	
-	params = addIfNotDefault(params, "labelsplit");	
-	params = addIfNotDefault(params, "other");	
-	params = addIfNotDefault(params, "title");
-	if ($('#stacked').is(":checked")) {
-		params += "&stacked=true";
-	}
-	if ($('#history').is(":checked")) {
-		params += "&history=true";
-	}
-	if (!($('#righttotal').is(":checked"))) {
-		params += "&righttotal=false";
-	}
-	if ($('#percentage').is(":checked")) {
-		params += "&percentage=true";
-	}
+	["startdate", "enddate", "interval", "labelfilter", "labelsplit", "other", "title", "stacked", "righttotal", "percentage"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 
 	var countType = $("#countradio input[type='radio']:checked").val();
-	if (countType != "noissues") {
+	if (countType != "noissues")
 		params += "&count=" + countType;
-	}
 	
 	return params;
 }
 
-function estimateClick(radio) {
-	yoda.setEstimateInIssues(radio.value);
-}
+function countChanged(e) {
+	if (e.target.value == "velocity") {
+		console.log("Velocity selected. Let's set some solid defaults.");
+		var sixMAgo = new Date();
+		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+		if ($('#startdate').val() == "")
+			$('#startdate').val(yoda.formatDate(sixMAgo));
+		$('#interval').val('1m');
+		$('#labelsplit').val('^T[1-9][0-9]? -');
+		$('#other').val('');
+		$('#stacked').attr('checked', true);
+		$('#righttotal').attr('checked', true);
+	} else if (e.target.value == "ect") {
+		console.log("ECT selected. Let's set some solid defaults.");
+		var sixMAgo = new Date();
+		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+		if ($('#startdate').val() == "")
+			$('#startdate').val(yoda.formatDate(sixMAgo));
+		//	$('#enddate').val(''); 
+		$('#interval').val('1m');
+		$('#labelsplit').val('^T[1-9][0-9]? -');
+		$('#other').val('');
+		$('#stacked').attr('checked', false);
+		$('#righttotal').attr('checked', false);
+	} else if (e.target.value == "comments") {
+		console.log("Comments selected. Let's deselect some fields.");
+		var sixMAgo = new Date();
+		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
+		if ($('#startdate').val() == "")
+			$('#startdate').val(yoda.formatDate(sixMAgo));
+		$('#interval').val('1m');
 
-function velocitySelected() {
-	console.log("Velocity selected. Let's set some solid defaults.");
-	var sixMAgo = new Date();
-	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
-	if ($('#startdate').val() == "")
-		$('#startdate').val(yoda.formatDate(sixMAgo)); 
-//	$('#enddate').val(''); 
-	$('#interval').val('1m');
-	$('#labelsplit').val('^T[1-9][0-9]? -');
-	$('#other').val('');
-	$('#stacked').attr('checked', true);
-	$('#righttotal').attr('checked', true);
-}
-
-function ectSelected() {
-	console.log("ECT selected. Let's set some solid defaults.");
-	var sixMAgo = new Date();
-	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
-	if ($('#startdate').val() == "")
-		$('#startdate').val(yoda.formatDate(sixMAgo)); 
-	//	$('#enddate').val(''); 
-	$('#interval').val('1m');
-	$('#labelsplit').val('^T[1-9][0-9]? -');
-	$('#other').val('');
-	$('#stacked').attr('checked', false);
-	$('#righttotal').attr('checked', false);
-}
-
-function commentsSelected() {
-	console.log("Comments selected. Let's deselect some fields.");
-	var sixMAgo = new Date();
-	sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
-	if ($('#startdate').val() == "")
-		$('#startdate').val(yoda.formatDate(sixMAgo)); 
-//	$('#enddate').val(''); 
-	$('#interval').val('1m');
-
-//	$('#labelfilter').prop('disabled', true);
-	$('#labelsplit').val('repo');
-//	$('#other').prop('disabled', true);
-	$('#stacked').attr('checked', true);
-//	$('#righttotal').attr('checked', true);
-}
-
-// Global array. Issue URL (API style) is the key
-var labelEventsReceived = false;
-var labelEvents = [];
-function issuesLabels(issue, date) {
-	if ($('#history').is(":checked") && labelEventsReceived) {
-		// We start by the current set of labels. Then we will work backwards performing label adjustments
-		// in reverse form.
-		var labelsAtTime = issue.labels.slice();
-
-		if (labelEvents[issue.url] != undefined) {
-			// sort by create date
-			labelEvents[issue.url].sort(function(a, b) {return a.created_at < b.created_at;});
-			// Run through the events in reverse order
-			for (var e = 0; e < labelEvents[issue.url].length; e++) {
-				var eventDate = new Date(labelEvents[issue.url][e].created_at);
-				
-				if (eventDate < date)
-					continue; // Don't care about earlier changes.
-				
-				if (labelEvents[issue.url][e].event == "labeled") {
-					// Remove label (as we are working reverse) 
-
-					for (var i = 0; i < labelsAtTime.length; i++) {
-						if (labelsAtTime[i].name == labelEvents[issue.url][e].label.name) { 
-							labelsAtTime.splice(i, 1);
-							break;
-						}
-					}
-					
-				}
-				if (labelEvents[issue.url][e].event == "unlabeled") {
-					// Add label (as we are working in reverse)
-					labelsAtTime.push(labelEvents[issue.url][e].label);
-				} 
-			}
-		}
-		return labelsAtTime;
-	} else {
-		// 	Just return current state
-		return issue.labels;
+		$('#labelsplit').val('repo');
+		$('#stacked').attr('checked', true);
 	}
-} 
+}
 
 // We will use below two global arrays to keep track of the data for the comments graph
 var comDateArray = [];
@@ -197,26 +108,14 @@ function createCommentsChart(dateIndex) {
 				}
 
 				reposLeft--;
-				if (reposLeft == 0) {
-					// Advance date index
-					setTimeout(function() {createCommentsChart(dateIndex + 1)}, 100);
-				}
+				if (reposLeft == 0)
+					setTimeout(function() {createCommentsChart(dateIndex + 1)}, 100); // Advance date index
 			},
 			function(errorText) { 
 				yoda.showSnackbarError("Error getting events: " + errorText, 3000);
 			});
 		}
 	} else {
-		if ($('#stacked').is(":checked"))
-			stacked = true;
-		else
-			stacked = false;
-		
-		if ($('#righttotal').is(":checked"))
-			var rightTotal = true;
-		else
-			var rightTotal = false;
-		
 		// All done. Draw the graph
 		// Ready, let's push the bars
 		var datasetArray = [];
@@ -246,7 +145,7 @@ function createCommentsChart(dateIndex) {
 		
 		// What should we put on right axis
 		// TBD: If velocity, play on right axis instead 
-		if (rightTotal) {
+		if (righttotal.checked) {
 				// Normal case. Right total line against right axis.
 				datasetArray.push({
 					type : 'line',
@@ -261,7 +160,7 @@ function createCommentsChart(dateIndex) {
 				});
 		} else {	
 			// Add line for total, but only if bars (and not stacked)
-			if (bars.length > 0 && stacked == false) {
+			if (!stacked.checked) {
 				datasetArray.push({
 					type : 'line',
 					label : 'Total',
@@ -288,7 +187,7 @@ function createCommentsChart(dateIndex) {
 					display: true,
 					text: "No of comments",
 				},
-				stacked: stacked,
+				stacked: stacked.checked,
 				position: "left",
 				ticks: {
 					beginAtZero: true
@@ -298,7 +197,7 @@ function createCommentsChart(dateIndex) {
 				}
 			},
 			x: {
-				stacked: stacked,
+				stacked: stacked.checked,
 				grid: {
 					color: yoda.getColor('gridColor')
 				}
@@ -306,7 +205,7 @@ function createCommentsChart(dateIndex) {
 		};
 		
 		// Add second axis.
-		if ((bars.length > 0 && stacked == false) || rightTotal) {
+		if (!stacked.checked || righttotal.checked) {
 			chartScales["yright"] = {    
 				title: {
 					display: true,
@@ -357,8 +256,6 @@ function createCommentsChart(dateIndex) {
 	}
 }
 
-
-
 function startCommentsChart() {
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
@@ -370,7 +267,6 @@ function startCommentsChart() {
 	comDateArray = [];
 	comRepoArray = [];
 	comTotalArray = [];
-	reposList = -1;
 	
 	// Iterate days.
 	// We need today startDate and endDate... we do this for each call. A bit wasteful, but who cares
@@ -381,22 +277,20 @@ function startCommentsChart() {
 	today.setSeconds(0);
 
 	var endDateString = $("#enddate").val();
-	if (endDateString == "") {
+	if (endDateString == "")
 		var endDate = new Date(today);
-	} else {
-		endDate = new Date(endDateString);
-	}
+	else
+		var endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 
 	var startDateString = $("#startdate").val();
-	if (startDateString == "") {
+	if (startDateString == "")
 		var startDate = yoda.twoMonthsEarlier(interval, today);
-	} else {
+	else
 		var startDate = new Date(startDateString);
-	}
 	console.log("Start date: " + startDate);
 
 	// Done.. Advance to next date
@@ -414,35 +308,23 @@ function startCommentsChart() {
 		comDateArray.push(yoda.formatDate(date));
 		comTotalArray.push(0);
 	}
-	for (var r = 0; r < repoList.length; r++) {
+	for (var r = 0; r < repoList.length; r++)
 		comRepoArray.push(new Array());
-	}
 
 	// Now, let's get the data and draw the graph
 	createCommentsChart(0, -1);
 }
 
-
-
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
-var bars = [];
 function createChart() {
+	// get reference to the issues (not deep copy, so cheap)
+	const issues = yoda.getIssues();
+	console.log("Got " + issues.length + " issues");
+	
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
-	
-	if ($('#righttotal').is(":checked")) {
-		var rightTotal = true;
-	} else {
-		var rightTotal = false;
-	}
-	
-	if ($('#percentage').is(":checked")) {
-		var percentage = true;
-	} else {
-		var percentage = false;
-	}
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	var today = new Date();
@@ -458,19 +340,17 @@ function createChart() {
 	}
 
 	var startDateString = $("#startdate").val();
-	if (startDateString == "") {
+	if (startDateString == "")
 		var startDate = yoda.twoMonthsEarlier(interval, today);
-	} else {
+	else
 		var startDate = new Date(startDateString);
-	}
 	console.log("Start date: " + startDate);
 	
 	var endDateString = $("#enddate").val();
-	if (endDateString == "") {
+	if (endDateString == "")
 		var endDate = new Date(today);
-	} else {
-		endDate = new Date(endDateString);
-	}
+	else
+		var endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
@@ -480,60 +360,16 @@ function createChart() {
 	console.log("Label split: " + labelSplit);
 	
 	var temp = $("#countradio input[type='radio']:checked");
-	if (temp.length > 0) {
+	if (temp.length > 0)
 	    var countType = temp.val();
-	}
 	console.log("Count type read: " + countType);
 
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
-	bars = [];
-	barsIds = [];
-	var labelSplitUsingRegExp = false;
-	
-	// Special handling for "repo"
-	if (labelSplit == "repo") {
-		// This is a special situation. We will create a bar for each repo. Useful only when doing organization level graph.
-		for (i=0; i<issues.length; i++) {
-			var repo = yoda.getUrlRepo(issues[i].url);
-			if (bars.indexOf(repo) == -1)
-				bars.push(repo);
-		}
-		bars.sort();
-	} else {
-		if (labelSplit.split(",").length > 1) {
-			// Explicit list of labels
-			var ls = labelSplit.split(",");
-			for (l = 0; l < ls.length; l++) {
-				bars.push(ls[l].trim());
-			}
-		} else {
-			// Regular expression
-			if (labelSplit != "") {
-				labelSplitUsingRegExp = true;
-				var splitReg = new RegExp(labelSplit);
-				if (labelSplit != "") {
-					for (i=0; i<issues.length; i++) {
-						for (var l=0; l<issues[i].labels.length; l++) {
-							var labelName = issues[i].labels[l].name;
-							var res = labelName.match(splitReg);
-							if (res != null) {
-								if (bars.indexOf(labelName) == -1) {
-									console.log("Found label: " + labelName);
-									bars.push(labelName);
-//									barsIds.push(issues[i].labels[l].id);
-								}
-							}
-						}
-					}
-				}
-				bars = bars.sort();
-				console.log("Number of distinct labels: " + bars.length);
-			}
-		}
-	}
-	console.log("Labels: " + bars);
+	var bars, labelSplitUsingRegExp;
+	[bars, labelSplitUsingRegExp] = yoda.issue_split(labelsplit.value, issues);
+	console.log("Bar Labels: " + bars);
 	
 	// Besides the bars for the data identified, possibly none if no label split, we will maintain
 	// 1. A bar chart for others (i.e. issues not having labels matching the ones identified
@@ -546,9 +382,8 @@ function createChart() {
 	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
 	var dateArray = [];
 	var dataArray = new Array(bars.length);
-	for (i = 0; i < dataArray.length; i++) {
+	for (i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	}
 	var otherArray = [];
 	var totalArray = [];
 	var totalAlwaysArray = [];
@@ -569,11 +404,10 @@ function createChart() {
 		date.setSeconds(59);
 		
 		// Push to date array the labels. For open issues just the date. For others prepend with "<"
-		if (countType != "noissues") {
+		if (countType != "noissues")
 			dateArray.push(".. " + yoda.formatDate(date));
-		} else {
+		else
 			dateArray.push(yoda.formatDate(date));
-		}
 		
 		// Prepare data array
 		var dataArrayForDay = new Array(bars.length);
@@ -597,10 +431,8 @@ function createChart() {
 			var submitDateString = yoda.createDate(issues[i]);    
 			var submitDate = new Date(submitDateString);
 			
-			if (submitDate > date) {
-				// Submitted later - forget it.
-				continue;
-			}
+			if (submitDate > date)
+				continue; // Submitted later - forget it.
 			
 			// Closed, and closed before OR DURING date?
 			var closedString = yoda.closedDate(issues[i]); 
@@ -612,19 +444,16 @@ function createChart() {
 					totalAlways++;
 
 				// Don't want this issue if closed ahead of this
-				if ((countType == "noissues" || countType == "durationopen") && closedDate <= date) {
+				if ((countType == "noissues" || countType == "durationopen") && closedDate <= date)
 					continue;
-				}
 				
 				// Closed before previous date
-				if ((countType == "closed" || countType == "velocity") && closedDate <= previousDate) {
+				if ((countType == "closed" || countType == "velocity") && closedDate <= previousDate)
 					continue;
-			 	}
 					
 				// Closed later
-				if ((countType == "closed" || countType == "velocity") && closedDate > date) {
+				if ((countType == "closed" || countType == "velocity") && closedDate > date)
 					continue;
-				}
 				
 				// If we are counting ECT and required data is not available, disregard the issue 
 				if (countType == "ect" && yoda.getMilestoneIssueDuration(issues[i]) == null)
@@ -640,24 +469,20 @@ function createChart() {
 			}
 			
 			// Ok, it is open, IF we are counting opened, we are only interested if it was opened during this period.
-			if (countType == "opened" && submitDate < previousDate) {
-				// Earlier period, forget it.
-				continue;
-			}
+			if (countType == "opened" && submitDate < previousDate)
+				continue;  // Earlier period, forget it.
 			
 			// Ok, relevant
 			var foundLabel = false;
-			var labelList = issuesLabels(issues[i], date);
+			var labelList = issues[i].labels;
 			
 			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
 			// This will cause an immediate match.
 			if (labelSplit == "repo") 
 				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 			
-			if (countType == "velocity") {
-				issueEstimate = yoda.issueEstimate(issues[i]);
-//				console.log("Estimate for issue: " + issueEstimate);
-			}
+			if (countType == "velocity")
+				var issueEstimate = yoda.issueEstimate(issues[i]);
 
 			// Log's look at the labels.
 			for (l = 0; l < labelList.length; l++) {
@@ -665,9 +490,6 @@ function createChart() {
 				// Search bars array
 				var index = bars.indexOf(labelName);
 				if (index != -1) {
-//					console.log(" =>> Adding issue: " + issues[i].number + ", label: " + issues[i].labels[l].name + ", submitted: " + 
-//							issues[i].created_at + ", closed: " + issues[i].closed_at);
-
 					// Got a match. Make sure we don't continue search
 					if (countType == "velocity") {
 						dataArrayForDay[index] = dataArrayForDay[index] + issueEstimate;
@@ -677,14 +499,12 @@ function createChart() {
 						dataArrayForDay[index] = dataArrayForDay[index] + 1;
 						totalForDay++;
 					}
-
 					
 					l = labelList.length;
 					foundLabel = true;
 					
 					// Add the total duration, we will divide by # of issues later.
 					var duration = yoda.dateDiff(submitDate, date);
-//					console.log("For issue: " + issues[i].number + ", submit: " + submitDate + ", duration at " + date + " is " + duration);
 					dataDurationOpenForDay[index] += duration;
 					
 					if (countType == "ect")
@@ -692,9 +512,6 @@ function createChart() {
 				}
 			}
 			if (foundLabel == false &&	$("#other").val() != "") {
-//				console.log("Could not find label for issue " + issues[i].url);
-//				console.log(labelList);
-				
 				if (countType == "velocity") {
 					otherForDay += issueEstimate;
 					totalForDay += issueEstimate;
@@ -709,9 +526,6 @@ function createChart() {
 
 				if (countType == "ect") 
 					otherETCDurationForDay += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
-				
-//				console.log(" =>> Adding issue: " + issues[i].number + ", no label match, submitted: " + issues[i].created_at + 
-//					", closed: " + issues[i].closed_at);
 			}
 		}
 		
@@ -740,15 +554,14 @@ function createChart() {
 			// We will push data to the data array
 			
 			// Are we doing percentages?
-			if (percentage) {
+			if (percentage.checked) {
 				// Percentage. Let's first calc total.
 				var total = otherForDay;
 				for (var i=0; i < bars.length; i++)
 					total += dataArrayForDay[i];   
 							
-				for (var i=0; i < bars.length; i++) { 
+				for (var i=0; i < bars.length; i++)
 					dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
-				} 
 				otherArray.push((100.0 * otherForDay / total).toFixed(1));
 
 			} else {			
@@ -772,12 +585,11 @@ function createChart() {
 	var datasetArray = [];
 	for (var b = 0; b < bars.length; b++) {
 		// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
-		actualBar = bars[b];
+		var actualBar = bars[b];
 		if (labelSplitUsingRegExp && labelSplit.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
 			var splitReg = new RegExp(labelSplit);
 			actualBar = bars[b].replace(splitReg, '$1');
 		}
-//		console.log("actualBar = '" + actualBar + "'");
 		
 		datasetArray.push({
 			type : 'bar',
@@ -805,7 +617,7 @@ function createChart() {
 
 	// What should we put on right axis
 	// TBD: If velocity, play on right axis instead 
-	if (rightTotal) {
+	if (righttotal.checked) {
 		if (countType == "velocity") {
 			// 
 			datasetArray.push({
@@ -839,7 +651,7 @@ function createChart() {
 			datasets : datasetArray
 	};
 	
-	leftLabel = [];
+	var leftLabel = [];
 	leftLabel["durationopen"] = "Average duration open (days)";
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["opened"] = "No of issues opened";
@@ -851,12 +663,12 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
+				text: percentage.checked?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
 				font: {
 	           		size: 16                    
 				}
 			},
-			stacked: stacked,
+			stacked: stacked.checked,
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -866,17 +678,17 @@ function createChart() {
 			}
 		},
 		x: {
-			stacked: stacked,
+			stacked: stacked.checked,
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
 		}
 	};
 	// If percentage scale, make sure we go only to 100
-	if (percentage)
+	if (percentage.checked)
 		chartScales.yleft.max = 100;
 	
-	rightLabel = [];
+	var rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
 	rightLabel["velocity"] = "Story points per day";
@@ -884,7 +696,7 @@ function createChart() {
 	rightLabel["closed"] = "No open issues";
 	
 	// Add second axis.
-	if (rightTotal) {
+	if (righttotal.checked) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
@@ -900,7 +712,6 @@ function createChart() {
 			grid: {
 				display: false
 			}
-
 		};		
 	}
 
@@ -943,153 +754,99 @@ function createChart() {
 	yoda.updateUrl(getUrlParams() + "&draw=true");
 }
 
-// ----------------
+// -----------	
 
-	
-// -------------------------
-// Double array
-
-function storeEvents(events) {
-	console.log("Analyzing events: " + events.length);
-	for (var e = 0; e < events.length; e++) {
-		if (events[e].event == "labeled" ||
-			events[e].event == "unlabeled") {
-			var labelEvent = {
-				"event": events[e].event,
-				"created_at": events[e].created_at,
-				"label": events[e].label
-			};
-
-			var url = events[e].issue.url;
-			if (labelEvents[url] == undefined) {
-				labelEvents[url] = [];
-			} 
-			labelEvents[url].push(labelEvent);
-//			console.log("Now " + labelEvents[url].length + " events for " + url);
-		}
-
-		if (events[e].event == "closed" || 
-			events[e].event == "reopened") {
-//			console.log("When: " + events[e].created_at + ", Issue: " + events[e].issue.url + ", event: " + events[e].event);
-//			console.log(events[e]);
-		}
-	}
-}
-
-
-var issues = [];
-function storeIssuesThenCreateChart(issuesResp) {
-	issues = issuesResp;
-	createChart();
-}
-
-var lastRepoEvents = "";
 function startChart() {
 	if ($("#countradio input[type='radio']:checked").val() == "comments") 
 		return startCommentsChart();
 	
-	if ($('#stacked').is(":checked")) {
-		stacked = true;
-	} else {
-		stacked = false;
-	}
-	
 	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", null, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
-
-	// Get events as well. ONLY DO THIS ONCE PER REPO. Very heavy
-	if ($('#history').is(":checked") && lastRepoEvents != $("#repolist").val()) {
-		labelEvents = [];
-		labelEventsReceived = false;
- 
-		if ($("#repolist").val() != "") { // Note, label getting does not work across entire org. No such API!
-			var repoList = $("#repolist").val();
-			yoda.showSnackbar("Started retrieving all events");
-			for (var r = 0; r < repoList.length; r++) {
-				var getEventsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/issues/events";
-				console.log("Label URL:" + getEventsUrl);
-
-				yoda.getLoopIterative(getEventsUrl, 1, storeEvents, function() { 
-					lastRepoEvents = $("#repolist").val(); 
-					yoda.showSnackbar("Retrieved all events for repo. Redrawing");
-					labelEventsReceived = true;
-					console.log("Retrieved all events for repo. Redrawing");
-
-					// redraw chart
-					createChart();
-				}, 
-				function(errorText) { 
-					yoda.showSnackbarError("Error getting events: " + errorText, 3000);
-				});
-			}
-		}
-	}
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", null, createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 // --------------
 
-function githubAuth() {
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#issue-statistics-report");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+	yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
+	yoda.getDefaultLocalStorage("#labelsplit", "yoda.time.labelsplit");
+	yoda.getDefaultLocalStorage("#other", "yoda.time.other");
+	if ($("#other").val() == "blank")
+		$("#other").val("");
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParamRadio("count", "count");
+
+	// repo and repoList handled later, both are supported.
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParamDate("#startdate", "startdate");
+	yoda.decodeUrlParamDate("#enddate", "enddate");
+	yoda.decodeUrlParam("#interval", "interval");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#labelsplit", "labelsplit");
+	yoda.decodeUrlParam("#other", "other");
+	yoda.decodeUrlParam("#title", "title");
+	yoda.decodeUrlParamBoolean("#stacked", "stacked");
+	yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
+	yoda.decodeUrlParamBoolean("#percentage", "percentage");
+	yoda.decodeUrlParamBoolean("#history", "history");
+	//		yoda.decodeUrlParamBoolean("#velocityperday", "velocityperday");
+
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+
+	if (yoda.decodeUrlParamBoolean(null, "history") == "true") {
+		$("#historyfield").show();
+	} else {
+		$("#historyfield").hide();
+	}
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+		$(".frame").hide();
+	}
+
+	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
-}
 
-// --------------
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function() { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#drawbutton").on("click", startChart);
+	$("#countradio").on("change", countChanged);
+	$("#estimateradio").on("click", function(event) { yoda.setEstimateInIssues(event.value); });
+	$("#canvas").on("click", function(event) { yoda.chartCSVExport($("#csvdelimiter").val(), event); });
 
-Chart.defaults.font.size = 16;
-Chart.register({
-	id: "yoda-label",
-	afterDatasetsDraw: function(chartInstance, easing) {
-		var ctx = chartInstance.ctx;
+	// ChartJS default stuff
+	yoda.registerChartJS();
 
-		chartInstance.data.datasets.forEach(function (dataset, i) {
-			var meta = chartInstance.getDatasetMeta(i);
-			if (!meta.hidden) {
-				meta.data.forEach(function(element, index) {
-					// Draw the text in black (line) or whitish (bar) with the specified font
-					if (dataset.type == "bar" && stacked == true)
-						ctx.fillStyle = yoda.getColor('fontAsBackground')
-					else
-						ctx.fillStyle = yoda.getColor('fontContrast')
-					ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
-				
-					// Just naively convert to string for now
-					if (typeof(dataset.data[index]) == "number") {
-						// Make sure we do rounding if we have to.
-						var dataString = dataset.data[index].toFixed().toString();						
-					} else {
-						var dataString = dataset.data[index].toString();	
-					} 
-				
-					// Make sure alignment settings are correct
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-				
-					var padding = 5;
-					var position = element.tooltipPosition();
-				
-					// Don't draw zeros in stacked bar chart
-					if (!(dataset.type == "bar" && stacked == true && dataset.data[index] == 0)) { 
-						if (stacked == false || dataset.type == "line") { 
-				    		// Label above bar
-				        	ctx.fillText(dataString, position.x, position.y - (Chart.defaults.font.size / 2) - padding);
-				    	} else {
-					        // Label inside bar ... gives a bit of trouble at buttom... 
-				        	ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
-				    	}
-					}
-				});
-			}
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
 		});
-	}
-});
-			
-Chart.register({
-	id: "yoda-background",
-	beforeDraw: function(c) {
-		var ctx = c.ctx;
-		ctx.fillStyle = yoda.getColor('htmlBackground');
-		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
-	}
-});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+			// Should we draw directly? Only check this after the repo updates complete.
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+				startChart();
+			}
+		}, null);
+	});
+}

@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,64 +17,34 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
+
 var repoList = [];  // selected repos
 var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
-
 var commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
-
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
-	params = addIfNotDefault(params, "labelsplit");	
-	params = addIfNotDefault(params, "labelfilter");	
-	params = addIfNotDefault(params, "assignee");	
-	params = addIfNotDefault(params, "additionaldata");
-	params = addIfNotDefault(params, "tentative");	
-	params = addIfNotDefault(params, "inprogress");
+
+	["labelfilter", "labelsplit", "assignee", "additionaldata", "tentative", "inprogress", "title", "showclosed", "closedmilestones", "trendline"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
+	
 	if ($("#milestonelist").val() != "") {
 		params += "&milestone=" + $("#milestonelist").val(); 
 	}
-	if (!$('#showclosed').is(":checked")) {
-		params += "&showclosed=false";
-	}
-	if ($('#closedmilestones').is(":checked")) {
-		params += "&closedmilestones=true";
-	}
-	if ($('#trendline').is(":checked")) {
-		params += "&trendline=true";
-	}
-	var capacity = yoda.decodeUrlParam(null, "capacity");
-	if (capacity != null) {
+	const capacity = yoda.decodeUrlParam(null, "capacity");
+	if (capacity != null) 
 		params += "&capacity=" + capacity;
-	}
-	if ($("#title").val() != "") {
-		params += "&title=" + $("#title").val();
-	}
-
 
 	return params;
 }
 	
-function estimateClick(radio) {
-	yoda.setEstimateInIssues(radio.value);
-}
-
-//---------------------------------------
 function clearTable() {
 	var table = document.getElementById("issuesTable");
 	table.innerHTML = "";
 }
-
-// -----------
 
 function prepareSums(sums, labelItem) {
 	if (sums[labelItem] == undefined) {
@@ -95,15 +65,13 @@ function prepareSums(sums, labelItem) {
 	}
 }
 
-
 function splitValues(sums, assigneeList, field, subField, value) {
 	// Ok, we need to split the value, but not into too smart parts
 	var noAssignees = assigneeList.length;
 	var valueSplit = value / noAssignees;
 	
-	for (var as = 0; as < assigneeList.length; as++) {
+	for (var as = 0; as < assigneeList.length; as++)
 		sums[assigneeList[as]][subField][field] += valueSplit;
-	}
 }
 
 // -----------
@@ -131,13 +99,11 @@ function round(value, precision) {
     return Math.round(value * multiplier) / multiplier;
 }
 
-// ---
-
 function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueState) {
 	if (issueState == undefined)
 		issueState = "all";
 
-	row = bodyRef.insertRow();
+	var row = bodyRef.insertRow();
 	var cell = row.insertCell();
 	cell.innerHTML = c1;
 
@@ -192,7 +158,7 @@ function insertTotalsRow(bodyRef, sums, labelItem, c1, c2, c3, c4, c5, issueStat
 function insertBlankRow(bodyRef, firstField) { 
 	var row = bodyRef.insertRow();
 	for (var i = 0; i < 12; i++) {
-		cell = row.insertCell();
+		var cell = row.insertCell();
 		if (i == 0 && firstField != undefined) {
 			cell.innerHTML = firstField;
 		}
@@ -208,20 +174,18 @@ function saveTableToCSV() {
 	var header = $("#issuesTable thead")[0].rows[0];
 	var data = []; 
 	var headers = [];
-	for (var i=0; i<header.cells.length; i++) {
+	for (var i=0; i<header.cells.length; i++)
 		headers[i] = header.cells[i].innerHTML.replace(/<(?:.|\n)*?>/gm, ''); 
-	} 
 
 	var tableRows = $("#issuesTable tbody")[0].rows;
 	for (var i=0; i<tableRows.length; i++) { 
 		var tableRow = tableRows[i]; var rowData = {}; 
-		for (var j=0; j<tableRow.cells.length; j++) { 
+		for (var j=0; j<tableRow.cells.length; j++) 
 			rowData[headers[j]] = tableRow.cells[j].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/gm, ' '); 
-		} 
 		data.push(rowData); 
 	} 
 	
-	config = {
+	const config = {
 			quotes: false,
 			quoteChar: '"',
 			delimiter: $("#csvdelimiter").val(),
@@ -229,9 +193,9 @@ function saveTableToCSV() {
 			newline: "\r\n"
 		};
 	
-	result = Papa.unparse(data, config);
-	var repoName = String($("#repolist").val()).split(",").join("-");
-	var fileName = $("#owner").val() + "-" + repoName + "-burndown.csv"; 
+	const result = Papa.unparse(data, config);
+	const repoName = String($("#repolist").val()).split(",").join("-");
+	const fileName = $("#owner").val() + "-" + repoName + "-burndown.csv"; 
 	yoda.downloadFile(result, fileName);
 }
 
@@ -735,7 +699,7 @@ function burndown(issues) {
 
 	// First calculate the sum of (either # of sum of estimates) of all issues associated with the
 	// milestone
-	for (i = 0; i < issues.length; i++) {
+	for (var i = 0; i < issues.length; i++) {
 		// If assignee filter given, then continue if person not assigned here.
 		if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 			continue;
@@ -764,7 +728,6 @@ function burndown(issues) {
 	}
 	console.log("Total estimate: " + estimate + ", Total nofreeze: " + estimateNoFreeze + ", Total tentative: " + estimateTentative);
 	
-	
 	// Start remaining at estimate, then decrease as issues are closed.
 	var remaining = estimate;
 	var remainingNoFreeze = estimateNoFreeze;
@@ -780,7 +743,7 @@ function burndown(issues) {
 		console.log("Date: " + date);
 		nextDay.setDate(date.getDate() + 1);
 
-		var dateString = yoda.formatDate(date);
+		const dateString = yoda.formatDate(date);
 		
 		// Burndown due date? If so, set index.
 		// console.log("dateString: " + dateString + ", burndown_due: " + $("#burndown_due").val());
@@ -807,7 +770,7 @@ function burndown(issues) {
 		}
 
 		// Now check which (if any) issues where closed during this day. Decrease remaining.
-		for (i=0; i<issues.length; i++) {
+		for (i = 0; i < issues.length; i++) {
 			// If assignee filter given, then continue if person not assigned here.
 			if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
 				continue;
@@ -848,9 +811,9 @@ function burndown(issues) {
 				var issueWorkDoneBefore = 0;
 				var lastRemainingNumber = 9999;
 				for (var index = 0; yoda.getFirstRemaining(issues[i].body, index) != null; index++) {
-					var remainingEntry = yoda.getFirstRemaining(issues[i].body, index); 
-					var remainingDate = yoda.getDateFromEntry(remainingEntry);
-					var remainingNumber = AP(issues[i], yoda.getRemainingFromEntry(remainingEntry));
+					const remainingEntry = yoda.getFirstRemaining(issues[i].body, index); 
+					const remainingDate = yoda.getDateFromEntry(remainingEntry);
+					const remainingNumber = AP(issues[i], yoda.getRemainingFromEntry(remainingEntry));
 					
 					if (remainingNumber > lastRemainingNumber)
 						console.log("  NOTE: Below remainingNumber represents in increase vs last.");
@@ -864,7 +827,7 @@ function burndown(issues) {
 						closedAtString = yoda.formatDate(new Date(issues[i].closed_at));
 					
 					// Is the remaining entry for the date where the issue was closed? This is unnecessary and could even be bad.
-					if ( remainingDate >= closedAtString ) {
+					if (remainingDate >= closedAtString) {
 						console.log("  NOTE: Remaining entry on or after at close date (" + closedAtString + "). Ignoring");
 						continue;
 					}
@@ -927,7 +890,6 @@ function burndown(issues) {
 		remainingIdealFullArray[0] = parseInt($("#capacity").val());
 	}
 	
-
 	remainingIdealFullArray[remainingIdealArray.length - 1] = 0;
 	if (burndownDateIndex != -1) {
 		if (burndownDateIndex + 1 < remainingIdealArray.length)
@@ -1027,7 +989,7 @@ function burndown(issues) {
 		
 	    // To start, let's just play within the available length of the remainingArray. We may have to extend it (if the line runs longer). 
 		// Let's accept to couble the duration
-		for (tryIndex = 0; tryIndex < remainingArray.length && !isNaN(remainingArray[tryIndex + 1]) && remainingArray[tryIndex + 1] != 0; tryIndex++);
+		for (var tryIndex = 0; tryIndex < remainingArray.length && !isNaN(remainingArray[tryIndex + 1]) && remainingArray[tryIndex + 1] != 0; tryIndex++);
 		if (tryIndex > 0) {
 			var slope = (remainingArray[0] - remainingArray[tryIndex]) / tryIndex;
 			console.log("tryIndex: " + tryIndex + ", remainingArray[tryIndex]:" + remainingArray[tryIndex] + ", slope:" + slope);
@@ -1076,9 +1038,8 @@ function burndown(issues) {
 	
 	// Find yMaxValue
 	var yMaxValue = -1;
-	if ($("#capacity").val() != "") {
+	if ($("#capacity").val() != "")
 		yMaxValue = parseInt($("#capacity").val());
-	}
 	yMaxValue = Math.max(yMaxValue, (estimateNoFreeze + estimate + estimateTentative));
 
 	var ctx = document.getElementById("canvas").getContext("2d");
@@ -1144,7 +1105,6 @@ function burndown(issues) {
 
 // ------------------
 
-
 function clearAreas() {
 	clearTable();
 	// Destroy old graph, if any
@@ -1160,8 +1120,6 @@ function clearFields() {
 	clearAreas();
 }
 
-// ------------------
-
 function storeMilestones(milestones, repoIndex) {
 	repoMilestones[repoIndex] = milestones;
 	updateMilestones(repoIndex + 1);
@@ -1174,15 +1132,13 @@ function updateMilestones(repoIndex) {
 		repoIndex = 0;
 		repoMilestones = []; 
 		commonMilestones = [];
-		
 	}
 	
 	if (repoIndex < repoList.length) {
-		if ($('#closedmilestones').is(":checked")) {
+		if ($('#closedmilestones').is(":checked"))
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
-		} else {
+		else
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
-		}
 
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
@@ -1200,10 +1156,8 @@ function updateMilestones(repoIndex) {
 			for (var m = 0; m < repoMilestones[r].length; m++) {
 				var repoTitle = repoMilestones[r][m].title;
 				
-//				if (commonMilestones.indexOf(repoTitle) == -1) {
-				if (!commonMilestones.find(function(element) {return (element.title == repoTitle);})) {
+				if (!commonMilestones.find(function(element) {return (element.title == repoTitle);}))
 					commonMilestones.push({title: repoTitle, duedate: yoda.formatDate(new Date(repoMilestones[r][m].due_on)), startdate: yoda.getMilestoneStartdate(repoMilestones[r][m].description)});
-				}
 			}
 		}
 		
@@ -1262,7 +1216,7 @@ function addMilestoneFilter(repo) {
 		for (var m = 0; m < repoMilestones[r].length; m++) {
 			console.log("Checking " + $("#milestonelist").val() + " against " + repoMilestones[r][m].title);
 			if (repoMilestones[r][m].title == $("#milestonelist").val()) {
-				var filter = "&milestone=" + repoMilestones[r][m].number;
+				const filter = "&milestone=" + repoMilestones[r][m].number;
 				console.log("Adding to filter for repo: " + repo + ":" + filter);
 				return filter;
 			}
@@ -1340,24 +1294,12 @@ function showMilestoneData() {
 	if (firstMilestoneShowData) {
 		firstMilestoneShowData = false;
 		
-		if (yoda.decodeUrlParamBoolean(null, "draw") == "chart") {
+		if (yoda.decodeUrlParamBoolean(null, "draw") == "chart") 
 			startBurndown();
-		} else {
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "table") {
-				startTable();
-			} else {
-				if (yoda.decodeUrlParamBoolean(null, "draw") == "rn") {
-					startRN();
-				} else {
-					if (yoda.decodeUrlParamBoolean(null, "draw") == "rnknown") {
-						startRNKnown();
-					}
-				}
-			}
-		}
+		else if (yoda.decodeUrlParamBoolean(null, "draw") == "table") 
+			startTable();
 	}
 }
-
 
 function copy_text(element) {
     //Before we copy, we are going to select the text.
@@ -1397,7 +1339,7 @@ function startTable() {
 //--------------
 
 function githubAuth() {
-	yoda.gitAuth($("#user").val(), $("#token").val());
+
 }
 
 // --------------
@@ -1446,3 +1388,93 @@ Chart.register({
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
+
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#burndown-report");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+	yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+	var selectMilestone = yoda.decodeUrlParam(null, "milestone");
+
+	yoda.getDefaultLocalStorage("#tentative", "yoda.burndown.tentative");
+	yoda.getDefaultLocalStorage("#inprogress", "yoda.burndown.inprogress");
+	yoda.getDefaultLocalStorage("#notcodefreeze", "yoda.burndown.notcodefreeze");
+
+	yoda.getDefaultLocalStorage("#labelsplit", "yoda.burndown.labelsplit");
+	yoda.getDefaultLocalStorage("#additionaldata", "yoda.burndown.additionaldata");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#tentative", "tentative");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#inprogress", "inprogress");
+	yoda.decodeUrlParam("#labelsplit", "labelsplit");
+	yoda.decodeUrlParam("#additionaldata", "additionaldata");
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.decodeUrlParam("#title", "title");
+
+	yoda.decodeUrlParamBoolean("#showclosed", "showclosed");
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+
+	yoda.decodeUrlParam("#person", "person");
+	yoda.decodeUrlParamBoolean("#trendline", "trendline");
+
+	yoda.decodeUrlParam("#capacity", "capacity");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	// Login
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function () { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#labelfilter").on("change", function() { if (!firstMilestoneShowData) showMilestoneData(); });
+	$("#drawbutton").on("click", startBurndown);
+	$("#tablebutton").on("click", startTable);
+	$("#closedmilestones").on("change", function() { updateMilestones(); });
+	$("#estimateradio").on("click", function (event) { yoda.setEstimateInIssues(event.value); });
+	$("#canvas").on("click", function (event) { yoda.chartCSVExport($("#csvdelimiter").val(), event); });
+	window.saveTableToCSV = saveTableToCSV; // Small trick to make this function available in the window scope. Far the easiest way.
+
+	$(document).ready(function () {
+		console.log("Startup. Document ready.");
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+
+		$('#repolist').on('change.select2', function (e) {
+			repoList = $("#repolist").val();
+			console.log("List of selected repos is now: " + repoList);
+			updateMilestones();
+		});
+
+		$('#milestonelist').select2();
+		$('#milestonelist').on('change.select2', function (e) {
+			// Update start-date + due-date/burndown-date + capacity (sum)
+			showMilestoneData();
+		});
+
+		// Rather complex updating of the defaults repos. 
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+			// Potential automatic startup actions can go here.
+
+		}, null);
+	});
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
+		$(".frame").hide();
+}

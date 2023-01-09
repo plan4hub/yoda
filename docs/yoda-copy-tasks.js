@@ -17,23 +17,16 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 var srcIssues = [];
 var dstIssues = [];
 var issuesToCopy = [];
 
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
-
 function getUrlParams() {
 	var params = "srcowner=" + $("#srcowner").val() + "&dstowner=" + $("#dstowner").val() + "&srcrepo=" + $("#srcrepo").val() + "&dstrepo=" + $("#dstrepo").val();
-	params = addIfNotDefault(params, "recurring");
-	params = addIfNotDefault(params, "bodyremove");
+	["recurring", "bodyremove"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	return params;
 }
 	
@@ -45,7 +38,7 @@ function logMessage(message) {
 
 // ---------------------------------------
 // Milestone issues have been retrieved. Time to analyse data and draw the chart.
-function doCopy(issues) {
+export function doCopy(issues) {
 	yoda.updateUrl(getUrlParams());
 
 	console.log("No of issues retrieved: " + issues.length);
@@ -55,7 +48,7 @@ function doCopy(issues) {
 
 //------------------
 // Note special logic to allow URL override of milestone. ONLY for first selection.
-function showSrcMilestones(milestones) {
+export function showSrcMilestones(milestones) {
 	$("#srcmilestone").empty();
 	$("#srcmilestone").append($("<option></option>").attr("value", 0).text("Select milestone ... "));
 	for (var m = 0; m < milestones.length; m++) {
@@ -63,7 +56,7 @@ function showSrcMilestones(milestones) {
 	}
 }
 
-function showDstMilestones(milestones) {
+export function showDstMilestones(milestones) {
 	$("#dstmilestone").empty();
 	$("#dstmilestone").append($("<option></option>").attr("value", 0).text("Select milestone ... "));
 	for (var m = 0; m < milestones.length; m++) {
@@ -71,19 +64,19 @@ function showDstMilestones(milestones) {
 	}
 }
 
-function updateSrcMilestones() {
+export function updateSrcMilestones() {
 	var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/milestones?state=all";
 	yoda.getLoop(getMilestonesUrl, 1, [], showSrcMilestones, null);
 }
 
-function updateDstMilestones() {
+export function updateDstMilestones() {
 	var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestones?state=all";
 	yoda.getLoop(getMilestonesUrl, 1, [], showDstMilestones, null);
 }
 
 // -----------
 
-function showSrcRepos(repos) {
+export function showSrcRepos(repos) {
 	repos.sort(function(a,b) {
 		if (a.name.toLowerCase() < b.name.toLowerCase()) 
 			return -1;
@@ -96,7 +89,7 @@ function showSrcRepos(repos) {
 	}
 }
 
-function updateSrcRepos() {
+export function updateSrcRepos() {
 	console.log("Update repos");
 	$("#srcrepo").val("");
 	$("#srcrepolist").empty();
@@ -109,7 +102,7 @@ function updateSrcRepos() {
 
 // -------------
 
-function showDstRepos(repos) {
+export function showDstRepos(repos) {
 	repos.sort(function(a,b) {
 		if (a.name.toLowerCase() < b.name.toLowerCase()) 
 			return -1;
@@ -122,7 +115,7 @@ function showDstRepos(repos) {
 	}
 }
 
-function updateDstRepos() {
+export function updateDstRepos() {
 	console.log("Update repos");
 	$("#dstrepo").val("");
 	$("#dstrepolist").empty();
@@ -135,7 +128,7 @@ function updateDstRepos() {
 
 // ------------
 
-function showIssues() {
+export function showIssues() {
 	var brackets = false;
 	if ($('#brackets').is(":checked")) {
 		var brackets = true;
@@ -179,7 +172,7 @@ function showIssues() {
 	logMessage("A total of " + issuesToCopy.length + " issues are ready to be copied.");
 }
 
-function showSrcIssues(issues) {
+export function showSrcIssues(issues) {
 	yoda.filterPullRequests(issues);
 	console.log("No issues (after filtering out pull requests): " + issues.length);
 	logMessage("Retrieved " + issues.length + " source issues.");
@@ -190,7 +183,7 @@ function showSrcIssues(issues) {
 	}
 }
 
-function showDstIssues(issues) {
+export function showDstIssues(issues) {
 	yoda.filterPullRequests(issues);
 	console.log("No issues (after filtering out pull requests): " + issues.length);
 	logMessage("Retrieved " + issues.length + " destination issues.");
@@ -204,7 +197,7 @@ function showDstIssues(issues) {
 //-------------- 
 
 var refreshState = 0;
-function refreshIssues() {
+export function refreshIssues() {
 	yoda.updateUrl(getUrlParams());
 	$("#console").val("");
 	refreshState = 0;
@@ -244,7 +237,7 @@ function refreshIssues() {
 
 // --------------
 
-function copySingleIssue(issues) {
+export function copySingleIssue(issues) {
 	var brackets = false;
 	if ($('#brackets').is(":checked")) {
 		var brackets = true;
@@ -305,8 +298,6 @@ function copySingleIssue(issues) {
 		urlData["milestone"] = $("#dstmilestone").val();
 //	console.log(urlData);
 
- 
-	
 	$.ajax({
 		url: createIssueUrl,
 		type: 'POST',
@@ -317,8 +308,7 @@ function copySingleIssue(issues) {
 	});
 }
 
-
-function copyIssues() {
+export function copyIssues() {
 	if (issuesToCopy.length == 0) {
 		logMessage("No issues to copy.");
 		return;
@@ -330,10 +320,9 @@ function copyIssues() {
 	copySingleIssue(issuesToCopy);
 }
 
-
 // --------------
 
-function openSprint() {
+export function openSprint() {
 	if ($("#dstmilestone").val() != "0") {
 		var milestone = $("#dstmilestone").val();
 		var gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestone/" + milestone;
@@ -344,12 +333,51 @@ function openSprint() {
 	window.open(gitHubUrl);
 }
 
+// --------------
 
-// ------
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#task-copier");
 
-function githubAuth() {
+	yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
+
+	yoda.decodeUrlParam("#srcowner", "srcowner");
+	yoda.decodeUrlParam("#dstowner", "dstowner");
+	yoda.decodeUrlParam("#srcrepo", "srcrepo");
+	yoda.decodeUrlParam("#dstrepo", "dstrepo");
+	yoda.decodeUrlParam("#recurring", "recurring");
+	yoda.decodeUrlParam("#bodyremove", "bodyremove");
+	
+	// Does not work in IE
+	try {
+		$("#user").val(localStorage.getItem("gitHubUserId"));
+		$("#token").val(localStorage.getItem("gitHubAccessToken"));
+	}
+	catch (err) {
+		console.error("Failed to set user-id and token into localStorage. Probably IE.");
+	}
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	// We do not want caching here. 
+	$.ajaxSetup({ cache: false });
+
+	// login
 	console.log("Updating/setting github authentication for: " + $("#user"));
 	yoda.gitAuth($("#user").val(), $("#token").val());
-}
 
-// --------------
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+
+	if ($("#srcrepo").val() == "") {
+		updateSrcRepos();
+	}
+	if ($("#dstrepo").val() == "") {
+		updateDstRepos();
+	}
+	updateSrcMilestones();
+	updateDstMilestones();
+}

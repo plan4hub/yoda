@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -36,17 +36,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </head>
 
 <body>
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-exporter.js"></script>
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<img id="hamburger" src="threebars.png" class="dropimg">
 			<div id="yodamenu" class="dropdown-content"></div>
 		</div>
 
 		<div class="field">
-			<label>Owner</label> <input type="text" id="owner" size="15"
-				onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<label>Owner</label> <input type="text" id="owner" size="15">
 			<span class="tooltip">GitHub organization or user</span>
 		</div>
 
@@ -57,15 +54,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field" style="display: none;">
-			<label>GitHub user</label> <input type="text" size="20" id="user"
-				value="" onchange="githubAuth()"> <span class="tooltip">Your
-				GitHub user-id</span>
+			<label>GitHub user</label> <input type="text" size="20" id="user"> <span class="tooltip">Your GitHub user-id</span>
 		</div>
 
 		<div class="field" style="display: none;">
-			<label>GitHub token</label> <input type="password" size="30"
-				id="token" value="" onchange="githubAuth()"> <span
-				class="tooltip">GitHub personal token</span>
+			<label>GitHub token</label> <input type="password" size="30" id="token"> <span	class="tooltip">GitHub personal token</span>
 		</div>
 
 		<div class="field">
@@ -190,12 +183,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Estimates</label>
 			<div id="estimateradio">
-				<label><input type="radio" name="estimate" value="noissues"
-					onclick="estimateClick(this)"># issues</label> <label><input
-					type="radio" name="estimate" value="inbody" checked="checked"
-					onclick="estimateClick(this)">In body</label> <label><input
-					type="radio" name="estimate" value="inlabels"
-					onclick="estimateClick(this)">In Labels</label>
+				<label><input type="radio" name="estimate" value="noissues"># issues</label> <label><input
+					type="radio" name="estimate" value="inbody" checked="checked">In body</label> <label><input
+					type="radio" name="estimate" value="inlabels">In Labels</label>
 			</div>
 			<span class="tooltip">Where to get estimates</span>
 		</div>
@@ -212,12 +202,8 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Export events instead of issues</span>
 		</div>
 
-		<button id="exportbutton" onclick="startExport(true)">Export</button>
-		<button id="tablebutton" onclick='css=""; startExport(false)'>Show Table</button>
-	</div>
-
-	<div class="frame" id="exportorgframe" style="display:none">
-		<button id="exportorgbutton" onclick="startExportOrg()">Export Organizations</button>
+		<button id="exportbutton">Export</button>
+		<button id="tablebutton">Show Table</button>
 	</div>
 
 	<br>
@@ -232,77 +218,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	<div id="snackbar">Message goes here</div>
 	
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu("#issue-exporter");
-		
-		if (yoda.decodeUrlParamBoolean(null, "exportorg") == "true") {
-			$("#exportorgframe").show();
-		} else {
-			$("#exportorgframe").hide();
-		}
-
-		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
-		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#labelfilter", "labelfilter");
-		yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
-		yoda.decodeUrlParam("#singlelabeldef", "singlelabeldef");
-		yoda.decodeUrlParam("#sharedlabeldef", "sharedlabeldef");
-		yoda.decodeUrlParam("#splitbodydef", "splitbodydef");
-		yoda.decodeUrlParam("#splitlabeldef", "splitlabeldef");
-		yoda.decodeUrlParam("#fields", "fields");
-		yoda.decodeUrlParam("#translation", "translation");
-		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
-		yoda.decodeUrlParam("#labelindicator", "labelindicator");
-		yoda.decodeUrlParam("#state", "state");
-		yoda.decodeUrlParam("#outputfile", "outputfile");
-		yoda.decodeUrlParamRadio("estimate", "estimate");
-		yoda.updateEstimateRadio();
-		yoda.decodeUrlParamBoolean("#exportevents", "exportevents");
-
-		
-		// CSS stuff
-		yoda.decodeUrlParam("#cssowner", "cssowner");
-		yoda.decodeUrlParam("#cssrepo", "cssrepo");
-		yoda.decodeUrlParam("#csspath", "csspath");
-		yoda.decodeUrlParam("#cssbranch", "cssbranch");
-		
-		// Local storage
-		yoda.getUserTokenLocalStorage("#user", "#token");
-
-		// Do it after getting from localStorage
-		yoda.decodeUrlParam("#user", "user");
-		yoda.decodeUrlParam("#token", "token");
-				
-		githubAuth(); // if set already
-		
-		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
-		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Should we draw directly? Only check this after the repo updates complete.
-			// Should we draw directly?
-			// Should we start export directly?
-			if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
-				startExport(true);
-			}
-			if (yoda.decodeUrlParamBoolean(null, "table") == "true") {
-				startExport(false);
-			}
-		}, null);
-		
-		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
-			$(".frame").hide();
-		}
-		
-		$(document).ready(function() {
-			$('#repolist').select2({
-				// minimumInputLength: 2,
-				sorter: yoda.select2Sorter,
-    		    matcher: yoda.select2Matcher
-			});
-		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
-		});
-		
+	<script type="module">
+		import { init } from './yoda-exporter.js';
+		init();
 	</script>
 
 </body>

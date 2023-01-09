@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -34,12 +34,9 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </head>
 
 <body>
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-admin.js"></script>
-
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<img id="hamburger" src="threebars.png"class="dropimg">
 			<div id="yodamenu" class="dropdown-content">
   			</div>
 		</div>
@@ -291,44 +288,10 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<div id="snackbar">Some text some message..</div>
 
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu();
-	
-		// Read localStorage values.
-		try {
-			$("#user").val(localStorage.getItem("gitHubUserId"));
-			$("#token").val(localStorage.getItem("gitHubAccessToken"));
-			$("#owner").val(localStorage.getItem("yoda.owner"));
-			$("#repolist").val(localStorage.getItem("yoda.repolist"));
-			$("#repolistcache").val(localStorage.getItem("yoda.repolistcache"));
-			$("#time_interval").val(localStorage.getItem("yoda.time.interval"));
-			$("#time_labelsplit").val(localStorage.getItem("yoda.time.labelsplit"));
-			$("#time_other").val(localStorage.getItem("yoda.time.other"));
-			$("#burndown_tentative").val(localStorage.getItem("yoda.burndown.tentative"));
-			$("#burndown_inprogress").val(localStorage.getItem("yoda.burndown.inprogress"));
-			$("#burndown_notcodefreeze").val(localStorage.getItem("yoda.burndown.notcodefreeze"));
-			$("#burndown_labelsplit").val(localStorage.getItem("yoda.burndown.labelsplit"));
-			$("#burndown_additionaldata").val(localStorage.getItem("yoda.burndown.additionaldata"));
-			$("#burndown_rnlabeltypes").val(localStorage.getItem("yoda.burndown.rnlabeltypes"));
-			$("#burndown_rnknownlabeltypes").val(localStorage.getItem("yoda.burndown.rnknownlabeltypes"));
-			$("#burndown_rnskiplabel").val(localStorage.getItem("yoda.burndown.rnskiplabel"));
-			$("#burndown_rnknownlabel").val(localStorage.getItem("yoda.burndown.rnknownlabel"));
-			$("#cfd_labelsplit").val(localStorage.getItem("yoda.cfd.interval"));
-			$("#kanban_columns").val(localStorage.getItem("yoda.kanban.columns"));
-			$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));
-			$("#framebackground").val(localStorage.getItem("yoda.global.framebackground"));
-			if (yoda.getDefaultLocalStorageValue("yoda.estimate") == null)
-			     $('input[name=estimate][value=""]').attr('checked',true);
-			else
-				yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
-			
-			$("#githubapibaseurl").val(localStorage.getItem("gitHubApiBaseUrl"));
-			$("#githubbaseurl").val(localStorage.getItem("gitHubBaseUrl"));
-		}
-		catch (err) {
-			yoda.showSnackbarError("Failed to get localStorage info. Old IE?");
-		}
+	<script type="module">
+		import * as functions from './yoda-admin.js';
+		Object.keys(functions).forEach((f) => { window[f] = functions[f]; });  // small hack
+		functions.init();
 	</script>
 </body>
 </html>

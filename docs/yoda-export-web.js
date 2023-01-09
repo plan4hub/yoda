@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,6 +17,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
  /**
  *
@@ -71,50 +72,24 @@ $.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
 	}
 });
 
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
-
 function getUrlParams() {
-	var params = addIfNotDefault("", "owner");
+	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
-	params = addIfNotDefault(params, "outputfile");
-	params = addIfNotDefault(params, "issuelist");
-	params = addIfNotDefault(params, "downloadimages");
-	params += "&estimate=" + yoda.getEstimateInIssues();
-	if ($("#labelfilter").val() != "") 
-		params += "&labelfilter=" + $("#labelfilter").val();
-	if ($("#state").val() != "open") {
-		params += "&state=" + $("#state").val(); 
-	}
-	if ($('#onlyoverview').is(":checked")) {
-		params += "&onlyoverview=true";
-	}
-	if (!$('#showmilestone').is(":checked")) {
-		params += "&showmilestone=false";
-	}
-	if ($('#showcomment').is(":checked")) {
-		params += "&showcomment=true";
-	}
-	if ($('#descendingorder').is(":checked")) {
-		params += "&descendingorder=true";
-	}
+
+	["outputfile", "issuelist", "downloadimages", "labelfilter", "onlyoverview", "showmilestone", "showcomment", "descendingorder"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	
+	params += "&estimate=" + yoda.getEstimateInIssues();
 	return params;
 }
 
-function estimateClick(radio) {
+export function estimateClick(radio) {
 	yoda.setEstimateInIssues(radio.value);
 }
 
 function logMessage(message) {
-
 	$('#console').val($('#console').val() + message + "\n");
-	bottom = $('#console').prop('scrollHeight') - $('#console').height()
+	const bottom = $('#console').prop('scrollHeight') - $('#console').height()
 	$('#console').scrollTop(bottom);
 }
 
@@ -129,7 +104,7 @@ var globIndex = 0;
 var issueImages = [];
 var globLabels = [];
 var globRepoList = [];
-function exportIssues(issues) {
+export function exportIssues(issues) {
 	// Sort issues in descending order if option given
 	if ($('#descendingorder').is(":checked")) {
 		issues.sort((a, b) => b.number - a.number);
@@ -218,7 +193,7 @@ function buildIndex() {
 		indexHTML += '</tr>\n';
 		
 		for (var i = 0; i < globIssues.length; i++) {
-			issue = globIssues[i];
+			const issue = globIssues[i];
 			var issueRepo = yoda.getUrlRepo(issue.url);
 			if (issueRepo != repoList[repInd])
 				continue; // Issue belongs to different repo;
@@ -258,7 +233,7 @@ function buildIndex() {
 		}
 		indexHTML += '</table></body>';
 		
-		fileName = repoList[repInd] + ".html";
+		const fileName = repoList[repInd] + ".html";
 		issueZipRoot.file(fileName, indexHTML);
 	}
 	console.log("Done building indexes");
@@ -278,7 +253,7 @@ function issueProcessLoop() {
 		}
 	} else {
 		// Let's do some work!
-		issue = globIssues[globIndex];
+		const issue = globIssues[globIndex];
 		globIndex++;
 		logMessage("Processing issue: " + globIndex + " / " + globIssues.length);
 
@@ -298,7 +273,7 @@ function downloadImages() {
 		writeZip();
 	} else {
 		// Download file, then call recursive.
-		image = issueImages.pop();
+		const image = issueImages.pop();
 		logMessage("Starting download of " + image.fullPath);
 
 		// Header to accept all.
@@ -415,7 +390,7 @@ function formatIssue(issue, comments, events) {
 	if (issue.assignees.length == 0) 
 		issueHTML += "none";
 	else {
-		assignees = "";
+		var assignees = "";
 		for (var as = 0; as < issue.assignees.length; as++) {
 			if (assignees != "")
 				assignees += ",";
@@ -481,7 +456,7 @@ function formatIssue(issue, comments, events) {
 		var urlHack = document.createElement('a');
 
 		console.log(urlHack.pathname);
-		downloadFilter = $("#downloadimages").val();
+		const downloadFilter = $("#downloadimages").val();
 		for (; imgRef != -1; imgRef = issueHTML.indexOf(searchImg, imgRef + 1)) {
 			// Get full path... will end with quote..
 			var endQuote = issueHTML.indexOf('"' , imgRef + searchImg.length);
@@ -489,7 +464,7 @@ function formatIssue(issue, comments, events) {
 			console.log("Full path is: " + fullPath);
 			urlHack.href = fullPath;
 
-			issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
+			const issueImage = { fullPath: fullPath, path: urlHack.pathname.substring(1), localPath: "../.." + urlHack.pathname };
 
 			if (downloadFilter == "" || urlHack.hostname.indexOf(downloadFilter) != -1) {
 				logMessage("  Added " + fullPath + " to download queue ...");
@@ -512,7 +487,7 @@ function formatIssue(issue, comments, events) {
 
 //STEP 5: Add to ZIP FILE. Then to step 0.
 function writeToZip(issue, issueHTML) {
-	fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.url) + "/" + issue.number + ".html";
+	const fileName = $("#owner").val() + "/" + yoda.getUrlRepo(issue.url) + "/" + issue.number + ".html";
 	if (!$('#onlyoverview').is(":checked")) {
 		issueZipRoot.file(fileName, issueHTML);
 		logMessage("  Added file " + fileName + " to zip"); 
@@ -611,7 +586,7 @@ function showRepos(repos) {
 // -------------------------
 
 
-function startExport() {
+export function startExport() {
 	globRepoList = [];
 	$("#console").val("");
 	
@@ -643,10 +618,59 @@ function startExport() {
 	}
 }
 
-// --------------
-function githubAuth() {
-	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val(), "fullExport");
-}
 
 // --------------
+
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#issue-web-exporter");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#state", "state");
+	yoda.decodeUrlParamBoolean("#onlyoverview", "onlyoverview");
+	yoda.decodeUrlParamBoolean("#showmilestone", "showmilestone");
+	yoda.decodeUrlParamBoolean("#showcomment", "showcomment");
+	yoda.decodeUrlParam("#outputfile", "outputfile");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#downloadimages", "downloadimages");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+	yoda.decodeUrlParam("#issuelist", "issuelist");
+	yoda.decodeUrlParamBoolean("#descendingorder", "descendingorder");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	// login
+	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val(), "fullExport");
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function() { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+
+	// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+		// Should we draw directly? Only check this after the repo updates complete.
+		// Should we draw directly?
+		// Should we start export directly?
+		if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
+			startExport();
+		}
+	}, null);
+
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+	});
+}

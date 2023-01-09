@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -36,43 +36,34 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </head>
 
 <body>
-
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-export-web.js"></script>
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<img id="hamburger" src="threebars.png" class="dropimg">
 			<div id="yodamenu" class="dropdown-content"></div>
 		</div>
 
 		<div class="field">
-			<label>Owner</label> <input type="text" id="owner" size="15"
-				onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<label>Owner</label> <input type="text" id="owner" size="15">
 			<span class="tooltip">GitHub organization or user</span>
 		</div>
 
 		<div class="field">
 			<label>Repositories</label> <select id="repolist"
-				style="width: 350px" class="select2" multiple></select> <span
-				class="tooltip">Repositories to show</span>
+				style="width: 350px" class="select2" multiple></select> 
+				<span class="tooltip">Repositories to show</span>
 		</div>
 
 		<div class="field" style="display: none;">
-			<label>GitHub user</label> <input type="text" size="20" id="user"
-				value="" onchange="githubAuth()"> <span class="tooltip">Your
-				GitHub user-id</span>
+			<label>GitHub user</label> <input type="text" size="20" id="user" value=""> 
 		</div>
 
 		<div class="field" style="display: none;">
-			<label>GitHub token</label> <input type="password" size="30"
-				id="token" value="" onchange="githubAuth()"> <span
-				class="tooltip">GitHub personal token</span>
+			<label>GitHub token</label> <input type="password" size="30" id="token" value=""> 
 		</div>
 
 		<div class="field">
-			<label>Label filter</label> <input type="text" size="37"
-				id="labelfilter" value=""> <span class="tooltip">Label
-				filter as comma separated list w/o spaces (AND)</span>
+			<label>Label filter</label> <input type="text" size="37" id="labelfilter" value=""> 
+				<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
 		</div>
 		
 		<div class="field">
@@ -158,55 +149,11 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	</div>
 	
 	<div id="snackbar">Message goes here</div>
-	
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu("#issue-web-exporter");
 
-		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
-		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#state", "state");
-		yoda.decodeUrlParamBoolean("#onlyoverview", "onlyoverview");
-		yoda.decodeUrlParamBoolean("#showmilestone", "showmilestone");
-		yoda.decodeUrlParamBoolean("#showcomment", "showcomment");
-		yoda.decodeUrlParam("#outputfile", "outputfile");
-		yoda.decodeUrlParam("#labelfilter", "labelfilter");
-		yoda.decodeUrlParam("#downloadimages", "downloadimages");
-		yoda.decodeUrlParamRadio("estimate", "estimate");
-		yoda.updateEstimateRadio();
-		yoda.decodeUrlParam("#issuelist", "issuelist");
-		yoda.decodeUrlParamBoolean("#descendingorder", "descendingorder");
-		
-		// Local storage
-		yoda.getUserTokenLocalStorage("#user", "#token");
-
-		// Do it after getting from localStorage
-		yoda.decodeUrlParam("#user", "user");
-		yoda.decodeUrlParam("#token", "token");
-				
-		githubAuth(); // if set already
-		
-		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
-		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-			// Should we draw directly? Only check this after the repo updates complete.
-			// Should we draw directly?
-			// Should we start export directly?
-			if (yoda.decodeUrlParamBoolean(null, "export") == "true") {
-				startExport();
-			}
-		}, null);
-		
-		$(document).ready(function() {
-			$('#repolist').select2({
-				// minimumInputLength: 2,
-				sorter: yoda.select2Sorter,
-    		    matcher: yoda.select2Matcher
-			});
-		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
-		});
-		
+	<script type="module">
+		import * as functions from './yoda-export-web.js';
+		Object.keys(functions).forEach((f) => { window[f] = functions[f]; });  // small hack
+		functions.init();
 	</script>
-
 </body>
 </html>

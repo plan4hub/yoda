@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -30,7 +30,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <link rel="icon" href="cfd-icon-32.png" type="image/png" />
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.0.1/chart.umd.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.1.2/chart.umd.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
@@ -38,20 +38,16 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 </head>
 <body>
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-cfd.js"></script>
-
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<img id="hamburger" src="threebars.png" class="dropimg">
 			<div id="yodamenu" class="dropdown-content">
   			</div>
 		</div>
-		
 	
 		<div class="field">
 			<label>Owner</label>
-			<input type="text" id="owner" size="15" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<input type="text" id="owner" size="15">
 			<span class="tooltip">GitHub organisation or user</span>
 		</div>
 
@@ -63,13 +59,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field" style="display: none;">
 			<label>GitHub user</label>
-			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			<input type="text" size="20" id="user" value="">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
 		<div class="field" style="display: none;">
 			<label>GitHub token</label>
-			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
+			<input type="password" size="30" id="token" value="">
 			<span class="tooltip">GitHub personal token</span>
 		</div>
 
@@ -122,68 +118,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">CSV field delimiter</span>
 		</div>
 		
-		<button id="drawcfd" onclick='startChart("CFD")'>Draw CFD</button>
-		<button id="drawlt" onclick='startChart("LT")'>Draw Lead Time</button>
+		<button id="drawcfd">Draw CFD</button>
+		<button id="drawlt">Draw Lead Time</button>
 	</div>
 
 	<div style="width: 90%">
-		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val(), event)'></canvas>
+		<canvas id="canvas"></canvas>
 	</div>
 
 	<div id="snackbar">Some text some message..</div>
 
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu("#cfd-chart");
-		
-		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
-		yoda.getDefaultLocalStorage("#interval", "yoda.cfd.interval");
-
-		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
-		yoda.decodeUrlParamDate("#startdate", "startdate");
-		yoda.decodeUrlParamDate("#enddate", "enddate");
-		yoda.decodeUrlParam("#interval", "interval");
-		yoda.decodeUrlParam("#labelfilter", "labelfilter");
-		yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
-		yoda.decodeUrlParam("#assigneefilter", "assigneefilter");
-		yoda.decodeUrlParam("#title", "title");
-		
-		// Local storage
-		yoda.getUserTokenLocalStorage("#user", "#token");
-
-		// Do it after getting from localStorage
-		yoda.decodeUrlParam("#user", "user");
-		yoda.decodeUrlParam("#token", "token");
-				
-		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
-			$(".frame").hide();
-		}
-		githubAuth(); // if set already
-
-		$(document).ready(function() {
-			$('#repolist').select2({
-				// minimumInputLength: 2,
-				sorter: yoda.select2Sorter,
-    		    matcher: yoda.select2Matcher
-			});
-		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
-		  	
-			// Rather complex updating of the defaults repos. Once complete, check if we should draw.
-			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-				// Should we draw directly? Only check this after the repo updates complete.
-				// Should we draw directly?
-				if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd") {
-					startChart("CFD");
-				} 
-				if (yoda.decodeUrlParamBoolean(null, "draw") == "lt") {
-					startChart("LT");
-				} 
-			}, null);
-		});
-		
-
+	<script type="module">
+		import { init } from './yoda-cfd.js';
+		init();
 	</script>
 
 </body>

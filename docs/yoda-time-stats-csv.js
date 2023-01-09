@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,51 +17,17 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
-// Global variable controlling whether bars should be stacked or not.
-// If stacked, then tool will not do a "totals" line and a corresponding right axis.
-var stacked = false;
-
-var repoList = [];
-
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
+// Don't like it, but hey
+var issues = []; 
+var bars = []; 
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
-	if ($("#startdate").val() != "") {
-		params += "&startdate=" + $("#startdate").val(); 
-	}
-	if ($("#enddate").val() != "") {
-		params += "&enddate=" + $("#enddate").val(); 
-	}
-	params = addIfNotDefault(params, "interval");	
-	params = addIfNotDefault(params, "maxage");	
-	params = addIfNotDefault(params, "repo");	
-	params = addIfNotDefault(params, "path");
-	params = addIfNotDefault(params, "branch");
-	params = addIfNotDefault(params, "datecolumn");
-	params = addIfNotDefault(params, "axiscolumn");
-	params = addIfNotDefault(params, "groupcolumns"); 
 
-	params = addIfNotDefault(params, "barsplit");	
-	params = addIfNotDefault(params, "countfield");
-	params = addIfNotDefault(params, "title");
-	params = addIfNotDefault(params, "axiscategory");
-	
-	if (!$('#stacked').is(":checked")) {
-		params += "&stacked=false";
-	}
-	
-	if ($('#percentage').is(":checked")) {
-		params += "&percentage=true";
-	}
-	
+	["startdate", "enddate", "interval", "maxage", "repo", "path", "branch", "datecolumn", "axiscolumn", "groupcolumns", "barsplit", "countfield", "title", "axiscategory", "stacked", "percentage"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	var filters = getFilters();
 	if (filters.length > 0)
 		params += "&filters=" + JSON.stringify(filters);
@@ -97,7 +63,6 @@ function barSort() {
 
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
-var bars = [];
 function createChart() {
 	if ($('#axiscolumn').val() != "") 
 		return createChartNonDate();
@@ -105,18 +70,6 @@ function createChart() {
 	// Check date fields for possible +/- notations.
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
-
-	if ($('#stacked').is(":checked")) {
-		stacked = true;
-	} else {
-		stacked = false;
-	}
-
-	if ($('#percentage').is(":checked")) {
-		var percentage = true;
-	} else {
-		var percentage = false;
-	}
 
 	var maxAge = $('#maxage').val();
 	var axisCategory = $('#axiscategory').val();
@@ -135,28 +88,26 @@ function createChart() {
 	}
 
 	var startDateString = $("#startdate").val();
-	if (startDateString == "") {
+	if (startDateString == "") 
 		var startDate = yoda.twoMonthsEarlier(interval, today);
-	} else {
+	else
 		var startDate = new Date(startDateString);
-	}
 	console.log("Start date: " + startDate);
 	
 	var endDateString = $("#enddate").val();
-	if (endDateString == "") {
+	if (endDateString == "") 
 		var endDate = new Date(today);
-	} else {
-		endDate = new Date(endDateString);
-	}
+	else
+		var endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 
-	var barSplit = $("#barsplit").val();
+	const barSplit = $("#barsplit").val();
 	console.log("Label split: " + barSplit);
 
-	countField = $("#countfield").val();
+	const countField = $("#countfield").val();
 	
 	// Let's get the filters
 	var filters = getFilters();
@@ -165,7 +116,6 @@ function createChart() {
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
 	bars = [];
-	barsIds = [];
 
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
@@ -176,18 +126,17 @@ function createChart() {
 			if (countField != "" && parseInt(issues[i][countField]) == 0)
 				continue;
 			
-			v = issues[i][barSplit];
+			var v = issues[i][barSplit];
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
 		}
-
 		barSort();
 	}
 		
 	// Besides the bars for the data identified, possibly none if no label split, we will maintain
 	// 1. A bar chart for others (i.e. issues not having labels matching the ones identified
 	// 2. A line for total # issues (only if we have splitting)
-	
+
 	
 	// Data arrays for issues.
 	// 	Data array (two-dimentional) for issues matching the bar labels
@@ -196,15 +145,14 @@ function createChart() {
 	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
 	var dateArray = [];
 	var dataArray = new Array(bars.length);
-	for (i = 0; i < dataArray.length; i++) {
+	for (i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	}
 	var totalArray = [];
 
 	// For security reports, we will be targetting the following fields.
 
 	// We want to count entries based on a given date.
-	dateColumn = $("#datecolumn").val();
+	const dateColumn = $("#datecolumn").val();
 	console.log("dateColumn: " + dateColumn);
 	
 	var groupColumns = $("#groupcolumns").val().split(",");
@@ -280,7 +228,7 @@ function createChart() {
 			
 			// We now know that this issue is part of most recent scanReport (done for this category). However, the scan report 
 			// could be REALLY OLD. In this case, we want to ignore as well.
-			issueDate = new Date(issues[i][dateColumn]);
+			const issueDate = new Date(issues[i][dateColumn]);
 			var issueAge = (date.getTime() - issueDate.getTime()) /(24*3600*1000);
 			if (issueAge > maxAge) {
 //  				console.log("Ignoring issue due to age in days: " + issueAge);
@@ -299,21 +247,19 @@ function createChart() {
 		}
 		
 		// Are we doing percentages?
-		if (percentage) {
-			total = 0;
+		if (percentage.checked) {
+			var total = 0;
 			// Percentage. Let's first calc total.
 			for (var i=0; i < bars.length; i++)
 				total += dataArrayForDay[i];   
 							
-			for (var i=0; i < bars.length; i++) { 
+			for (var i=0; i < bars.length; i++)
 				dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
-			}
 		} else {
 			// Normal case			
 			// We will push data to the data array
-			for (var b=0; b < bars.length; b++) {
+			for (var b=0; b < bars.length; b++)
 				dataArray[b].push(dataArrayForDay[b]); 
-			}
 		}
 		
 //		console.log(dataArrayForDay);
@@ -325,11 +271,9 @@ function createChart() {
 	if (bars.length > 0) {
 		for (var b = 0; b < bars.length; b++) {
 			// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
-			actualBar = bars[b];
-			
 			datasetArray.push({
 				type : 'bar',
-				label : actualBar,
+				label : bars[b],
 				yAxisID: "yleft",
 				fill : false,
 				data : dataArray[b],
@@ -352,8 +296,8 @@ function createChart() {
 
 	// Total line
 	console.log("BAR LENGTH " + bars.length)
-	if (!percentage && bars.length > 1) {
-		if (stacked == false) {
+	if (!percentage.checked && bars.length > 1) {
+		if (!stacked.checked) {
 			// Normal case. Right total line against right axis.
 			datasetArray.push({
 				type : 'line',
@@ -382,17 +326,19 @@ function createChart() {
 			labels : dateArray,
 			datasets : datasetArray
 	};
+
+	console.log(chartData);
 	
 	var chartScales = {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage?"Relative Percentage: " +axisCategory: ("# " + axisCategory),
+				text: percentage.checked?"Relative Percentage: " +axisCategory: ("# " + axisCategory),
 				font: {
 	           		size: 16                    
 				}
 			},
-			stacked: stacked,
+			stacked: stacked.checked,
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -402,7 +348,7 @@ function createChart() {
 			}
 		},
 		x: {
-			stacked: stacked,
+			stacked: stacked.checked,
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
@@ -410,12 +356,12 @@ function createChart() {
 	};
 	
 	// If percentage scale, make sure we go only to 100
-	if (percentage)
+	if (percentage.checked)
 		chartScales.yleft.max = 100;
 
 	
 	// Add second axis.
-	if ((bars.length > 1 && stacked == false && !percentage)) {
+	if ((bars.length > 1 && !stacked.checked && !percentage.checked)) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
@@ -473,25 +419,13 @@ function createChart() {
 
 // NonDate versions. We neeed to plot all values.
 function createChartNonDate() {
-	if ($('#stacked').is(":checked")) {
-		stacked = true;
-	} else {
-		stacked = false;
-	}
-
-	if ($('#percentage').is(":checked")) {
-		var percentage = true;
-	} else {
-		var percentage = false;
-	}
-
 	var axisCategory = $('#axiscategory').val();
 	var axisColumn = $('#axiscolumn').val();
 
-	var barSplit = $("#barsplit").val();
+	const barSplit = $("#barsplit").val();
 	console.log("Label split: " + barSplit);
 
-	countField = $("#countfield").val();
+	const countField = $("#countfield").val();
 	
 	// Let's get the filters
 	var filters = getFilters();
@@ -500,7 +434,6 @@ function createChartNonDate() {
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
 	bars = [];
-	barsIds = [];
 
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
@@ -511,29 +444,28 @@ function createChartNonDate() {
 			if (countField != "" && parseFloat(issues[i][countField]) == 0)
 				continue;
 			
-			v = issues[i][barSplit];
+			const v = issues[i][barSplit];
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
 		}
 	}
-
 	barSort();
 
 	// We will be looping through the issues (entries) of the CSV file. 
-	axisValue = "";
+	const axisValue = "";
 	var axisArray = [];
 	var dataArray = new Array(bars.length);
-	for (var l=0; l<bars.length; l++)
+	for (var l = 0; l < bars.length; l++)
 		dataArray[l] = [];
 
 	var totalArray = [];
 	//  First run - create axisArray and prepare for values.
-	for (var i=0; i < issues.length; i++) {
+	for (var i = 0; i < issues.length; i++) {
 		if (!filterIssue(filters, issues[i]))
 			continue;
 			
-		axisValue = issues[i][axisColumn];
-		axisIndex = axisArray.indexOf(axisValue);
+		const axisValue = issues[i][axisColumn];
+		const axisIndex = axisArray.indexOf(axisValue);
 		if (axisIndex == -1) {
 			// New axis entry
 			axisArray.push(axisValue);
@@ -548,15 +480,15 @@ function createChartNonDate() {
 		sevSort(axisArray);
 	
 	// Second run. Add data
-	for (var i=0; i < issues.length; i++) {
+	for (var i = 0; i < issues.length; i++) {
 		if (!filterIssue(filters, issues[i]))
 			continue;
 			
-		axisValue = issues[i][axisColumn];
-		axisIndex = axisArray.indexOf(axisValue);
+		const axisValue = issues[i][axisColumn];
+		const axisIndex = axisArray.indexOf(axisValue);
 
 		// Let's add to the relevant bars.
-		for (var l=0; l<bars.length; l++) {
+		for (var l = 0; l < bars.length; l++) {
 			if (bars[l] == issues[i][barSplit]) 
 				dataArray[l][axisIndex] = dataArray[l][axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
 		}
@@ -564,7 +496,7 @@ function createChartNonDate() {
 	}
 
 	// Percentage? If so, we need to adjust all values.
-	if (percentage) {
+	if (percentage.checked) {
 		for (var ai = 0; ai < totalArray.length; ai++) {
 			for (var l = 0; l < bars.length; l++) 
 				dataArray[l][ai] = (100.0 * dataArray[l][ai] / totalArray[ai]).toFixed(1); 
@@ -576,11 +508,9 @@ function createChartNonDate() {
 	// Ready, let's push the bars. If we don't have any bars, let's use the total bar.
 	if (bars.length > 0) {
 		for (var b = 0; b < bars.length; b++) {
-			actualBar = bars[b];
-
 			datasetArray.push({
 				type : 'bar',
-				label : actualBar,
+				label : bars[b],
 				yAxisID: "yleft",
 				fill : false,
 				data : dataArray[b],
@@ -616,7 +546,7 @@ function createChartNonDate() {
 	           		size: 16                    
 				}
 			},
-			stacked: stacked,
+			stacked: stacked.checked,
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -626,7 +556,7 @@ function createChartNonDate() {
 			}
 		},
 		x: {
-			stacked: stacked,
+			stacked: stacked.checked,
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
@@ -634,7 +564,7 @@ function createChartNonDate() {
 	};
 	
 	// If percentage scale, make sure we go only to 100
-	if (percentage)
+	if (percentage.checked)
 		chartScales.yleft.max = 100;
 	
 	// -----------------------------------------------------------
@@ -703,7 +633,7 @@ function updateFilterColumns() {
 }
 
 function addFilter(column, selectedValues) {
-	columnId = column.replace(/ /g,"_");
+	const columnId = column.replace(/ /g,"_");
 
 	console.log("Add filter column: " + column);
 	console.log(selectedValues);
@@ -759,7 +689,7 @@ function addFilter(column, selectedValues) {
 
 function removeFilter(column) {
 	console.log("Remove filter column: " + column);
-	columnId = column.replace(/ /g,"_");
+	const columnId = column.replace(/ /g,"_");
 	
 	var ff = document.getElementById("f-" + columnId);
 	if (ff != null)
@@ -905,14 +835,13 @@ function updateCountField() {
 }
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
-issues = [];
 var firstCSVRead = true;
 function readCSV() {
 	removeAllFilters();
 	
 	console.log("readCSV");
 	yoda.getGitFile($("#owner").val(), $("#repo").val(), $("#path").val(), $("#branch").val(), function(data) {
-		config = {
+		const config = {
 //			quotes: false,
 //			quoteChar: '"',
 //			delimiter: $("#csvDelimiter"),
@@ -957,65 +886,78 @@ function readCSV() {
 	});
 }
 
-// --------------
-function githubAuth() {
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#csv-statistics-report");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+	yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
+	yoda.getDefaultLocalStorage("#other", "yoda.time.other");
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#repo", "repo");
+	yoda.decodeUrlParam("#path", "path");
+	yoda.decodeUrlParam("#branch", "branch");
+	yoda.decodeUrlParam("#datecolumn", "datecolumn");
+	yoda.decodeUrlParam("#axiscolumn", "axiscolumn");
+
+	yoda.decodeUrlParam("#groupcolumns", "groupcolumns");
+
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParamDate("#startdate", "startdate");
+	yoda.decodeUrlParamDate("#enddate", "enddate");
+	yoda.decodeUrlParam("#interval", "interval");
+	yoda.decodeUrlParam("#maxage", "maxage");
+
+	yoda.decodeUrlParam("#title", "title");
+	yoda.decodeUrlParam("#axiscategory", "axiscategory");
+	yoda.decodeUrlParamBoolean("#stacked", "stacked");
+	yoda.decodeUrlParamBoolean("#percentage", "percentage");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+		$(".frame").hide();
+	}
+
+	$('#countfield').select2();
+	$('#barsplit').select2();
+	$('#axiscolumn').select2();
+	$('#filters').select2();
+
+	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
-}
 
-Chart.defaults.font.size = 16;
-Chart.register({
-	id: "yoda-label",
-	afterDatasetsDraw: function(chartInstance, easing) {
-		var ctx = chartInstance.ctx;
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function() { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#readcsv").on("click", readCSV);
+	$("#drawbutton").on("click", createChart);
+	$("#estimateradio").on("click", function(event) { yoda.setEstimateInIssues(event.value); });
+	$("#canvas").on("click", function(event) { yoda.chartCSVExport($("#csvdelimiter").val(), event); });
 
-		chartInstance.data.datasets.forEach(function (dataset, i) {
-			var meta = chartInstance.getDatasetMeta(i);
-			if (!meta.hidden) {
-				meta.data.forEach(function(element, index) {
-					// Draw the text in black (line) or whitish (bar) with the specified font
-					if (dataset.type == "bar" && stacked == true)
-						ctx.fillStyle = yoda.getColor('fontAsBackground')
-					else
-						ctx.fillStyle = yoda.getColor('fontContrast')
-					ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
-				
-					// Just naively convert to string for now
-					if (typeof(dataset.data[index]) == "number") {
-						// Make sure we do rounding if we have to.
-						var dataString = dataset.data[index].toFixed().toString();						
-					} else {
-						var dataString = dataset.data[index].toString();	
-					} 
-				
-					// Make sure alignment settings are correct
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-				
-					var padding = 5;
-					var position = element.tooltipPosition();
-				
-					// Don't draw zeros in stacked bar chart
-					if (!(dataset.type == "bar" && stacked == true && dataset.data[index] == 0)) { 
-						if (stacked == false || dataset.type == "line") { 
-				    		// Label above bar
-				        	ctx.fillText(dataString, position.x, position.y - (Chart.defaults.font.size / 2) - padding);
-				    	} else {
-					        // Label inside bar ... gives a bit of trouble at buttom... 
-				        	ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
-				    	}
-					}
-				});
-			}
+	// ChartJS default stuff
+	yoda.registerChartJS();
+
+	$(document).ready(function () {
+		// If path is set (via argument), we will assume that we are ready to load CSV and do so directly
+		if ($("#path").val() != "")
+			readCSV();
+
+		$('#filters').on('select2:select', function (e) {
+			addFilter(e.params.data.id);
 		});
-	}
-});
-			
-Chart.register({
-	id: "yoda-background",
-	beforeDraw: function(c) {
-		var ctx = c.ctx;
-		ctx.fillStyle = yoda.getColor('htmlBackground');
-		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
-	}
-});
+		$('#filters').on('select2:unselect', function (e) {
+			removeFilter(e.params.data.id);
+		});
+
+	});
+
+}

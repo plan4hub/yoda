@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,6 +17,8 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
+
 var repoList = [];  // selected repos
 var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
@@ -24,38 +26,22 @@ var commonMilestones = []; // Options for milestone selection (milestones in all
 var noStoryBars = 0;
 var splitLabels = [];
 
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
-
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
-	params = addIfNotDefault(params, "splitlabels");
-	params = addIfNotDefault(params, "labelfilter");
-	params = addIfNotDefault(params, "splitother");
+
+	["splitlabels", "labelfilter", "splitother", "closedmilestones", "showpercent"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
+
 	if ($("#milestonelist").val() != "") {
 		params += "&milestonelist=" + $("#milestonelist").val(); 
 	}
-	if (!$('#closedmilestones').is(":checked")) {
-		params += "&closedmilestones=false";
-	}
-	if ($('#showpercent').is(":checked")) {
-		params += "&showpercent=true";
-	}
-
 	return params;
 }
-
 
 function estimateClick(radio) {
 	yoda.setEstimateInIssues(radio.value);
 }
-
 
 // -------------------------------
 
@@ -66,30 +52,26 @@ function errorFunc(errorText) {
 
 // ------------------
 
-
 function storeMilestones(milestones, repoIndex) {
 	repoMilestones[repoIndex] = milestones;
 	updateMilestones(repoIndex + 1);
 }
 
 var firstMilestoneShow = true;
-function updateMilestones(repoIndex) {
+export function updateMilestones(repoIndex) {
 	console.log("Updatemilestones called");
 	if (repoIndex == undefined) {
 		// Clear milestone data
 		repoIndex = 0;
 		repoMilestones = []; 
 		commonMilestones = [];
-		
 	}
 	
 	if (repoIndex < repoList.length) {
-		if ($('#closedmilestones').is(":checked")) {
+		if ($('#closedmilestones').is(":checked"))
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
-		} else {
+		else
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
-		}
-
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
 		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
@@ -153,7 +135,7 @@ function updateMilestones(repoIndex) {
 
 // Helper function to build the list of all milestones to query.
 var milestoneFilter = "";
-function addMilestoneFilter(repo) {
+export function addMilestoneFilter(repo) {
 	// Need to find the milestone # for that repo
 	console.log("Searching milestone definition for " + repo);
 
@@ -177,7 +159,7 @@ function addMilestoneFilter(repo) {
 
 //---------------------------------------
 //Data has been retrieved. Time to analyse data and draw the chart.
-function addMilestone(issues) {
+export function addMilestone(issues) {
 	// Need to loop over milestones for selected repos and determine these basic data.
 	
 	var milestoneTitle = milestoneFilter;
@@ -249,7 +231,7 @@ function addMilestone(issues) {
 	}
 	var estimate = 0;
 	
-	for (i=0; i<issues.length; i++) {
+	for (var i = 0; i < issues.length; i++) {
 		if (milestoneStartdate != null)
 			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
 		else
@@ -265,12 +247,9 @@ function addMilestone(issues) {
 				break;
 			}
         }
-        
 
-		if (!foundBar && $("#splitother").val() != "") {
+		if (!foundBar && $("#splitother").val() != "")
 			estimateArray[noStoryBars - 1] += issueEstimate; 
-		}
-		
 		estimate += issueEstimate;
 	}
 	console.log("Total estimate: " + estimate);
@@ -319,10 +298,7 @@ function addMilestone(issues) {
 	window.myMixedChart.update();
 }
 
-// ---------------
-
-
-function getMilestoneData(milestones, index) {
+export function getMilestoneData(milestones, index) {
 	if (index < milestones.length) {
 		milestoneFilter = milestones[index];
 		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addMilestoneFilter, 
@@ -340,7 +316,7 @@ function getMilestoneData(milestones, index) {
 
 
 // -------------------------
-function startChart() {
+export function startChart() {
 	var milestones = $("#milestonelist").val();
 	console.log("Milestones: (" + milestones.length + "): " + milestones);
 	
@@ -513,12 +489,6 @@ function startChart() {
 }
 
 // --------------
-function githubAuth() {
-	console.log("Updating/setting github authentication for: " + $("#user"));
-	yoda.gitAuth($("#user").val(), $("#token").val());
-}
-
-// --------------
 
 //Label drawing
 Chart.defaults.font.size = 16;
@@ -562,3 +532,75 @@ Chart.register({
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
+
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#velocity-report");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+	yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+
+	yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#repo", "repo");
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#splitlabels", "splitlabels");
+	yoda.decodeUrlParam("#splitother", "splitother");
+
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+	yoda.decodeUrlParamBoolean("#showpercent", "showpercent");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	console.log("Updating/setting github authentication for: " + $("#user"));
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function () { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+
+		$('#milestonelist').select2({
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#milestonelist').on('select2:select', yoda.select2SelectEvent('#milestonelist'));
+
+		$('#repolist').on('change.select2', function (e) {
+			repoList = $("#repolist").val();
+			console.log("List of selected repos is now: " + repoList);
+			updateMilestones();
+		});
+
+		$('#milestonelist').on('change.select2', function (e) {
+			// Update start-date + due-date/burndown-date + capacity (sum)
+
+		});
+
+		// Rather complex updating of the defaults repos. 
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+			// Potential automatic startup actions can go here.
+		}, null);
+	});
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
+		$(".frame").hide();
+}

@@ -17,29 +17,23 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
+
 var repoList = [];  // selected repos
 var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
 var commonMilestones = []; // Options for milestone selection (milestones in all repos).
 var milestoneList = []; // selected milestones just the title
 var milestoneListComplete = []; // selected milestones, full structure.
-
+var selectMilestones = [];
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
 	params += "&milestonelist=" + $("#milestonelist").val();
-	if ($('#closedmilestones').is(":checked")) {
+	if ($('#closedmilestones').is(":checked")) 
 		params += "&closedmilestones=true";
-	}
 	return params;
-}
-
-
-// --------------
-function githubAuth() {
-	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val());
 }
 
 // --------------
@@ -76,12 +70,10 @@ function updateMilestones(repoIndex) {
 	}
 	
 	if (repoIndex < repoList.length) {
-		if ($('#closedmilestones').is(":checked")) {
+		if ($('#closedmilestones').is(":checked")) 
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
-		} else {
+		else 
 			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
-		}
-
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
 		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
@@ -97,9 +89,8 @@ function updateMilestones(repoIndex) {
 			for (var m = 0; m < repoMilestones[r].length; m++) {
 				var repoTitle = repoMilestones[r][m].title;
 				
-				if (commonMilestones.indexOf(repoTitle) == -1) {
+				if (commonMilestones.indexOf(repoTitle) == -1)
 					commonMilestones.push(repoTitle);
-				}
 			}
 		}
 		
@@ -116,7 +107,6 @@ function updateMilestones(repoIndex) {
 			if (firstMilestoneShow && 
 				((milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
 				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1))) {
- 
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
@@ -214,9 +204,8 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 	if ((ed != "") && (ed != null))
 		description += "> ed " + ed + "\n";
 		
-	if ((subteamCapacity != "") && (subteamCapacity != null)) {
+	if ((subteamCapacity != "") && (subteamCapacity != null))
 		description += subteamCapacity.replace(/^$/mg, "").replace(/^(.+)$/mg, "> subteam-capacity $1");
-	}
 	
 	if ((subteamED != "") && (subteamED != null)) {
 		if (!description.endsWith("\n"))
@@ -231,12 +220,11 @@ function buildMilestoneUrlData(description, startdate, burndownduedate, capacity
 	
 	if (state != undefined)
 		urlData["state"] = state;
-	
 
 	return urlData;
 }
 
-function updateMilestoneData(index) {
+export function updateMilestoneData(index) {
 	var milestone = milestoneListComplete[index];
 	console.log(milestone);
 	var description = $("#description" + index).val();
@@ -270,7 +258,7 @@ function updateMilestoneData(index) {
 }
 
 // This will act as open/close by clicking on the magnifying class. Opening will show the field. Closing it will update the main field (total capacity) and update the milestone itself, then refresh.
-function subteamMilestone(index, fieldId, totalField) {
+export function subteamMilestone(index, fieldId, totalField) {
 	console.log("subteamMilestone called. ", index, fieldId, totalField);
 	console.log(milestoneListComplete);  
 	var milestone = milestoneListComplete[index];
@@ -278,7 +266,6 @@ function subteamMilestone(index, fieldId, totalField) {
 	
 	// Are we visible? Then work on totals.
 	if ($(fieldId).is(":visible")) {
-		
 		var f = $(fieldId).val();
 		console.log($(fieldId).val())
 
@@ -305,7 +292,7 @@ function subteamMilestone(index, fieldId, totalField) {
 }
 
 
-function replicateMilestone(index) {
+export function replicateMilestone(index) {
 	var milestone = milestoneListComplete[index];
 	console.log(milestone);
 	
@@ -322,9 +309,8 @@ function replicateMilestone(index) {
 	// If it does not exists, we will do a POST request to create milestone.
 	var noCalls = 0;
 	for (var r = 0; r < repoList.length; r++) {
-		if (repoList[r] == yoda.getRepoFromMilestoneUrl(milestone.url)) {
+		if (repoList[r] == yoda.getRepoFromMilestoneUrl(milestone.url))
 			continue;
-		}
 
 		// Find the entry in completeMilestones.
 		// Need to find the milestone (the number)..
@@ -380,7 +366,6 @@ function replicateMilestone(index) {
 			complete: function(jqXHR, textStatus) {	noCalls--; if (noCalls == 0) updateMilestones(); }
 		});
 	}
-	
 }
 
 function displayRepoMilestones() {
@@ -554,5 +539,68 @@ function displayRepoMilestones() {
 	$("#edheader").html('<span id="edheader"><b>ED (total ' + totalED + ')</b></span>');
 	
 	yoda.updateUrl(getUrlParams());
+}
 
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#milestone-manager");
+	
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	selectMilestones = [];
+	
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+
+	yoda.decodeUrlParam("#owner", "owner");
+	
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+			
+	// We do not want caching here. 
+	$.ajaxSetup({ cache: false });
+
+	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function () { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#closedmilestones").on("change", function() { updateMilestones(); });
+	$("#refreshbutton").on("click", function() { updateMilestones(); });
+
+	$(document).ready(function() {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		  $('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+		  $('#milestonelist').select2({
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		  $('#milestonelist').on('select2:select', yoda.select2SelectEvent('#milestonelist')); 
+		
+		$('#repolist').on('change.select2', function (e) {
+			repoList = 	$("#repolist").val();			
+			console.log("List of selected repos is now: " + repoList);
+			updateMilestones();
+		});
+		
+		$('#milestonelist').on('change.select2', function (e) {
+			milestoneList = $("#milestonelist").val();
+			
+			console.log("Selected milestones is : " + milestoneList);
+			selectMilestones = milestoneList;
+			displayRepoMilestones();
+		});
+
+		// Rather complex updating of the defaults repos. 
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
+			// Potential automatic startup actions can go here.
+		}, null);
+	});
 }

@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,17 +17,10 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 // Global variable for any css overwrite
 var css = "";
-
-function addIfNotDefault(params, field) {
-	if ($("#" + field).val() != $("#" + field).prop('defaultValue')) {
-		return params + "&" + field + "=" + $("#" + field).val(); 
-	} else {
-		return params;
-	}
-}
 
 //Parse markdown to HTML (if any)
 function parseMarkdown(markdown) {
@@ -60,39 +53,16 @@ function parseMarkdown(markdown) {
 }
 
 function getUrlParams() {
-	var params = addIfNotDefault("", "owner");
-	params += "&repolist=" + $("#repolist").val();
-	params = addIfNotDefault(params, "labelfilter");
-	params = addIfNotDefault(params, "milestonefilter");
-	params = addIfNotDefault(params, "singlelabeldef");
-	params = addIfNotDefault(params, "sharedlabeldef");
-	params = addIfNotDefault(params, "splitlabeldef");
-	params = addIfNotDefault(params, "splitbodydef");
-	params = addIfNotDefault(params, "fields");
-	params = addIfNotDefault(params, "translation");
-	params = addIfNotDefault(params, "csvdelimiter");
-	params = addIfNotDefault(params, "labelindicator");
-	params = addIfNotDefault(params, "epiclabel");
-	params = addIfNotDefault(params, "outputfile");
-	
-	params = addIfNotDefault(params, "cssowner");
-	params = addIfNotDefault(params, "cssrepo");
-	params = addIfNotDefault(params, "csspath");
-	params = addIfNotDefault(params, "cssbranch");
-	
+	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+
+	["labelfilter", "milestonefilter", "singlelabeldef", "sharedlabeldef", "splitbodydef", "fields", "translation", "csvdelimiter", "labelindicator", 
+	"epiclabel", "outputfile", "cssowner", "cssrepo", "csspath", "cssbranch", "exportevents"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
+
 	params += "&estimate=" + yoda.getEstimateInIssues();
-	if ($("#state").val() != "open") {
+	if ($("#state").val() != "open")
 		params += "&state=" + $("#state").val(); 
-	}
-	if ($('#exportevents').is(":checked")) {
-		params += "&exportevents=true";
-	}
-
 	return params;
-}
-
-function estimateClick(radio) {
-	yoda.setEstimateInIssues(radio.value);
 }
 
 function logMessage(message) {
@@ -100,11 +70,11 @@ function logMessage(message) {
 }
 
 function yodaTrim(str, exc) {
-	if (str.length > 0 && str[0] == exc) {
+	if (str.length > 0 && str[0] == exc)
 		return yodaTrim(str.substring(1), exc);
-	} else if (str.length > 0 && str[str.length - 1] == exc) {
+	else if (str.length > 0 && str[str.length - 1] == exc)
 		return yodaTrim(str.substring(0, str.length - 1), exc);
-	} else
+	else
 		return str;
 }
 
@@ -427,11 +397,10 @@ function exportIssues(issues) {
 				break;
 			case "Epic Number":
 				var result = getEpicData(issues, issues[i]);
-				if (result.length > 0) {
+				if (result.length > 0)
 					el["Epic Number"] = result[0].number;
-				} else {
+				else
 					el["Epic Number"] = "";
-				}
 				break;
 			case "Epic Repo":
 				var result = getEpicData(issues, issues[i]);
@@ -575,7 +544,7 @@ function exportIssues(issues) {
 		var translation = $("#translation").val().split(",");
 	
 	if (exportToCsv) {
-		config = {
+		const config = {
 				quotes: false,
 				quoteChar: '"',
 				delimiter: csvDelimiter,
@@ -638,9 +607,8 @@ function getIssuesEventStart(issues) {
 	issuesRemaining = [];
 	issuesEvents = [];
 	// First populate issuesRemaining list with urls. All we need to do to get events is then to append "/events" part.
-	for (var i = 0; i < issues.length; i++) {
+	for (var i = 0; i < issues.length; i++)
 		issuesRemaining.push(issues[i].url);
-	}
 	getNextIssueEvent(null, null);
 }
 
@@ -714,7 +682,7 @@ function exportIssueEvents() {
 	console.log("Done. Showing events collected.");
 	console.log(issuesEvents);
 
-	config = {
+	const config = {
 			quotes: false,
 			quoteChar: '"',
 			delimiter: csvDelimiter,
@@ -726,7 +694,6 @@ function exportIssueEvents() {
 	yoda.downloadFile(result, outputFile);
 	logMessage("Info: Events succesfully exported.");
 }
-
 
 // -------------------------------
 
@@ -745,11 +712,9 @@ function showRepos(repos) {
 			return 1;
 	});
 
-	for (var r = 0; r < repos.length; r++) {
+	for (var r = 0; r < repos.length; r++)
 		$("#repolist").append($("<option></option>").attr("value", repos[r].name));
-	}
 }
-
 	
 // -------------------------
 var exportToCsv = true;
@@ -790,7 +755,6 @@ function startExport(exp) {
 
 //-------------------------
 
-
 function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
 	if (lastOrgId != -1) {
 		var oldIndex = url.indexOf("since=");
@@ -798,11 +762,10 @@ function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
 			url = url.substring(0, oldIndex) + "per_page=100&since=" + lastOrgId;
 		} else {
 			// Do we have a ?
-			if (url.indexOf("?") == -1) {
+			if (url.indexOf("?") == -1)
 				url = url + "?per_page=100&since=" + lastOrgId;
-			} else {
+			else
 				url = url + "&per_page=100&since=" + lastOrgId;
-			}
 		}
 	}
 	
@@ -823,60 +786,73 @@ function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
 	.always(function() { /* One call ended */ });;          
 }
 
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#issue-exporter");
 
-var orgsGlob = [];
-function countOrgRepos(orgRepos) {
-	if (orgRepos.length > 0) {
-		console.log(orgRepos[0][1]);
-		yoda.getLoop(orgRepos[0][1], -1, [], 
-				function(data) { orgsGlob[orgRepos[0][0]] = data[0]; countOrgRepos(orgRepos.slice(1)); }, 
-				function(errorText) { yoda.showSnackbarError("Error getting repositories: " + errorText, 3000);}
-				);
-	} else {
-		// Sort
-		orgsGlob.sort(function(a, b) {return Object.keys(a).length > Object.keys(b).length;});
-		
-		for (var o = 0; o < orgsGlob.length; o++) {
-			logMessage((o + 1) + ":" + orgsGlob[o].id + " / " + orgsGlob[o].login + " / " + orgsGlob[o].number_repos + " / " + orgsGlob[o].description);
-		}
-		
-		// Get number of repos for each org.
-		var csvDelimiter = $("#csvdelimiter").val();
-		var outputFile = $("#outputfile").val();
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
+	yoda.decodeUrlParam("#singlelabeldef", "singlelabeldef");
+	yoda.decodeUrlParam("#sharedlabeldef", "sharedlabeldef");
+	yoda.decodeUrlParam("#splitbodydef", "splitbodydef");
+	yoda.decodeUrlParam("#splitlabeldef", "splitlabeldef");
+	yoda.decodeUrlParam("#fields", "fields");
+	yoda.decodeUrlParam("#translation", "translation");
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParam("#labelindicator", "labelindicator");
+	yoda.decodeUrlParam("#state", "state");
+	yoda.decodeUrlParam("#outputfile", "outputfile");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+	yoda.decodeUrlParamBoolean("#exportevents", "exportevents");
 
-		config = {
-				quotes: false,
-				quoteChar: '"',
-				delimiter: csvDelimiter,
-				header: true,
-				newline: "\r\n"
-			};
+	// CSS stuff
+	yoda.decodeUrlParam("#cssowner", "cssowner");
+	yoda.decodeUrlParam("#cssrepo", "cssrepo");
+	yoda.decodeUrlParam("#csspath", "csspath");
+	yoda.decodeUrlParam("#cssbranch", "cssbranch");
 
-		result = Papa.unparse(orgsGlob, config);
-		yoda.downloadFile(result, outputFile);
-	}
-}
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
 
-function startExportOrg() {
-	$("#console").val("");
-	orgsRepos = [];
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
 
-	// Specific repo only. 
-	var getOrganizationsUrl = yoda.getGithubUrl() + "organizations";
-	getLoopOrg(getOrganizationsUrl, -1, [], function(orgs) {
-		orgsGlob = orgs;
-		for (var o = 0; o < orgs.length; o++) {
-// 			logMessage((o + 1) + ":" + orgs[o].id + " / " + orgs[o].login + " / " + orgs[o].description);
-			orgsRepos.push([o, orgs[o].url]);
-		}
-		countOrgRepos(orgsRepos);
-	}, null);
-}
-
-// --------------
-function githubAuth() {
+	// login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
-}
 
-// --------------
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function() { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#estimateradio").on("click", function(event) { yoda.setEstimateInIssues(event.value); });
+	$("#exportbutton").on("click", function() { startExport(true); });
+	$("#tablebutton").on("click", function() { css=""; startExport(false); });
+	
+	// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+		// Should we draw directly? Only check this after the repo updates complete.
+		// Should we draw directly?
+		// Should we start export directly?
+		if (yoda.decodeUrlParamBoolean(null, "export") == "true")
+			startExport(true);
+		else if (yoda.decodeUrlParamBoolean(null, "table") == "true")
+			startExport(false);
+	}, null);
+
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+	});
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
+		$(".frame").hide();
+}

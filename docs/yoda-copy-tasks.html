@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -34,25 +34,20 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 </head>
 <body>
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-copy-tasks.js"></script>
-
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
-			<div id="yodamenu" class="dropdown-content">
-  			</div>
+			<img id="hamburger" src="threebars.png" class="dropimg">
+			<div id="yodamenu" class="dropdown-content"></div>
 		</div>
-		
 	
 		<div class="field" style="display: none;">
 			<label>GitHub user</label>
-			<input type="text" size="15" id="user" value="" onChange="githubAuth()">
+			<input type="text" size="15" id="user" value="">
 		</div>
 
 		<div class="field" style="display: none;">
 			<label>GitHub token</label>
-			<input type="password" size="25" id="token" value="" onChange="githubAuth()">
+			<input type="password" size="25" id="token" value="">
 		</div>
 
 		<div class="field">
@@ -131,50 +126,14 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 	</div>
 
-
 	<div id="snackbar">Some text some message..</div>
 
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu("#task-copier");
-
-		yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
-		yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
-
-		yoda.decodeUrlParam("#srcowner", "srcowner");
-		yoda.decodeUrlParam("#dstowner", "dstowner");
-		yoda.decodeUrlParam("#srcrepo", "srcrepo");
-		yoda.decodeUrlParam("#dstrepo", "dstrepo");
-		yoda.decodeUrlParam("#recurring", "recurring");
-		yoda.decodeUrlParam("#bodyremove", "bodyremove");
-		
-		// Does not work in IE
-		try {
-			$("#user").val(localStorage.getItem("gitHubUserId"));
-			$("#token").val(localStorage.getItem("gitHubAccessToken"));
-		}
-		catch (err) {
-			console.error("Failed to set user-id and token into localStorage. Probably IE.");
-		}
-
-		// Do it after getting from localStorage
-		yoda.decodeUrlParam("#user", "user");
-		yoda.decodeUrlParam("#token", "token");
-
-		// We do not want caching here. 
-		$.ajaxSetup({ cache: false });
-
-		githubAuth();
-		if ($("#srcrepo").val() == "") {
-			updateSrcRepos();
-		}
-		if ($("#dstrepo").val() == "") {
-			updateDstRepos();
-		}
-		updateSrcMilestones();
-		updateDstMilestones();
-		
-		
+	<script type="module">
+		import * as functions from './yoda-copy-tasks.js';
+		Object.keys(functions).forEach((f) => { window[f] = functions[f]; });  // small hack
+		functions.init();
 	</script>
+
+
 </body>
 </html>

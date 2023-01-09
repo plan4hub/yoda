@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,6 +17,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 // Global variable controlling whether bars should be stacked or not.
 // If stacked, then tool will not do a "totals" line and a corresponding right axis.
@@ -35,45 +36,17 @@ var download = false; // global - a bit of a hack.
 
 var css = "";
 
-function addIfNotDefault(params, field) {
-	var defaultValue = $("#" + field).prop('defaultValue');
-	// Hack. Make sure no real newlines into default value.
-	defaultValue = defaultValue.replace(/\n/g, "");
-	var value = $("#" + field).val();
-	
-	if (value != defaultValue) {
-		console.log("value: " + value);
-		console.log("defa : " + defaultValue);
-		return params + "&" + field + "=" + value; 
-	} else {
-		return params;
-	}
-}
-
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	if ($("#repolist").val() != "")
 		params += "&repolist=" + $("#repolist").val();
 	if ($("#milestonelist").val() != "")
 		params += "&milestonelist=" + $("#milestonelist").val();
-	params = addIfNotDefault(params, "labelfilter");	
-	params = addIfNotDefault(params, "rnlabeltypes");
-	params = addIfNotDefault(params, "rnknownlabeltypes");
-	params = addIfNotDefault(params, "rnskiplabel");
-	params = addIfNotDefault(params, "rnmetalabel");
-	params = addIfNotDefault(params, "rnknownlabel");
-	params = addIfNotDefault(params, "hlformat");
-	params = addIfNotDefault(params, "sformat");
-	params = addIfNotDefault(params, "ssformat");
-	params = addIfNotDefault(params, "listformat");
-	params = addIfNotDefault(params, "catformat");
-	params = addIfNotDefault(params, "rnformat");
-	params = addIfNotDefault(params, "catlabel");
-	
-	params = addIfNotDefault(params, "cssowner");
-	params = addIfNotDefault(params, "cssrepo");
-	params = addIfNotDefault(params, "csspath");
-	params = addIfNotDefault(params, "cssbranch");
+
+		["labelfilter", "rnlabeltypes", "rnknownlabeltypes", "rnskiplabel", "rnmetalabel", "rnknownlabel", "hlformat", "sformat", "ssformat", 
+		"listformat", "catformat", "rnformat", "catlabel", "cssowner", "cssrepo", "csspath", "cssbranch", "closedmilestones", "tablelayout", 
+		"estimatecategory", "estimateissue"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
@@ -81,20 +54,6 @@ function getUrlParams() {
 	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;
-
-	if ($('#closedmilestones').is(":checked")) {
-		params += "&closedmilestones=true";
-	}
-	if (!$('#tablelayout').is(":checked")) {
-		params += "&tablelayout=false";
-	}
-	if ($('#estimatecategory').is(":checked")) {
-		params += "&estimatecategory=true";
-	}
-	if ($('#estimateissue').is(":checked")) {
-		params += "&estimateissue=true";
-	}
-	
 	return params;
 }
 
@@ -146,7 +105,6 @@ function parseRNMarkdown(markdown) {
 	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
 //	console.log("markdownUrl: " + markdownUrl);
 
-	
 	var urlData = {
 			"text": markdown
 	};
@@ -180,7 +138,6 @@ function formatIssueRN(issue) {
 	var issueText = "";
 
 	var line = yoda.extractKeywordField(issue.body, "RNT", "single", newLine);
-//	console.log("line:" + line + ":");
 	if (line != "")
 		var title = line;
 	else
@@ -516,8 +473,6 @@ function updateMilestones(repoIndex) {
 
 // -------------
 
-
-
 function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 	if (myUpdateIssueActiveNo < updateIssueActiveNo) {
 		console.log("Update is not latest. Cancelling...");
@@ -629,10 +584,10 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 									} else {
 										// Non local.
 										repoSearch = "/repos/";
-										var repoIndex = repoIssues[i].url.indexOf(repoSearch);
-										if (repoIndex != -1) {
-											repoIndex += repoSearch.length;
-											var urlRef = repoIssues[i].url.substr(0, repoIndex) + ref.replace(/#/, "/issues/");
+										var rI = repoIssues[i].url.indexOf(repoSearch);
+										if (rI != -1) {
+											rI += repoSearch.length;
+											var urlRef = repoIssues[i].url.substr(0, rI) + ref.replace(/#/, "/issues/");
 											console.log("urlRef = " + urlRef);
 											metaIssuesList.push(urlRef);
 										}
@@ -735,33 +690,23 @@ function updateIssuesKnown() {
 	updateIssuesKnownLoop(repoList, []);
 } 
 
-// --------------
-
-function githubAuth() {
-	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val());
-}
-
-// --------------
-
 
 function setDefaultAndValue(id, value) {
-	element = document.getElementById(id);
+	var element = document.getElementById(id);
 	element.defaultValue = value;
 	element.value = value;
 }
 
 function changeOutput() {
-	value = $('input:radio[name="outputformat"]:checked').val();
+	const value = $('input:radio[name="outputformat"]:checked').val();
 	if ($('#estimatecategory').is(":checked"))
-		cat = "%c (total %z)";
+		var cat = "%c (total %z)";
 	else
-		cat = "%c";
+		var cat = "%c";
 	if ($('#estimateissue').is(":checked"))
-		iss = "%d (%e)"
+		var iss = "%d (%e)"
 	else
-		iss = "%d";
-			
+		var iss = "%d";
 	
 	switch (value) {
 	case "html":
@@ -803,4 +748,121 @@ function changeOutput() {
 		}
 		break;
 	}
+}
+
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#release-notes");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+
+	yoda.getDefaultLocalStorage("#rnlabeltypes", "yoda.burndown.rnlabeltypes");
+	yoda.getDefaultLocalStorage("#rnknownlabeltypes", "yoda.burndown.rnknownlabeltypes");
+	yoda.getDefaultLocalStorage("#rnskiplabel", "yoda.burndown.rnskiplabel");
+	yoda.getDefaultLocalStorage("#rnmetalabel", "yoda.burndown.rnmetalabel");
+	yoda.getDefaultLocalStorage("#rnknownlabel", "yoda.burndown.rnknownlabel");
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#rnlabeltypes", "rnlabeltypes");
+	yoda.decodeUrlParam("#rnknownlabeltypes", "rnknownlabeltypes");
+	yoda.decodeUrlParam("#rnskiplabel", "rnskiplabel");
+	yoda.decodeUrlParam("#rnmetalabel", "rnmetalabel");
+	yoda.decodeUrlParam("#rnknownlabel", "rnknownlabel");
+	yoda.decodeUrlParam("#catlabel", "catlabel");
+
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+	yoda.decodeUrlParamBoolean("#tablelayout", "tablelayout");
+	yoda.decodeUrlParamBoolean("#estimatecategory", "estimatecategory");
+	yoda.decodeUrlParamBoolean("#estimateissue", "estimateissue");
+
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+
+	yoda.decodeUrlParamRadio("outputformat", "outputformat");
+	yoda.decodeUrlParam("#filename", "filename");
+
+	changeOutput(); // this will set defaults. Now they may be overwritten below
+	yoda.decodeUrlParam("#hlformat", "hlformat");
+	yoda.decodeUrlParam("#sformat", "sformat");
+	yoda.decodeUrlParam("#ssformat", "ssformat");
+	yoda.decodeUrlParam("#listformat", "listformat");
+	yoda.decodeUrlParam("#catformat", "catformat");
+	yoda.decodeUrlParam("#rnformat", "rnformat");
+
+	// CSS stuff
+	yoda.decodeUrlParam("#cssowner", "cssowner");
+	yoda.decodeUrlParam("#cssrepo", "cssrepo");
+	yoda.decodeUrlParam("#csspath", "csspath");
+	yoda.decodeUrlParam("#cssbranch", "cssbranch");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+		$(".frame").hide();
+	}
+
+	// Login
+	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function() { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#outputformatradio").on("change", changeOutput);
+	$("#tablelayout").on("change", changeOutput);
+	$("#estimatern").on("change", changeOutput);
+	$("#closedmilestones").on("change", function() { updateMilestones(); });
+	$("#estimateradio").on("click", function(event) { yoda.setEstimateInIssues(event.value); });
+	$("#drawRNbutton").on("click", function() { startRN(false); });
+	$("#downloadRNbutton").on("click", function() { startRN(true); });
+	$("#drawKnownbutton").on("click", function() { startKnown(false); });
+	$("#downloadKnownbutton").on("click", function() { startKnown(true); });
+
+	var firstMilestoneShowData = true;
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+		$('#milestonelist').select2({
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#milestonelist').on('select2:select', yoda.select2SelectEvent('#milestonelist'));
+
+		$('#repolist').on('change.select2', function (e) {
+			repoList = $("#repolist").val();
+			console.log("List of selected repos is now: " + repoList);
+
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "known") {
+				startKnown(false);
+			}
+
+			updateMilestones();
+		});
+
+		$('#milestonelist').on('change.select2', function (e) {
+			milestoneList = $("#milestonelist").val();
+
+			console.log("List of selected milestones is now: " + milestoneList);
+
+			if (firstMilestoneShowData) {
+				firstMilestoneShowData = false;
+				if (yoda.decodeUrlParamBoolean(null, "draw") == "rn") {
+					startRN(false);
+				}
+			}
+		});
+
+		updateRepos();
+	});
 }

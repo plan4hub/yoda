@@ -28,6 +28,7 @@ _________
 	- [Yoda Defaults](#yoda-defaults)
 - [GitHub Reports](#github-reports)
 	- [Issue Statistics Report](#issue-statistics-report)
+	- [Issue Statistics Report - Current View](#issue-statistics-report-current-view)
 	- [Burndown Report](#burndown-report)
 	- [Velocity Report](#velocity-report)
 	- [CFD Chart](#cfd-chart)
@@ -194,7 +195,7 @@ The tool may also show the so-called ECT (Engineering Cycle Time). This is defin
 *Note*: Across all reports, it is possible to hide the top panel (set of fields). This is done from the Yoda menu (the "Hamburger"). You may also request this by setting the URL argument `hidepanel=true`.
 
 
-## Issue Statistics Report (Current View)
+## Issue Statistics Report - Current View
 
 A variant of the issues statistics report that focuses strictly on open issues is also available. This case considers naturally only the current situation. Consequently, all parameters related to dates (start date, end date, interval, etc.) is of course not valid and thus not present. Instead the issues may be grouped along the X-axis into different categories. The splitting into categories works in exactly the same way as when splitting issues into different bars. 
 

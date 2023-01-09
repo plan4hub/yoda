@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,6 +17,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 // Kanban issues datamodel
 // Here we will store issues per repo
@@ -56,24 +57,17 @@ function getUrlParams() {
 		params += "&labellistor=" + $("#labellistor").val();
 	if ($("#assigneelist").val() != "")
 		params += "&assigneelist=" + $("#assigneelist").val();
-	if ($('#closedmilestones').is(":checked")) {
-		params += "&closedmilestones=true";
-	}
-	if (!$('#closedissues').is(":checked")) {
-		params += "&closedissues=false";
-	}
-	if (!$('#locked').is(":checked")) {
-		params += "&locked=false";
-	}
+
+	["closedmilestones", "closedissues", "locked"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	
 	return params;
 }
 
-function estimateClick(radio) {
+export function estimateClick(radio) {
 	yoda.setEstimateInIssues(radio.value);
 	drawKanban();
 }
-
 
 // Not called for now...
 function formatLabel(label) {
@@ -99,7 +93,7 @@ function formatLabel(label) {
 var firstLabelShow = true;
 var urlLabelList = yoda.decodeUrlParam(null, "labellist");
 var urlLabelOrList = yoda.decodeUrlParam(null, "labellistor");
-function updateIssueLabelList() {
+export function updateIssueLabelList() {
 	issueLabels = [];
 	issueLabelFiltered = [];
 	for (var i = 0; i < repoIssues.length; i++) {
@@ -176,14 +170,14 @@ function updateIssueLabelList() {
 
 var firstAssigneeShow = true;
 var urlAssigneeList = yoda.decodeUrlParam(null, "assigneelist");
-function updateAssigneeList() {
+export function updateAssigneeList() {
 	console.log("updateAssigneeList. first=" + firstAssigneeShow);
 	issueAssignees = []; 
 	issueAssigneesFiltered = []; 
 	
 	for (var i = 0; i < repoIssues.length; i++) {
 		for (var as = 0; as < repoIssues[i].assignees.length; as++) {
-			assignee = repoIssues[i].assignees[as].login;
+			const assignee = repoIssues[i].assignees[as].login;
 			
 			if (issueAssignees.indexOf(assignee) == -1) {
 				issueAssignees.push(assignee);
@@ -224,7 +218,7 @@ function updateAssigneeList() {
 }
 
 
-function getMilestoneTitle(issue) {
+export function getMilestoneTitle(issue) {
 	if (issue.milestone == null) {
 		return "";
 	}
@@ -283,7 +277,7 @@ function createCard(issue) {
 		}
 	}
 	
-	issueRef = '<a href="' + issue.html_url + '" target="_blank">' + repo + "#" + issue.number + '</a>';
+	const issueRef = '<a href="' + issue.html_url + '" target="_blank">' + repo + "#" + issue.number + '</a>';
 	
 	var smallRef = $('<small>' + issueRef + ' ' + getMilestoneTitle(issue) + ' ' + assignText + ' ' + estimateText + '</small>');
 	card.append(smallRef);
@@ -301,7 +295,7 @@ function createCard(issue) {
 }
 
 var issueTabs = [];
-function tabOpenCloseIssues(c) {
+export function tabOpenCloseIssues(c) {
 	console.log("tabOpenCloseIssues: " + c);
 
 	if (issueTabs[c].length > 0) {
@@ -320,8 +314,8 @@ function tabOpenCloseIssues(c) {
 }
 
 // Create the HTML representation for a new column
-function createColumn(c, columnId, columnName) {
-	openFunc = 'tabOpenCloseIssues(' + c + ')';
+export function createColumn(c, columnId, columnName) {
+	const openFunc = 'tabOpenCloseIssues(' + c + ')';
 	console.log(openFunc);
 	var column = $(
 			'<div class="cardcolumn">' +
@@ -334,7 +328,7 @@ function createColumn(c, columnId, columnName) {
 	return column;
 }
 
-function enableDisableSortable() {
+export function enableDisableSortable() {
 	if ($('#locked').is(":checked")) {
 		$( ".cardsincolumn" ).sortable("disable");
 	} else {
@@ -343,7 +337,7 @@ function enableDisableSortable() {
 	yoda.updateUrl(getUrlParams());
 }
 
-function handleIssueMove(url, fromColumn, toColumn) {
+export function handleIssueMove(url, fromColumn, toColumn) {
 	var fromColumnNo = parseInt(fromColumn.substring(6));
 	var toColumnNo = parseInt(toColumn.substring(6));
 	console.log("Move card " + url + " from " + fromColumn + " (" + fromColumnNo + ") to " + toColumn + " (" + toColumnNo + ")");
@@ -440,7 +434,7 @@ function handleIssueMove(url, fromColumn, toColumn) {
 	}
 }
 
-function setupSortable() {
+export function setupSortable() {
 	$( ".cardsincolumn" ).sortable({
 		items: '.card',
 		connectWith: ".cardsincolumn",
@@ -466,7 +460,7 @@ function setupSortable() {
 }
 
 var columnUrls = [];
-function drawKanban() {
+export function drawKanban() {
 	console.log("Draw kanban");
 
 	// Clear any previous board info.
@@ -663,7 +657,7 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	}
 }
 
-function updateIssues() {
+export function updateIssues() {
 	updateIssueActiveNo++;
 	console.log("UpdateIssueActive: " + updateIssueActiveNo);
 		
@@ -706,19 +700,19 @@ function updateIssues() {
 
 //----------------
 
-function updateRepos() {
+export function updateRepos() {
 	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", null, null);
 }
 
 // -------------
 
-function storeMilestones(milestones, repoIndex) {
+export function storeMilestones(milestones, repoIndex) {
 	repoMilestones[repoIndex] = milestones;
 	updateMilestones(repoIndex + 1);
 }
 
 var firstMilestoneShow = true;
-function updateMilestones(repoIndex) {
+export function updateMilestones(repoIndex) {
 	if (repoIndex == undefined) {
 		repoIndex = 0;
 	}
@@ -779,12 +773,124 @@ function updateMilestones(repoIndex) {
 	}
 }
 
+
 // --------------
 
-function githubAuth() {
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#kanban-board");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	// yoda.getDefaultLocalStorage("#repo", "yoda.repo");
+	yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
+
+	yoda.decodeUrlParam("#owner", "owner");
+	// yoda.decodeUrlParam("#repo", "repo");
+	yoda.decodeUrlParamRadio("estimate", "estimate");
+	yoda.updateEstimateRadio();
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+	
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+	yoda.decodeUrlParamBoolean("#closedissues", "closedissues");
+	yoda.decodeUrlParamBoolean("#locked", "locked");
+			
+	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+
+	// We do not want caching here. 
+	$.ajaxSetup({ cache: false });
+	
+	$(document).ready(function() {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		  $('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+		$('#milestonelist').select2();
+		$('#assigneelist').select2();
+		$('#labellist').select2();
+		$('#labellistor').select2();
+		$('#columns').select2({tags:true});
+
+		// Special handling for columns URL arg
+		var columns = yoda.GetURLParameter("columns");
+		if (columns == null) 
+			columns = yoda.getDefaultLocalStorageValue("yoda.kanban.columns");
+		if (columns != null) {
+			// Set the value, creating a new option if necessary
+			if ($('#columns').find("option[value='" + columns + "']").length) {
+				$('#columns').val(columns).trigger('change');
+			} else { 
+				var newOption = new Option(columns, columns, true, true);
+				$('#columns').append(newOption).trigger('change');
+			} 
+		}
+					
+		$('#repolist').on('change.select2', function (e) {
+			repoList = 	$("#repolist").val();			
+			console.log("List of selected repos is now: " + repoList);
+			updateMilestones();
+		});
+		
+		$('#milestonelist').on('change.select2', function (e) {
+			milestoneList = $("#milestonelist").val();
+			
+			console.log("List of selected milestones is now: " + milestoneList);
+			updateIssues();
+		});
+		
+		$('#milestonelist').on('select2:select', function (e) {
+			var data = e.params.data;
+			console.log("selected item: " + data.text);
+			
+			// If "All milestones" or "No milestones" option selected, clear all other milestones. 
+			if (data.text == "All milestones") {
+				$("#milestonelist").val(["All milestones"]);
+				$("#milestonelist").trigger("change");
+			}
+			
+			if (data.text == "No milestone") {
+				$("#milestonelist").val(["No milestone"]);
+				$("#milestonelist").trigger("change");
+			}
+		});
+		
+		$('#labellist').on('change.select2', function (e) {
+			issueLabelFiltered = $("#labellist").val();			
+			console.log("List of selected labels is now: " + issueLabelFiltered);
+			drawKanban();
+		});
+		
+		$('#labellistor').on('change.select2', function (e) {
+			issueLabelFilteredOr = $("#labellistor").val();			
+			console.log("List of selected labels (OR) is now: " + issueLabelFilteredOr);
+			drawKanban();
+		});
+
+		$('#assigneelist').on('change.select2', function (e) {
+			issueAssigneesFiltered = $("#assigneelist").val();			
+			console.log("List of selected assignees: " + issueAssigneesFiltered);
+			drawKanban();
+		});
+
+		$('#columns').on('change.select2', function (e) {
+			drawKanban();
+		});
+		
+		updateRepos();
+	});
+	
+	
+
 }
-
-// --------------
-

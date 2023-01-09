@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,31 +17,13 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 function getUrlParams() {
 	var params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
-	if ($("#startdate").val() != "") {
-		params += "&startdate=" + $("#startdate").val();
-	}
-	if ($("#enddate").val() != "") {
-		params += "&enddate=" + $("#enddate").val();
-	}
-	if ($("#interval").val() != "") {
-		params += "&interval=" + $("#interval").val();
-	}
-	if ($("#labelfilter").val() != "") {
-		params += "&labelfilter=" + $("#labelfilter").val();
-	}
-	if ($("#milestonefilter").val() != "") {
-		params += "&milestonefilter=" + $("#milestonefilter").val();
-	}
-	if ($("#assigneefilter").val() != "") {
-		params += "&assigneefilter=" + $("#assigneefilter").val();
-	}
-	if ($("#title").val() != "") {
-		params += "&title=" + $("#title").val();
-	}
+	["startdate", "enddate", "interval", "labelfilter", "milestonefilter", "assigneefilter", "title"].forEach((p) => {
+		params = yoda.addIfNotDefault(params, p); });
 	return params;
 }
 
@@ -56,10 +38,8 @@ function determineStartAndInterval(firstIssueDate, interval) {
 	console.log("Days: " + days);
 
 	// Do we need to play with interval?
-	if (interval.slice(-1) != 'm' && (days / interval) > 25) {
-		// shift to monthly
-		interval = '1m';
-	}
+	if (interval.slice(-1) != 'm' && (days / interval) > 25)
+		interval = '1m'; // shift to monthly
 
 	// Ok, let's determine startdate
 	for (var startDate = today; startDate >= firstIssueDate; yoda.advanceDate(startDate, '-' + interval, startDay)) {
@@ -84,10 +64,7 @@ function createChartLT(issues) {
 	// Issue analysis loop.
 	// First, let's sort issues by submit date
 	issues.sort(function(issue_1, issue_2) {
-		if (yoda.createDate(issue_1) < yoda.createDate(issue_2))
-			return -1;
-		else
-			return 1;
+		return yoda.createDate(issue_1) < yoda.createDate(issue_2)? -1: 1
 	});
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)
@@ -115,16 +92,14 @@ function createChartLT(issues) {
 	if (endDateString == "") {
 		var endDate = new Date(today);
 	} else {
-		endDate = new Date(endDateString);
+		var endDate = new Date(endDateString);
 	}
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 	console.log("End date: " + endDate);
 
-
 	// Then, let's run through the issues to build a date array.
-
 
 	// Then, let's loop the dates.
 	var firstIssueDate = yoda.createDate(issues[0]);
@@ -158,12 +133,6 @@ function createChartLT(issues) {
 		}
 	}
 
-	// Debug
-	//	for (var date = new Date(firstIssueDate); date <= today; date.setDate(date.getDate() + 1)) {
-	//		var d = yoda.formatDate(date);
-	//		console.log(d + ", " + openArray[d] + ", " + closedArray[d]);
-	//	}
-
 	// Data arrays for issue lead times.
 	var leadTimeArray = [];
 	var dateArray = [];
@@ -190,10 +159,8 @@ function createChartLT(issues) {
 			var submitDateString = yoda.createDate(issues[i]);
 			var submitDate = new Date(submitDateString);
 
-			if (submitDate > endOfDate) {
-				// Submitted later - forget it.
-				continue;
-			}
+			if (submitDate > endOfDate)
+				continue; // Submitted later - forget it.
 
 			// Closed, and closed before OR DURING date?
 			var closedString = yoda.closeDate(issues[i]);
@@ -201,12 +168,10 @@ function createChartLT(issues) {
 				var closedDate = new Date(closedString);
 
 				// was it open at date?
-				if (closedDate < endOfDate) {
-					// closed before, so closed
+				if (closedDate < endOfDate) 
 					noClosed++; // count as closed
-				} else {
+				else
 					noOpen++;   // count as open
-				}
 			} else {
 				// still open
 				noOpen++;   // count as open
@@ -231,8 +196,6 @@ function createChartLT(issues) {
 			}
 		}
 
-		// TBD
-		//		console.log("For date: " + date + " pushing value " + duration);
 		leadTimeArray.push(duration);
 	}
 
@@ -556,11 +519,10 @@ function storeIssuesThenCreateChart(issues) {
 		return;
 	}
 
-	if (_chartType == "CFD") {
+	if (_chartType == "CFD")
 		createChartCFD(issues);
-	} else {
+	else
 		createChartLT(issues);
-	}
 }
 
 // -------------------------
@@ -599,8 +561,8 @@ Chart.register({
 		chartInstance.data.datasets.forEach(function(dataset, i) {
 			var meta = chartInstance.getDatasetMeta(i);
 			if (!meta.hidden) {
-				mod = 1;
-				m = 0;
+				var mod = 1;
+				var m = 0;
 				if (meta.data.length > 30) {  // If we have lots of data sets, don't show all, they will overlap/mess up
 					mod = 2;
 					if (meta.data.length % 2 == 0)
@@ -646,3 +608,67 @@ Chart.register({
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
 });
+
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#cfd-chart");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
+	yoda.getDefaultLocalStorage("#interval", "yoda.cfd.interval");
+
+	yoda.decodeUrlParam("#owner", "owner");
+	yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
+	yoda.decodeUrlParamDate("#startdate", "startdate");
+	yoda.decodeUrlParamDate("#enddate", "enddate");
+	yoda.decodeUrlParam("#interval", "interval");
+	yoda.decodeUrlParam("#labelfilter", "labelfilter");
+	yoda.decodeUrlParam("#milestonefilter", "milestonefilter");
+	yoda.decodeUrlParam("#assigneefilter", "assigneefilter");
+	yoda.decodeUrlParam("#title", "title");
+
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+
+	// Login
+	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function () { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+	$("#drawcfd").on("click", function() { startChart("CFD"); });
+	$("#drawlt").on("click", function() { startChart("LT"); });
+	$("#estimateradio").on("click", function (event) { yoda.setEstimateInIssues(event.value); });
+	$("#canvas").on("click", function (event) { yoda.chartCSVExport($("#csvdelimiter").val(), event); });
+
+	$(document).ready(function () {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
+
+		// Rather complex updating of the defaults repos. Once complete, check if we should draw.
+		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
+			// Should we draw directly? Only check this after the repo updates complete.
+			// Should we draw directly?
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd") {
+				startChart("CFD");
+			}
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "lt") {
+				startChart("LT");
+			}
+		}, null);
+	});
+			
+	if (yoda.decodeUrlParam(null, "hideheader") == "true") 
+		$(".frame").hide();
+	
+	
+}

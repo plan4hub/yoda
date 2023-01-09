@@ -5,7 +5,7 @@
 
 <!-- 
 
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -30,37 +30,23 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <link rel="icon" href="time-stats-icon-32.png" type="image/png" />
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.0.1/chart.umd.min.js"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.1.2/chart.umd.min.js"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 <link rel="stylesheet" type="text/css" href="yoda.css">
-<style>
-.miniframe {
-	display: block;
-	float: left;
-	font-size: 14px;
-	font-weight: bold;
-	color: white;
-}
-.miniframeelement {
-	float: top;
-}
-</style>
+
 </head>
 <body>
-	<script type='text/javascript' src="./yoda-utils.js"></script>
-	<script type='text/javascript' src="./yoda-time-stats.js"></script>
-
 	<div class="frame">
 		<div class="dropdown">
-			<img src="threebars.png" onclick="yoda.menuClick()" class="dropimg">
+			<img id="hamburger" src="threebars.png" class="dropimg">
 			<div id="yodamenu" class="dropdown-content"></div>
 		</div>
 	
 		<div class="field">
 			<label>Owner</label>
-			<input type="text" id="owner" size="15" onchange='yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist")'>
+			<input type="text" id="owner" size="15">
 			<span class="tooltip">GitHub organisation or user</span>
 		</div>
 
@@ -72,13 +58,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field" style="display: none;">
 			<label>GitHub user</label>
-			<input type="text" size="20" id="user" value="" onchange="githubAuth()">
+			<input type="text" size="20" id="user" value="">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
 		<div class="field" style="display: none;">
 			<label>GitHub token</label>
-			<input type="password" size="30" id="token" value="" onchange="githubAuth()">
+			<input type="password" size="30" id="token" value="">
 			<span class="tooltip">GitHub personal token</span>
 		</div>
 
@@ -94,27 +80,26 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				<div>
 					<label><input type="radio" name="count" value="noissues" checked="checked"># Issues</label> 
 					<label><input type="radio" name="count" value="durationopen">Days open</label>
-					<label><input type="radio" name="count" value="velocity" onchange="velocitySelected()">Velocity</label>
-					<label><input type="radio" name="count" value="ect" onchange="ectSelected()">ECT</label>
+					<label><input type="radio" name="count" value="velocity">Velocity</label>
+					<label><input type="radio" name="count" value="ect">ECT</label>
 				</div>
 				<div> 
 					<label><input type="radio" name="count" value="opened">Opened</label> 
 					<label><input type="radio" name="count" value="closed">Closed</label>
-					<label><input type="radio" name="count" value="comments" onChange="commentsSelected()">Comments</label>
+					<label><input type="radio" name="count" value="comments">Comments</label>
 				</div>
 			</div>
 			<span class="tooltip">Issue display options. ETC = Engineering Cycle Time</span>
 		</div>
 		
-		
 		<div class="field">
 			<label>Estimates</label>
 			<div id="estimateradio">
 				<div>
-					<label><input type="radio" name="estimate" value="inbody" checked="checked" onclick="estimateClick(this)">In body</label>
+					<label><input type="radio" name="estimate" value="inbody" checked="checked">In body</label>
 				</div>
 				<div>
-					<label><input type="radio" name="estimate" value="inlabels" onclick="estimateClick(this)">In Labels</label>
+					<label><input type="radio" name="estimate" value="inlabels">In Labels</label>
 				</div> 
 			</div>
 			<span class="tooltip">Where to get estimates</span>
@@ -158,7 +143,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<span class="tooltip">Chart title</span>
 		</div>
 		
-		<button id="drawbutton" onclick="startChart()">Draw chart</button>
+		<button id="drawbutton">Draw chart</button>
 
 		<div class="field">
 			<label>Stacked</label>
@@ -182,90 +167,17 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>CSV delimiter</label> <input type="text" id="csvdelimiter" size="5" value=';'>
 			<span class="tooltip">CSV field delimiter</span>
 		</div>
-
-		<div class="field" id="historyfield" hidden>
-			<label>History</label>
-			<input type="checkbox" id="history">
-			<span class="tooltip">Perfect history (long time)</span>
-		</div>
 	</div>
 
 	<div style="width: 90%">
-		<canvas id="canvas" onclick='yoda.chartCSVExport($("#csvdelimiter").val(), event)'></canvas>
+		<canvas id="canvas"></canvas>
 	</div>
 
 	<div id="snackbar">Some text some message..</div>
 
-	<script>
-		// Enable yodamenu
-		yoda.enableMenu("#issue-statistics-report");
-
-		yoda.getDefaultLocalStorage("#owner", "yoda.owner");
-		yoda.getDefaultLocalStorage("#csvdelimiter", "yoda.csvdelimiter");
-		yoda.getDefaultLocalStorage("#interval", "yoda.time.interval");
-		yoda.getDefaultLocalStorage("#labelsplit", "yoda.time.labelsplit");
-		yoda.getDefaultLocalStorage("#other", "yoda.time.other");
-		if ($("#other").val() == "blank")
-			$("#other").val("");
-		
-		yoda.decodeUrlParam("#owner", "owner");
-		yoda.decodeUrlParamRadio("count", "count");
-
-		// repo and repoList handled later, both are supported.
-		yoda.decodeUrlParam("#csvdelimiter", "csvdelimiter");
-		yoda.decodeUrlParamDate("#startdate", "startdate");
-		yoda.decodeUrlParamDate("#enddate", "enddate");
-		yoda.decodeUrlParam("#interval", "interval");
-		yoda.decodeUrlParam("#labelfilter", "labelfilter");
-		yoda.decodeUrlParam("#labelsplit", "labelsplit");
-		yoda.decodeUrlParam("#other", "other");
-		yoda.decodeUrlParam("#title", "title");
-		yoda.decodeUrlParamBoolean("#stacked", "stacked");
-		yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
-		yoda.decodeUrlParamBoolean("#percentage", "percentage");
-		yoda.decodeUrlParamBoolean("#history", "history");
-//		yoda.decodeUrlParamBoolean("#velocityperday", "velocityperday");
-		
-		yoda.decodeUrlParamRadio("estimate", "estimate");
-		yoda.updateEstimateRadio();
-		
-		if (yoda.decodeUrlParamBoolean(null, "history") == "true") {
-			$("#historyfield").show();
-		} else {
-			$("#historyfield").hide();
-		}
-		
-		// Local storage
-		yoda.getUserTokenLocalStorage("#user", "#token");
-
-		// Do it after getting from localStorage
-		yoda.decodeUrlParam("#user", "user");
-		yoda.decodeUrlParam("#token", "token");
-				
-		if (yoda.decodeUrlParam(null, "hideheader") == "true") {
-			$(".frame").hide();
-		}
-
-		// Login
-		githubAuth();
-		
-		$(document).ready(function() {
-			$('#repolist').select2({
-				// minimumInputLength: 2,
-				sorter: yoda.select2Sorter,
-    		    matcher: yoda.select2Matcher
-			});
-		  	$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
-			
-			// Rather complex updating of the defaults repos. Once complete, check if we should draw.
-			yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function() {
-				// Should we draw directly? Only check this after the repo updates complete.
-				if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
-					startChart();
-				}
-			}, null);
-		});
+	<script type="module">
+		import { init } from './yoda-time-stats.js';
+		init();
 	</script>
-
 </body>
 </html>

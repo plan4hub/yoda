@@ -17,6 +17,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 var repoList = [];  // selected repos
 
@@ -112,7 +113,7 @@ function accessAsString(object,properties){
 	return res;
 }
 
-function makeTable() {
+export function makeTable() {
 	var rn = document.getElementById("REPOS");
 	
 	var repoList = $("#repolist").val();
@@ -272,7 +273,7 @@ function makeTable() {
 
 // -----------
 
-function startTable(_download) {
+export function startTable(_download) {
 	download = _download;
 	updateRepoData();
 }
@@ -280,7 +281,7 @@ function startTable(_download) {
 
 // ---------------
 
-function updateRepos() {
+export function updateRepos() {
 	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", null, null);
 }
 
@@ -345,8 +346,8 @@ function updateRepoDetails(repoIndex) {
 	} 
 }
 
-function updateRepoData() {
-	urlList = [];
+export function updateRepoData() {
+	var urlList = [];
 	repoList.forEach(function(repo, index) {
 		urlList.push(yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo);
 	});
@@ -365,16 +366,68 @@ function updateRepoData() {
 
 // --------------
 
-function githubAuth() {
-	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val());
-}
-
-// --------------
-
 function setDefaultAndValue(id, value) {
 	element = document.getElementById(id);
 	element.defaultValue = value;
 	element.value = value;
 }
 
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#repositories");
+
+	yoda.getDefaultLocalStorage("#owner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#repolist", "yoda.repolist");
+	
+	yoda.decodeUrlParam("#owner", "owner");
+	
+	yoda.decodeUrlParamBoolean("#closedmilestones", "closedmilestones");
+
+	yoda.decodeUrlParamRadio("outputformat", "outputformat");
+	yoda.decodeUrlParam("#filename", "filename");
+	
+	yoda.decodeUrlParam("#descfile", "descfile");
+	yoda.decodeUrlParamBoolean("#allbranches", "allbranches");
+
+	yoda.decodeUrlParam("#title", "title");
+	yoda.decodeUrlParam("#fields", "fields");
+	
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+			
+	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+		$(".frame").hide();
+	}
+
+	// Login
+	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
+	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+
+	var firstMilestoneShowData = true;
+	$(document).ready(function() {
+		$('#repolist').select2({
+			// minimumInputLength: 2,
+			sorter: yoda.select2Sorter,
+			matcher: yoda.select2Matcher
+		});
+		  $('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+
+		$('#repolist').on('change.select2', function (e) {
+			repoList = 	$("#repolist").val();			
+			console.log("List of selected repos is now: " + repoList);
+			
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "table") {
+				startTable(false)
+			} 
+		});
+		
+		updateRepos();
+	});
+}

@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+//  Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -17,13 +17,14 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF 
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import * as yoda from './yoda-utils.js'
 
 // Global storage of the labels currently on the screen.
 var globalLabels = [];
 globalLabels["srclabels"] = {};
 globalLabels["dstlabels"] = {};
 
-function showLabels(labelTag, labels, operationFunc) {
+export function showLabels(labelTag, labels, operationFunc) {
 	// Let's sort the labels.
 	labels.sort((a, b) => (a.name < b.name)? -1 : 1);
 	
@@ -51,17 +52,17 @@ function showLabels(labelTag, labels, operationFunc) {
 //	yoda.showSnackbarOk("Read " + labels.length + " labels.");
 }
 
-function clearSrcLabels() {
+export function clearSrcLabels() {
 	$("#srclabels").html("");
 	globalLabels["srclabels"] = {};
 }
 
-function clearDstLabels() {
+export function clearDstLabels() {
 	$("#dstlabels").html("");
 	globalLabels["dstlabels"] = {};
 }
 
-function showSrcRepos(repos) {
+export function showSrcRepos(repos) {
 	console.log("Got " + repos.length + " repos.");
 	repos.sort(function(a,b) {
 		if (a.name.toLowerCase() < b.name.toLowerCase()) 
@@ -73,11 +74,10 @@ function showSrcRepos(repos) {
 	for (var r = 0; r < repos.length; r++) {
 		$("#srcrepolist").append($("<option></option>").attr("value", repos[r].name));
 	}
-	
 	updateDstRepos();
 }
 
-function updateSrcRepos() {
+export function updateSrcRepos() {
 	console.log("Update repos");
 	$("#srcrepolist").empty();
 	
@@ -87,7 +87,7 @@ function updateSrcRepos() {
 }
 
 // -------
-function showDstRepos(repos) {
+export function showDstRepos(repos) {
 	console.log("Got " + repos.length + " repos.");
 	repos.sort(function(a,b) {
 		if (a.name.toLowerCase() < b.name.toLowerCase()) 
@@ -102,7 +102,7 @@ function showDstRepos(repos) {
 	
 }
 
-function updateDstRepos() {
+export function updateDstRepos() {
 	console.log("Update repos");
 	$("#dstrepolist").empty();
 	
@@ -113,7 +113,7 @@ function updateDstRepos() {
 
 // Create / update label in dst
 // Argument is an array of label (name, color). Calls itself recursively, cutting off one label name at a time.
-function copyLabels(nameColorArray) {
+export function copyLabels(nameColorArray) {
 	$("*").css("cursor", "wait");
 	if (nameColorArray.length == 0) {
 		$("*").css("cursor", "default");
@@ -121,16 +121,15 @@ function copyLabels(nameColorArray) {
 		getDstLabels();
 		return;
 	}
-	name = nameColorArray[0].name;
-	color = nameColorArray[0].color;
-	description = nameColorArray[0].description;
+	const name = nameColorArray[0].name;
+	const color = nameColorArray[0].color;
+	const description = nameColorArray[0].description;
 	
 //	console.log("copyLabels. Name: " + name + ", color: " + color);
 	
 	// Let's check if the label is present in dstArray.
 	for (var l = 0; l < globalLabels["dstlabels"].length; l++) {
 		if (name == globalLabels["dstlabels"][l].name) {
-			
 			if (color != globalLabels["dstlabels"][l].color || description != globalLabels["dstlabels"][l].description) {
 				var patchLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
 				console.log("patchUrl: " + patchLabelUrl);
@@ -183,7 +182,7 @@ function copyLabels(nameColorArray) {
 }
 
 // Delete labels as indicated by the names in the array. Calls itself recursively, cutting off one label name at a time.
-function deleteLabels(nameArray) {
+export function deleteLabels(nameArray) {
 	$("*").css("cursor", "wait");
 	if (nameArray.length == 0) {
 		$("*").css("cursor", "default");
@@ -220,7 +219,7 @@ function deleteLabels(nameArray) {
 	});
 }
 
-function copyAllLabels() {
+export function copyAllLabels() {
 	var nameColorArray = [];
 	for (var l = 0; l < globalLabels["srclabels"].length; l++) {
 		var nameColorEntry = {
@@ -233,7 +232,7 @@ function copyAllLabels() {
 	copyLabels(nameColorArray);
 }
 
-function deleteAllLabels() {
+export function deleteAllLabels() {
 	var nameArray = [];
 	for (var l = 0; l < globalLabels["dstlabels"].length; l++) {
 		nameArray.push(globalLabels["dstlabels"][l].name);
@@ -243,7 +242,7 @@ function deleteAllLabels() {
 
 // Get all source repo labels. Build a button for each, which calls copyLabels with an array of length one containing
 // an object with name and color.
-function getSrcLabels() {
+export function getSrcLabels() {
 	var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("srclabels", labels, function(label) {
@@ -255,7 +254,7 @@ function getSrcLabels() {
 // Get all destination repo labels. Build a button for each, which calls deleteLabels with an array of length one
 // containing the name of the label to be deleted. Delete functions checks that no issues exists for the label before
 // deleting.
-function getDstLabels() {
+export function getDstLabels() {
 	var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("dstlabels", labels, function(label) {
@@ -264,13 +263,13 @@ function getDstLabels() {
 	}, 	clearDstLabels);
 }
 
-function openSrcRepo() {
+export function openSrcRepo() {
 	var gitHubUrl = yoda.getGithubUrlHtml() + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/issues/labels";
 	console.log("Open url: " + gitHubUrl);
 	window.open(gitHubUrl);
 }
 
-function openDstRepo() {
+export function openDstRepo() {
 	var gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues/labels";
 	console.log("Open url: " + gitHubUrl);
 	window.open(gitHubUrl);
@@ -278,7 +277,42 @@ function openDstRepo() {
 
 // --------------
 
-function githubAuth() {
+export function init() {
+	// Enable yodamenu
+	yoda.enableMenu("#label-manager");
+
+	yoda.getDefaultLocalStorage("#srcowner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#dstowner", "yoda.owner");
+	yoda.getDefaultLocalStorage("#srcrepo", "yoda.label.srcrepo");
+
+	yoda.decodeUrlParam("#srcowner", "srcowner");
+	yoda.decodeUrlParam("#srcrepo", "srcrepo");
+	yoda.decodeUrlParam("#dstowner", "dstowner");
+	yoda.decodeUrlParam("#dstrepo", "dstrepo");
+	
+	// Local storage
+	yoda.getUserTokenLocalStorage("#user", "#token");
+
+	// Do it after getting from localStorage
+	yoda.decodeUrlParam("#user", "user");
+	yoda.decodeUrlParam("#token", "token");
+			
+	// We do not want caching here. 
+	$.ajaxSetup({ cache: false });
+	
+	// Login
 	console.log("Updating/setting github authentication for: " + $("#user"));
 	yoda.gitAuth($("#user").val(), $("#token").val());
+
+	// Event listeners
+	$("#hamburger").on("click", yoda.menuClick);
+	$("#owner").on("change", function () { yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist"); });
+
+	$(document).ready(function() {
+		updateSrcRepos();
+		
+//			done(function() {getDstLabels();}).
+//			done(function() {getSrcLabels();});
+	});
+
 }
