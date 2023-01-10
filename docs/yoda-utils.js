@@ -25,21 +25,6 @@ Date.prototype.addMonths = function (value) {
 	return this;
 };
 
-// Yoda menu. Runs once
-// Yoda menu
-
-// export class Issues {
-// 	constructor() {
-// 		this.issues = [];
-// 	}
-// }
-
-// export class Issue {
-// 	constructor(issue) {
-// 		this.issue = issue;
-// 	}
-// }
-
 // ------------------------------
 // Yoda Private global modules variables
 
@@ -103,9 +88,8 @@ export function GetURLParameter(sParam) {
 
 	for (var i = 0; i < sURLVariables.length; i++) {
 		var sParameterName = sURLVariables[i].split('=');
-		if (sParameterName[0] == sParam) {
-			return sURLVariables[i].substr(sParameterName[0].length + 1);
-		}
+		if (sParameterName[0] == sParam)
+			return sURLVariables[i].substring(sParameterName[0].length + 1);
 	}
 	return null;
 }
@@ -144,9 +128,8 @@ function getLastPage(link) {
 // Optional parameter index is used to indicate that subsequent matches should be returned.
 function getBodyField(body, start, data, index) {
 
-	if (index == undefined) {
+	if (index == undefined)
 		index = 0;
-	}
 	if (body == undefined || body == null)
 		return null;
 
@@ -154,9 +137,8 @@ function getBodyField(body, start, data, index) {
 	var res = body.match(reg);
 
 	if (res != null) {
-		if (index >= res.length) {
+		if (index >= res.length)
 			return null;
-		}
 
 		// Return the match requested. First lets find out how long the start part is
 		var regStart = new RegExp(start);
@@ -311,9 +293,8 @@ export var barColors = [
 // Assume presence of HTML element with id "snackbar".
 export function showSnackbar(message, backgroundColor, timeout) {
 	snackbarCount++;
-	if (timeout == undefined) {
+	if (timeout == undefined)
 		timeout = 1500;
-	}
 	var x = document.getElementById("snackbar")
 	x.className = "show";
 	x.innerHTML = message;
@@ -323,17 +304,15 @@ export function showSnackbar(message, backgroundColor, timeout) {
 
 // Shows an informative (ok) message. Green background for 1500 ms.
 export function showSnackbarOk(message, timeout) {
-	if (timeout == undefined) {
+	if (timeout == undefined)
 		timeout = 1500;
-	}
 	showSnackbar(message, '#01a982', timeout);
 }
 
 // Shows an error message for 3 seconds. Red background.
 export function showSnackbarError(message, timeout) {
-	if (timeout == undefined) {
+	if (timeout == undefined)
 		timeout = 3000;
-	}
 	showSnackbar(message, '#cc0e24', timeout);
 }
 
@@ -354,14 +333,12 @@ export function select2MatchHelper(term, text) {
 
 export function select2Matcher(params, data) {
 	// If there are no search terms, return all of the data
-	if ($.trim(params.term) === '') {
+	if ($.trim(params.term) === '')
 		return data;
-	}
 
 	// Do not display the item if there is no 'text' property
-	if (typeof data.text === 'undefined') {
+	if (typeof data.text === 'undefined')
 		return null;
-	}
 
 	// `params.term` should be the term that is used for searching
 	// `data.text` is the text that is displayed for the data object
@@ -430,9 +407,8 @@ export function addIfNotDefault(params, field) {
 // Decode URL parameter. If param is non-null, then set that component to the value obtained from the URL (if at all).
 export function decodeUrlParam(id, param) {
 	var value = GetURLParameter(param);
-	if (value != null && id != null) {
+	if (value != null && id != null)
 		$(id).val(value);
-	}
 	return value;
 }
 
@@ -440,11 +416,10 @@ export function decodeUrlParam(id, param) {
 export function decodeUrlParamBoolean(id, param) {
 	var value = GetURLParameter(param);
 	if (value != null && id != null) {
-		if (value == "true") {
+		if (value == "true")
 			$(id).prop('checked', true);
-		} else {
+		else
 			$(id).prop('checked', false);
-		}
 	}
 	return value;
 }
@@ -482,7 +457,6 @@ export function updateUrl(searchParams) {
 	if (getColorScheme() == "dark")
 		searchParams += "&dark=true";
 
-	//			var baseUrl = window.location.origin + window.location.pathname;
 	var baseUrl = window.location.pathname;
 	searchParams = searchParams.replace(/%/g, "%25");
 	console.log("Updating URL to " + baseUrl + "?" + searchParams);
@@ -529,11 +503,10 @@ export function handleDateDelta(value) {
 			var delta = Math.abs(parseInt(value));
 
 			console.log("Subtracting: " + delta + " days from " + deltaDate);
-			if (value.charAt(0) == "+") {
+			if (value.charAt(0) == "+")
 				deltaDate.setTime(deltaDate.getTime() + (delta * 24 * 60 * 60 * 1000));
-			} else {
+			else
 				deltaDate.setTime(deltaDate.getTime() - (delta * 24 * 60 * 60 * 1000));
-			}
 		}
 		return (formatDate(deltaDate));
 	} else {
@@ -580,11 +553,10 @@ export function getBodyEstimate(body) {
 		// Try old format as well
 		estimate = getBodyField(body, '^/estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');
 	}
-	if (estimate == null) {
+	if (estimate == null)
 		return null;
-	} else {
+	else
 		return parseFloat(estimate);
-	}
 }
 
 // Get the milestone or project description filed without any annotations, ie. "> (keyworkd) (value)"
@@ -684,12 +656,8 @@ export function issueEstimateBeforeDate(issue, startdate) {
 			var remainingEntry = getFirstRemaining(issue.body, index);
 			var remainingDate = getDateFromEntry(remainingEntry);
 			var remaining = getRemainingFromEntry(remainingEntry);
-			if (remainingDate < startdate) {
+			if (remainingDate < startdate)
 				estimate = parseFloat(remaining);
-				//		console.log("Reducing initial estimate to " + estimate + " as ahead of " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
-			} else {
-				//		console.log("NOT reducing initial estimate as after " + startdate + ", index(" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
-			}
 		}
 	}
 
@@ -733,9 +701,8 @@ export function getAllBodyFields(body, start, data) {
 	var result = [], r;
 	if (body == undefined || body == null)
 		return result;
-	for (var i = 0; (r = getBodyField(body, start, data, i)) != null; i++) {
+	for (var i = 0; (r = getBodyField(body, start, data, i)) != null; i++)
 		result.push(r);
-	}
 	return result;
 }
 
@@ -761,11 +728,10 @@ export function getbodyCompletedTasks(body) {
 	if (body == undefined || body == null)
 		return 0;
 	var res = body.match(/^- \[(x|X)\]/mg);
-	if (res != null) {
+	if (res != null)
 		return res.length;
-	} else {
+	else
 		return 0;
-	}
 }
 
 // Retrieve # of tasks (including completed)
@@ -774,19 +740,17 @@ export function getbodyTasks(body) {
 	if (body == undefined || body == null)
 		return 0;
 	var res = body.match(/^- \[(x|X| )\]/mg);
-	if (res != null) {
+	if (res != null)
 		return res.length;
-	} else {
+	else
 		return 0;
-	}
 }
 
 // Set radio button from URL
 export function updateEstimateRadio() {
 	var temp = $("#estimateradio input[type='radio']:checked");
-	if (temp.length > 0) {
+	if (temp.length > 0)
 		estimateInIssues = temp.val();
-	}
 	console.log("EstimateInIssues now: " + estimateInIssues);
 }
 
@@ -874,8 +838,6 @@ export function bestForeground(color, whiteColor, blackColor) {
 		var r = colorsOnly[0];
 		var g = colorsOnly[1];
 		var b = colorsOnly[2];
-
-
 	} else {
 		var hex = color.replace(/#/, '');
 		var r = parseInt(hex.substr(0, 2), 16);
@@ -885,11 +847,10 @@ export function bestForeground(color, whiteColor, blackColor) {
 
 	var a = 1.0 - (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
 	//		    console.log(r, g, b, a);
-	if (a < 0.45) {
+	if (a < 0.45)
 		return blackColor;
-	} else {
+	else
 		return whiteColor;
-	}
 }
 
 // Search all issue labels looking for a given label. 
@@ -930,51 +891,46 @@ export function sortDates(issue_1, issue_2) {
 // Get owner (org or user) from repo fullname
 export function getFullnameOwner(fullname) {
 	var temp = fullname.split("/");
-	if (temp == null) {
+	if (temp == null)
 		return null;
-	} else {
+	else
 		return temp[0];
-	}
 }
 
 // Get repo name from fullname
 export function getFullnameRepo(fullname) {
 	var temp = fullname.split("/");
-	if (temp == null || temp.length == 1) {
+	if (temp == null || temp.length == 1)
 		return null;
-	} else {
+	else
 		return temp[1];
-	}
 }
 
 // get owner part of issue. If short form, use the owner from argument.
 export function getIssueOwner(issueRef, issueOwner) {
 	var issueRefSplit = issueRef.split("/");
-	if (issueRefSplit.length == 1) {
+	if (issueRefSplit.length == 1)
 		return issueOwner;
-	} else {
+	else
 		return issueRefSplit[0];
-	}
 }
 
 // get repo part of issue. If short form, use the owner from argument.
 export function getIssueRepo(issueRef, issueRepo) {
 	var issueRefSplit = issueRef.split("/");
-	if (issueRefSplit.length == 1) {
+	if (issueRefSplit.length == 1)
 		return issueRepo;
-	} else {
+	else
 		return issueRefSplit[1].split("#")[0];
-	}
 }
 
 // get owner part of issue. If short form, use the owner from argument.
 export function getIssueNumber(issueRef) {
 	var issueRefSplit = issueRef.split("/");
-	if (issueRefSplit.length == 1) {
+	if (issueRefSplit.length == 1)
 		return issueRefSplit[0].split("#")[1];
-	} else {
+	else
 		return issueRefSplit[1].split("#")[1];
-	}
 }
 
 // get owner from url
@@ -1067,13 +1023,12 @@ export function gitAuth(userId, accessToken, fullExport) {
 	yoda_userId = userId;
 
 	var headers = [];
-	if (fullExport == "fullExport") {
+	if (fullExport == "fullExport")
 		headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
-	} else if (fullExport == "textMatch") {
+	else if (fullExport == "textMatch")
 		headers['Accept'] = 'application/vnd.github.symmetra-preview.text-match+json';
-	} else {
+	else
 		headers['Accept'] = 'application/vnd.github.mercy-preview+json';
-	}
 
 	if (userId == "" || accessToken == "") {
 		console.log("Empty userId/accessToken.");
@@ -1331,9 +1286,8 @@ export function issue_split(labelSplit, issues) {
 		if (labelSplit.split(",").length > 1) {
 			// Explicit list of labels
 			var ls = labelSplit.split(",");
-			for (l = 0; l < ls.length; l++) {
+			for (l = 0; l < ls.length; l++)
 				bars.push(ls[l].trim());
-			}
 		} else {
 			// Regular expression
 			if (labelSplit != "") {
@@ -1364,22 +1318,18 @@ export function issue_split(labelSplit, issues) {
 // Filter out pull requests. Don't want them.
 export function filterPullRequests(issues) {
 	for (var i = 0; i < issues.length;) {
-		//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
-		if (issues[i].pull_request != null) {
+		if (issues[i].pull_request != null)
 			issues.splice(i, 1);
-		} else {
+		else
 			i++;
-		}
 	}
 }
 
 // If issue has milestone set, synthesize a special "MS - (milestone)" label
 export function synthesizeMilestoneLabels(issues) {
 	for (var i = 0; i < issues.length; i++) {
-		//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
-		if (issues[i].milestone != undefined) {
+		if (issues[i].milestone != undefined)
 			issues[i].labels.push({ "name": "MS - " + issues[i].milestone.title });
-		}
 	}
 }
 
@@ -1389,7 +1339,7 @@ export function filterIssuesMilestone(issues, milestoneFilter) {
 	for (var i = 0; i < issues.length;) {
 		//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
 		if (issues[i].milestone == undefined || !issues[i].milestone.title.match(milestoneRegExp)) {
-			console.log("Throwing out issue with milestone: " + (issues[i].milestone == undefined ? "(no milestone)" : issues[i].milestone.title));
+//			console.log("Throwing out issue with milestone: " + (issues[i].milestone == undefined ? "(no milestone)" : issues[i].milestone.title));
 			issues.splice(i, 1);
 		} else {
 			i++;
@@ -1706,11 +1656,10 @@ export function filterIssuesReqExp(labelFilter) {
 					}
 				}
 
-				if ((positiveMatch && !match) || (!positiveMatch && match)) {
+				if ((positiveMatch && !match) || (!positiveMatch && match))
 					yoda_issues.splice(i, 1);
-				} else {
+				else
 					i++;
-				}
 			}
 		}
 	}
@@ -1733,14 +1682,12 @@ export function updateGitHubIssuesRepos(owner, repoList, labelFilter, stateFilte
 	// Specific repo only. 
 	var getIssuesUrl = getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter + "&direction=asc";
 	var fullFilter = getFullLabelFilters(labelFilter);
-	if (fullFilter != "") {
+	if (fullFilter != "")
 		getIssuesUrl += "&labels=" + fullFilter;
-	}
 
 	// Do we need to add add filter (typically milestone as well)?
-	if (addFilterFunc != null) {
+	if (addFilterFunc != null)
 		getIssuesUrl += addFilterFunc(repoList[0]);
-	}
 
 	console.log("Get Issues URL:" + getIssuesUrl);
 	getLoop(getIssuesUrl, 1, [], function (issues) {
@@ -1771,9 +1718,8 @@ export function updateGitHubIssuesOrg(owner, labelFilter, stateFilter, okFunc, f
 	var getIssuesUrl = getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter + "&direction=asc";
 
 	var fullFilter = getFullLabelFilters(labelFilter);
-	if (fullFilter != "") {
+	if (fullFilter != "")
 		getIssuesUrl += "&labels=" + fullFilter;
-	}
 
 	console.log("Get Issues URL:" + getIssuesUrl);
 	getLoop(getIssuesUrl, 1, [], function (issues) {
@@ -2146,4 +2092,3 @@ export function registerChartJS() {
 		}
 	});
 }
-
