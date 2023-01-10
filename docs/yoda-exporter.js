@@ -514,6 +514,7 @@ function exportIssues(issues) {
 				} else {
 					// // Does this look like a date - anyway?
 					if (value.split('/').length == 3) {
+						var tDay, tMonth, tYear;
 						[tDay, tMonth, tYear] = value.split(" ")[0].split("/");
 						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
 							var d = new Date();

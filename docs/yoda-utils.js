@@ -1499,7 +1499,7 @@ export function updateReposAndGUITopic(owner, fieldId, okFunc, failFunc) {
 		// Ok func
 		function (d) {
 			// For some strange reason the response here is container within an array structure in the "items" part. Must concatenate.
-			data = [];
+			var data = [];
 			for (var i = 0; i < d.length; i++)
 				data = data.concat(d[i].items);
 			// 	This would be a good place to remove any archieved repos.
