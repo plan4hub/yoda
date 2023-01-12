@@ -1270,6 +1270,7 @@ function showMilestoneData() {
 				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
 				console.log("subteamCapacity:");
 				console.log(subteamCapacity);
+				var si;
 				if (subteamCapacity.length > 0 && $("#labelfilter").val() != "" && 
 					(si = subteamCapacity.findIndex(function(e) {	return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
 					// Use that
