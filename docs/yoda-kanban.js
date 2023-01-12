@@ -21,30 +21,30 @@ import * as yoda from './yoda-utils.js'
 
 // Kanban issues datamodel
 // Here we will store issues per repo
-var repoList = [];  // selected repos
-var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
+let repoList = [];  // selected repos
+let repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
-var commonMilestones = []; // Options for milestone selection (milestones in all repos).
-var milestoneList = []; // selected milestones just the title
-var milestoneListComplete = []; // selected milestones, full structure.
+let commonMilestones = []; // Options for milestone selection (milestones in all repos).
+let milestoneList = []; // selected milestones just the title
+let milestoneListComplete = []; // selected milestones, full structure.
 
-var repoIssues = []; // List of issues. Full structure as returned from github.
+let repoIssues = []; // List of issues. Full structure as returned from github.
 
-var issueLabels = []; // List of labels found for all issues. (full structure)
-var issueLabelFiltered = []; // selected labels (just names)
-var issueLabelFilteredOr = []; // selected labels (just names)
+let issueLabels = []; // List of labels found for all issues. (full structure)
+let issueLabelFiltered = []; // selected labels (just names)
+let issueLabelFilteredOr = []; // selected labels (just names)
 
-var issueAssignees = []; // List of assignee found for all issues. (just names)
-var issueAssigneesFiltered = []; // selected assignees (just names)
+let issueAssignees = []; // List of assignee found for all issues. (just names)
+let issueAssigneesFiltered = []; // selected assignees (just names)
 
 // Currently drawn board columns and definitions
-var issues = []; // currently drawn issues.
-var columnDefs = [];
-var columnNameList = [];
-var columnDefList = [];
+let issues = []; // currently drawn issues.
+let columnDefs = [];
+let columnNameList = [];
+let columnDefList = [];
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	if (yoda.getEstimateInIssues() != "inbody") 
 		params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#milestonelist").val() != "")
@@ -69,59 +69,34 @@ export function estimateClick(radio) {
 	drawKanban();
 }
 
-// Not called for now...
-function formatLabel(label) {
-	if (!label.id) {
-		return label.text;
-	}
-	
-	for (var is = 0; is < issueLabels.length; is++) {
-		if (label.text == issueLabels[is].name) {
-			var background = issueLabels[is].color;
-		}
-	}
-	var foreground = yoda.bestForeground(background);
-	// 
-	var newLabel = $(
-			'<span style="background: #' + background + '; color: ' + foreground + '">' + label.text + '</span>'
-	);
-//	return newLabel;
-	// It doesn't look nice, so disabled for now.
-	return label.text;
-};	
-
-var firstLabelShow = true;
-var urlLabelList = yoda.decodeUrlParam(null, "labellist");
-var urlLabelOrList = yoda.decodeUrlParam(null, "labellistor");
+let firstLabelShow = true;
+const urlLabelList = yoda.decodeUrlParam(null, "labellist");
+const urlLabelOrList = yoda.decodeUrlParam(null, "labellistor");
 export function updateIssueLabelList() {
 	issueLabels = [];
 	issueLabelFiltered = [];
-	for (var i = 0; i < repoIssues.length; i++) {
-		for (var l = 0; l < repoIssues[i].labels.length; l++) {
-			var name = repoIssues[i].labels[l].name;
-			var foundName = false;
-			for (var is = 0; is < issueLabels.length; is++) {
+	for (let i = 0; i < repoIssues.length; i++) {
+		for (let l = 0; l < repoIssues[i].labels.length; l++) {
+			const name = repoIssues[i].labels[l].name;
+			let foundName = false;
+			for (let is = 0; is < issueLabels.length; is++) {
 				if (name == issueLabels[is].name) {
 					foundName = true;
 					break;
 				}
 			}
-			if (foundName == false) {
+			if (foundName == false)
 				issueLabels.push(repoIssues[i].labels[l]);
-			}
 		}
 	}
 
 	issueLabels.sort(function(a,b) {
-		if (a.name > b.name)
-			return 1;
-		else 
-			return -1;
+		return a.name > b.name? 1 : -1;
 	});
 	console.log(issueLabels);
 	
-	var selectLabels = [];
-	var selectLabelsOr = [];
+	let selectLabels = [];
+	let selectLabelsOr = [];
 	if (firstLabelShow) {
 		firstLabelShow = false;
 	
@@ -133,14 +108,14 @@ export function updateIssueLabelList() {
 	
 	// Now add to selection list (AND)
 	$("#labellist").empty();
-	var labelsSelected = false;
-	for (var is = 0; is < issueLabels.length; is++) {
-		var selectLabel = false;
+	let labelsSelected = false;
+	for (let is = 0; is < issueLabels.length; is++) {
+		let selectLabel = false;
 		if (selectLabels.indexOf(issueLabels[is].name) != -1) {
 			selectLabel = true;
 			labelsSelected = true;
 		}
-		var newOption = new Option(issueLabels[is].name, issueLabels[is].name, selectLabel, selectLabel);
+		const newOption = new Option(issueLabels[is].name, issueLabels[is].name, selectLabel, selectLabel);
 		$('#labellist').append(newOption);
 	}
 	
@@ -149,39 +124,34 @@ export function updateIssueLabelList() {
 
 	// Now add to selection list (OR)
 	$("#labellistor").empty();
-	var labelsSelected = false;
-	for (var is = 0; is < issueLabels.length; is++) {
-		var selectLabel = false;
+	labelsSelected = false;
+	for (let is = 0; is < issueLabels.length; is++) {
+		let selectLabel = false;
 		if (selectLabelsOr.indexOf(issueLabels[is].name) != -1) {
 			selectLabel = true;
 			labelsSelected = true;
 		}
-		var newOption = new Option(issueLabels[is].name, issueLabels[is].name, selectLabel, selectLabel);
+		const newOption = new Option(issueLabels[is].name, issueLabels[is].name, selectLabel, selectLabel);
 		$('#labellistor').append(newOption);
 	}
 	
 	if (labelsSelected) 
 		$("#labellistor").trigger('change');
-
-//	$("#labellist").select2({
-//		  templateResult: formatLabel
-//	});
 }
 
-var firstAssigneeShow = true;
-var urlAssigneeList = yoda.decodeUrlParam(null, "assigneelist");
+let firstAssigneeShow = true;
+const urlAssigneeList = yoda.decodeUrlParam(null, "assigneelist");
 export function updateAssigneeList() {
 	console.log("updateAssigneeList. first=" + firstAssigneeShow);
 	issueAssignees = []; 
 	issueAssigneesFiltered = []; 
 	
-	for (var i = 0; i < repoIssues.length; i++) {
-		for (var as = 0; as < repoIssues[i].assignees.length; as++) {
+	for (let i = 0; i < repoIssues.length; i++) {
+		for (let as = 0; as < repoIssues[i].assignees.length; as++) {
 			const assignee = repoIssues[i].assignees[as].login;
 			
-			if (issueAssignees.indexOf(assignee) == -1) {
+			if (issueAssignees.indexOf(assignee) == -1)
 				issueAssignees.push(assignee);
-			}
 		}
 	}
 	
@@ -201,15 +171,15 @@ export function updateAssigneeList() {
 	
 //	var newOption = new Option("unassigned", "unassigned", false, false);
 	issueAssignees.unshift("unassigned");
-	var assigneeSelected = false;
-	for (var a = 0; a < issueAssignees.length; a++) {
-		var selectAssignee = false;
+	let assigneeSelected = false;
+	for (let a = 0; a < issueAssignees.length; a++) {
+		let selectAssignee = false;
 		if (selectAssigneeList.indexOf(issueAssignees[a]) != -1) {
 			selectAssignee = true;
 			assigneeSelected = true;
 		}
 		
-		var newOption = new Option(issueAssignees[a], issueAssignees[a], selectAssignee, selectAssignee);
+		const newOption = new Option(issueAssignees[a], issueAssignees[a], selectAssignee, selectAssignee);
 		$('#assigneelist').append(newOption);
 	}
 	
@@ -217,14 +187,12 @@ export function updateAssigneeList() {
 		$('#assigneelist').trigger('change');
 }
 
-
 export function getMilestoneTitle(issue) {
-	if (issue.milestone == null) {
+	if (issue.milestone == null)
 		return "";
-	}
 	
-	for (var r = 0; r < repoList.length; r++) {
-		for (var m = 0; m < repoMilestones[r].length; m++) {
+	for (let r = 0; r < repoList.length; r++) {
+		for (let m = 0; m < repoMilestones[r].length; m++) {
 //			console.log(repoMilestones[r][m].title);
 			
 			if (issue.milestone.url == repoMilestones[r][m].url) {
@@ -239,53 +207,50 @@ export function getMilestoneTitle(issue) {
 // Create the HTML card representation for a given issue.
 function createCard(issue) {
 //	console.log(issue);
-	var card = $('<div class="card"></div>');
+	let card = $('<div class="card"></div>');
 	card.attr("url", issue.url);
-	if (issue.closed_at != null) {
-		var cardRef = $('<a class="cardlink" style="text-decoration: line-through;" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');		
-	} else {
-		var cardRef = $('<a class="cardlink" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');
-	}
+	let cardRef;
+	if (issue.closed_at != null)
+		cardRef = $('<a class="cardlink" style="text-decoration: line-through;" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');		
+	else
+		cardRef = $('<a class="cardlink" target="_blank" href="' + issue.html_url + '">' + issue.title + '</a>');
 	card.append(cardRef);
 	
-	var repo = yoda.getUrlRepo(issue.url);
-
+	const repo = yoda.getUrlRepo(issue.url);
+	let assignText;
 	if (issue.assignees.length > 0) {
-		var assignText = "";
-		for (var as = 0; as < issue.assignees.length; as++) {
-			var assignee = issue.assignees[as].login;
+		assignText = "";
+		for (let as = 0; as < issue.assignees.length; as++) {
 			if (assignText != "") 
 				assignText += " ";
 			assignText += '<a href="' + issue.assignees[as].html_url + '" target="_blank">' + issue.assignees[as].login + '</a>';
 		}
 	} else {
-		var assignText = "<i>unassigned</i>";
+		assignText = "<i>unassigned</i>";
 	}
 
 	// TODO: Enhance graphically.. 
-	var estimateText = "";
+	let estimateText = "";
+	let estimate = 0;
+	let remaining = 0;
 	if (yoda.getEstimateInIssues() != "noissues") {
-		var estimate = yoda.issueEstimate(issue);
-		var remaining = 0;
+		estimate = yoda.issueEstimate(issue);
 		if (estimate != 0) {
-			var remaining = yoda.issueRemaining(issue, estimate);
-			if (remaining != estimate) {
+			remaining = yoda.issueRemaining(issue, estimate);
+			if (remaining != estimate)
 				estimateText = " (" + estimate + "/" + remaining + ")";
-			} else {
+			else
 				estimateText = " (" + estimate + ")";
-			}
 		}
 	}
-	
 	const issueRef = '<a href="' + issue.html_url + '" target="_blank">' + repo + "#" + issue.number + '</a>';
 	
-	var smallRef = $('<small>' + issueRef + ' ' + getMilestoneTitle(issue) + ' ' + assignText + ' ' + estimateText + '</small>');
+	const smallRef = $('<small>' + issueRef + ' ' + getMilestoneTitle(issue) + ' ' + assignText + ' ' + estimateText + '</small>');
 	card.append(smallRef);
 
-	var cardLabels = $('<span class="cardlabels"></span>');
-	
-	for (var l = 0; l < issue.labels.length; l++) {
-		var cardLabel = $('<span class="cardlabel">' + issue.labels[l].name + '</span>');
+	let cardLabels = $('<span class="cardlabels"></span>');
+	for (let l = 0; l < issue.labels.length; l++) {
+		const cardLabel = $('<span class="cardlabel">' + issue.labels[l].name + '</span>');
 		cardLabel.css('background', '#' + issue.labels[l].color);  
 		cardLabel.css('color', yoda.bestForeground(issue.labels[l].color));
 		cardLabels.append(cardLabel);
@@ -294,20 +259,20 @@ function createCard(issue) {
 	return [card, estimate, remaining];
 }
 
-var issueTabs = [];
+let issueTabs = [];
 export function tabOpenCloseIssues(c) {
 	console.log("tabOpenCloseIssues: " + c);
 
 	if (issueTabs[c].length > 0) {
 		// Close
-		for (i = 0; i < issueTabs[c].length; i++)
+		for (let i = 0; i < issueTabs[c].length; i++)
 			issueTabs[c][i].close();
 		issueTabs[c] = [];
 	} else {
 		// Open
-		for (i = 0; i < columnUrls[c].length; i++) {
+		for (let i = 0; i < columnUrls[c].length; i++) {
 			console.log("  Opening " + columnUrls[c][i])
-			var tabId = window.open(columnUrls[c][i]);
+			const tabId = window.open(columnUrls[c][i]);
 			issueTabs[c].push(tabId);
 		}
 	}
@@ -317,11 +282,11 @@ export function tabOpenCloseIssues(c) {
 export function createColumn(c, columnId, columnName) {
 	const openFunc = 'tabOpenCloseIssues(' + c + ')';
 	console.log(openFunc);
-	var column = $(
+	const column = $(
 			'<div class="cardcolumn">' +
 				'<div id="' + columnId + '" class="cardsincolumn">' +
 					'<div id ="' + columnId + '-header" class="columnheader"><button onclick=' + openFunc + '>' + columnName + '</button>' +
-					   '<div id ="' + columnId + '-total" style="float: right"></div>' + 
+					'<div id ="' + columnId + '-total" style="float: right"></div>' + 
 					'</div>' +
 				'</div>' +
 			'</div>');
@@ -329,48 +294,46 @@ export function createColumn(c, columnId, columnName) {
 }
 
 export function enableDisableSortable() {
-	if ($('#locked').is(":checked")) {
+	if ($('#locked').is(":checked"))
 		$( ".cardsincolumn" ).sortable("disable");
-	} else {
+	else
 		$( ".cardsincolumn" ).sortable("enable");
-	}
 	yoda.updateUrl(getUrlParams());
 }
 
 export function handleIssueMove(url, fromColumn, toColumn) {
-	var fromColumnNo = parseInt(fromColumn.substring(6));
-	var toColumnNo = parseInt(toColumn.substring(6));
+	const fromColumnNo = parseInt(fromColumn.substring(6));
+	const toColumnNo = parseInt(toColumn.substring(6));
 	console.log("Move card " + url + " from " + fromColumn + " (" + fromColumnNo + ") to " + toColumn + " (" + toColumnNo + ")");
 	
-	var toColumnState = columnDefList[toColumnNo].split(":")[0];
+	let toColumnState = columnDefList[toColumnNo].split(":")[0];
 	if (toColumnState != "open" && toColumnState != "closed")
 		toColumnState = ""; // then it is not the open/closed state.
 	
 	// First, let's find the issue in our list.
-	for (var i = 0; i < issues.length; i++) {
+	for (let i = 0; i < issues.length; i++) {
 		if (issues[i].url == url) {
 			console.log("Found issue. It is at index " + i);
 			
 			console.log("Labels:");
 			console.log(issues[i].labels);
 
-			var newLabels = [];
-			for (var l = 0; l < issues[i].labels.length; l++) {
+			let newLabels = [];
+			for (let l = 0; l < issues[i].labels.length; l++)
 				newLabels.push(issues[i].labels[l].name);
-			}
 			
 			// We need to potentially remove label for the column we come from (unless final is *)
-			var fromDef = columnDefList[fromColumnNo];
-			var fromLabel = fromDef.split(":").splice(-1)[0];
+			const fromDef = columnDefList[fromColumnNo];
+			const fromLabel = fromDef.split(":").splice(-1)[0];
 			console.log(fromDef + "," + fromLabel);
 			
 			// Then we need to potentially add label for the column we are moving to (unless final is *)
-			var toDef = columnDefList[toColumnNo];
-			var toLabel = toDef.split(":").splice(-1)[0];
+			const toDef = columnDefList[toColumnNo];
+			const toLabel = toDef.split(":").splice(-1)[0];
 			console.log(toDef + "," + toLabel);
 
 			if (fromLabel != "*" && toLabel != "*") {
-				var fromIndex = newLabels.indexOf(fromLabel);
+				const fromIndex = newLabels.indexOf(fromLabel);
 				console.log("Fromindex: " + fromIndex);
 				if (fromIndex != -1) {
 					console.log("Remove issues from index " + fromIndex);
@@ -382,13 +345,13 @@ export function handleIssueMove(url, fromColumn, toColumn) {
 			// Now, the complex case of moving from a "*" column to a label, ie. non "*" column
 			if (fromLabel == "*" && toLabel != "*") {
 				// Check all other labels.
-				for (var c = 0; c < columnDefs.length; c++) {
+				for (let c = 0; c < columnDefs.length; c++) {
 					if (c == toColumnNo)
 						continue;
-					var cDef = columnDefs[c].split("]")[1];
-					var cLabel = cDef.split(":").splice(-1)[0];
+					const cDef = columnDefs[c].split("]")[1];
+					const cLabel = cDef.split(":").splice(-1)[0];
 					
-					lIndex = newLabels.indexOf(cLabel);
+					const lIndex = newLabels.indexOf(cLabel);
 					if (lIndex != -1) {
 						console.log("Removing label " + cLabel);
 						newLabels.splice(lIndex, 1);
@@ -400,7 +363,7 @@ export function handleIssueMove(url, fromColumn, toColumn) {
 			// We should also handle case were moving from a label column to a "*" column. In this case, the labels
 			// should be removed.
 			if (fromLabel != "*" && toLabel == "*") {
-				var fromIndex = newLabels.indexOf(fromLabel);
+				const fromIndex = newLabels.indexOf(fromLabel);
 				console.log("Fromindex: " + fromIndex);
 				if (fromIndex != -1) {
 					console.log("Remove issues from index " + fromIndex);
@@ -411,7 +374,7 @@ export function handleIssueMove(url, fromColumn, toColumn) {
 			console.log("New labels:");
 			console.log(newLabels);
 
-			var data = {"labels": newLabels};
+			let data = {"labels": newLabels};
 
 			// Let's analyze if the to-column defined an issue state (open/closed) and the issue is currently into a different state
 			// If this case, we will close or re-open the issue.
@@ -426,6 +389,7 @@ export function handleIssueMove(url, fromColumn, toColumn) {
 				data: JSON.stringify(data),
 				success: function() { yoda.showSnackbarOk('Succesfully moved issue from "' + columnNameList[fromColumnNo] + '" to "' + columnNameList[toColumnNo] + '"', 5000); },
 				error: function() { yoda.showSnackbarError("Failed to update issue."); },
+				// eslint-disable-next-line no-unused-vars
 				complete: function(jqXHR, textStatus) { updateIssues(); }
 			});
 			
@@ -439,14 +403,16 @@ export function setupSortable() {
 		items: '.card',
 		connectWith: ".cardsincolumn",
 		receive: function( event, ui ) {
-			var url = ui.item[0].attributes.url.nodeValue;
-			var fromColumn = ui.sender.attr('id');
-			var toColumn = $(this).attr('id');
+			const url = ui.item[0].attributes.url.nodeValue;
+			const fromColumn = ui.sender.attr('id');
+			const toColumn = $(this).attr('id');
 			handleIssueMove(url, fromColumn, toColumn);
 		},
+		// eslint-disable-next-line no-unused-vars
 		start: function (event, ui) {
 			console.log("Start drag");
 		},
+		// eslint-disable-next-line no-unused-vars
 		stop:  function (event, ui) {
 			console.log("Stop drag");
 		},
@@ -459,7 +425,7 @@ export function setupSortable() {
 	enableDisableSortable();
 }
 
-var columnUrls = [];
+let columnUrls = [];
 export function drawKanban() {
 	console.log("Draw kanban");
 
@@ -469,9 +435,9 @@ export function drawKanban() {
 	issues = [];
 	// Filter the issues based on labels
 	// Look at all issues. For each issue, it must match all labels in the selected list of labels.
-	for (var ri = 0; ri < repoIssues.length; ri++) {
-		var labelsMatch = true;
-		for (var il = 0; il < issueLabelFiltered.length; il++) {
+	for (let ri = 0; ri < repoIssues.length; ri++) {
+		let labelsMatch = true;
+		for (let il = 0; il < issueLabelFiltered.length; il++) {
 			if (yoda.isLabelInIssue(repoIssues[ri], issueLabelFiltered[il]) == false) {
 				labelsMatch = false;
 				break;
@@ -484,7 +450,7 @@ export function drawKanban() {
 		// Ok, if we have labels for OR filtering?
 		if (issueLabelFilteredOr.length > 0) {
 			labelsMatch = false;
-			for (var il = 0; il < issueLabelFilteredOr.length; il++) {
+			for (let il = 0; il < issueLabelFilteredOr.length; il++) {
 				if (yoda.isLabelInIssue(repoIssues[ri], issueLabelFilteredOr[il]) == true) {
 					labelsMatch = true;
 					break;
@@ -495,9 +461,9 @@ export function drawKanban() {
 			continue;
 			
 		// Ok, labels ok. What about assigee? Need to check full list....
-		var assigneeMatch = false;
-		var assignee = "unassigned";
-		for (var as = 0; as < repoIssues[ri].assignees.length; as++) {
+		let assigneeMatch = false;
+		let assignee = "unassigned";
+		for (let as = 0; as < repoIssues[ri].assignees.length; as++) {
 			assignee = repoIssues[ri].assignees[as].login;
 
 			if (issueAssigneesFiltered.length == 0 || issueAssigneesFiltered.indexOf(assignee) != -1) {
@@ -518,18 +484,18 @@ export function drawKanban() {
 	columnDefs = $("#columns").val().split(',');
 	columnNameList = [];
 	columnDefList = [];
-	for (var c = 0; c < columnDefs.length; c++) {
-		var columnName = columnDefs[c].split("]")[0].split("[")[1];
+	for (let c = 0; c < columnDefs.length; c++) {
+		const columnName = columnDefs[c].split("]")[0].split("[")[1];
 		columnNameList.push(columnName);
-		var columnDef = columnDefs[c].split("]")[1];
+		const columnDef = columnDefs[c].split("]")[1];
 		columnDefList.push(columnDef);
 	}
 	console.log(columnNameList);
 	
-	var columnTotalNoIssues = [];
-	var columnTotalEstimate = [];
-	var columnTotalRemaining = [];
-	for (var c = 0; c < columnNameList.length; c++) {
+	let columnTotalNoIssues = [];
+	let columnTotalEstimate = [];
+	let columnTotalRemaining = [];
+	for (let c = 0; c < columnNameList.length; c++) {
 		columnTotalEstimate[c] = 0;
 		columnTotalNoIssues[c] = 0;
 		columnTotalRemaining[c] = 0;
@@ -544,19 +510,18 @@ export function drawKanban() {
 	
 	// The createElement() method creates an Element Node with the specified name.
 	//	Tip: Use the createTextNode() method to create a text node.
-	for (var i = 0; i < issues.length; i++) {
-		var cardResult = createCard(issues[i]);
-		var card = cardResult[0];
-		var estimate = cardResult[1];
-		var remaining = cardResult[2];
+	for (let i = 0; i < issues.length; i++) {
+		const cardResult = createCard(issues[i]);
+		const card = cardResult[0];
+		const estimate = cardResult[1];
+		const remaining = cardResult[2];
 		// Determine column to put card
 		// In run 0, we will consider only full label match
 		// In run 1, we will consider as well * label match
-		for (var run = 0; run < 2; run++) {
-			for (var c = 0; c < columnDefList.length; c++) {
-				var columnLabel = columnDefList[c].split(":").splice(-1);
-
-				var columnState = columnDefList[c].split(":")[0];
+		for (let run = 0; run < 2; run++) {
+			for (let c = 0; c < columnDefList.length; c++) {
+				const columnLabel = columnDefList[c].split(":").splice(-1);
+				let columnState = columnDefList[c].split(":")[0];
 //				console.log("Columnstate = " + columnState + ", columnLabel: " + columnLabel + ",  issueState: " + issues[i].state);
 				if (columnState != "open" && columnState != "closed")
 					columnState = ""; // then it is not the open/closed state.
@@ -620,24 +585,21 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	
 	console.log("UpdateIssueLoop: " + milestoneIndex);
 	if (milestoneIndex < milestoneListComplete.length) {
-		var milestone = milestoneListComplete[milestoneIndex];
-		var repo = yoda.getRepoFromMilestoneUrl(milestone.url);
+		const milestone = milestoneListComplete[milestoneIndex];
+		const repo = yoda.getRepoFromMilestoneUrl(milestone.url);
 	
 		// Fixed. We let "All Milestones" => * retrieve all issues, even the ones without ANY milestone. 
 		// We simply remove the milestone search parameter.
-		var milestoneSearch = "&milestone=" + milestone.number;
+		let milestoneSearch = "&milestone=" + milestone.number;
 		console.log("milestone.number: " + milestone.number);
 		if (milestone.number == "*")
 			milestoneSearch = "";
 
-		if ($('#closedissues').is(":checked")) {		
-			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo +
-			"/issues?state=all" + milestoneSearch;
-		} else {
-			var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo +
-			"/issues?state=open" + milestoneSearch;
-		}
-//		console.log(getIssuesUrl);
+		let getIssuesUrl;
+		if ($('#closedissues').is(":checked"))
+			getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all" + milestoneSearch;
+		else
+			getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=open" + milestoneSearch;
 		
 		yoda.getLoop(getIssuesUrl, 1, [], function(data) {storeIssues(data, milestoneIndex, myUpdateIssueActiveNo)}, null);
 	} else {
@@ -666,20 +628,21 @@ export function updateIssues() {
 	// We will get issues for all selected milestones for all selected repos.
 	milestoneListComplete = [];
 	
-	for (var m = 0; m < milestoneList.length; m++) {
+	for (let m = 0; m < milestoneList.length; m++) {
 //		console.log("Updating issues for milestone: " + milestoneList[m]);
 
-		for (var r = 0; r < repoList.length; r++) {
+		for (let r = 0; r < repoList.length; r++) {
+			let cheatMilestone;
 			if (milestoneList[m] == "All milestones") {
-				var cheatMilestone = { url: "something/" + repoList[r] + "/milestone/1", number: "*"};
+				cheatMilestone = { url: "something/" + repoList[r] + "/milestone/1", number: "*"};
 				milestoneListComplete.push(cheatMilestone);
 			} else if (milestoneList[m] == "No milestone") {
-				var cheatMilestone = { url: "something/" + repoList[r] + "/milestone/1", number: "none"};
+				cheatMilestone = { url: "something/" + repoList[r] + "/milestone/1", number: "none"};
 				milestoneListComplete.push(cheatMilestone);
 			} else {
 //				console.log("  For repo: " + repoList[r]);
 				// Need to find the milestone (the number)..
-				for (var m1 = 0; m1 < repoMilestones[r].length; m1++) {
+				for (let m1 = 0; m1 < repoMilestones[r].length; m1++) {
 //					console.log(repoMilestones[r][m1].title);
 					if (repoMilestones[r][m1].title == milestoneList[m]) {
 						console.log("Need to get issues for " + repoList[r] + ", " + milestoneList[m] + ", which has number: " + repoMilestones[r][m1].number);
@@ -713,25 +676,23 @@ export function storeMilestones(milestones, repoIndex) {
 
 var firstMilestoneShow = true;
 export function updateMilestones(repoIndex) {
-	if (repoIndex == undefined) {
+	if (repoIndex == undefined)
 		repoIndex = 0;
-	}
 	
 	if (repoIndex < repoList.length) {
-		if ($('#closedmilestones').is(":checked")) {
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
-		} else {
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
-		}
-
+		let getMilestonesUrl;
+		if ($('#closedmilestones').is(":checked"))
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
+		else
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
 		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
 	} else {
-		var selectMilestones = [];
+		let selectMilestones = [];
 		if (firstMilestoneShow) {
 			firstMilestoneShow = false;
-			var urlMilestoneList = yoda.decodeUrlParam(null, "milestonelist");
+			let urlMilestoneList = yoda.decodeUrlParam(null, "milestonelist");
 			if (urlMilestoneList != null) 
 				selectMilestones = urlMilestoneList.split(",");
 		}
@@ -741,13 +702,11 @@ export function updateMilestones(repoIndex) {
 		$("#milestonelist").empty();
 		commonMilestones = [];
 		
-		for (var r = 0; r < repoList.length; r++) {
-			for (var m = 0; m < repoMilestones[r].length; m++) {
-				var repoTitle = repoMilestones[r][m].title;
-				
-				if (commonMilestones.indexOf(repoTitle) == -1) {
+		for (let r = 0; r < repoList.length; r++) {
+			for (let m = 0; m < repoMilestones[r].length; m++) {
+				const repoTitle = repoMilestones[r][m].title;
+				if (commonMilestones.indexOf(repoTitle) == -1)
 					commonMilestones.push(repoTitle);
-				}
 			}
 		}
 		
@@ -756,15 +715,15 @@ export function updateMilestones(repoIndex) {
 		commonMilestones.unshift("All milestones");
 		commonMilestones.unshift("No milestone");
 		console.log("The common milestones are: " + commonMilestones);
-		var milestonesSelected = false;
-		for (var c = 0; c < commonMilestones.length; c++) {
-			var selectMilestone = false;
+		let milestonesSelected = false;
+		for (let c = 0; c < commonMilestones.length; c++) {
+			let selectMilestone = false;
 			if (selectMilestones.indexOf(commonMilestones[c]) != -1) { 
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
 			
-			var newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
+			const newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
 			$('#milestonelist').append(newOption);
 		}
 		
@@ -816,7 +775,7 @@ export function init() {
 			sorter: yoda.select2Sorter,
 			matcher: yoda.select2Matcher
 		});
-		  $('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
 		$('#milestonelist').select2();
 		$('#assigneelist').select2();
 		$('#labellist').select2();
@@ -824,7 +783,7 @@ export function init() {
 		$('#columns').select2({tags:true});
 
 		// Special handling for columns URL arg
-		var columns = yoda.GetURLParameter("columns");
+		let columns = yoda.GetURLParameter("columns");
 		if (columns == null) 
 			columns = yoda.getDefaultLocalStorageValue("yoda.kanban.columns");
 		if (columns != null) {
@@ -837,12 +796,14 @@ export function init() {
 			} 
 		}
 					
+		// eslint-disable-next-line no-unused-vars
 		$('#repolist').on('change.select2', function (e) {
 			repoList = 	$("#repolist").val();			
 			console.log("List of selected repos is now: " + repoList);
 			updateMilestones();
 		});
 		
+		// eslint-disable-next-line no-unused-vars
 		$('#milestonelist').on('change.select2', function (e) {
 			milestoneList = $("#milestonelist").val();
 			
@@ -851,7 +812,7 @@ export function init() {
 		});
 		
 		$('#milestonelist').on('select2:select', function (e) {
-			var data = e.params.data;
+			let data = e.params.data;
 			console.log("selected item: " + data.text);
 			
 			// If "All milestones" or "No milestones" option selected, clear all other milestones. 
@@ -866,31 +827,32 @@ export function init() {
 			}
 		});
 		
+		// eslint-disable-next-line no-unused-vars
 		$('#labellist').on('change.select2', function (e) {
 			issueLabelFiltered = $("#labellist").val();			
 			console.log("List of selected labels is now: " + issueLabelFiltered);
 			drawKanban();
 		});
 		
+		// eslint-disable-next-line no-unused-vars
 		$('#labellistor').on('change.select2', function (e) {
 			issueLabelFilteredOr = $("#labellistor").val();			
 			console.log("List of selected labels (OR) is now: " + issueLabelFilteredOr);
 			drawKanban();
 		});
 
+		// eslint-disable-next-line no-unused-vars
 		$('#assigneelist').on('change.select2', function (e) {
 			issueAssigneesFiltered = $("#assigneelist").val();			
 			console.log("List of selected assignees: " + issueAssigneesFiltered);
 			drawKanban();
 		});
 
+		// eslint-disable-next-line no-unused-vars
 		$('#columns').on('change.select2', function (e) {
 			drawKanban();
 		});
 		
 		updateRepos();
 	});
-	
-	
-
 }
