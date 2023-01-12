@@ -20,7 +20,7 @@
 import * as yoda from './yoda-utils.js'
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
 	["startdate", "enddate", "interval", "labelfilter", "milestonefilter", "assigneefilter", "title"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
@@ -28,13 +28,13 @@ function getUrlParams() {
 }
 
 function determineStartAndInterval(firstIssueDate, interval) {
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
-	var startDay = today.getDate();
+	const startDay = today.getDate();
 
-	var days = (today - firstIssueDate) / (24 * 60 * 60 * 1000);
+	const days = (today - firstIssueDate) / (24 * 60 * 60 * 1000);
 	console.log("Days: " + days);
 
 	// Do we need to play with interval?
@@ -42,9 +42,10 @@ function determineStartAndInterval(firstIssueDate, interval) {
 		interval = '1m'; // shift to monthly
 
 	// Ok, let's determine startdate
-	for (var startDate = today; startDate >= firstIssueDate; yoda.advanceDate(startDate, '-' + interval, startDay)) {
+	let startDate = today;
+	for (; startDate >= firstIssueDate; yoda.advanceDate(startDate, '-' + interval, startDay)) {
 		// NOP
-	};
+	}
 
 	return {
 		startDate: startDate,
@@ -68,32 +69,33 @@ function createChartLT(issues) {
 	});
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 
-	var interval = $("#interval").val();
+	let interval = $("#interval").val();
 	console.log("Interval: " + interval);
 
-	var startDateString = $("#startdate").val();
+	const startDateString = $("#startdate").val();
+	let startDate;
 	if (startDateString == "") {
 		// If blank, makes sense to start with the date of the first issue.
-		var firstIssueDate = new Date(yoda.createDate(issues[0]));
-		var update = determineStartAndInterval(firstIssueDate, interval);
+		const firstIssueDate = new Date(yoda.createDate(issues[0]));
+		const update = determineStartAndInterval(firstIssueDate, interval);
 		interval = update.interval;
-		var startDate = update.startDate;
+		startDate = update.startDate;
 	} else {
-		var startDate = new Date(startDateString);
+		startDate = new Date(startDateString);
 	}
 	console.log("Start date: " + startDate);
 
-	var endDateString = $("#enddate").val();
-	if (endDateString == "") {
-		var endDate = new Date(today);
-	} else {
-		var endDate = new Date(endDateString);
-	}
+	const endDateString = $("#enddate").val();
+	let endDate;
+	if (endDateString == "")
+		endDate = new Date(today);
+	else
+		endDate = new Date(endDateString);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
@@ -102,44 +104,44 @@ function createChartLT(issues) {
 	// Then, let's run through the issues to build a date array.
 
 	// Then, let's loop the dates.
-	var firstIssueDate = yoda.createDate(issues[0]);
+	const firstIssueDate = yoda.createDate(issues[0]);
 	console.log("first: " + firstIssueDate);
-	var lastIssueDate = yoda.createDate(issues.slice(-1)[0]);
+	const lastIssueDate = yoda.createDate(issues.slice(-1)[0]);
 	console.log("last: " + lastIssueDate);
-	var endIssueDate = new Date(lastIssueDate);
+	const endIssueDate = new Date(lastIssueDate);
 
 	// date loop
 	// Start at startDate
-	var openArray = [];
-	var closedArray = [];
-	for (var date = new Date(firstIssueDate); date <= endIssueDate; date.setDate(date.getDate() + 1)) {
-		var d = yoda.formatDate(date);
+	let openArray = [];
+	let closedArray = [];
+	for (let date = new Date(firstIssueDate); date <= endIssueDate; date.setDate(date.getDate() + 1)) {
+		const d = yoda.formatDate(date);
 		openArray[d] = 0;
 		closedArray[d] = 0;
 	}
 
-	for (var i = 0; i < issues.length; i++) {
+	for (let i = 0; i < issues.length; i++) {
 		// Add to open and/or closed item.
-		var createdAt = yoda.createDate(issues[i]);
-		var dTemp = new Date(createdAt);
-		var d = yoda.formatDate(dTemp);
+		const createdAt = yoda.createDate(issues[i]);
+		const dTemp = new Date(createdAt);
+		const d = yoda.formatDate(dTemp);
 		openArray[d]++;
 
-		var closedAt = yoda.closeDate(issues[i]);
+		const closedAt = yoda.closeDate(issues[i]);
 		if (closedAt != null) {
-			var dTemp = new Date(closedAt);
-			var d = yoda.formatDate(dTemp);
+			const dTemp = new Date(closedAt);
+			const d = yoda.formatDate(dTemp);
 			closedArray[d]++;
 		}
 	}
 
 	// Data arrays for issue lead times.
-	var leadTimeArray = [];
-	var dateArray = [];
+	let leadTimeArray = [];
+	let dateArray = [];
 
-	var startDay = new Date(startDate).getDate();
-	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
-		var endOfDate = new Date(date);
+	const startDay = new Date(startDate).getDate();
+	for (let date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
+		let endOfDate = new Date(date);
 		endOfDate.setHours(23);
 		endOfDate.setMinutes(59);
 		endOfDate.setSeconds(59);
@@ -148,43 +150,37 @@ function createChartLT(issues) {
 		dateArray.push(yoda.formatDate(date));
 
 		// Prepare data array
-		var noOpen = 0;
-		var noClosed = 0;
+		let noClosed = 0;
 
 		// Ok, now let's count issues
-		for (var i = 0; i < issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			// We count all issues. Just a matter of splitting them into either one of the data pools.
 			// closed => index 0
 			// open => index 1
-			var submitDateString = yoda.createDate(issues[i]);
-			var submitDate = new Date(submitDateString);
+			const submitDateString = yoda.createDate(issues[i]);
+			const submitDate = new Date(submitDateString);
 
 			if (submitDate > endOfDate)
 				continue; // Submitted later - forget it.
 
 			// Closed, and closed before OR DURING date?
-			var closedString = yoda.closeDate(issues[i]);
+			const closedString = yoda.closeDate(issues[i]);
 			if (closedString != null) {
-				var closedDate = new Date(closedString);
+				const closedDate = new Date(closedString);
 
 				// was it open at date?
 				if (closedDate < endOfDate) 
 					noClosed++; // count as closed
-				else
-					noOpen++;   // count as open
-			} else {
-				// still open
-				noOpen++;   // count as open
 			}
 		}
 
 		// Ok, now we know number of open and no of closed.
 		// Need to look into array to find a good ponit.
-		var cumClosed = 0;
-		var cumOpen = 0;
-		var duration = NaN;
-		for (var backDate = new Date(firstIssueDate); backDate <= endOfDate; backDate.setDate(backDate.getDate() + 1)) {
-			var d = yoda.formatDate(backDate);
+		let cumClosed = 0;
+		let cumOpen = 0;
+		let duration = NaN;
+		for (let backDate = new Date(firstIssueDate); backDate <= endOfDate; backDate.setDate(backDate.getDate() + 1)) {
+			const d = yoda.formatDate(backDate);
 			cumOpen += (openArray[d] - closedArray[d]);
 			cumClosed += closedArray[d];
 			//			console.log(backDate, cumOpen, cumClosed);
@@ -195,23 +191,21 @@ function createChartLT(issues) {
 				break;
 			}
 		}
-
 		leadTimeArray.push(duration);
 	}
 
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
-	var ctx = document.getElementById("canvas").getContext("2d");
+	const ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 
-	var chartTitle = "CFD / Lead time / GitHub Issues " + $("#owner").val() + "/" + $("#repolist").val();
+	let chartTitle = "CFD / Lead time / GitHub Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val();
 	}
 
 	console.log(leadTimeArray.length, dateArray.length);
-
 	window.myMixedChart = new Chart(ctx, {
 		type: 'line',
 		data: {
@@ -248,7 +242,7 @@ function createChartLT(issues) {
 						display: true,
 						text: 'Days',
 						font: {
-                	   		size: 16                    
+							size: 16                    
 						}
 					},
 					beginAtZero: true,
@@ -274,8 +268,6 @@ function createChartLT(issues) {
 	yoda.updateUrl(getUrlParams() + "&draw=lt");
 }
 
-
-
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 function createChartCFD(issues) {
@@ -286,53 +278,50 @@ function createChartCFD(issues) {
 	console.log("Creating chart. No issues (after filtering out pull requests): " + issues.length);
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 
 	// First, let's sort issues by submit date
 	issues.sort(function(issue_1, issue_2) {
-		if (yoda.createDate(issue_1) < yoda.createDate(issue_2))
-			return -1;
-		else
-			return 1;
+		return yoda.createDate(issue_1) < yoda.createDate(issue_2)? -1: 1;
 	});
 
-	var interval = $("#interval").val();
+	let interval = $("#interval").val();
 	console.log("Interval: " + interval);
 
-	var startDateString = $("#startdate").val();
+	const startDateString = $("#startdate").val();
+	let startDate;
 	if (startDateString == "") {
 		// If blank, makes sense to start with the date of the first issue.
-		var firstIssueDate = new Date(yoda.createDate(issues[0]));
-		var update = determineStartAndInterval(firstIssueDate, interval);
+		const firstIssueDate = new Date(yoda.createDate(issues[0]));
+		const update = determineStartAndInterval(firstIssueDate, interval);
 		interval = update.interval;
-		var startDate = update.startDate;
+		startDate = update.startDate;
 	} else {
-		var startDate = new Date(startDateString);
+		startDate = new Date(startDateString);
 	}
 	console.log("Start date: " + startDate);
 
-	var endDateString = $("#enddate").val();
-	if (endDateString == "") {
-		var endDate = new Date(today);
-	} else {
+	const endDateString = $("#enddate").val();
+	var endDate;
+	if (endDateString == "")
+		endDate = new Date(today);
+	else
 		endDate = new Date(endDateString);
-	}
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 	console.log("End date: " + endDate);
 
 	// Data arrays for issues. For now contains closed and open. Later can be expanded to more substates.
-	var dataArraySize = 2;
-	var dateArray = [];
-	var dataArray = new Array(dataArraySize);
-	for (i = 0; i < dataArray.length; i++) {
+	const dataArraySize = 2;
+	let dateArray = [];
+	let dataArray = new Array(dataArraySize);
+	for (let i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	}
-	var bars = [];
+	let bars = [];
 	bars[0] = "closed";
 	bars[1] = "open";
 
@@ -340,10 +329,10 @@ function createChartCFD(issues) {
 	// Start at startDate
 
 	// Need to consider previous date, so that we can observe interval.
-	var startDay = new Date(startDate).getDate();
-	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
+	const startDay = new Date(startDate).getDate();
+	for (let date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
 		//		console.log('date: ' +  date + ", enddate: " + endDate );
-		var endOfDate = new Date(date);
+		let endOfDate = new Date(date);
 		endOfDate.setHours(23);
 		endOfDate.setMinutes(59);
 		endOfDate.setSeconds(59);
@@ -352,49 +341,43 @@ function createChartCFD(issues) {
 		dateArray.push(yoda.formatDate(date));
 
 		// Prepare data array
-		var dataArrayForDay = new Array(dataArraySize);
-		for (var l = 0; l < dataArraySize; l++) {
+		let dataArrayForDay = new Array(dataArraySize);
+		for (let l = 0; l < dataArraySize; l++)
 			dataArrayForDay[l] = 0;
-		};
 
 		// Ok, now let's count issues
-		for (var i = 0; i < issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			// We count all issues. Just a matter of splitting them into either one of the data pools.
 			// closed => index 0
 			// open => index 1
-			var submitDateString = yoda.createDate(issues[i]);
-			var submitDate = new Date(submitDateString);
+			const submitDateString = yoda.createDate(issues[i]);
+			const submitDate = new Date(submitDateString);
 
-			if (submitDate > endOfDate) {
-				// Submitted later - forget it.
-				continue;
-			}
+			if (submitDate > endOfDate)
+				continue; // Submitted later - forget it.
 
 			// Closed, and closed before OR DURING date?
-			var closedString = yoda.closeDate(issues[i]);
+			const closedString = yoda.closeDate(issues[i]);
 			if (closedString != null) {
-				var closedDate = new Date(closedString);
+				const closedDate = new Date(closedString);
 
 				// was it open at date?
-				if (closedDate < endOfDate) {
-					// closed before, so closed
-					dataArrayForDay[0]++;  // count as closed
-				} else {
+				if (closedDate < endOfDate) 
+					dataArrayForDay[0]++;  // // closed before, so closed - count as closed
+				else
 					dataArrayForDay[1]++;  // count as open
-				}
 			} else {
 				// still open
 				dataArrayForDay[1]++;     // count as open
 			}
 		}
-		for (var i = 0; i < dataArraySize; i++) {
+		for (let i = 0; i < dataArraySize; i++)
 			dataArray[i].push(dataArrayForDay[i]);
-		}
 	}
 
 	// Ready, let's push the bars
-	var datasetArray = [];
-	for (var b = 0; b < dataArraySize; b++) {
+	let datasetArray = [];
+	for (let b = 0; b < dataArraySize; b++) {
 		datasetArray.push({
 			type: 'line',
 			yAxisID: "yleft",
@@ -407,12 +390,12 @@ function createChartCFD(issues) {
 
 
 	// We will push data to a 
-	var chartData = {
+	const chartData = {
 		labels: dateArray,
 		datasets: datasetArray
 	};
 
-	var chartScales = {
+	let chartScales = {
 		yleft: {
 			title: {
 				display: true,
@@ -440,14 +423,13 @@ function createChartCFD(issues) {
 
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
-	var ctx = document.getElementById("canvas").getContext("2d");
+	const ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 
-	var chartTitle = "CFD / Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
-	if ($("#title").val() != "") {
+	let chartTitle = "CFD / Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
+	if ($("#title").val() != "")
 		chartTitle = $("#title").val();
-	}
 
 	window.myMixedChart = new Chart(ctx, {
 		type: 'bar',
@@ -475,27 +457,19 @@ function createChartCFD(issues) {
 	yoda.updateUrl(getUrlParams() + "&draw=cfd");
 }
 
-// -------------------------------
-
-// TODO: Enhance this
-function errorFunc(errorText) {
-	alert("ERROR: " + errorText);
-}
-
-
 // ----------------
-var _chartType = "";
+let _chartType = "CFD";
 function storeIssuesThenCreateChart(issues) {
 	// Filter out issues not matching specified milestonefilter, if any.
 	if ($("#milestonefilter").val() != "") {
-		mFilter = $("#milestonefilter").val().split(",");
+		const mFilter = $("#milestonefilter").val().split(",");
 		console.log(mFilter);
 
-		milestonedIssues = [];
-		for (var i = 0; i < issues.length; i++) {
-			includeIssue = true;
-			for (var j = 0; j < mFilter.length; j++) {
-				var positiveFilter = (mFilter[j].indexOf("-") != 0);  // Positive if NOT starting with -
+		let milestonedIssues = [];
+		for (let i = 0; i < issues.length; i++) {
+			let includeIssue = true;
+			for (let j = 0; j < mFilter.length; j++) {
+				const positiveFilter = (mFilter[j].indexOf("-") != 0);  // Positive if NOT starting with -
 
 				if ((positiveFilter && (issues[i].milestone == null || issues[i].milestone.title != mFilter[j])) ||
 					(!positiveFilter && issues[i].milestone != null && issues[i].milestone.title == mFilter[j].substr(1))) {
@@ -506,13 +480,11 @@ function storeIssuesThenCreateChart(issues) {
 			if (includeIssue == true)
 				milestonedIssues.push(issues[i]);
 		}
-
 		issues = milestonedIssues;
 	}
 
 	// Check for no issues
 	if (issues.length == 0) {
-		var ctx = document.getElementById("canvas").getContext("2d");
 		if (window.myMixedChart != null)
 			window.myMixedChart.destroy();
 		yoda.showSnackbarError("No issues.");
@@ -527,6 +499,7 @@ function storeIssuesThenCreateChart(issues) {
 
 // -------------------------
 
+// eslint-disable-next-line no-unused-vars
 function addAssigneeFilter(repo) {
 	if ($("#assigneefilter").val() == "")
 		return "";
@@ -536,18 +509,13 @@ function addAssigneeFilter(repo) {
 
 
 function startChart(chartType) {
-	_chartType = chartType
+	_chartType = chartType;
 	if ($("#repolist").val() == "")
 		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "all", storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000); });
 	else
 		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "all", addAssigneeFilter, storeIssuesThenCreateChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000); });
 }
 
-// --------------
-function githubAuth() {
-	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
-	yoda.gitAuth($("#user").val(), $("#token").val());
-}
 
 // --------------
 
@@ -555,14 +523,14 @@ function githubAuth() {
 Chart.defaults.font.size = 16;
 Chart.register({
 	id: 'yoda-label',
-	afterDatasetsDraw: function(chartInstance, easing) {
-		var ctx = chartInstance.ctx;
+	afterDatasetsDraw: function(chartInstance) {
+		const ctx = chartInstance.ctx;
 
 		chartInstance.data.datasets.forEach(function(dataset, i) {
-			var meta = chartInstance.getDatasetMeta(i);
+			const meta = chartInstance.getDatasetMeta(i);
 			if (!meta.hidden) {
-				var mod = 1;
-				var m = 0;
+				let mod = 1;
+				let m = 0;
 				if (meta.data.length > 30) {  // If we have lots of data sets, don't show all, they will overlap/mess up
 					mod = 2;
 					if (meta.data.length % 2 == 0)
@@ -579,14 +547,14 @@ Chart.register({
 						ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
 						// Just naively convert to string for now
-						var dataString = dataset.data[index].toString();
+						const dataString = dataset.data[index].toString();
 
 						// Make sure alignment settings are correct
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
 
-						var padding = 5;
-						var position = element.tooltipPosition();
+						const padding = 5;
+						const position = element.tooltipPosition();
 
 						// Label inside bar ... gives a bit of trouble at buttom...
 						if (i == 0) 
@@ -603,7 +571,7 @@ Chart.register({
 Chart.register({
 	id: "yoda-background",
 	beforeDraw: function(c) {
-		var ctx = c.ctx;
+		let ctx = c.ctx;
 		ctx.fillStyle = yoda.getColor('htmlBackground');
 		ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
 	}
@@ -658,17 +626,13 @@ export function init() {
 		yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", function () {
 			// Should we draw directly? Only check this after the repo updates complete.
 			// Should we draw directly?
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd") {
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "cfd")
 				startChart("CFD");
-			}
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "lt") {
+			else if (yoda.decodeUrlParamBoolean(null, "draw") == "lt")
 				startChart("LT");
-			}
 		}, null);
 	});
 			
 	if (yoda.decodeUrlParam(null, "hideheader") == "true") 
 		$(".frame").hide();
-	
-	
 }
