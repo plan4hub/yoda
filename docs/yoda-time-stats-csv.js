@@ -20,15 +20,15 @@
 import * as yoda from './yoda-utils.js'
 
 // Don't like it, but hey
-var issues = []; 
-var bars = []; 
+let issues = []; 
+let bars = []; 
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 
 	["startdate", "enddate", "interval", "maxage", "repo", "path", "branch", "datecolumn", "axiscolumn", "groupcolumns", "barsplit", "countfield", "title", "axiscategory", "stacked", "percentage"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
-	var filters = getFilters();
+	const filters = getFilters();
 	if (filters.length > 0)
 		params += "&filters=" + JSON.stringify(filters);
 	
@@ -36,7 +36,7 @@ function getUrlParams() {
 }
 
 function sevSort(arr) {
-	var sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
+	const sevOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"];
 	arr.sort(function (a, b) {
 		if (sevOrder.indexOf(a) == -1 && sevOrder.indexOf(b) == -1)
 			return (a < b);
@@ -50,13 +50,12 @@ function sevSort(arr) {
 
 // Sorts bars, but take special attention to Severity sorting
 function barSort() {
-	var barSplit = $("#barsplit").val();
-
 	// Special sorting for severities
-	if (barSplit == "Severity") 
+	if ($("#barsplit").val() == "Severity") 
 		sevSort(bars);
 	else
 		bars.sort();
+
 	console.log("Sorted bars:");
 	console.log(bars);
 }
@@ -71,34 +70,36 @@ function createChart() {
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 
-	var maxAge = $('#maxage').val();
-	var axisCategory = $('#axiscategory').val();
+	const maxAge = $('#maxage').val();
+	const axisCategory = $('#axiscategory').val();
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 	
-	var interval = $("#interval").val();
+	const interval = $("#interval").val();
 	console.log("Interval: " + interval);
 	if (interval == "" || parseInt(interval) == 0) {
 		yoda.showSnackbarError("Interval cannot be empty or zero", 3000);
 		return;
 	}
 
-	var startDateString = $("#startdate").val();
+	const startDateString = $("#startdate").val();
+	let startDate;
 	if (startDateString == "") 
-		var startDate = yoda.twoMonthsEarlier(interval, today);
+		startDate = yoda.twoMonthsEarlier(interval, today);
 	else
-		var startDate = new Date(startDateString);
+		startDate = new Date(startDateString);
 	console.log("Start date: " + startDate);
 	
-	var endDateString = $("#enddate").val();
+	const endDateString = $("#enddate").val();
+	let endDate;
 	if (endDateString == "") 
-		var endDate = new Date(today);
+		endDate = new Date(today);
 	else
-		var endDate = new Date(endDateString);
+		endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
@@ -110,7 +111,7 @@ function createChart() {
 	const countField = $("#countfield").val();
 	
 	// Let's get the filters
-	var filters = getFilters();
+	const filters = getFilters();
 	
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
@@ -119,14 +120,14 @@ function createChart() {
 
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
-		for (var i = 0; i < issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			if (!filterIssue(filters, issues[i]))
 				continue;
 
 			if (countField != "" && parseInt(issues[i][countField]) == 0)
 				continue;
 			
-			var v = issues[i][barSplit];
+			const v = issues[i][barSplit];
 			if (bars.indexOf(v) == -1)
 				bars.push(v);
 		}
@@ -143,11 +144,11 @@ function createChart() {
 	// 	Other for issues not match
 	// 	Total for all issues (matching date interval)'
 	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
-	var dateArray = [];
-	var dataArray = new Array(bars.length);
-	for (i = 0; i < dataArray.length; i++)
+	let dateArray = [];
+	let dataArray = new Array(bars.length);
+	for (let i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	var totalArray = [];
+	let totalArray = [];
 
 	// For security reports, we will be targetting the following fields.
 
@@ -155,14 +156,14 @@ function createChart() {
 	const dateColumn = $("#datecolumn").val();
 	console.log("dateColumn: " + dateColumn);
 	
-	var groupColumns = $("#groupcolumns").val().split(",");
+	const groupColumns = $("#groupcolumns").val().split(",");
 	console.log("Group:");
 	console.log(groupColumns);
 	
 	// scans is a double linked array, indexed by mText.. Add to that then the dates.
-	var scans = [];
-	for (var i = 0; i < issues.length; i++) {
-		var mText = "";
+	let scans = [];
+	for (let i = 0; i < issues.length; i++) {
+		let mText = "";
 		for (var m = 0; m < groupColumns.length; m++)
 			mText += issues[i][groupColumns[m]] + ",";
 		if (scans[mText] == undefined)
@@ -176,32 +177,32 @@ function createChart() {
 	// date loop
 	// Start at startDate
 	// Need to consider previous date, so that we can observe interval. Go back one interval
-    var previousDate = new Date(startDate);
-    var startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
+    let previousDate = new Date(startDate);
+    const startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
     yoda.advanceDate(previousDate, "-" + interval, startDay);
     console.log("Initial previousDate: " + previousDate);
-	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
+	for (let date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
 		date.setHours(23);
 		date.setMinutes(59);
 		date.setSeconds(59);
-		var dateString = yoda.formatDate(date);
+		const dateString = yoda.formatDate(date);
 		console.log("Date: " + date + ", previousDate: " + previousDate + ", dateString: " + dateString);
 		
 		dateArray.push(yoda.formatDate(date));
 		
 		// Prepare data array
-		var dataArrayForDay = new Array(bars.length);
-		for (var l=0; l<bars.length; l++)
+		let dataArrayForDay = new Array(bars.length);
+		for (let l = 0; l < bars.length; l++)
 			dataArrayForDay[l] = 0;
-		var totalForDay = 0;
+		let totalForDay = 0;
 		
 		// Ok, now let's count issues
-		for (var i=0; i < issues.length; i++) {
+		for (let i=0; i < issues.length; i++) {
 			if (!filterIssue(filters, issues[i]))
 				continue;
 				
 			// Let's see if we should add just 1 for the entry, or if there is a count field
-			var count = 1;
+			let count = 1;
 			if (countField != "")
 				count = parseInt(issues[i][countField]);
 			
@@ -209,10 +210,10 @@ function createChart() {
 			if (issues[i][dateColumn] > dateString)
 				continue;
 
-			var mText = "";
-			for (var m = 0; m < groupColumns.length; m++)
+			let mText = "";
+			for (let m = 0; m < groupColumns.length; m++)
 				mText += issues[i][groupColumns[m]] + ",";
-			var sIndex = scans[mText].findIndex(element => element.date == issues[i][dateColumn]);
+			const sIndex = scans[mText].findIndex(element => element.date == issues[i][dateColumn]);
 			if (sIndex == -1) {
 				console.log("AHHHH. Could not find scan report. That is bad: i=" + i);
 				console.log(issues[i]);
@@ -229,7 +230,7 @@ function createChart() {
 			// We now know that this issue is part of most recent scanReport (done for this category). However, the scan report 
 			// could be REALLY OLD. In this case, we want to ignore as well.
 			const issueDate = new Date(issues[i][dateColumn]);
-			var issueAge = (date.getTime() - issueDate.getTime()) /(24*3600*1000);
+			const issueAge = (date.getTime() - issueDate.getTime()) /(24*3600*1000);
 			if (issueAge > maxAge) {
 //  				console.log("Ignoring issue due to age in days: " + issueAge);
 				continue;
@@ -238,7 +239,7 @@ function createChart() {
 			totalForDay += count;
 			// Let's find the right bar.
 			if (bars.length > 0) {
-				var index = bars.indexOf(issues[i][barSplit]);
+				const index = bars.indexOf(issues[i][barSplit]);
 				if (index != -1) {
 					// Got a match. Make sure we don't continue search
 					dataArrayForDay[index] = dataArrayForDay[index] + count;
@@ -247,29 +248,28 @@ function createChart() {
 		}
 		
 		// Are we doing percentages?
-		if (percentage.checked) {
-			var total = 0;
+		if ($("#percentage").is(":checked")) {
+			let total = 0;
 			// Percentage. Let's first calc total.
-			for (var i=0; i < bars.length; i++)
+			for (let i=0; i < bars.length; i++)
 				total += dataArrayForDay[i];   
 							
-			for (var i=0; i < bars.length; i++)
+			for (let i=0; i < bars.length; i++)
 				dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
 		} else {
 			// Normal case			
 			// We will push data to the data array
-			for (var b=0; b < bars.length; b++)
+			for (var b = 0; b < bars.length; b++)
 				dataArray[b].push(dataArrayForDay[b]); 
 		}
 		
-//		console.log(dataArrayForDay);
 		totalArray.push(totalForDay);
 	}
 	
 	// Ready, let's push the bars. If we don't have any bars, let's use the total bar.
-	var datasetArray = [];
+	let datasetArray = [];
 	if (bars.length > 0) {
-		for (var b = 0; b < bars.length; b++) {
+		for (let b = 0; b < bars.length; b++) {
 			// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
 			datasetArray.push({
 				type : 'bar',
@@ -296,8 +296,8 @@ function createChart() {
 
 	// Total line
 	console.log("BAR LENGTH " + bars.length)
-	if (!percentage.checked && bars.length > 1) {
-		if (!stacked.checked) {
+	if (!$("#percentage").is(":checked") && bars.length > 1) {
+		if (!$("#stacked").is(":checked")) {
 			// Normal case. Right total line against right axis.
 			datasetArray.push({
 				type : 'line',
@@ -322,7 +322,7 @@ function createChart() {
 	} 
 	
 	// We will push data to a 
-	var chartData = {
+	const chartData = {
 			labels : dateArray,
 			datasets : datasetArray
 	};
@@ -333,12 +333,12 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage.checked?"Relative Percentage: " +axisCategory: ("# " + axisCategory),
+				text: $("#percentage").is(":checked") ? "Relative Percentage: " + axisCategory : ("# " + axisCategory),
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -348,7 +348,7 @@ function createChart() {
 			}
 		},
 		x: {
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
@@ -356,18 +356,17 @@ function createChart() {
 	};
 	
 	// If percentage scale, make sure we go only to 100
-	if (percentage.checked)
+	if ($("#percentage").is(":checked"))
 		chartScales.yleft.max = 100;
-
 	
 	// Add second axis.
-	if ((bars.length > 1 && !stacked.checked && !percentage.checked)) {
+	if ((bars.length > 1 && !$("#stacked").is(":checked") && !$("#percentage").is(":checked"))) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
 				text: "Total " + axisCategory,
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
 			position: "right",
@@ -382,11 +381,11 @@ function createChart() {
 
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
-	var ctx = document.getElementById("canvas").getContext("2d");
+	let ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "Plot of " + $("#path").val();
+	let chartTitle = "Plot of " + $("#path").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
@@ -402,7 +401,7 @@ function createChart() {
 					display : true,
 					text : chartTitle,
 					font: {
-		           		size: 20                    
+						size: 20                    
 					}
 				}
 			},
@@ -411,7 +410,7 @@ function createChart() {
 				intersect : true
 			},
 			scales: chartScales,
-		},
+		}
 	});
 	
 	yoda.updateUrl(getUrlParams() + "&draw=true");
@@ -419,8 +418,8 @@ function createChart() {
 
 // NonDate versions. We neeed to plot all values.
 function createChartNonDate() {
-	var axisCategory = $('#axiscategory').val();
-	var axisColumn = $('#axiscolumn').val();
+	const axisCategory = $('#axiscategory').val();
+	const axisColumn = $('#axiscolumn').val();
 
 	const barSplit = $("#barsplit").val();
 	console.log("Label split: " + barSplit);
@@ -437,7 +436,7 @@ function createChartNonDate() {
 
 	if (barSplit != "" && issues[0][barSplit] != undefined) {
 		console.log("Splitting by field: " + barSplit);
-		for (var i = 0; i < issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			if (!filterIssue(filters, issues[i]))
 				continue;
 
@@ -452,15 +451,14 @@ function createChartNonDate() {
 	barSort();
 
 	// We will be looping through the issues (entries) of the CSV file. 
-	const axisValue = "";
-	var axisArray = [];
-	var dataArray = new Array(bars.length);
-	for (var l = 0; l < bars.length; l++)
+	let axisArray = [];
+	let dataArray = new Array(bars.length);
+	for (let l = 0; l < bars.length; l++)
 		dataArray[l] = [];
 
-	var totalArray = [];
+	let totalArray = [];
 	//  First run - create axisArray and prepare for values.
-	for (var i = 0; i < issues.length; i++) {
+	for (let i = 0; i < issues.length; i++) {
 		if (!filterIssue(filters, issues[i]))
 			continue;
 			
@@ -480,7 +478,7 @@ function createChartNonDate() {
 		sevSort(axisArray);
 	
 	// Second run. Add data
-	for (var i = 0; i < issues.length; i++) {
+	for (let i = 0; i < issues.length; i++) {
 		if (!filterIssue(filters, issues[i]))
 			continue;
 			
@@ -488,7 +486,7 @@ function createChartNonDate() {
 		const axisIndex = axisArray.indexOf(axisValue);
 
 		// Let's add to the relevant bars.
-		for (var l = 0; l < bars.length; l++) {
+		for (let l = 0; l < bars.length; l++) {
 			if (bars[l] == issues[i][barSplit]) 
 				dataArray[l][axisIndex] = dataArray[l][axisIndex] + (countField == ""? 1: parseFloat(issues[i][countField]));
 		}
@@ -496,18 +494,18 @@ function createChartNonDate() {
 	}
 
 	// Percentage? If so, we need to adjust all values.
-	if (percentage.checked) {
-		for (var ai = 0; ai < totalArray.length; ai++) {
-			for (var l = 0; l < bars.length; l++) 
+	if ($("#percentage").is(":checked")) {
+		for (let ai = 0; ai < totalArray.length; ai++) {
+			for (let l = 0; l < bars.length; l++) 
 				dataArray[l][ai] = (100.0 * dataArray[l][ai] / totalArray[ai]).toFixed(1); 
 			totalArray[ai] = 100.0;
 		}
 	}
 	
-	var datasetArray = [];
+	let datasetArray = [];
 	// Ready, let's push the bars. If we don't have any bars, let's use the total bar.
 	if (bars.length > 0) {
-		for (var b = 0; b < bars.length; b++) {
+		for (let b = 0; b < bars.length; b++) {
 			datasetArray.push({
 				type : 'bar',
 				label : bars[b],
@@ -532,21 +530,21 @@ function createChartNonDate() {
 	}
 
 	// We will push data to a 
-	var chartData = {
+	const chartData = {
 			labels : axisArray,
 			datasets : datasetArray
 	};
 	
-	var chartScales = {
+	let chartScales = {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage?"Relative Percentage: " +axisCategory: axisCategory,
+				text: $("#percentage").is(":checked")? "Relative Percentage: " + axisCategory: axisCategory,
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -556,7 +554,7 @@ function createChartNonDate() {
 			}
 		},
 		x: {
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
@@ -564,16 +562,16 @@ function createChartNonDate() {
 	};
 	
 	// If percentage scale, make sure we go only to 100
-	if (percentage.checked)
+	if ($("#percentage").is(":checked"))
 		chartScales.yleft.max = 100;
 	
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
-	var ctx = document.getElementById("canvas").getContext("2d");
+	let ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "Plot of " + $("#path").val();
+	let chartTitle = "Plot of " + $("#path").val();
 	if ($("#title").val() != "") {
 		chartTitle = $("#title").val(); 
 	}
@@ -589,7 +587,7 @@ function createChartNonDate() {
 					display : true,
 					text : chartTitle,
 					font: {
-		           		size: 20                    
+						size: 20                    
 					}
 				}
 			},
@@ -605,25 +603,25 @@ function createChartNonDate() {
 }
 
 
-var firstFilterUpdate = true;
+let firstFilterUpdate = true;
 function updateFilterColumns() {
-	var filters = JSON.parse(yoda.decodeUrlParam(null, "filters"));
+	const filters = JSON.parse(yoda.decodeUrlParam(null, "filters"));
 	// Let's start by clearing filters
 	$("#filters").val(null).empty();
 	
 	// Let's update the filters based on the columns
-	var columns = Object.keys(issues[0]);
-	for (var c = 0; c < columns.length; c++) {
+	const columns = Object.keys(issues[0]);
+	for (let c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
 			continue;
 
 		if (firstFilterUpdate && filters != null && filters.findIndex(element => element.id == columns[c]) != -1) {
-			var newOption = new Option(columns[c], columns[c], true, true);
+			const newOption = new Option(columns[c], columns[c], true, true);
 			$("#filters").append(newOption);			
-			var i = filters.findIndex(element => element.id == columns[c]);
+			const i = filters.findIndex(element => element.id == columns[c]);
 			addFilter(columns[c], filters[i].values);
 		} else {
-			var newOption = new Option(columns[c], columns[c], false, false);
+			const newOption = new Option(columns[c], columns[c], false, false);
 			$("#filters").append(newOption);			
 		}
 		
@@ -639,22 +637,22 @@ function addFilter(column, selectedValues) {
 	console.log(selectedValues);
 	if (selectedValues == undefined)
 		selectedValues = [];
-	var ff = document.getElementById("filterframe");
+	let ff = document.getElementById("filterframe");
 	
 //		<div class="field">
 //			<label>Filters</label>
 //			<select id="filters" style="width: 350px" class="select2" multiple></select>
 //			<span class="tooltip">Columns to filter</span>
 //		</div>
-	var div = document.createElement("div");
+	let div = document.createElement("div");
 	div.className = "field";
 	div.id = "f-" + columnId;
 	
-	var label = document.createElement("label");
+	let label = document.createElement("label");
 	label.innerText = column + " filter";
 	div.appendChild(label);
 	
-	var select = document.createElement("select");
+	let select = document.createElement("select");
 	select.id = "sel-" + columnId;
 	select.class = "select2 colfilter";
 	select.style = "width: 300px";
@@ -664,22 +662,23 @@ function addFilter(column, selectedValues) {
 	ff.appendChild(div);
 	$("#sel-" + columnId).select2({
 		sorter: yoda.select2Sorter,
-	    matcher: yoda.select2Matcher
+		matcher: yoda.select2Matcher
 	});
 	
 	// Now, add the possible values.
-	var values = [];
-	for (var i = 0; i < issues.length; i++) {
-		var v = issues[i][column];
+	let values = [];
+	for (let i = 0; i < issues.length; i++) {
+		const v = issues[i][column];
 		if (v == undefined || v == "")
 			continue;
 		if (values.indexOf(v) == -1) {
 			values.push(v);
 			
+			let newOption;
 			if (selectedValues.indexOf(v) != -1)
-				var newOption = new Option(v, v, true, true);
+				newOption = new Option(v, v, true, true);
 			else
-				var newOption = new Option(v, v, false, false);
+				newOption = new Option(v, v, false, false);
 			$("#sel-" + columnId).append(newOption);		
 		}
 	}
@@ -698,23 +697,23 @@ function removeFilter(column) {
 
 function removeAllFilters() {
 	if (issues.length > 0) {
-		var columns = Object.keys(issues[0]);
-		for (var c = 0; c < columns.length; c++)
+		const columns = Object.keys(issues[0]);
+		for (let c = 0; c < columns.length; c++)
 			removeFilter(columns[c]); // Surely, most will not be there. But that is ok.
 	}
 }
 
 // $("#sel-Product").find(':selected')[0].value
 function getFilters() {
-	var filterArray = [];
+	let filterArray = [];
 	// First, we need to get the filters. They all have the "colfilter" class
-	var selectDoms = document.getElementsByTagName("SELECT");
-	for (var f = 0; f < selectDoms.length; f++) {
-		var sel = selectDoms[f];
+	const selectDoms = document.getElementsByTagName("SELECT");
+	for (let f = 0; f < selectDoms.length; f++) {
+		const sel = selectDoms[f];
 		if (sel.id.startsWith("sel-")) {
-			var selections = $("#" + sel.id).find(":selected");
-			var values = [];
-			for (var s = 0; s < selections.length; s++)
+			const selections = $("#" + sel.id).find(":selected");
+			let values = [];
+			for (let s = 0; s < selections.length; s++)
 				values.push(selections[s].value);
 			if (values.length > 0)  // Ignore of nothing is selected. That filter would be stupid, as it would just discard everything.
 				filterArray.push({id: selectDoms[f].id.substr(4).replace(/_/g," "), values: values});
@@ -727,9 +726,9 @@ function getFilters() {
 // Based on filter (as retrieved by getFilters) 
 function filterIssue(filters, issue) {
 	// Loop filters. For each filter, we evaluate OR (i.e. need at least match for one of the values) and across filters we do AND (match have to be in all)
-	for (var f = 0; f < filters.length; f++) {
-		var filterOk = false; // Need to find at least one match
-		for (var v = 0; v < filters[f].values.length; v++) {
+	for (let f = 0; f < filters.length; f++) {
+		let filterOk = false; // Need to find at least one match
+		for (let v = 0; v < filters[f].values.length; v++) {
 			if (issue[filters[f].id] == filters[f].values[v]) {
 				filterOk = true;
 				break;
@@ -746,12 +745,12 @@ function updateBarSplit() {
 	$("#barsplit").val(null).empty();
 	
 	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
-	var newOption = new Option("", "", true, true);
+	const newOption = new Option("", "", true, true);
 	$("#barsplit").append(newOption);			
 	
-	var barSplit = yoda.decodeUrlParam(null, "barsplit");
-	var columns = Object.keys(issues[0]);
-	for (var c = 0; c < columns.length; c++) {
+	const barSplit = yoda.decodeUrlParam(null, "barsplit");
+	const columns = Object.keys(issues[0]);
+	for (let c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
 			continue;
 
@@ -761,10 +760,10 @@ function updateBarSplit() {
 //			continue;
 			
 		if (firstBarUpdate && barSplit != null && columns[c] == barSplit) {
-			var newOption = new Option(columns[c], columns[c], true, true);
+			const newOption = new Option(columns[c], columns[c], true, true);
 			$("#barsplit").append(newOption);			
 		} else {
-			var newOption = new Option(columns[c], columns[c], false, false);
+			const newOption = new Option(columns[c], columns[c], false, false);
 			$("#barsplit").append(newOption);			
 		}
 	}
@@ -772,17 +771,17 @@ function updateBarSplit() {
 	firstBarUpdate = false;
 }
 
-var firstAxisUpdate = true;
+let firstAxisUpdate = true;
 function updateAxisColumn() {
 	$("#axiscolumn").val(null).empty();
 	
 	// We need to include a blank for the first option. Otherwise, the first option will be selected per default.
-	var newOption = new Option("", "", true, true);
+	const newOption = new Option("", "", true, true);
 	$("#axiscolumn").append(newOption);			
 	
-	var axisColumn = yoda.decodeUrlParam(null, "axiscolumn");
-	var columns = Object.keys(issues[0]);
-	for (var c = 0; c < columns.length; c++) {
+	const axisColumn = yoda.decodeUrlParam(null, "axiscolumn");
+	const columns = Object.keys(issues[0]);
+	for (let c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val() || columns[c] == "count")
 			continue;
 
@@ -792,10 +791,10 @@ function updateAxisColumn() {
 //			continue;
 			
 		if (firstAxisUpdate && axisColumn != null && columns[c] == axisColumn) {
-			var newOption = new Option(columns[c], columns[c], true, true);
+			const newOption = new Option(columns[c], columns[c], true, true);
 			$("#axiscolumn").append(newOption);			
 		} else {
-			var newOption = new Option(columns[c], columns[c], false, false);
+			const newOption = new Option(columns[c], columns[c], false, false);
 			$("#axiscolumn").append(newOption);			
 		}
 	}
@@ -803,18 +802,17 @@ function updateAxisColumn() {
 	firstAxisUpdate = false;
 }
 
-
-var firstCountUpdate = true;
+let firstCountUpdate = true;
 function updateCountField() {
 	$("#countfield").val(null).empty();
 	
 	// We will include blank option. This means 
-	var newOption = new Option("", "", true, true);
+	const newOption = new Option("", "", true, true);
 	$("#countfield").append(newOption);			
 	
-	var countField = yoda.decodeUrlParam(null, "countfield");
-	var columns = Object.keys(issues[0]);
-	for (var c = 0; c < columns.length; c++) {
+	const countField = yoda.decodeUrlParam(null, "countfield");
+	const columns = Object.keys(issues[0]);
+	for (let c = 0; c < columns.length; c++) {
 		if (columns[c] == $("#datecolumn").val())
 			continue;
 			
@@ -823,10 +821,10 @@ function updateCountField() {
 			continue;
 		
 		if (firstCountUpdate && ((countField != null && columns[c] == countField) || (countField == null && columns[c] == "count"))) {
-			var newOption = new Option(columns[c], columns[c], true, true);
+			const newOption = new Option(columns[c], columns[c], true, true);
 			$("#countfield").append(newOption);			
 		} else {
-			var newOption = new Option(columns[c], columns[c], false, false);
+			const newOption = new Option(columns[c], columns[c], false, false);
 			$("#countfield").append(newOption);			
 		}
 	}
@@ -835,7 +833,7 @@ function updateCountField() {
 }
 
 // repo=orchestration&path=Security_report_aggregator/aggregation/globalReport.csv&branch=49_full_maven_security_report_collector
-var firstCSVRead = true;
+let firstCSVRead = true;
 function readCSV() {
 	removeAllFilters();
 	
@@ -856,7 +854,7 @@ function readCSV() {
 			console.log("Empty CSV file / wrong format");
 			yoda.showSnackbarError("Empty CSV file / wrong format", 3000);
 		} else {
-			var noCols = Object.keys(issues[0]).length;
+			const noCols = Object.keys(issues[0]).length;
 			console.log("Number of columns: " + noCols);
 			// Fix. Remove any trailing issues with different # of columns
 			while (issues.length > 0 && Object.keys(issues[issues.length - 1]).length < noCols)
@@ -874,10 +872,8 @@ function readCSV() {
 			updateFilterColumns();
 			updateAxisColumn();
 			
-			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+			if (firstCSVRead && yoda.decodeUrlParamBoolean(null, "draw") == "true")
 				setTimeout(createChart, 0);
-			}
-
 			firstCSVRead = false;				
 		}
 	}, function(err) {
@@ -922,9 +918,8 @@ export function init() {
 	yoda.decodeUrlParam("#user", "user");
 	yoda.decodeUrlParam("#token", "token");
 
-	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
 		$(".frame").hide();
-	}
 
 	$('#countfield').select2();
 	$('#barsplit').select2();
@@ -957,7 +952,5 @@ export function init() {
 		$('#filters').on('select2:unselect', function (e) {
 			removeFilter(e.params.data.id);
 		});
-
 	});
-
 }
