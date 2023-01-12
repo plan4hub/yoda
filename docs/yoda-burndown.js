@@ -1005,7 +1005,7 @@ function burndown(issues) {
 	}
 
 	// Find yMaxValue
-	var yMaxValue = -1;
+	let yMaxValue = -1;
 	if ($("#capacity").val() != "")
 		yMaxValue = parseInt($("#capacity").val());
 	yMaxValue = Math.max(yMaxValue, (estimateNoFreeze + estimate + estimateTentative));
@@ -1110,10 +1110,9 @@ function updateMilestones(repoIndex) {
 		$("#milestonelist").empty();
 		commonMilestones = [];
 
-		for (var r = 0; r < repoList.length; r++) {
-			for (var m = 0; m < repoMilestones[r].length; m++) {
-				var repoTitle = repoMilestones[r][m].title;
-
+		for (let r = 0; r < repoList.length; r++) {
+			for (let m = 0; m < repoMilestones[r].length; m++) {
+				const repoTitle = repoMilestones[r][m].title;
 				if (!commonMilestones.find(function (element) { return (element.title == repoTitle); }))
 					commonMilestones.push({ title: repoTitle, duedate: yoda.formatDate(new Date(repoMilestones[r][m].due_on)), startdate: yoda.getMilestoneStartdate(repoMilestones[r][m].description) });
 			}
@@ -1123,12 +1122,12 @@ function updateMilestones(repoIndex) {
 		commonMilestones.sort(function (a, b) { return (a.title < b.title); });
 		console.log("The common milestones are: ");
 		console.log(commonMilestones);
-		var milestonesSelected = false;
+		let milestonesSelected = false;
 
-		var urlMilestone = yoda.decodeUrlParam(null, "milestone");
+		const urlMilestone = yoda.decodeUrlParam(null, "milestone");
 		console.log("URL milestone: " + urlMilestone);
-		for (var c = 0; c < commonMilestones.length; c++) {
-			var selectMilestone = false;
+		for (let c = 0; c < commonMilestones.length; c++) {
+			let selectMilestone = false;
 			if (firstMilestoneShow && commonMilestones[c].title == urlMilestone) {
 				console.log("Selecting milestone as: " + commonMilestones[c].title);
 				selectMilestone = true;
@@ -1136,10 +1135,10 @@ function updateMilestones(repoIndex) {
 			}
 
 			// Handle _CURRENT_ milestone 
-			var today = yoda.formatDate(new Date());
+			const today = yoda.formatDate(new Date());
 			if (firstMilestoneShow && urlMilestone != null && urlMilestone.startsWith("_CURRENT_") && today >= commonMilestones[c].startdate && today <= commonMilestones[c].duedate) {
 				// Check if we have more string matching to do
-				var matchMilestone = urlMilestone.substr("_CURRENT_".length);
+				const matchMilestone = urlMilestone.substring("_CURRENT_".length);
 				console.log("Matching _CURRENT_ milestone with milestone beginning with: " + matchMilestone);
 				if (commonMilestones[c].title.startsWith(matchMilestone)) {
 					console.log("Selecting _CURRENT_ milestone as: " + commonMilestones[c].title);
@@ -1148,7 +1147,7 @@ function updateMilestones(repoIndex) {
 				}
 			}
 
-			var newOption = new Option(commonMilestones[c].title, commonMilestones[c].title, selectMilestone, selectMilestone);
+			const newOption = new Option(commonMilestones[c].title, commonMilestones[c].title, selectMilestone, selectMilestone);
 			$('#milestonelist').append(newOption);
 		}
 
@@ -1166,12 +1165,12 @@ function addMilestoneFilter(repo) {
 	// Need to find the milestone # for that repo
 	console.log("Searching milestone definition for " + repo);
 
-	for (var r = 0; r < repoList.length; r++) {
+	for (let r = 0; r < repoList.length; r++) {
 		if (repoList[r] != repo)
 			continue;
 
 		// Need to find the milestone (the number)..
-		for (var m = 0; m < repoMilestones[r].length; m++) {
+		for (let m = 0; m < repoMilestones[r].length; m++) {
 			console.log("Checking " + $("#milestonelist").val() + " against " + repoMilestones[r][m].title);
 			if (repoMilestones[r][m].title == $("#milestonelist").val()) {
 				const filter = "&milestone=" + repoMilestones[r][m].number;
@@ -1199,9 +1198,9 @@ function showMilestoneData() {
 	// This is a bit tricky. We will look across all selected repos and consider matching milestones.
 	// We will pick up any capacity value and add to a total. We will assume that dates are set 
 	// equally, so will just pick up what is there.... Warnings could be another option... 
-	for (var r = 0; r < repoList.length; r++) {
-		for (var m = 0; m < repoMilestones[r].length; m++) {
-			var title = repoMilestones[r][m].title;
+	for (let r = 0; r < repoList.length; r++) {
+		for (let m = 0; m < repoMilestones[r].length; m++) {
+			const title = repoMilestones[r][m].title;
 
 			if (selected == title) {
 				var milestone = repoMilestones[r][m];
@@ -1209,7 +1208,7 @@ function showMilestoneData() {
 				var milestoneDueOn = yoda.formatDate(new Date(milestone.due_on));
 				console.log("  Milestone due: " + milestoneDueOn);
 				$("#milestone_due").val(milestoneDueOn);
-				var milestoneStartdate = yoda.getMilestoneStartdate(milestone.description);
+				const milestoneStartdate = yoda.getMilestoneStartdate(milestone.description);
 				if (milestoneStartdate == null) {
 					$("#milestone_start").val("2017-xx-xx");
 					console.log("  Unable to read milestone startdate.");
@@ -1218,13 +1217,13 @@ function showMilestoneData() {
 					console.log("  Milestone start: " + milestoneStartdate);
 				}
 				// Override due date?
-				var overrideDue = yoda.getMilestoneBurndownDuedate(milestone.description);
+				const overrideDue = yoda.getMilestoneBurndownDuedate(milestone.description);
 				if (overrideDue != null)
 					$("#burndown_due").val(overrideDue);
 				else
 					$("#burndown_due").val("");
 
-				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
+				const subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
 				console.log("subteamCapacity:");
 				console.log(subteamCapacity);
 				let si, capacity;
@@ -1278,7 +1277,7 @@ Chart.defaults.font.size = 14;
 Chart.register({
 	id: "yoda-label",
 	afterDatasetsDraw: function (chartInstance) {
-		var ctx = chartInstance.ctx;
+		let ctx = chartInstance.ctx;
 
 		chartInstance.data.datasets.forEach(function (dataset, i) {
 			let meta = chartInstance.getDatasetMeta(i);
