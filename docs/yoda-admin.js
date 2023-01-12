@@ -119,7 +119,7 @@ export function init() {
 		$("#srcrepo").val(localStorage.getItem("yoda.label.srcrepo"));
 		$("#framebackground").val(localStorage.getItem("yoda.global.framebackground"));
 		if (yoda.getDefaultLocalStorageValue("yoda.estimate") == null)
-			 $('input[name=estimate][value=""]').attr('checked',true);
+			$('input[name=estimate][value=""]').attr('checked', true);
 		else
 			yoda.decodeParamRadio('estimate', yoda.getDefaultLocalStorageValue("yoda.estimate"));
 		
