@@ -20,26 +20,27 @@
 import * as yoda from './yoda-utils.js'
 
 // Global variable for any css overwrite
-var css = "";
+let css = "";
 
 //Parse markdown to HTML (if any)
 function parseMarkdown(markdown) {
 //	console.log(markdown);
-	var markdownUrl = yoda.getGithubUrl() + "markdown";
+	let markdownUrl = yoda.getGithubUrl() + "markdown";
 	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
 	
-	var urlData = {
+	const urlData = {
 			"text": markdown
 	};
 	
-	var result = "";
+	let result = "";
 	$.ajax({
 		url: markdownUrl,
 		type: 'POST',
 		async: false, 
 		data: JSON.stringify(urlData),
-		success: function(data) { result = data;},
+		success: function(data) { result = data; },
 		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+		// eslint-disable-next-line no-unused-vars
 		complete: function(jqXHR, textStatus) { }
 	});
 
@@ -53,7 +54,7 @@ function parseMarkdown(markdown) {
 }
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 
 	["labelfilter", "milestonefilter", "singlelabeldef", "sharedlabeldef", "splitbodydef", "fields", "translation", "csvdelimiter", "labelindicator", 
 	"epiclabel", "outputfile", "cssowner", "cssrepo", "csspath", "cssbranch", "exportevents"].forEach((p) => {
@@ -88,7 +89,7 @@ function getEpicData(issues, issue, level) {
 	// Search for lines in the issue description matching something like below:
 	// > partof #3638 [Co - FF, T6 - Epic]  *ETSILifeCycle Suite split in base+functionallity*
 	// If found will return a structure. Otherwise null.
-	var reg = /^[ ]*> partof [ ]*((([^ ~]*\/)?([^ ~]*))?#([1-9][0-9]*))[ ]*\[([^\]]*)\][ ]*(.*)$/mg;
+	const reg = /^[ ]*> partof [ ]*((([^ ~]*\/)?([^ ~]*))?#([1-9][0-9]*))[ ]*\[([^\]]*)\][ ]*(.*)$/mg;
 	// console.log(reg);
 	
 	var epicMatches = [];
@@ -124,7 +125,7 @@ function getEpicData(issues, issue, level) {
 
 	if (epicMatches.length > 1) {
 		// Hmm.. Let's favor local if more than one epic match.
-		for (var i = 0; i < epicMatches.length; i++) {
+		for (let i = 0; i < epicMatches.length; i++) {
 			if (epicMatches.repo == undefined && epicMatches.length > 0) {
 				epicMatches.splice(i, 1);
 				i--;
@@ -134,9 +135,9 @@ function getEpicData(issues, issue, level) {
 	
 	// Ok, we had no Epic matches. Did we have other matches?
 	if (epicMatches.length == 0 && otherMatches.length > 0) {
-		for (var m = 0; m < otherMatches.length; m++) {
+		for (let m = 0; m < otherMatches.length; m++) {
 			// console.log("HERE", otherMatches[m].index, issue.html_url, issues[otherMatches[m].index].html_url);
-			var result = getEpicData(issues, issues[otherMatches[m].index], level + 1);
+			const result = getEpicData(issues, issues[otherMatches[m].index], level + 1);
 			if (result.length > 0)
 				return result;
 		}
@@ -148,11 +149,12 @@ function getEpicData(issues, issue, level) {
 
 // -- Helper function for formatting RC comments (as also used in body)
 function formatComment(oldComment, body, date, exportToCsv) {
-	var comment = oldComment;
+	let comment = oldComment;
+	let rcText;
 	if (exportToCsv) 
-		var rcText = yoda.extractKeywordField(body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
+		rcText = yoda.extractKeywordField(body, "RC", "paragraph", "::"); // \n won't work in CSV file. Cannot read it... 
 	else
-		var rcText = yoda.extractKeywordField(body, "RC", "paragraph", "<br>");
+		rcText = yoda.extractKeywordField(body, "RC", "paragraph", "<br>");
 	if (rcText == "")
 		return comment;
 					
@@ -164,7 +166,7 @@ function formatComment(oldComment, body, date, exportToCsv) {
 			comment += " / ";
 		comment += yoda.formatDate(date) + ": " + rcText;
 	} else {
-		var parsedText = parseMarkdown(rcText);
+		let parsedText = parseMarkdown(rcText);
 		// console.log("parsed text:" + parsedText + ":");
 		comment += '<li style="margin-bottom: 5px">' + yoda.formatDate(date) + ": " + parsedText  + '</li>';
 	}
@@ -184,40 +186,41 @@ function exportIssues(issues) {
 	logMessage("Info: Received " + issues.length + " issues. Now analyzing and converting to CSV.");
 
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
-	var todayDate = yoda.formatDate(today);
+	const todayDate = yoda.formatDate(today);
 
-	var singleLabelDef = $("#singlelabeldef").val();
-	var sharedLabelDef = $("#sharedlabeldef").val();
-	var splitLabelDef = $("#splitlabeldef").val();
+	const singleLabelDef = $("#singlelabeldef").val();
+	const sharedLabelDef = $("#sharedlabeldef").val();
+	const splitLabelDef = $("#splitlabeldef").val();
+	let splitbodyDef;
 	if ($("#splitbodydef").val() == "")
-		var splitbodyDef = [];
+		splitbodyDef = [];
 	else
-		var splitbodyDef = $("#splitbodydef").val().split(",");
+		splitbodyDef = $("#splitbodydef").val().split(",");
   
-	var fieldValue = $("#fields").val();
-	var labelIndicator = $("#labelindicator").val();
-	var csvDelimiter = $("#csvdelimiter").val();
-	var outputFile = $("#outputfile").val();
+	const fieldValue = $("#fields").val();
+	const labelIndicator = $("#labelindicator").val();
+	const csvDelimiter = $("#csvdelimiter").val();
+	const outputFile = $("#outputfile").val();
 
-	var singleLabels = singleLabelDef.split(",");
+	const singleLabels = singleLabelDef.split(",");
 	
 	// For split, we need to find all possible matching labels
-	var splitLabels = [];
-	var splitLabelTemp = splitLabelDef.split(",");
-	for (var s = 0; s < splitLabelTemp.length; s++) {
+	let splitLabels = [];
+	const splitLabelTemp = splitLabelDef.split(",");
+	for (let s = 0; s < splitLabelTemp.length; s++) {
 		if (splitLabelTemp[s].trim() == "")
 			continue;
 		console.log(splitLabelTemp[s]);
-		var splitReg = new RegExp(splitLabelTemp[s]);
-		var splitEntry = [];
-		for (i=0; i<issues.length; i++) {
-			for (var l=0; l<issues[i].labels.length; l++) {
-				var labelName = issues[i].labels[l].name;
-				var res = labelName.match(splitReg);
+		const splitReg = new RegExp(splitLabelTemp[s]);
+		let splitEntry = [];
+		for (let i = 0; i < issues.length; i++) {
+			for (var l = 0; l < issues[i].labels.length; l++) {
+				const labelName = issues[i].labels[l].name;
+				const res = labelName.match(splitReg);
 				if (res != null) {
 					if (splitEntry.indexOf(labelName) == -1) {
 //						console.log("Found label: " + labelName);
@@ -232,32 +235,33 @@ function exportIssues(issues) {
 	console.log("Split labels: " + splitLabels);
 
 	// Also do a bit of preparation work on shared columns
-	var sharedLabels = [];
-	var sharedLabelTemp = sharedLabelDef.split(",");
-	for (var s = 0; s < sharedLabelTemp.length; s++) {
+	let sharedLabels = [];
+	const sharedLabelTemp = sharedLabelDef.split(",");
+	for (let s = 0; s < sharedLabelTemp.length; s++) {
 		console.log(sharedLabelTemp[s]);
-		var t = sharedLabelTemp[s].split("=");
-		var t2 = {name: t[0], regexp: t[1]};
+		const t = sharedLabelTemp[s].split("=");
+		const t2 = {name: t[0], regexp: t[1]};
 		sharedLabels.push(t2);
 	}
 //	console.log(sharedLabels);
 	
 	// Now we are ready to iterator over the issues, yippee
-	var fields = fieldValue.split(",");
+	const fields = fieldValue.split(",");
 	console.log("fields: " + fieldValue);
-	var data = [];
-	var fieldErrors = [];
-	var numberRoll = 0;
-	for (var i = 0; i < issues.length; i++) {
-		var skipIssue = false;
+	let data = [];
+	let fieldErrors = [];
+	let numberRoll = 0;
+	for (let i = 0; i < issues.length; i++) {
+		let skipIssue = false;
 		
 //		console.log(issues[i]);
-		var el = {};
+		let el = {};
 		
 		// Go over the fields
-		for (var f = 0; f < fields.length; f++) {
-			var fName = fields[f];
+		for (let f = 0; f < fields.length; f++) {
+			const fName = fields[f];
 //			console.log("Field: " + fName);
+			let result;
 
 			// First handle the built-in fields
 			switch (fName) {
@@ -296,7 +300,7 @@ function exportIssues(issues) {
 				break;
 			case "Assignees":
 				el["Assignees"] = "";
-				for (var as = 0; as < issues[i].assignees.length; as++) {
+				for (let as = 0; as < issues[i].assignees.length; as++) {
 					if (el["Assignees"] != "")
 						el["Assignees"] += ",";
 					el["Assignees"] += issues[i].assignees[as].login;
@@ -316,7 +320,7 @@ function exportIssues(issues) {
 			case "Closed at":
 				el["Closed at"] = "";
 				if (issues[i].closed_at != null) {
-					var date = new Date(issues[i].closed_at)
+					const date = new Date(issues[i].closed_at)
 					el["Closed at"] = yoda.formatDate(date);
 				}
 				break;
@@ -337,31 +341,28 @@ function exportIssues(issues) {
 				el["Report Date"] = yoda.formatDate(today);
                 break;
             case "MilestoneDate":
-				if (issues[i].milestone != undefined && issues[i].milestone.due_on != null) {
+				if (issues[i].milestone != undefined && issues[i].milestone.due_on != null)
                     el["MilestoneDate"] = yoda.formatDate(new Date(issues[i].milestone.due_on), true);
-                } else {
+                else
                     el["MilestoneDate"] = "";
-                }
                 break;
             case "MilestoneStartDate":
-				if (issues[i].milestone != undefined && issues[i].milestone.description != null) {
+				if (issues[i].milestone != undefined && issues[i].milestone.description != null)
                     el["MilestoneStartDate"] = yoda.getMilestoneStartdate(issues[i].milestone.description);
-                } else {
+                else
                     el["MilestoneStartDate"] = "";
-                }
                 break;
             case "MilestoneIssueDuration":
 				var milestoneIssueDuration = yoda.getMilestoneIssueDuration(issues[i]);
-				if (milestoneIssueDuration != null) {
+				if (milestoneIssueDuration != null)
 					el["MilestoneIssueDuration"] = milestoneIssueDuration;
-                } else {
+                else
                     el["MilestoneIssueDuration"] = "";
-                }
                 break;
             case "DurationMilestone": 
 				if (issues[i].milestone != undefined && issues[i].state == "closed" && issues[i].milestone.due_on != null) {
-                    var createdDate = yoda.formatDate(new Date(issues[i].created_at));
-                    var milestoneDate = yoda.formatDate(new Date(issues[i].milestone.due_on));
+                    const createdDate = yoda.formatDate(new Date(issues[i].created_at));
+                    const milestoneDate = yoda.formatDate(new Date(issues[i].milestone.due_on));
                     el["DurationMilestone"] = yoda.dateDiff(createdDate, milestoneDate);
                 } else {
                     el["DurationMilestone"] = "";
@@ -370,14 +371,14 @@ function exportIssues(issues) {
             case "Duration":
 				var createdDate = yoda.formatDate(new Date(issues[i].created_at));
 				if (issues[i].closed_at != null) {
-					var closedDate = yoda.formatDate(new Date(issues[i].closed_at));
+					const closedDate = yoda.formatDate(new Date(issues[i].closed_at));
 					el["Duration"] = yoda.dateDiff(createdDate, closedDate);
 				} else {
 					el["Duration"] = yoda.dateDiff(createdDate, todayDate);
 				}
 				break;
 			case "Epic URL":
-				var result = getEpicData(issues, issues[i]);
+				result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					if (exportToCsv)
 						el["Epic URL"] = '=HYPERLINK("' + result[0].url + '")';
@@ -388,22 +389,21 @@ function exportIssues(issues) {
 				}
 				break;
 			case "Epic Title":
-				var result = getEpicData(issues, issues[i]);
-				if (result.length > 0) {
+				result = getEpicData(issues, issues[i]);
+				if (result.length > 0)
 					el["Epic Title"] = result[0].title;
-				} else {
+				else
 					el["Epic Title"] = "";
-				}
 				break;
 			case "Epic Number":
-				var result = getEpicData(issues, issues[i]);
+				result = getEpicData(issues, issues[i]);
 				if (result.length > 0)
 					el["Epic Number"] = result[0].number;
 				else
 					el["Epic Number"] = "";
 				break;
 			case "Epic Repo":
-				var result = getEpicData(issues, issues[i]);
+				result = getEpicData(issues, issues[i]);
 				if (result.length > 0) {
 					if (result[0].repo == undefined) 
 						el["Epic Repo"] = yoda.getUrlRepo(issues[i].url); // Same as issue. Local ref.
@@ -413,41 +413,42 @@ function exportIssues(issues) {
 					el["Epic Repo"] = "";
 				}
 				break;
-			case "Comments":
-				var comments = "";
-//				for (var ca = 0; ca < issues[i].comments_array.length; ca++) {
-				// Show comments newest first...
-				for (var ca = issues[i].comments_array.length - 1; ca >= 0; ca--) {  
-					var date = new Date(issues[i].comments_array[ca].created_at);
-					comments = formatComment(comments, issues[i].comments_array[ca].body, date, exportToCsv);
+			case "Comments": 
+				{
+					let comments = "";
+					// Show comments newest first...
+					for (let ca = issues[i].comments_array.length - 1; ca >= 0; ca--) {
+						const date = new Date(issues[i].comments_array[ca].created_at);
+						comments = formatComment(comments, issues[i].comments_array[ca].body, date, exportToCsv);
+					}
+
+					// Add (as last, being first as we are doing in reverse any comments into body field.)
+					if (issues[i].body != null && issues[i].body != undefined)
+						comments = formatComment(comments, issues[i].body, new Date(issues[i].created_at), exportToCsv);
+
+					if (!exportToCsv && comments != "")
+						comments += "</ul>";
+
+					el["Comments"] = comments;
 				}
-				
-				// Add (as last, being first as we are doing in reverse any comments into body field.)
-				var date = new Date(issues[i].created_at);
-				if (issues[i].body != null && issues[i].body != undefined)
-					comments = formatComment(comments, issues[i].body, date, exportToCsv);
-				
-				if (!exportToCsv && comments != "") 
-					comments += "</ul>";
-				
-				el["Comments"] = comments;
 				break;
 
 			default:
 				// Let's search between sharedLabels.
-				for (var s = 0; s < sharedLabels.length; s++) {
+				for (let s = 0; s < sharedLabels.length; s++) {
 					if (sharedLabels[s].name == fName) {
 						el[fName] = "";
+						let splitReg, mustMatch;
 						if (sharedLabels[s].regexp.startsWith("!")) { 
-							var splitReg = new RegExp(sharedLabels[s].regexp.substring(1));
-							var mustMatch = true;
+							splitReg = new RegExp(sharedLabels[s].regexp.substring(1));
+							mustMatch = true;
 						} else {
-							var splitReg = new RegExp(sharedLabels[s].regexp);
-							var mustMatch = false;
+							splitReg = new RegExp(sharedLabels[s].regexp);
+							mustMatch = false;
 						}
-						for (var l=0; l<issues[i].labels.length; l++) {
-							var labelName = issues[i].labels[l].name;
-							var res = labelName.match(splitReg);
+						for (let l = 0; l < issues[i].labels.length; l++) {
+							const labelName = issues[i].labels[l].name;
+							const res = labelName.match(splitReg);
 //							console.log(issues[i].number + ", " + labelName + ", " + fName + ", " + res);
 							if (res != null) {
 								if (el[fName] != "") {
@@ -472,52 +473,49 @@ function exportIssues(issues) {
 //		console.log(el);
 
 		// Add singlelabels
-		for (var s = 0; s < singleLabels.length; s++) {
+		for (let s = 0; s < singleLabels.length; s++) {
 			if (singleLabels[s] == "")
 				continue;
-			if (yoda.isLabelInIssue(issues[i], singleLabels[s])) {
+			if (yoda.isLabelInIssue(issues[i], singleLabels[s]))
 				el[singleLabels[s]] = labelIndicator;
-			} else {
+			else
 				el[singleLabels[s]] = "";
-			}
 		}
 		
 		// Add splitLabels
-		for (var s = 0; s < splitLabels.length; s++) {
-			if (yoda.isLabelInIssue(issues[i], splitLabels[s])) {
+		for (let s = 0; s < splitLabels.length; s++) {
+			if (yoda.isLabelInIssue(issues[i], splitLabels[s]))
 				el[splitLabels[s]] = labelIndicator;
-			} else {
+			else
 				el[splitLabels[s]] = "";
-			}
 		}
 		
 		// Add splitbody fields
-		for (var s = 0; s < splitbodyDef.length; s++) {
-			var fieldRequired = false;
+		for (let s = 0; s < splitbodyDef.length; s++) {
+			let fieldRequired = false;
 			// Right. Let's split into header and field
-			var header = splitbodyDef[s].split(":")[0];
-			var field = splitbodyDef[s].split(":")[1];
+			const header = splitbodyDef[s].split(":")[0];
+			let field = splitbodyDef[s].split(":")[1];
 			
 			if (field.startsWith("!")) {
 				fieldRequired = true;
 				field = field.substr(1);
 			}
 			
-			var value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
+			let value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
 			if (value != null) {
-				var t = Date.parse(value.trim());
+				const t = Date.parse(value.trim());
 				// Does this look like a date - from Javascript perspective? 
 				if (!isNaN(t)) {
-					var d = new Date();
+					let d = new Date();
 					d.setTime(t);
 					value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
 				} else {
 					// // Does this look like a date - anyway?
 					if (value.split('/').length == 3) {
-						var tDay, tMonth, tYear;
-						[tDay, tMonth, tYear] = value.split(" ")[0].split("/");
+						let [tDay, tMonth, tYear] = value.split(" ")[0].split("/");
 						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
-							var d = new Date();
+							let d = new Date();
 							if (tYear < 2000)
 								tYear = parseInt(tYear) + 2000;
 							console.log(value, tYear, tMonth, tDay)
@@ -539,23 +537,24 @@ function exportIssues(issues) {
 			data.push(el);
 	}
 	
+	let translation;
 	if ($("#translation").val() == "")
-		var translation = [];
+		translation = [];
 	else
-		var translation = $("#translation").val().split(",");
+		translation = $("#translation").val().split(",");
 	
 	if (exportToCsv) {
 		const config = {
-				quotes: false,
-				quoteChar: '"',
-				delimiter: csvDelimiter,
-				header: true,
-				newline: "\r\n"
-			};
+			quotes: false,
+			quoteChar: '"',
+			delimiter: csvDelimiter,
+			header: true,
+			newline: "\r\n"
+		};
 	
 		if (!$('#exportevents').is(":checked")) {
 			// Normal case
-			result = Papa.unparse(data, config);
+			const result = Papa.unparse(data, config);
 			yoda.downloadFile(result, outputFile);
 			logMessage("Info: Issues succesfully exported.");
 		} else {
@@ -567,32 +566,31 @@ function exportIssues(issues) {
 		yoda.updateUrl(getUrlParams() + "&export=true");
 	} else {
 		// Export to table instead
-		var table = document.getElementById("issuesTable");
+		let table = document.getElementById("issuesTable");
 		table.innerHTML = css;
 		$("#consoleframe").hide();
-		var header = table.createTHead();
-		var headerRow = header.insertRow();     
+		const header = table.createTHead();
+		const headerRow = header.insertRow();     
 
 		if (data.length > 0) {
-			for (var h in data[0]) {
-				var cell = headerRow.insertCell();
-				
+			for (let h in data[0]) {
+				let cell = headerRow.insertCell();
 				cell.innerHTML = h;
 
 				// Translation overwrite?
-				for (var t = 0; t < translation.length; t++) {
+				for (let t = 0; t < translation.length; t++) {
 					if (translation[t].split(":")[0] == h)
 						cell.innerHTML = translation[t].split(":")[1];											
 				}				
 			}
 			
 			table.appendChild(document.createElement('tbody'));
-			var bodyRef = document.getElementById('issuesTable').getElementsByTagName('tbody')[0];
+			let bodyRef = document.getElementById('issuesTable').getElementsByTagName('tbody')[0];
 
-			for (var r = 0; r < data.length; r++) {
-				var row = bodyRef.insertRow();
+			for (let r = 0; r < data.length; r++) {
+				let row = bodyRef.insertRow();
 				for (var h in data[0]) {
-					cell = row.insertCell();
+					let cell = row.insertCell();
 					cell.innerHTML = data[r][h];
 				}
 			}
@@ -602,22 +600,22 @@ function exportIssues(issues) {
 }
 
 // 
-var issuesEvents = []; // Here we will store events against each issue, indexed by the issue URL. So will be a double-linked list (url, {events})
-var issuesRemaining = []; // We will use this variable to store the remaining values. Otherwise we risk them becoming too big.
+let issuesEvents = []; // Here we will store events against each issue, indexed by the issue URL. So will be a double-linked list (url, {events})
+let issuesRemaining = []; // We will use this variable to store the remaining values. Otherwise we risk them becoming too big.
 function getIssuesEventStart(issues) {
 	issuesRemaining = [];
 	issuesEvents = [];
 	// First populate issuesRemaining list with urls. All we need to do to get events is then to append "/events" part.
-	for (var i = 0; i < issues.length; i++)
+	for (let i = 0; i < issues.length; i++)
 		issuesRemaining.push(issues[i].url);
 	getNextIssueEvent(null, null);
 }
 
 function storeEvents(storeUrl, events) {
 	// Filter and process the events we want to store.
-	for (var e = 0; e < events.length; e++) {
+	for (let e = 0; e < events.length; e++) {
+		let expEvent = {};
 		if (events[e].event == "milestoned" || events[e].event == "demilestoned") {
-			var expEvent = {};
 			// https://github.hpe.com/api/v3/repos/hpsd/yoda/issues/20
 			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
 			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
@@ -630,7 +628,6 @@ function storeEvents(storeUrl, events) {
 			issuesEvents.push(expEvent);
 		}
 		if (events[e].event == "labeled" || events[e].event == "unlabeled") {
-			var expEvent = {};
 			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
 			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
 			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
@@ -642,7 +639,6 @@ function storeEvents(storeUrl, events) {
 			issuesEvents.push(expEvent);
 		}
 		if (events[e].event == "closed" || events[e].event == "reopened" || events[e].event == "assigned" || events[e].event == "unassigned") {
-			var expEvent = {};
 			expEvent["Owner"] = storeUrl.split("/").slice(-4, -3)[0];
 			expEvent["Repo"] = storeUrl.split("/").slice(-3, -2)[0];
 			expEvent["Number"] = storeUrl.split("/").slice(-1)[0];
@@ -667,8 +663,8 @@ function getNextIssueEvent(storeUrl, events) {
 	if (issuesRemaining.length == 0) {
 		exportIssueEvents();
 	} else {
-		var issueUrl = issuesRemaining.pop();
-		var issueUrlEvents = issueUrl + "/events";
+		const issueUrl = issuesRemaining.pop();
+		const issueUrlEvents = issueUrl + "/events";
 		console.log("Issues event URL: " + issueUrlEvents);
 		yoda.getLoop(issueUrlEvents, 1, [], 
 				function(events) { getNextIssueEvent(issueUrl, events) }, 
@@ -677,48 +673,27 @@ function getNextIssueEvent(storeUrl, events) {
 }
 
 function exportIssueEvents() {
-	var csvDelimiter = $("#csvdelimiter").val();
-	var outputFile = $("#outputfile").val();
+	const csvDelimiter = $("#csvdelimiter").val();
+	const outputFile = $("#outputfile").val();
 
 	console.log("Done. Showing events collected.");
 	console.log(issuesEvents);
 
 	const config = {
-			quotes: false,
-			quoteChar: '"',
-			delimiter: csvDelimiter,
-			header: true,
-			newline: "\r\n"
-		};
+		quotes: false,
+		quoteChar: '"',
+		delimiter: csvDelimiter,
+		header: true,
+		newline: "\r\n"
+	};
 
-	result = Papa.unparse(issuesEvents, config);
+	const result = Papa.unparse(issuesEvents, config);
 	yoda.downloadFile(result, outputFile);
 	logMessage("Info: Events succesfully exported.");
 }
 
-// -------------------------------
-
-// TODO: Enhance this
-function errorFunc(errorText) {
-	alert("ERROR: " + errorText);
-}
-
-// ----------------
-
-function showRepos(repos) {
-	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
-	});
-
-	for (var r = 0; r < repos.length; r++)
-		$("#repolist").append($("<option></option>").attr("value", repos[r].name));
-}
-	
 // -------------------------
-var exportToCsv = true;
+let exportToCsv = true;
 function startExport(exp) {
 	exportToCsv = exp;
 	$("#console").val("");
@@ -735,7 +710,6 @@ function startExport(exp) {
 		});
 	} else {
 		// Get the issues - and maybe comments as well.
-		 
 		// Need comments?
 		if ($("#fields").val().indexOf("Comments") != -1) {
 			// Yes, need comments
@@ -755,37 +729,6 @@ function startExport(exp) {
 }
 
 //-------------------------
-
-function getLoopOrg(url, lastOrgId, collector, finalFunc, errorFunc, callNo) {
-	if (lastOrgId != -1) {
-		var oldIndex = url.indexOf("since=");
-		if (oldIndex != -1) { 
-			url = url.substring(0, oldIndex) + "per_page=100&since=" + lastOrgId;
-		} else {
-			// Do we have a ?
-			if (url.indexOf("?") == -1)
-				url = url + "?per_page=100&since=" + lastOrgId;
-			else
-				url = url + "&per_page=100&since=" + lastOrgId;
-		}
-	}
-	
-	$.getJSON(url, function(response, status) {
-		if (response != undefined && response.length > 0) {
-			getLoopOrg(url, response[response.length - 1].id, collector.concat(response), finalFunc, errorFunc, callNo);
-		} else {
-			$("*").css("cursor", "default");
-			finalFunc(collector.concat(response));
-		}
-	}).done(function() { /* One call succeeded */ })
-	.fail(function(jqXHR, textStatus, errorThrown) { 
-		$("*").css("cursor", "default");
-		if (errorFunc != null) {
-			errorFunc(errorThrown + " " + jqXHR.status);
-		}
-	})
-	.always(function() { /* One call ended */ });;          
-}
 
 export function init() {
 	// Enable yodamenu
