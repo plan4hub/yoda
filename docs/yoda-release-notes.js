@@ -21,23 +21,21 @@ import * as yoda from './yoda-utils.js'
 
 // Global variable controlling whether bars should be stacked or not.
 // If stacked, then tool will not do a "totals" line and a corresponding right axis.
-var ALL_MILESTONES = -1;
+let ALL_MILESTONES = -1;
 
-var repoList = [];  // selected repos
-var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
+let repoList = [];  // selected repos
+let repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
-var commonMilestones = []; // Options for milestone selection (milestones in all repos).
-var milestoneList = []; // selected milestones just the title
-var milestoneListComplete = []; // selected milestones, full structure.
+let commonMilestones = []; // Options for milestone selection (milestones in all repos).
+let milestoneList = []; // selected milestones just the title
+let milestoneListComplete = []; // selected milestones, full structure.
 
-var repoIssues = []; // List of issues. Full structure as returned from github.
-
-var download = false; // global - a bit of a hack.
-
-var css = "";
+let repoIssues = []; // List of issues. Full structure as returned from github.
+let download = false; // global - a bit of a hack.
+let css = "";
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 	if ($("#repolist").val() != "")
 		params += "&repolist=" + $("#repolist").val();
 	if ($("#milestonelist").val() != "")
@@ -51,7 +49,7 @@ function getUrlParams() {
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 	
-	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
+	const outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;
 	return params;
@@ -59,18 +57,17 @@ function getUrlParams() {
 
 function copy_text(element) {
     //Before we copy, we are going to select the text.
-    var text = document.getElementById(element);
-    var selection = window.getSelection();
+    const text = document.getElementById(element);
+    let selection = window.getSelection();
     selection.removeAllRanges();
-    var range = document.createRange();
+    let range = document.createRange();
     range.selectNodeContents(text);
-
     selection.addRange(range);
 
     // Now that we've selected element, execute the copy command  
     try {  
-        var successful = document.execCommand('copy');  
-        var msg = successful ? 'successful' : 'unsuccessful';  
+        const successful = document.execCommand('copy');  
+        const msg = successful ? 'successful' : 'unsuccessful';  
         console.log('Copy to clipboard command was ' + msg);  
       } catch(err) {  
         console.log('Oops, unable to copy to clipboard');  
@@ -82,6 +79,7 @@ function copy_text(element) {
 
 // Remove elements in array that have duplicates based on a given field.
 function uniqueArray(arr, field) {
+	// eslint-disable-next-line no-unused-vars
 	return arr.filter(function(element, index, array, thisArg) {return array.findIndex(function(e, i, a, t) 
 			{if (index != i && element[field] == e[field]) return true; else return false;}) == -1;});
 }
@@ -93,7 +91,7 @@ function addIssues(oldIssues, newIssues) {
 }
 
 function getFormat(formatArray, index) {
-	var f = formatArray[index]; 
+	let f = formatArray[index]; 
 	f = f.replace(/\\n/g, '\n');
 	return f;
 }
@@ -101,15 +99,15 @@ function getFormat(formatArray, index) {
 //Parse RN markdown to HTML (if any)
 function parseRNMarkdown(markdown) {
 //	console.log(markdown);
-	var markdownUrl = yoda.getGithubUrl() + "markdown";
+	let markdownUrl = yoda.getGithubUrl() + "markdown";
 	markdown = markdown.replace(/<br>/g, '<br>\n');  // A bit of a hack, but best way to handle that sometimes people have done lists using markdown, other times with bullets. 
 //	console.log("markdownUrl: " + markdownUrl);
 
-	var urlData = {
-			"text": markdown
+	const urlData = {
+		"text": markdown
 	};
 	
-	var result = "";
+	let result = "";
 	$.ajax({
 		url: markdownUrl,
 		type: 'POST',
@@ -117,6 +115,7 @@ function parseRNMarkdown(markdown) {
 		data: JSON.stringify(urlData),
 		success: function(data) { result = data;},
 		error: function() { yoda.showSnackbarError("Failed to translate Markdown"); },
+		// eslint-disable-next-line no-unused-vars
 		complete: function(jqXHR, textStatus) { }
 	});
 	
@@ -127,27 +126,28 @@ function parseRNMarkdown(markdown) {
 
 //Create a List node to based on the given issue.
 function formatIssueRN(issue) {
-	var rnFormat = $("#rnformat").val();
-	var repo = yoda.getUrlRepo(issue.url);
+	const rnFormat = $("#rnformat").val();
+	const repo = yoda.getUrlRepo(issue.url);
 	
+	let newLine;
 	if ($('input:radio[name="outputformat"]:checked').val()== "html") 
-		var newLine = "<br>";
+		newLine = "<br>";
 	else 
-		var newLine = "&lt;br&gt;";
+		newLine = "&lt;br&gt;";
 	
-	var issueText = "";
-
-	var line = yoda.extractKeywordField(issue.body, "RNT", "single", newLine);
+	let issueText = "";
+	const line = yoda.extractKeywordField(issue.body, "RNT", "single", newLine);
+	let title;
 	if (line != "")
-		var title = line;
+		title = line;
 	else
-		var title = issue.title;
+		title = issue.title;
 
-	var rnText = yoda.extractKeywordField(issue.body, "RN", "paragraph", newLine);
+	let rnText = yoda.extractKeywordField(issue.body, "RN", "paragraph", newLine);
 //	console.log("rnText:" + rnText + ":");
 	
 	// HTML?
-	var mdChars = /[*`_~>]+/;
+	const mdChars = /[*`_~>]+/;
 	if ($('input:radio[name="outputformat"]:checked').val()== "html" && rnText != "" && mdChars.test(rnText)) { 
 		rnText = parseRNMarkdown(rnText);
 		
@@ -172,7 +172,7 @@ function formatIssueRN(issue) {
 	issueText = issueText.replace(/%n/, issue.number);
 	issueText = issueText.replace(/%r/, rnText);
 
-	var estimate = yoda.getBodyEstimate(issue.body);
+	let estimate = yoda.getBodyEstimate(issue.body);
 	if (estimate == null)
 		estimate = "";
 	issueText = issueText.replace(/%e/, estimate);
@@ -194,45 +194,46 @@ function formatIssueRN(issue) {
 }
 
 function makeRN(headline, changesOrKnown, draw) {
-	var rn = document.getElementById("RN");
-	
-	var repoList = $("#repolist").val();
-	var rnText = "";
+	const rn = document.getElementById("RN");
+	const repoList = $("#repolist").val();
+	let rnText = "";
 	
 	// T2 - Enhancements|Added Features,T1 - Defect|Solved Issues
+	let rnLabelTypes;
 	if (draw == "known")
-		var rnLabelTypes = $("#rnknownlabeltypes").val();
+		rnLabelTypes = $("#rnknownlabeltypes").val();
 	else
-		var rnLabelTypes = $("#rnlabeltypes").val();
-	var rnLabelTypesList = rnLabelTypes.split(",");
+		rnLabelTypes = $("#rnlabeltypes").val();
+	const rnLabelTypesList = rnLabelTypes.split(",");
 	
 	// Skip label
-	var rnSkipLabel = $("#rnskiplabel").val();
+	const rnSkipLabel = $("#rnskiplabel").val();
 
 //  Will be something like...
 //	var issueTypeList = ["T2 - Enhancement", "T1 - Defect"];
 //	var issueTypeHeading = ["Added Features", "Solved Issues"];
 	
 	// Get formatting
-	var hlFormat = $("#hlformat").val().split(",");
-	var sFormat = $("#sformat").val().split(",");
-	var ssFormat = $("#ssformat").val().split(",");
-	var listFormat = $("#listformat").val().split(",");
-	var catFormat = $("#catformat").val();
+	const hlFormat = $("#hlformat").val().split(",");
+	const sFormat = $("#sformat").val().split(",");
+	const ssFormat = $("#ssformat").val().split(",");
+	const listFormat = $("#listformat").val().split(",");
+	const catFormat = $("#catformat").val();
 
 	// Headline - if present. Otherwise skip.
 	if ($("#hlformat").val().indexOf(",") != -1)
 		rnText += getFormat(hlFormat, 0) + headline + $("#milestonelist").val() + getFormat(hlFormat, 1);
 	
 	// Categories. First build list based on regular expression (if any)
-	var categories = [];
-	var catLabel = $("#catlabel").val().split(",");
+	let categories = [];
+	const catLabel = $("#catlabel").val().split(",");
 	if (catLabel.length == 2) {
-		var catReg = new RegExp(catLabel[1]);
-		for (var i = 0; i < repoIssues.length; i++) {
-			for (var l=0; l < repoIssues[i].labels.length; l++) {
-				var labelName = repoIssues[i].labels[l].name;
-				var res = labelName.match(catReg);
+		const catReg = new RegExp(catLabel[1]);
+		for (let i = 0; i < repoIssues.length; i++) {
+			for (let l=0; l < repoIssues[i].labels.length; l++) {
+				const labelName = repoIssues[i].labels[l].name;
+				const res = labelName.match(catReg);
+				let catName;
 				if (res != null) {
 					catName = labelName;
 					if (res[1] != undefined)
@@ -246,7 +247,7 @@ function makeRN(headline, changesOrKnown, draw) {
 		}
 		
 		// Sort the labels (before generic) alphabetically
-		categories = categories.sort(function(a,b) {return (a.catName < b.catName?-1:1);});
+		categories = categories.sort(function(a,b) {return a.catName < b.catName? -1 : 1;});
 		
 		// Add fallback category
 		categories.push({labelName: "_FALLBACK_", catName: catLabel[0]});
@@ -259,29 +260,29 @@ function makeRN(headline, changesOrKnown, draw) {
 	}
 			
 	// Loop over repos
-	for (var r = 0; r < repoList.length; r++) {
+	for (let r = 0; r < repoList.length; r++) {
 		// Section - if present. Otherwise skip.
 		if ($("#sformat").val().indexOf(",") != -1)
 			rnText += getFormat(sFormat, 0) + changesOrKnown + repoList[r] + getFormat(sFormat, 1);
 
 		// Loop over labelTypes (typically Defects, Fixes)
-		for (var t = 0; t < rnLabelTypesList.length; t++) {
+		for (let t = 0; t < rnLabelTypesList.length; t++) {
 			var rnList = "";
 
 			// Loop over categories (possibly the single _DUMMY_ entry - see above
-			for (var c = 0; c < categories.length; c++) {
-				var categoryEstimate = 0;
-				var categoryHeader = "";
+			for (let c = 0; c < categories.length; c++) {
+				let categoryEstimate = 0;
+				let categoryHeader = "";
 				if (categories[c].labelName != "_DUMMY_") {
 					categoryHeader = getFormat(listFormat, 2) + catFormat + getFormat(listFormat, 3);
 					categoryHeader = categoryHeader.replace(/%c/, categories[c].catName);
 				}
-				var issuesInCategory = 0;
+				let issuesInCategory = 0;
 
 				// Loop over the issues putting into the right categories.
-				for (var i = 0; i < repoIssues.length; i++) {
+				for (let i = 0; i < repoIssues.length; i++) {
 					// Match repo?.
-					var repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
+					const repository = repoIssues[i].repository_url.split("/").splice(-1); // Repo name is last element in the url
 					if (repository != repoList[r])
 						continue;
 
@@ -297,9 +298,9 @@ function makeRN(headline, changesOrKnown, draw) {
 
 					// FALLBACK handling
 					if (categories[c].labelName == "_FALLBACK_") {
-						var otherFound = false;
+						let otherFound = false;
 						// Check if labels match any of the categories.
-						for (var c1 = 0; c1 < categories.length; c1++)
+						for (let c1 = 0; c1 < categories.length; c1++)
 							if (c != c1 && yoda.isLabelInIssue(repoIssues[i], categories[c1].labelName))
 								otherFound = true;
 						if (otherFound)
@@ -313,7 +314,7 @@ function makeRN(headline, changesOrKnown, draw) {
 					if (issuesInCategory++ == 0)
 						rnList += categoryHeader;
 					
-					var issueEstimate = yoda.getBodyEstimate(repoIssues[i].body);
+					let issueEstimate = yoda.getBodyEstimate(repoIssues[i].body);
 					if (issueEstimate != null)
 						categoryEstimate += issueEstimate;
 					
@@ -345,9 +346,9 @@ function makeRN(headline, changesOrKnown, draw) {
 
 	// Download?
 	if (download) {
-		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
+		const fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
 		console.log("Downloading to " + fileName);
-		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
+		const appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
 		yoda.downloadFileWithType(appType, rnText, fileName);		
 	}
 
@@ -414,24 +415,23 @@ function storeMilestones(milestones, repoIndex) {
 var firstMilestoneShow = true;
 function updateMilestones(repoIndex) {
 	console.log("updateMilestones " + repoIndex);
-	if (repoIndex == undefined) {
+	if (repoIndex == undefined)
 		repoIndex = 0;
-	}
 	
 	if (repoIndex < repoList.length) {
-		if ($('#closedmilestones').is(":checked")) {
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
-		} else {
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
-		}
+		let getMilestonesUrl;
+		if ($('#closedmilestones').is(":checked"))
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
+		else
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
 		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
 	} else {
-		var selectMilestones = [];
+		let selectMilestones = [];
 		if (firstMilestoneShow) {
 			firstMilestoneShow = false;
-			var urlMilestoneList = yoda.decodeUrlParam(null, "milestonelist");
+			const urlMilestoneList = yoda.decodeUrlParam(null, "milestonelist");
 			if (urlMilestoneList != null) 
 				selectMilestones = urlMilestoneList.split(",");
 		}
@@ -441,28 +441,26 @@ function updateMilestones(repoIndex) {
 		$("#milestonelist").empty();
 		commonMilestones = [];
 		
-		for (var r = 0; r < repoList.length; r++) {
-			for (var m = 0; m < repoMilestones[r].length; m++) {
-				var repoTitle = repoMilestones[r][m].title;
-				
-				if (commonMilestones.indexOf(repoTitle) == -1) {
+		for (let r = 0; r < repoList.length; r++) {
+			for (let m = 0; m < repoMilestones[r].length; m++) {
+				const repoTitle = repoMilestones[r][m].title;
+				if (commonMilestones.indexOf(repoTitle) == -1)
 					commonMilestones.push(repoTitle);
-				}
 			}
 		}
 		
 		// Sort and add
 		commonMilestones.sort();
 		console.log("The common milestones are: " + commonMilestones);
-		var milestonesSelected = false;
-		for (var c = 0; c < commonMilestones.length; c++) {
-			var selectMilestone = false;
+		let milestonesSelected = false;
+		for (let c = 0; c < commonMilestones.length; c++) {
+			let selectMilestone = false;
 			if (selectMilestones.indexOf(commonMilestones[c]) != -1) { 
 				selectMilestone = true;
 				milestonesSelected = true;
 			}
 			
-			var newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
+			const newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
 			$('#milestonelist').append(newOption);
 		}
 		
@@ -488,20 +486,15 @@ function storeIssues(issues, milestoneIndex, myUpdateIssueActiveNo) {
 
 function updateMetaIssuesThenRN(metaIssuesList) {
 	if (metaIssuesList.length > 0) {
-		var getIssueUrl = metaIssuesList[0];
+		const getIssueUrl = metaIssuesList[0];
 		yoda.getLoop(getIssueUrl, -1, [], function(data) {repoIssues = addIssues(repoIssues, data); metaIssuesList.splice(0, 1); updateMetaIssuesThenRN(metaIssuesList);}, null);
 	} else {
 		// Let's sort issues on number. This may be required as we allow to retrieve issues from different milestones.
 		// Sort by repository, number
 		repoIssues.sort(function(a,b) {
-			if (a.repository_url == b.repository_url) {
-				return (a.number - b.number); 
-			}
-			if (a.repository_url > b.repository_url) {
-				return 1;
-			} else {
-				return -1;
-			}
+			if (a.repository_url == b.repository_url)
+				return a.number - b.number; 
+			return a.repository_url > b.repository_url? 1 : -1;
 		});
 	
 		console.log("No issues (after filtering out pull requests): " + repoIssues.length);
@@ -510,7 +503,7 @@ function updateMetaIssuesThenRN(metaIssuesList) {
 	}
 }
 
-var updateIssueActiveNo = 0;
+let updateIssueActiveNo = 0;
 function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	if (myUpdateIssueActiveNo < updateIssueActiveNo) {
 		console.log("Update is not latest. Cancelling...");
@@ -520,24 +513,21 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 	
 	console.log("UpdateIssueLoop: " + milestoneIndex);
 	if (milestoneIndex < milestoneListComplete.length) {
-		var milestone = milestoneListComplete[milestoneIndex];
-		var repo = yoda.getRepoFromMilestoneUrl(milestone.url);
+		const milestone = milestoneListComplete[milestoneIndex];
+		const repo = yoda.getRepoFromMilestoneUrl(milestone.url);
 	
-		var milestoneSearch = "&milestone=" + milestone.number;
+		let milestoneSearch = "&milestone=" + milestone.number;
 		console.log("milestone.number: " + milestone.number);
 		
 		// Special situaton for milestone -1 (all milestones)
 		if (milestone.number == ALL_MILESTONES)
 			milestoneSearch = "";
 		
-		var filterSearch = "";
-		if  ($("#labelfilter").val() != "") {
+		let filterSearch = "";
+		if  ($("#labelfilter").val() != "")
 			filterSearch = "&labels=" + $("#labelfilter").val();
-		}
 
-		var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all&direction=asc" + milestoneSearch + filterSearch;
-//		console.log(getIssuesUrl);
-		
+		const getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=all&direction=asc" + milestoneSearch + filterSearch;
 		yoda.getLoop(getIssuesUrl, 1, [], function(data) {storeIssues(data, milestoneIndex, myUpdateIssueActiveNo)}, null);
 	} else {
 		// Requested (and received all issues).
@@ -545,46 +535,47 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 		yoda.filterPullRequests(repoIssues);
 		
 		// Is this a good place to handle Meta-issues?
-		var metaIssuesList = [];
-		var rnMetaLabel = $("#rnmetalabel").val();
-		for (var i = 0; i < repoIssues.length; i++) {
+		let metaIssuesList = [];
+		const rnMetaLabel = $("#rnmetalabel").val();
+		for (let i = 0; i < repoIssues.length; i++) {
 			// Meta issue? Special handling required
 			if (yoda.isLabelInIssue(repoIssues[i], rnMetaLabel)) {
 				console.log("Meta issue: " + repoIssues[i].number);
 			
-				var metaStart = repoIssues[i].body.indexOf('> META ');
+				const metaStart = repoIssues[i].body.indexOf('> META ');
 				if (metaStart == -1) {
 					// No Meta-tag, let's try with '> contains'
-					var refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
+					// eslint-disable-next-line no-useless-escape
+					const refLineReg = '(^([ ]*)-( \\[([ xX])\\])?[ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)|(..*)$)';
 
 					// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 					// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
-					var issueStart = new RegExp("^[ ]*> contains[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
-					var blockStart = issueStart.exec(repoIssues[i].body);
+					const issueStart = new RegExp("^[ ]*> contains[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
+					const blockStart = issueStart.exec(repoIssues[i].body);
 					if (blockStart != null) {
-						var block = blockStart[0];
+						const block = blockStart[0];
 
 						// Extract just the child part, i.e. take way contains issue reference lines (or text to remember).
-						var startChildBlock = block.indexOf('\n');
-						var childBlock = block.substr(startChildBlock);
+						const startChildBlock = block.indexOf('\n');
+						const childBlock = block.substr(startChildBlock);
 
 						// Let's loop the issues using the refLineReg regular expression..
-						var reg = new RegExp(refLineReg, 'mg');
+						const reg = new RegExp(refLineReg, 'mg');
+						let res;
 						do {
-							var res = reg.exec(childBlock);
+							res = reg.exec(childBlock);
 							if (res != null) {
-								var refEntry = {};
 								// Did we match a LOCAL issue reference? 
 								if (res[0].trim().startsWith("-") && res[0].indexOf("#") != -1) {
-									var ref = res[5];
+									const ref = res[5];
 									if (ref.startsWith("#")) {
-										var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref.substr(1));
+										const urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref.substr(1));
 										console.log("urlRef = " + urlRef);
 										metaIssuesList.push(urlRef);
 									} else {
 										// Non local.
-										repoSearch = "/repos/";
-										var rI = repoIssues[i].url.indexOf(repoSearch);
+										const repoSearch = "/repos/";
+										let rI = repoIssues[i].url.indexOf(repoSearch);
 										if (rI != -1) {
 											rI += repoSearch.length;
 											var urlRef = repoIssues[i].url.substr(0, rI) + ref.replace(/#/, "/issues/");
@@ -598,19 +589,19 @@ function updateIssueLoop(milestoneIndex, myUpdateIssueActiveNo) {
 					}					
 				} else {
 					// > META format...
-					var lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
+					let lineEnd = repoIssues[i].body.indexOf('\n', metaStart);
 					if (lineEnd == -1)
 						lineEnd = repoIssues[i].body.length;
 
-					var metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd);
-					var issuesRawList = metaLine.split(/\s+/);
+					const metaLine = repoIssues[i].body.substr(metaStart + 7, lineEnd);
+					const issuesRawList = metaLine.split(/\s+/);
 					console.log(issuesRawList);
 
-					for (var j = 0; j < issuesRawList.length; j++) {
+					for (let j = 0; j < issuesRawList.length; j++) {
 						if (issuesRawList[j].indexOf("#") == -1)
 							continue;
-						var ref = issuesRawList[j].trim().replace(/#/g, "");
-						var urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
+						const ref = issuesRawList[j].trim().replace(/#/g, "");
+						const urlRef = repoIssues[i].url.replace(/\/[0-9]+$/g, "/" + ref);
 						console.log("urlRef = " + urlRef);
 						metaIssuesList.push(urlRef);
 					}
@@ -632,19 +623,19 @@ function updateIssuesForRN() {
 	// Handle situation where no milestones are specified, but we do have a labelFilter. In this case, we will take all issues based on the filter
 	if (milestoneList.length == 0 && $("#labelfilter").val() != "") {
 		console.log("No milestones selected, but filter present. Getting all issues based on filter only.");
-		for (var r = 0; r < repoList.length; r++) {
+		for (let r = 0; r < repoList.length; r++) {
 //			console.log("  For repo: " + repoList[r]);
 			milestoneListComplete.push({number: ALL_MILESTONES, url:  yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[r] + "/milestone/-1"}); // Dummy value
 		}
 	} else {
 		// Normal handling
-		for (var m = 0; m < milestoneList.length; m++) {
+		for (let m = 0; m < milestoneList.length; m++) {
 //			console.log("Updating issues for milestone: " + milestoneList[m]);
 
-			for (var r = 0; r < repoList.length; r++) {
+			for (let r = 0; r < repoList.length; r++) {
 //				console.log("  For repo: " + repoList[r]);
 				// Need to find the milestone (the number)..
-				for (var m1 = 0; m1 < repoMilestones[r].length; m1++) {
+				for (let m1 = 0; m1 < repoMilestones[r].length; m1++) {
 //					console.log(repoMilestones[r][m1].title);
 					if (repoMilestones[r][m1].title == milestoneList[m]) {
 						console.log("Need to get issues for " + repoList[r] + ", " + milestoneList[m] + ", which has number: " + repoMilestones[r][m1].number);
@@ -659,14 +650,12 @@ function updateIssuesForRN() {
 	console.log(milestoneListComplete);
 	
 	repoIssues = [];
-	
 	updateIssueLoop(0, updateIssueActiveNo);
 }
 
 // --------------
 
 function updateIssuesKnownLoop(repoRemainList, issues) {
-//	repoIssues = repoIssues.concat(issues);
 	repoIssues = addIssues(repoIssues, issues);
 
 	console.log(repoRemainList);
@@ -675,38 +664,39 @@ function updateIssuesKnownLoop(repoRemainList, issues) {
 		return;
 	}
 	
-	var repo = repoRemainList[0];
-	var newRemain = repoRemainList.slice(0);
+	const repo = repoRemainList[0];
+	let newRemain = repoRemainList.slice(0);
 	newRemain.splice(0, 1);
 	console.log(newRemain);
 	
-	var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=open&labels=" + $("#rnknownlabel").val();
+	const getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues?state=open&labels=" + $("#rnknownlabel").val();
 	yoda.getLoop(getIssuesUrl, 1, [], function(data) {updateIssuesKnownLoop(newRemain, data)}, null);
 }
 
 function updateIssuesKnown() {
 	repoIssues = [];
-	
 	updateIssuesKnownLoop(repoList, []);
 } 
 
 
 function setDefaultAndValue(id, value) {
-	var element = document.getElementById(id);
+	let element = document.getElementById(id);
 	element.defaultValue = value;
 	element.value = value;
 }
 
 function changeOutput() {
 	const value = $('input:radio[name="outputformat"]:checked').val();
+	let cat;
 	if ($('#estimatecategory').is(":checked"))
-		var cat = "%c (total %z)";
+		cat = "%c (total %z)";
 	else
-		var cat = "%c";
+		cat = "%c";
+	let iss;
 	if ($('#estimateissue').is(":checked"))
-		var iss = "%d (%e)"
+		iss = "%d (%e)"
 	else
-		var iss = "%d";
+		iss = "%d";
 	
 	switch (value) {
 	case "html":
@@ -839,6 +829,7 @@ export function init() {
 		});
 		$('#milestonelist').on('select2:select', yoda.select2SelectEvent('#milestonelist'));
 
+		// eslint-disable-next-line no-unused-vars
 		$('#repolist').on('change.select2', function (e) {
 			repoList = $("#repolist").val();
 			console.log("List of selected repos is now: " + repoList);
@@ -850,6 +841,7 @@ export function init() {
 			updateMilestones();
 		});
 
+		// eslint-disable-next-line no-unused-vars
 		$('#milestonelist').on('change.select2', function (e) {
 			milestoneList = $("#milestonelist").val();
 
