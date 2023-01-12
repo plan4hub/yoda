@@ -20,7 +20,7 @@
 import * as yoda from './yoda-utils.js'
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
 	["startdate", "enddate", "interval", "labelfilter", "labelsplit", "other", "title", "stacked", "righttotal", "percentage"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
@@ -28,7 +28,7 @@ function getUrlParams() {
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 
-	var countType = $("#countradio input[type='radio']:checked").val();
+	const countType = $("#countradio input[type='radio']:checked").val();
 	if (countType != "noissues")
 		params += "&count=" + countType;
 	
@@ -38,7 +38,7 @@ function getUrlParams() {
 function countChanged(e) {
 	if (e.target.value == "velocity") {
 		console.log("Velocity selected. Let's set some solid defaults.");
-		var sixMAgo = new Date();
+		let sixMAgo = new Date();
 		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
 		if ($('#startdate').val() == "")
 			$('#startdate').val(yoda.formatDate(sixMAgo));
@@ -49,7 +49,7 @@ function countChanged(e) {
 		$('#righttotal').attr('checked', true);
 	} else if (e.target.value == "ect") {
 		console.log("ECT selected. Let's set some solid defaults.");
-		var sixMAgo = new Date();
+		let sixMAgo = new Date();
 		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
 		if ($('#startdate').val() == "")
 			$('#startdate').val(yoda.formatDate(sixMAgo));
@@ -61,7 +61,7 @@ function countChanged(e) {
 		$('#righttotal').attr('checked', false);
 	} else if (e.target.value == "comments") {
 		console.log("Comments selected. Let's deselect some fields.");
-		var sixMAgo = new Date();
+		let sixMAgo = new Date();
 		sixMAgo.setMonth(sixMAgo.getMonth() - 6, 1);
 		if ($('#startdate').val() == "")
 			$('#startdate').val(yoda.formatDate(sixMAgo));
@@ -73,10 +73,10 @@ function countChanged(e) {
 }
 
 // We will use below two global arrays to keep track of the data for the comments graph
-var comDateArray = [];
-var comRepoArray = [];
-var comTotalArray = [];
-var reposLeft = -1;
+let comDateArray = [];
+let comRepoArray = [];
+let comTotalArray = [];
+let reposLeft = -1;
 
 // This special chart is for plotting no of comments done during the various intervals.
 // Merging this with the standard chart will make it too messy. Instead, some functions will
@@ -84,21 +84,20 @@ var reposLeft = -1;
 // 
 function createCommentsChart(dateIndex) {
 	console.log("createCommentChart: " + dateIndex + " / " + comDateArray.length);
-	var repoList = $("#repolist").val();
+	const repoList = $("#repolist").val();
 
 	// Are we done?
 	if (dateIndex < comDateArray.length) {
 		// Are we done with the repos?
 		// Let's initiate the calls...
 		reposLeft = repoList.length;
-		for (var repoIndex = 0; repoIndex < repoList.length; repoIndex++) {
+		for (let repoIndex = 0; repoIndex < repoList.length; repoIndex++) {
 			//  Make the call
 			console.log("Getting issues for date: " + comDateArray[dateIndex] + " for repo " + repoList[repoIndex]);
-			var getCommentsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/issues/comments?since=" + comDateArray[dateIndex];
+			const getCommentsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/issues/comments?since=" + comDateArray[dateIndex];
 			yoda.getCount(getCommentsUrl, repoIndex, 1, function(rIndex, noComments) {
 				console.log("  ... there are " + noComments + " comments for repo " + repoList[rIndex] + " since " + comDateArray[dateIndex]);
 				comRepoArray[rIndex].push(noComments);
-
 				comTotalArray[dateIndex] += noComments; 
 
 				// Adjust previous date with this number....
@@ -118,9 +117,9 @@ function createCommentsChart(dateIndex) {
 	} else {
 		// All done. Draw the graph
 		// Ready, let's push the bars
-		var datasetArray = [];
+		let datasetArray = [];
 		if ($('#labelsplit').val() == "repo") {
-			for (var r = 0; r < repoList.length; r++) {
+			for (let r = 0; r < repoList.length; r++) {
 				datasetArray.push({
 					type : 'bar',
 					label : repoList[r],
@@ -143,51 +142,32 @@ function createCommentsChart(dateIndex) {
 			});
 		}
 		
-		// What should we put on right axis
-		// TBD: If velocity, play on right axis instead 
-		if (righttotal.checked) {
-				// Normal case. Right total line against right axis.
-				datasetArray.push({
-					type : 'line',
-					label : 'Total',
-					borderWidth : 2,
-					fill : false,
-					yAxisID: "yright",
-					data : comTotalArray,
-					lineTension: 0,
-					borderColor: yoda.getColor("lineBackground"),
-					order: 1
-				});
-		} else {	
-			// Add line for total, but only if bars (and not stacked)
-			if (!stacked.checked) {
-				datasetArray.push({
-					type : 'line',
-					label : 'Total',
-					borderWidth : 2,
-					fill : false,
-					yAxisID: "yright",
-					data : totalArray,
-					lineTension: 0,
-					borderColor: yoda.getColor("lineBackground"),
-					order: 1
-				});
-			}
-		}
+		// Normal case. Right total line against right axis.
+		datasetArray.push({
+			type : 'line',
+			label : 'Total',
+			borderWidth : 2,
+			fill : false,
+			yAxisID: "yright",
+			data : comTotalArray,
+			lineTension: 0,
+			borderColor: yoda.getColor("lineBackground"),
+			order: 1
+		});
 		
         // We will push data to a
-        var chartData = {
+        const chartData = {
 			labels : comDateArray,
 			datasets : datasetArray
 		};
 		
-		var chartScales = {
+		let chartScales = {
 			yleft: {
 				title: {
 					display: true,
 					text: "No of comments",
 				},
-				stacked: stacked.checked,
+				stacked: $("#stacked").is(":checked"),
 				position: "left",
 				ticks: {
 					beginAtZero: true
@@ -197,7 +177,7 @@ function createCommentsChart(dateIndex) {
 				}
 			},
 			x: {
-				stacked: stacked.checked,
+				stacked: $("#stacked").is(":checked"),
 				grid: {
 					color: yoda.getColor('gridColor')
 				}
@@ -205,7 +185,7 @@ function createCommentsChart(dateIndex) {
 		};
 		
 		// Add second axis.
-		if (!stacked.checked || righttotal.checked) {
+		if (!$("#stacked").is(":checked") || $("#righttotal").is(":checked")) {
 			chartScales["yright"] = {    
 				title: {
 					display: true,
@@ -219,15 +199,15 @@ function createCommentsChart(dateIndex) {
 					display: false
 				}
 			};
-		};
+		}
 
 		// -----------------------------------------------------------
 		// DATA. Draw the chart
-		var ctx = document.getElementById("canvas").getContext("2d");
+		let ctx = document.getElementById("canvas").getContext("2d");
 		if (window.myMixedChart != null)
 			window.myMixedChart.destroy();
 		
-		var chartTitle = "Github Comments " + $("#owner").val() + "/" + $("#repolist").val();
+		let chartTitle = "Github Comments " + $("#owner").val() + "/" + $("#repolist").val();
 		if ($("#title").val() != "")
 			chartTitle = $("#title").val(); 
 		
@@ -241,7 +221,7 @@ function createCommentsChart(dateIndex) {
 					display : true,
 					text : chartTitle,
 					font: {
-                		size: 20                    
+						size: 20                    
 					}
 				},
 				tooltips : {
@@ -261,7 +241,7 @@ function startCommentsChart() {
 	$("#startdate").val(yoda.handleDateDelta($("#startdate").val()));
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 	
-	var repoList = $("#repolist").val();
+	let repoList = $("#repolist").val();
 
 	// Prepare the arrays. One for the dates. One for each repo 
 	comDateArray = [];
@@ -271,44 +251,45 @@ function startCommentsChart() {
 	// Iterate days.
 	// We need today startDate and endDate... we do this for each call. A bit wasteful, but who cares
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 
-	var endDateString = $("#enddate").val();
+	let endDateString = $("#enddate").val();
+	let endDate;
 	if (endDateString == "")
-		var endDate = new Date(today);
+		endDate = new Date(today);
 	else
-		var endDate = new Date(endDateString);
+		endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 
-	var startDateString = $("#startdate").val();
+	const startDateString = $("#startdate").val();
+	let startDate;
 	if (startDateString == "")
-		var startDate = yoda.twoMonthsEarlier(interval, today);
+		startDate = yoda.twoMonthsEarlier(interval, today);
 	else
-		var startDate = new Date(startDateString);
+		startDate = new Date(startDateString);
 	console.log("Start date: " + startDate);
 
 	// Done.. Advance to next date
-	var interval = $("#interval").val();
+	const interval = $("#interval").val();
 	console.log("Interval: " + interval);
 	if (interval == "" || parseInt(interval) == 0) {
 		yoda.showSnackbarError("Interval cannot be empty or zero", 3000);
 		return;
 	}
 	
-	var repoListLength = $("#repolist").val().length;
-    var startDay = new Date(startDate).getDate();
+    const startDay = new Date(startDate).getDate();
 	comTotalArray = [];
-	for (var date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
+	for (let date = new Date(startDate); date <= endDate; yoda.advanceDate(date, interval, startDay)) {
 		comDateArray.push(yoda.formatDate(date));
 		comTotalArray.push(0);
 	}
-	for (var r = 0; r < repoList.length; r++)
+	for (let r = 0; r < repoList.length; r++)
 		comRepoArray.push(new Array());
 
 	// Now, let's get the data and draw the graph
@@ -327,48 +308,47 @@ function createChart() {
 	$("#enddate").val(yoda.handleDateDelta($("#enddate").val()));
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 	
-	var interval = $("#interval").val();
+	const interval = $("#interval").val();
 	console.log("Interval: " + interval);
 	if (interval == "" || parseInt(interval) == 0) {
 		yoda.showSnackbarError("Interval cannot be empty or zero", 3000);
 		return;
 	}
 
-	var startDateString = $("#startdate").val();
+	const startDateString = $("#startdate").val();
+	let startDate;
 	if (startDateString == "")
-		var startDate = yoda.twoMonthsEarlier(interval, today);
+		startDate = yoda.twoMonthsEarlier(interval, today);
 	else
-		var startDate = new Date(startDateString);
+		startDate = new Date(startDateString);
 	console.log("Start date: " + startDate);
 	
-	var endDateString = $("#enddate").val();
+	const endDateString = $("#enddate").val();
+	let endDate;
 	if (endDateString == "")
-		var endDate = new Date(today);
+		endDate = new Date(today);
 	else
-		var endDate = new Date(endDateString);
+		endDate = new Date(endDateString);
 	console.log("End date: " + endDate);
 	endDate.setHours(23);
 	endDate.setMinutes(59);
 	endDate.setSeconds(59);
 
-	var labelSplit = $("#labelsplit").val();
+	const labelSplit = $("#labelsplit").val();
 	console.log("Label split: " + labelSplit);
 	
-	var temp = $("#countradio input[type='radio']:checked");
-	if (temp.length > 0)
-	    var countType = temp.val();
+	const countType = $("#countradio input[type='radio']:checked").val();
 	console.log("Count type read: " + countType);
 
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
-	var bars, labelSplitUsingRegExp;
-	[bars, labelSplitUsingRegExp] = yoda.issue_split(labelsplit.value, issues);
+	let [bars, labelSplitUsingRegExp] = yoda.issue_split($("#labelsplit").val(), issues);
 	console.log("Bar Labels: " + bars);
 	
 	// Besides the bars for the data identified, possibly none if no label split, we will maintain
@@ -380,24 +360,24 @@ function createChart() {
 	// 	Other for issues not match
 	// 	Total for all issues (matching date interval)'
 	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
-	var dateArray = [];
-	var dataArray = new Array(bars.length);
-	for (i = 0; i < dataArray.length; i++)
+	let dateArray = [];
+	let dataArray = new Array(bars.length);
+	for (let i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	var otherArray = [];
-	var totalArray = [];
-	var totalAlwaysArray = [];
-	var storyPointsPerDayArray = [];
+	let otherArray = [];
+	let totalArray = [];
+	let totalAlwaysArray = [];
+	let storyPointsPerDayArray = [];
 	
 	// date loop
 	// Start at startDate
 	
 	// Need to consider previous date, so that we can observe interval. Go back one interval
-    var previousDate = new Date(startDate);
-    var startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
+    let previousDate = new Date(startDate);
+    const startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
     yoda.advanceDate(previousDate, "-" + interval, startDay);
     console.log("Initial previousDate: " + previousDate);
-	for (var date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
+	for (let date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
 		console.log("Date: " + date + ", previousDate: " + previousDate);
 		date.setHours(23);
 		date.setMinutes(59);
@@ -410,34 +390,34 @@ function createChart() {
 			dateArray.push(yoda.formatDate(date));
 		
 		// Prepare data array
-		var dataArrayForDay = new Array(bars.length);
-		var dataDurationOpenForDay = new Array(bars.length);
-		var dataECTDurationForDay = new Array(bars.length);
-		for (var l=0; l<bars.length; l++) {
+		let dataArrayForDay = new Array(bars.length);
+		let dataDurationOpenForDay = new Array(bars.length);
+		let dataECTDurationForDay = new Array(bars.length);
+		for (let l = 0; l < bars.length; l++) {
 			dataArrayForDay[l] = 0;
 			dataDurationOpenForDay[l] = 0;
 			dataECTDurationForDay[l] = 0;
-		};
-		var otherForDay = 0;
-		var totalForDay = 0;
-		var otherDurationOpenForDay = 0;
-		var otherETCDurationForDay = 0;
-		var totalAlways = 0;
+		}
+		let otherForDay = 0;
+		let totalForDay = 0;
+		let otherDurationOpenForDay = 0;
+		let otherETCDurationForDay = 0;
+		let totalAlways = 0;
 		
 		// Ok, now let's count issues
-		for (var i=0; i < issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			// We must consider issues which have been opened BEFORE date, but  
 			// NOT closed before date
-			var submitDateString = yoda.createDate(issues[i]);    
-			var submitDate = new Date(submitDateString);
+			const submitDateString = yoda.createDate(issues[i]);    
+			const submitDate = new Date(submitDateString);
 			
 			if (submitDate > date)
 				continue; // Submitted later - forget it.
 			
 			// Closed, and closed before OR DURING date?
-			var closedString = yoda.closedDate(issues[i]); 
+			const closedString = yoda.closedDate(issues[i]); 
 			if (closedString != null) {
-				var closedDate = new Date(closedString);
+				const closedDate = new Date(closedString);
 				
 				// Check if open now, all cases.
 				if (closedDate > date)
@@ -473,22 +453,22 @@ function createChart() {
 				continue;  // Earlier period, forget it.
 			
 			// Ok, relevant
-			var foundLabel = false;
-			var labelList = issues[i].labels;
+			let foundLabel = false;
+			let labelList = issues[i].labels;
 			
 			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
 			// This will cause an immediate match.
 			if (labelSplit == "repo") 
 				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 			
+			let issueEstimate;
 			if (countType == "velocity")
-				var issueEstimate = yoda.issueEstimate(issues[i]);
+				issueEstimate = yoda.issueEstimate(issues[i]);
 
 			// Log's look at the labels.
-			for (l = 0; l < labelList.length; l++) {
-				var labelName = labelList[l].name;
+			for (let l = 0; l < labelList.length; l++) {
 				// Search bars array
-				var index = bars.indexOf(labelName);
+				const index = bars.indexOf(labelList[l].name);
 				if (index != -1) {
 					// Got a match. Make sure we don't continue search
 					if (countType == "velocity") {
@@ -504,7 +484,7 @@ function createChart() {
 					foundLabel = true;
 					
 					// Add the total duration, we will divide by # of issues later.
-					var duration = yoda.dateDiff(submitDate, date);
+					const duration = yoda.dateDiff(submitDate, date);
 					dataDurationOpenForDay[index] += duration;
 					
 					if (countType == "ect")
@@ -521,7 +501,7 @@ function createChart() {
 				}
 				
 				// Add the total duration, we will divide by # of issues later.
-				var duration = yoda.dateDiff(submitDate, date);
+				const duration = yoda.dateDiff(submitDate, date);
 				otherDurationOpenForDay += duration;
 
 				if (countType == "ect") 
@@ -533,20 +513,17 @@ function createChart() {
 		if (countType == "durationopen" || countType == "ect") {
 			if (countType == "durationopen") {
 				// We now need to move to dataArrayForDay to contain instead of the # of issues the averation duration of the open time.
-				for (var i=0; i < bars.length; i++) {
+				for (let i = 0; i < bars.length; i++) {
 					var average = dataDurationOpenForDay[i] / dataArrayForDay[i];
-	//				console.log("Adding average: " + average + ", calculated as " + dataDurationOpenForDay[i] + " days total div by " + dataArrayForDay[i] + " issues.");
 					dataArray[i].push(average.toFixed(0));
 				}
 				otherArray.push((otherDurationOpenForDay / otherForDay).toFixed(0));
 			} else { 
 				// ect
-				for (var i=0; i < bars.length; i++) {
-					var average = dataECTDurationForDay[i] / dataArrayForDay[i];
-	//				console.log("Adding average: " + average + ", calculated as " + dataDurationOpenForDay[i] + " days total div by " + dataArrayForDay[i] + " issues.");
+				for (let i = 0; i < bars.length; i++) {
+					const average = dataECTDurationForDay[i] / dataArrayForDay[i];
 					dataArray[i].push(average.toFixed(0));
 				}
-				
 				otherArray.push((otherETCDurationForDay / otherForDay).toFixed(0));
 			}
 		} else {
@@ -554,19 +531,18 @@ function createChart() {
 			// We will push data to the data array
 			
 			// Are we doing percentages?
-			if (percentage.checked) {
+			if ($("#percentage").is(":checked")) {
 				// Percentage. Let's first calc total.
-				var total = otherForDay;
-				for (var i=0; i < bars.length; i++)
+				let total = otherForDay;
+				for (let i = 0; i < bars.length; i++)
 					total += dataArrayForDay[i];   
 							
-				for (var i=0; i < bars.length; i++)
+				for (let i = 0; i < bars.length; i++)
 					dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
 				otherArray.push((100.0 * otherForDay / total).toFixed(1));
-
 			} else {			
 				// Normal case.			
-				for (var i=0; i < bars.length; i++) 
+				for (let i = 0; i < bars.length; i++) 
 					dataArray[i].push(dataArrayForDay[i]); 
 				otherArray.push(otherForDay);
 			}
@@ -576,18 +552,18 @@ function createChart() {
 		totalArray.push(totalForDay);
 		totalAlwaysArray.push(totalAlways);
 		if (countType == "velocity") {
-			var durationDays = (date.getTime() - previousDate.getTime()) /  (1000 * 3600 * 24);
+			const durationDays = (date.getTime() - previousDate.getTime()) /  (1000 * 3600 * 24);
 			storyPointsPerDayArray.push((totalForDay / durationDays).toFixed(1)); 
 		}
 	}
 	
 	// Ready, let's push the bars
-	var datasetArray = [];
-	for (var b = 0; b < bars.length; b++) {
+	let datasetArray = [];
+	for (let b = 0; b < bars.length; b++) {
 		// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
-		var actualBar = bars[b];
+		let actualBar = bars[b];
 		if (labelSplitUsingRegExp && labelSplit.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
-			var splitReg = new RegExp(labelSplit);
+			const splitReg = new RegExp(labelSplit);
 			actualBar = bars[b].replace(splitReg, '$1');
 		}
 		
@@ -617,7 +593,7 @@ function createChart() {
 
 	// What should we put on right axis
 	// TBD: If velocity, play on right axis instead 
-	if (righttotal.checked) {
+	if ($("#righttotal").is(":checked")) {
 		if (countType == "velocity") {
 			// 
 			datasetArray.push({
@@ -646,12 +622,12 @@ function createChart() {
 	}
 	
 	// We will push data to a 
-	var chartData = {
+	const chartData = {
 			labels : dateArray,
 			datasets : datasetArray
 	};
 	
-	var leftLabel = [];
+	let leftLabel = [];
 	leftLabel["durationopen"] = "Average duration open (days)";
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["opened"] = "No of issues opened";
@@ -659,16 +635,16 @@ function createChart() {
 	leftLabel["velocity"] = "Story Points";
 	leftLabel["ect"] = "ECT - Engineering Cycle Time (days)"
 
-	var chartScales = {
+	let chartScales = {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage.checked?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
+				text: $("percentage").is(":checked")? ("Relative Percentage: ") + leftLabel[countType] : leftLabel[countType],
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -678,17 +654,17 @@ function createChart() {
 			}
 		},
 		x: {
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
 		}
 	};
 	// If percentage scale, make sure we go only to 100
-	if (percentage.checked)
+	if ($("#percentage").is(":checked"))
 		chartScales.yleft.max = 100;
 	
-	var rightLabel = [];
+	let rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
 	rightLabel["velocity"] = "Story points per day";
@@ -696,13 +672,13 @@ function createChart() {
 	rightLabel["closed"] = "No open issues";
 	
 	// Add second axis.
-	if (righttotal.checked) {
+	if ($("#righttotal").is(":checked")) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
 				text: rightLabel[countType],
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
 			position: "right",
@@ -717,11 +693,11 @@ function createChart() {
 
 	// -----------------------------------------------------------
 	// DATA. Draw the chart
-	var ctx = document.getElementById("canvas").getContext("2d");
+	let ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
+	let chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if (countType == "velocity") 
 		chartTitle = "Story point velocity for " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "") {
@@ -739,7 +715,7 @@ function createChart() {
 					display : true,
 					text : chartTitle,
 					font: {
-		           		size: 20                    
+						size: 20                    
 					}
 				},
 			},
@@ -801,12 +777,6 @@ export function init() {
 	yoda.decodeUrlParamRadio("estimate", "estimate");
 	yoda.updateEstimateRadio();
 
-	if (yoda.decodeUrlParamBoolean(null, "history") == "true") {
-		$("#historyfield").show();
-	} else {
-		$("#historyfield").hide();
-	}
-
 	// Local storage
 	yoda.getUserTokenLocalStorage("#user", "#token");
 
@@ -814,9 +784,8 @@ export function init() {
 	yoda.decodeUrlParam("#user", "user");
 	yoda.decodeUrlParam("#token", "token");
 
-	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
 		$(".frame").hide();
-	}
 
 	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
