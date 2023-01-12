@@ -20,7 +20,7 @@
 import * as yoda from './yoda-utils.js'
 
 // Global storage of the labels currently on the screen.
-var globalLabels = [];
+let globalLabels = [];
 globalLabels["srclabels"] = {};
 globalLabels["dstlabels"] = {};
 
@@ -31,17 +31,16 @@ export function showLabels(labelTag, labels, operationFunc) {
 	$("#" + labelTag).html("");
 	globalLabels[labelTag] = labels;
 	
-	var labelsHtml = "";
-	
-	for (var l = 0; l < labels.length; l++) {
-		var operation =  operationFunc(labels[l]);
-		var foreground = yoda.bestForeground(labels[l].color);
-		var description = labels[l].description;
+	let labelsHtml = "";
+	for (let l = 0; l < labels.length; l++) {
+		const operation =  operationFunc(labels[l]);
+		const foreground = yoda.bestForeground(labels[l].color);
+		let description = labels[l].description;
 		if (description == undefined)
 			description = "Description not set";
 		
 		console.log("Label: " + labels[l].id + ", name: " + labels[l].name + ", color: " + labels[l].color + ", operation: " + operation + ", foreground: " + foreground);
-		var html = "<button id=\"" + labels[l].id + "\" class=\"gitlabel\" style=\"background: #" + labels[l].color + "; color: " + foreground + "\" " + 
+		const html = "<button id=\"" + labels[l].id + "\" class=\"gitlabel\" style=\"background: #" + labels[l].color + "; color: " + foreground + "\" " + 
 				"onclick=\"" + operation + "\" title=\"" + description + "\">" + labels[l].name + "</button>";
 		console.log(html);
 		labelsHtml += html;
@@ -65,15 +64,11 @@ export function clearDstLabels() {
 export function showSrcRepos(repos) {
 	console.log("Got " + repos.length + " repos.");
 	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
+		return a.name.toLowerCase() < b.name.toLowerCase()? -1 : 1;
 	});
 
-	for (var r = 0; r < repos.length; r++) {
+	for (let r = 0; r < repos.length; r++)
 		$("#srcrepolist").append($("<option></option>").attr("value", repos[r].name));
-	}
 	updateDstRepos();
 }
 
@@ -81,32 +76,26 @@ export function updateSrcRepos() {
 	console.log("Update repos");
 	$("#srcrepolist").empty();
 	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#srcowner").val() + "/repos";
+	const getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#srcowner").val() + "/repos";
 	yoda.getLoop(getReposUrl, 1, [], showSrcRepos, null);
-	
 }
 
 // -------
 export function showDstRepos(repos) {
 	console.log("Got " + repos.length + " repos.");
 	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
+		return a.name.toLowerCase() < b.name.toLowerCase()? -1 : 1;
 	});
 
-	for (var r = 0; r < repos.length; r++) {
+	for (let r = 0; r < repos.length; r++)
 		$("#dstrepolist").append($("<option></option>").attr("value", repos[r].name));
-	}
-	
 }
 
 export function updateDstRepos() {
 	console.log("Update repos");
 	$("#dstrepolist").empty();
 	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#dstowner").val() + "/repos";
+	const getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#dstowner").val() + "/repos";
 	yoda.getLoop(getReposUrl, 1, [], showDstRepos, null);
 }
 
@@ -128,15 +117,15 @@ export function copyLabels(nameColorArray) {
 //	console.log("copyLabels. Name: " + name + ", color: " + color);
 	
 	// Let's check if the label is present in dstArray.
-	for (var l = 0; l < globalLabels["dstlabels"].length; l++) {
+	for (let l = 0; l < globalLabels["dstlabels"].length; l++) {
 		if (name == globalLabels["dstlabels"][l].name) {
 			if (color != globalLabels["dstlabels"][l].color || description != globalLabels["dstlabels"][l].description) {
-				var patchLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
+				const patchLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
 				console.log("patchUrl: " + patchLabelUrl);
 
-				var urlData = {
-						"name": name,
-						"color": color,
+				const urlData = {
+					"name": name,
+					"color": color,
                 };
                 if (description != null)
                     urlData["description"] = description;
@@ -148,6 +137,7 @@ export function copyLabels(nameColorArray) {
 					contentType: "application/json",
 					success: function() { yoda.showSnackbarOk("Succesfully updated existing label: " + name); },
 					error: function() { yoda.showSnackbarError("Failed to update existing label: " + name); },
+					// eslint-disable-next-line no-unused-vars
 					complete: function(jqXHR, textStatus) { copyLabels(nameColorArray.splice(1)); return;}
 				});
 			} else {
@@ -160,12 +150,12 @@ export function copyLabels(nameColorArray) {
 	}
 			
 	// Create it.
-	var createLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
+	const createLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
 	console.log("createUrl: " + createLabelUrl);
 
-	var urlData = {
-			"name": name,
-			"color": color
+	const urlData = {
+		"name": name,
+		"color": color
 	};
     if (description != null)
         urlData["description"] = description;
@@ -177,6 +167,7 @@ export function copyLabels(nameColorArray) {
 		contentType: "application/json",
 		success: function() { yoda.showSnackbarOk("Succesfully created label: " + name); },
 		error: function() { yoda.showSnackbarError("Failed to create label: " + name); },
+		// eslint-disable-next-line no-unused-vars
 		complete: function(jqXHR, textStatus) { copyLabels(nameColorArray.splice(1));}
 	});
 }
@@ -191,12 +182,12 @@ export function deleteLabels(nameArray) {
 		return;
 	}
 	
-	var name = nameArray[0];
+	const name = nameArray[0];
 	console.log("deleteLabel. Name: " + name);
 
 	// We will only delete if no issues associated.
 	// So, let's query the repo to see if any such issues exist.
-	var getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues?state=all&labels=" + encodeURIComponent(name);
+	const getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues?state=all&labels=" + encodeURIComponent(name);
 	console.log(getIssuesUrl);
 
 	$.getJSON(getIssuesUrl, function(response, status) {
@@ -205,7 +196,7 @@ export function deleteLabels(nameArray) {
 			yoda.showSnackbarError("Error deleting label: " + name + " as issues are using it.");
 			deleteLabels(nameArray.splice(1));
 		} else {
-			var deleteLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
+			const deleteLabelUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels/" + encodeURIComponent(name);
 			console.log("deleteUrl: " + deleteLabelUrl);
 
 			$.ajax({
@@ -213,6 +204,7 @@ export function deleteLabels(nameArray) {
 				type: 'DELETE',
 				success: function() { yoda.showSnackbarOk("Succesfully deleted " + name); },
 				error: function() { yoda.showSnackbarError("Failed to delete label " + name); },
+				// eslint-disable-next-line no-unused-vars
 				complete: function(jqXHR, textStatus) { deleteLabels(nameArray.splice(1)); }
 			});
 		}
@@ -220,12 +212,12 @@ export function deleteLabels(nameArray) {
 }
 
 export function copyAllLabels() {
-	var nameColorArray = [];
-	for (var l = 0; l < globalLabels["srclabels"].length; l++) {
-		var nameColorEntry = {
-				name: globalLabels["srclabels"][l].name, 
-				color: globalLabels["srclabels"][l].color,
-				description: globalLabels["srclabels"][l].description
+	let nameColorArray = [];
+	for (let l = 0; l < globalLabels["srclabels"].length; l++) {
+		const nameColorEntry = {
+			name: globalLabels["srclabels"][l].name, 
+			color: globalLabels["srclabels"][l].color,
+			description: globalLabels["srclabels"][l].description
 		};
 		nameColorArray.push(nameColorEntry);
 	}
@@ -233,17 +225,16 @@ export function copyAllLabels() {
 }
 
 export function deleteAllLabels() {
-	var nameArray = [];
-	for (var l = 0; l < globalLabels["dstlabels"].length; l++) {
+	let nameArray = [];
+	for (let l = 0; l < globalLabels["dstlabels"].length; l++)
 		nameArray.push(globalLabels["dstlabels"][l].name);
-	}
 	deleteLabels(nameArray);
 }
 
 // Get all source repo labels. Build a button for each, which calls copyLabels with an array of length one containing
 // an object with name and color.
 export function getSrcLabels() {
-	var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/labels";
+	const getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("srclabels", labels, function(label) {
 			return "copyLabels([{ name: \'" + label.name + "\', color: \'"+ label.color + "\'}]);";
@@ -255,7 +246,7 @@ export function getSrcLabels() {
 // containing the name of the label to be deleted. Delete functions checks that no issues exists for the label before
 // deleting.
 export function getDstLabels() {
-	var getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
+	const getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("dstlabels", labels, function(label) {
 			return "deleteLabels([\'" + label.name + "\']);";
@@ -264,13 +255,13 @@ export function getDstLabels() {
 }
 
 export function openSrcRepo() {
-	var gitHubUrl = yoda.getGithubUrlHtml() + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/issues/labels";
+	const gitHubUrl = yoda.getGithubUrlHtml() + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/issues/labels";
 	console.log("Open url: " + gitHubUrl);
 	window.open(gitHubUrl);
 }
 
 export function openDstRepo() {
-	var gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues/labels";
+	const gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues/labels";
 	console.log("Open url: " + gitHubUrl);
 	window.open(gitHubUrl);
 }
@@ -310,9 +301,5 @@ export function init() {
 
 	$(document).ready(function() {
 		updateSrcRepos();
-		
-//			done(function() {getDstLabels();}).
-//			done(function() {getSrcLabels();});
 	});
-
 }
