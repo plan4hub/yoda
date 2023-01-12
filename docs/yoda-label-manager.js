@@ -190,7 +190,7 @@ export function deleteLabels(nameArray) {
 	const getIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues?state=all&labels=" + encodeURIComponent(name);
 	console.log(getIssuesUrl);
 
-	$.getJSON(getIssuesUrl, function(response, status) {
+	$.getJSON(getIssuesUrl, function(response) {
 		if (response.length > 0) {
 			console.log("    Got " + response.length + " issues for " + name + ", will not delete.");
 			yoda.showSnackbarError("Error deleting label: " + name + " as issues are using it.");
@@ -237,6 +237,7 @@ export function getSrcLabels() {
 	const getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("srclabels", labels, function(label) {
+			// eslint-disable-next-line no-useless-escape
 			return "copyLabels([{ name: \'" + label.name + "\', color: \'"+ label.color + "\'}]);";
 		})
 	}, 	clearSrcLabels);
@@ -249,6 +250,7 @@ export function getDstLabels() {
 	const getLabelsUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/labels";
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("dstlabels", labels, function(label) {
+			// eslint-disable-next-line no-useless-escape
 			return "deleteLabels([\'" + label.name + "\']);";
 		})
 	}, 	clearDstLabels);
