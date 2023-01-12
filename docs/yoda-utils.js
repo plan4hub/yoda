@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 // This file contains utility functions for Yoda.
 
 // Extra data functions. Keeping outside of module
@@ -18,7 +19,7 @@ Date.prototype.getDaysInMonth = function () {
 };
 
 Date.prototype.addMonths = function (value) {
-	var n = this.getDate();
+	let n = this.getDate();
 	this.setDate(1);
 	this.setMonth(this.getMonth() + value);
 	this.setDate(Math.min(n, this.getDaysInMonth()));
@@ -29,26 +30,26 @@ Date.prototype.addMonths = function (value) {
 // Yoda Private global modules variables
 
 // Count snackbar to ensure proper updates.
-var snackbarCount = 0;
+let snackbarCount = 0;
 
 // GitHub container lists. Retrieve only via access functions
-var yoda_repoList = [];
-var yoda_issues = [];
+let yoda_repoList = [];
+let yoda_issues = [];
 
-var yoda_firstRepoUpdate = true;
+let yoda_firstRepoUpdate = true;
 
-var yoda_userId = null;
+let yoda_userId = null;
 
 // GitHub call control variable. New calls will cancel existing calls.
-var yoda_gitHubCallNo = 0;
+let yoda_gitHubCallNo = 0;
 
 // -------------------------------
 
 // UPDATE THESE TO FIT YOUR GITHUB...
 
 // Standard github.com settings.
-var gitHubApiBaseUrl = "https://api.github.com/";
-var gitHubBaseUrl = "https://www.github.com/";
+let gitHubApiBaseUrl = "https://api.github.com/";
+let gitHubBaseUrl = "https://www.github.com/";
 
 console.log("URL: " + window.location.href);
 console.log("URL hostname: " + window.location.hostname);
@@ -60,8 +61,8 @@ if (window.location.hostname.indexOf("github.hpe.com") != -1) {
 }
 
 // Color Scheme stuff.
-var currentColorScheme = "default";
-var colorSchemes = {
+let currentColorScheme = "default";
+const colorSchemes = {
 	default: {
 		htmlBackground: 'white',
 		fontContrast: 'black',
@@ -81,13 +82,13 @@ var colorSchemes = {
 
 // Retrieve URL parameter
 export function GetURLParameter(sParam) {
-	var sPageURL = window.location.search.substring(1);
+	let sPageURL = window.location.search.substring(1);
 	if (sPageURL.length == 0)
 		return null;
-	var sURLVariables = decodeURIComponent(sPageURL).split('&');
+	const sURLVariables = decodeURIComponent(sPageURL).split('&');
 
-	for (var i = 0; i < sURLVariables.length; i++) {
-		var sParameterName = sURLVariables[i].split('=');
+	for (let i = 0; i < sURLVariables.length; i++) {
+		const sParameterName = sURLVariables[i].split('=');
 		if (sParameterName[0] == sParam)
 			return sURLVariables[i].substring(sParameterName[0].length + 1);
 	}
@@ -100,22 +101,22 @@ function getLastPage(link) {
 	if (link == undefined || link == null)
 		return -1;
 
-	var parts = link.split(",");
-	for (var p = 0; p < parts.length; p++) {
+	const parts = link.split(",");
+	for (let p = 0; p < parts.length; p++) {
 		if (parts[p].indexOf('rel="last"') == -1)
 			continue;
 
-		var search = "&page=";
-		var lastIndex = parts[p].indexOf(search);
+		const search = "&page=";
+		let lastIndex = parts[p].indexOf(search);
 		if (lastIndex == -1)
 			return -1;
 		lastIndex += search.length;
 
-		var untilIndex = parts[p].indexOf(">;");
+		const untilIndex = parts[p].indexOf(">;");
 		if (untilIndex == -1)
 			return -1;
 
-		var lastPage = parts[p].substr(lastIndex, untilIndex - lastIndex);
+		const lastPage = parts[p].substr(lastIndex, untilIndex - lastIndex);
 		return lastPage;
 	}
 	return -1;
@@ -127,103 +128,42 @@ function getLastPage(link) {
 // The data part is returned.
 // Optional parameter index is used to indicate that subsequent matches should be returned.
 function getBodyField(body, start, data, index) {
-
 	if (index == undefined)
 		index = 0;
 	if (body == undefined || body == null)
 		return null;
 
-	var reg = new RegExp(start + data, 'mg');
-	var res = body.match(reg);
-
+	const reg = new RegExp(start + data, 'mg');
+	const res = body.match(reg);
 	if (res != null) {
 		if (index >= res.length)
 			return null;
 
 		// Return the match requested. First lets find out how long the start part is
-		var regStart = new RegExp(start);
-		var resStart = res[index].match(regStart);
+		const regStart = new RegExp(start);
+		const resStart = res[index].match(regStart);
 		if (resStart.length == 0)
 			return null; // strange.
-		// And extract the remaining part.
-		var newString = res[index].substr(resStart[0].length);
 
-		var reg2 = new RegExp(data);
-		var res2 = newString.match(reg2);
+		// And extract the remaining part.
+		const newString = res[index].substr(resStart[0].length);
+
+		const reg2 = new RegExp(data);
+		const res2 = newString.match(reg2);
 		return res2[0].trim();
 	} else {
 		return null;
 	}
-};
+}
 
 // Remove reg
 function removeFromBody(body, regexp) {
-	var reg = new RegExp(regexp, 'mg');
+	const reg = new RegExp(regexp, 'mg');
 	return body.replace(reg, "");
-};
-
-// Private method for UTF-8 encoding. Use for GitHub authentication using personal token.
-function _utf8_encode(string) {
-	string = string.replace(/\r\n/g, "\n");
-	var utftext = "";
-
-	for (var n = 0; n < string.length; n++) {
-
-		var c = string.charCodeAt(n);
-
-		if (c < 128) {
-			utftext += String.fromCharCode(c);
-		}
-		else if ((c > 127) && (c < 2048)) {
-			utftext += String.fromCharCode((c >> 6) | 192);
-			utftext += String.fromCharCode((c & 63) | 128);
-		}
-		else {
-			utftext += String.fromCharCode((c >> 12) | 224);
-			utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-			utftext += String.fromCharCode((c & 63) | 128);
-		}
-	}
-
-	return utftext;
-}
-
-// Standard base64 encoding. Used for GitHub authentisation.
-function base64_encode(input) {
-	var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-
-	var output = "";
-	var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-	var i = 0;
-
-	input = _utf8_encode(input);
-
-	while (i < input.length) {
-		chr1 = input.charCodeAt(i++);
-		chr2 = input.charCodeAt(i++);
-		chr3 = input.charCodeAt(i++);
-
-		enc1 = chr1 >> 2;
-		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-		enc4 = chr3 & 63;
-
-		if (isNaN(chr2)) {
-			enc3 = enc4 = 64;
-		} else if (isNaN(chr3)) {
-			enc4 = 64;
-		}
-
-		output = output +
-			_keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-			_keyStr.charAt(enc3) + _keyStr.charAt(enc4);
-	}
-
-	return output;
 }
 
 //Either "noissues", "inbody", "inlabels". Default is "inbody", ie. estimate is given by an "> estimate (number)" line.
-var estimateInIssues = "inbody";
+let estimateInIssues = "inbody";
 
 export function strip2Digits(number) {
 	const places = 2;
@@ -256,7 +196,7 @@ export function setDefaultColorScheme() {
 // A mix of nice bar colors for bar charts. 
 // The first 4 are not random. Idea is to match
 // Severity Urgent, High, Medium, Low used in generating time issues statistics (time-stats.html)
-export var barColors = [
+export const barColors = [
 	'rgb(255, 80, 80)', // red
 	'rgb(255, 153, 0)', // orange
 	//			'rgb(102, 0, 255)', // blue .... too blue
@@ -295,7 +235,7 @@ export function showSnackbar(message, backgroundColor, timeout) {
 	snackbarCount++;
 	if (timeout == undefined)
 		timeout = 1500;
-	var x = document.getElementById("snackbar")
+	let x = document.getElementById("snackbar")
 	x.className = "show";
 	x.innerHTML = message;
 	x.style["background-color"] = backgroundColor;
@@ -344,7 +284,7 @@ export function select2Matcher(params, data) {
 	// `data.text` is the text that is displayed for the data object
 	// If search *, we will assume use it as "mini" regular expression
 	if ((params.term.includes("*") && select2MatchHelper(params.term, data.text)) || (data.text.toUpperCase().indexOf(params.term.toUpperCase()) == 0)) {
-		var modifiedData = $.extend({}, data, true);
+		const modifiedData = $.extend({}, data, true);
 		return modifiedData;
 	}
 
@@ -357,7 +297,7 @@ export function select2SelectEvent(field) {
 		if (e.params.data.id === 'selectAll') {
 			$(field).val(e.params.data.matchIds);
 			$(field).trigger('change');
-		};
+		}
 	}
 }
 
@@ -371,7 +311,7 @@ export function setEstimateInIssues(newValue) {
 }
 
 export function getGithubUrl() {
-	var overwrite = getDefaultLocalStorageValue("gitHubApiBaseUrl");
+	const overwrite = getDefaultLocalStorageValue("gitHubApiBaseUrl");
 	if (overwrite != null)
 		return overwrite;
 	else
@@ -379,7 +319,7 @@ export function getGithubUrl() {
 }
 
 export function getGithubUrlHtml() {
-	var overwrite = getDefaultLocalStorageValue("gitHubBaseUrl");
+	const overwrite = getDefaultLocalStorageValue("gitHubBaseUrl");
 	if (overwrite != null)
 		return overwrite;
 	else
@@ -406,7 +346,7 @@ export function addIfNotDefault(params, field) {
 
 // Decode URL parameter. If param is non-null, then set that component to the value obtained from the URL (if at all).
 export function decodeUrlParam(id, param) {
-	var value = GetURLParameter(param);
+	const value = GetURLParameter(param);
 	if (value != null && id != null)
 		$(id).val(value);
 	return value;
@@ -414,7 +354,7 @@ export function decodeUrlParam(id, param) {
 
 // Above, specialized for Boolean (i.e. understands true => checked, otherwise unchecked.
 export function decodeUrlParamBoolean(id, param) {
-	var value = GetURLParameter(param);
+	const value = GetURLParameter(param);
 	if (value != null && id != null) {
 		if (value == "true")
 			$(id).prop('checked', true);
@@ -427,7 +367,7 @@ export function decodeUrlParamBoolean(id, param) {
 // Decode date. Add logic of +# / -# meaning days relative to today
 export function decodeUrlParamDate(id, param) {
 	console.log("Decoding date: " + param);
-	var value = GetURLParameter(param);
+	const value = GetURLParameter(param);
 	if (value != null && id != null)
 		$(id).val(handleDateDelta(value));
 	return value;
@@ -440,12 +380,12 @@ export function decodeParamRadio(id, value) {
 }
 
 export function decodeUrlParamRadio(id, param) {
-	var value = GetURLParameter(param);
+	const value = GetURLParameter(param);
 	return decodeParamRadio(id, value);
 }
 
 export function decodeUrlParamSelect(id, param) {
-	var value = GetURLParameter(param);
+	const value = GetURLParameter(param);
 	if (value != null && id != null)
 		$(id).val(value).change();
 	return value;
@@ -457,7 +397,7 @@ export function updateUrl(searchParams) {
 	if (getColorScheme() == "dark")
 		searchParams += "&dark=true";
 
-	var baseUrl = window.location.pathname;
+	const baseUrl = window.location.pathname;
 	searchParams = searchParams.replace(/%/g, "%25");
 	console.log("Updating URL to " + baseUrl + "?" + searchParams);
 	window.history.replaceState(null, null, baseUrl + "?" + searchParams);
@@ -466,7 +406,7 @@ export function updateUrl(searchParams) {
 // Return a copy of an array containing only attributes mentioned in fields array
 export function reduceArray(data, fields) {
 	return data.map(function (item) {
-		var newItem = {};
+		let newItem = {};
 		fields.forEach(function (field) {
 			newItem[field] = item[field];
 		});
@@ -488,15 +428,14 @@ export function advanceDate(date, interval, startDay) {
 // Also +/-(m) notation for adding/subtracting months.
 export function handleDateDelta(value) {
 	if (value.charAt(0) == "+" || value.charAt(0) == "-" || value == "0") {
-		var today = new Date();
+		let today = new Date();
 		today.setHours(0);
 		today.setMinutes(0);
 		today.setSeconds(0);
-		var deltaDate = new Date(today);
+		let deltaDate = new Date(today);
 
 		if (value.slice(-1) == 'm') {
 			// Assume month(s)
-
 			deltaDate.addMonths(parseInt(value));
 		} else {
 			// Days.
@@ -516,17 +455,17 @@ export function handleDateDelta(value) {
 
 // Calculate a date two months earlier.
 export function twoMonthsEarlier(interval, today) {
-	var startDate = new Date(today);
+	let startDate = new Date(today);
 	// Summer time. Be careful. Let's set hours to 10AM for calculations. Then set
-	var saveHours = startDate.getHours();
+	const saveHours = startDate.getHours();
 	startDate.setHours(10);
 	if (interval.slice(-1) == 'm') {
 		// If interval is in months, then let's prepare to span default of 8 intervals 
 		startDate.addMonths(0 - parseInt(interval) * 8);
 	} else {
 		// If blank, start 2 months before (aprox by with interval matching)
-		var noIntervals = Math.ceil(62 / interval);
-		var dateOffset = (24 * 60 * 60 * 1000) * noIntervals * interval;
+		const noIntervals = Math.ceil(62 / interval);
+		const dateOffset = (24 * 60 * 60 * 1000) * noIntervals * interval;
 		startDate.setTime(startDate.getTime() - dateOffset);
 	}
 	startDate.setHours(saveHours);
@@ -534,10 +473,10 @@ export function twoMonthsEarlier(interval, today) {
 }
 
 export function dateDiff(ds1, ds2) {
-	var d1 = new Date(ds1);
-	var d2 = new Date(ds2);
-	var t2 = d2.getTime();
-	var t1 = d1.getTime();
+	const d1 = new Date(ds1);
+	const d2 = new Date(ds2);
+	const t2 = d2.getTime();
+	const t1 = d1.getTime();
 
 	return parseInt((t2 - t1) / (24 * 3600 * 1000));
 }
@@ -548,7 +487,7 @@ export function getLabelMatch(label, start) {
 
 // Extract "> estimate (value)" from body
 export function getBodyEstimate(body) {
-	var estimate = getBodyField(body, '^>[ ]?estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
+	let estimate = getBodyField(body, '^>[ ]?estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
 	if (estimate == null) {
 		// Try old format as well
 		estimate = getBodyField(body, '^/estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?[ ]*$');
@@ -563,7 +502,7 @@ export function getBodyEstimate(body) {
 export function getPureDescription(description) {
 	if (description == null)
 		return "";
-	var res = removeFromBody(description, "^> startdate .*$");
+	let res = removeFromBody(description, "^> startdate .*$");
 	res = removeFromBody(res, "^> burndownduedate .*$");
 	res = removeFromBody(res, "^> capacity .*$");
 	res = removeFromBody(res, "^> ed .*$");
@@ -575,20 +514,20 @@ export function getPureDescription(description) {
 
 // get date part of remaining entry.
 export function getDateFromEntry(remainingEntry) {
-	var dateEnd = remainingEntry.indexOf(" ");
+	const dateEnd = remainingEntry.indexOf(" ");
 	if (dateEnd == -1) {
 		console.log("ERROR: Cannot interpret remaining entry: " + remainingEntry);
 		return "2000-00-00";
 	}
-	var remainingDate = remainingEntry.slice(0, dateEnd);
+	let remainingDate = remainingEntry.slice(0, dateEnd);
 
 	// Date checks + make the date perfectly formatted as YYYY-MM-DD
-	var firstDash = remainingDate.indexOf("-");
+	const firstDash = remainingDate.indexOf("-");
 	if (firstDash != 4) {
 		console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
 		return "2000-00-00";
 	}
-	var secondDash = remainingDate.indexOf("-", firstDash + 1);
+	let secondDash = remainingDate.indexOf("-", firstDash + 1);
 	if (secondDash != 7 && secondDash != 6) {
 		console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
 		return "2000-00-00";
@@ -598,14 +537,10 @@ export function getDateFromEntry(remainingEntry) {
 		// Month < 10
 		remainingDate = remainingDate.slice(0, firstDash + 1) + "0" + remainingDate.slice(firstDash + 1);
 		secondDash = remainingDate.indexOf("-", firstDash + 1);
-		//				console.log("Adjusted date (month < 10): '" + remainingDate + "'");
 	}
 
-	if (remainingDate.length == 9) {
-		// Day < 10
-		remainingDate = remainingDate.slice(0, secondDash + 1) + "0" + remainingDate.slice(secondDash + 1);
-		//				console.log("Adjusted date (day < 10): '" + remainingDate + "'");
-	}
+	if (remainingDate.length == 9)
+		remainingDate = remainingDate.slice(0, secondDash + 1) + "0" + remainingDate.slice(secondDash + 1); // Day < 10
 
 	// console.log("remainingEntry='" + remainingEntry + "' dateEnd = " + dateEnd + ", reaminingDate='" + remainingDate + "' firstDash = " + firstDash + ", secondDash=" + secondDash);
 	return remainingDate;
@@ -613,7 +548,7 @@ export function getDateFromEntry(remainingEntry) {
 
 // get estimate part from remaining entry.
 export function getRemainingFromEntry(remainingEntry) {
-	var dateEnd = remainingEntry.indexOf(" ");
+	const dateEnd = remainingEntry.indexOf(" ");
 	if (dateEnd == -1) {
 		console.log("ERROR: Cannot interpret date in remaining entry: " + remainingEntry);
 		return 0;
@@ -626,29 +561,25 @@ export function getRemainingFromEntry(remainingEntry) {
 // Extract "> remaining (date) (value)" entries.
 // Should be run in a loop with index = 0 first.  
 export function getFirstRemaining(body, index) {
-	var remaining = getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ][0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$', index);
-	//			console.log(remaining);
-	return remaining;
+	return getBodyField(body, '^>[ ]?remaining ', '[ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ][0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$', index);
 }
 
 // Get the last > remaining (date) (number) entry and return that number
 // If no entry found, then return estimate.
 export function issueRemaining(issue, estimate) {
-	var remaining = estimate;
+	let remaining = estimate;
 	for (var index = 0; getFirstRemaining(issue.body, index) != null; index++) {
 		var remainingEntry = getFirstRemaining(issue.body, index);
-		var remainingDate = getDateFromEntry(remainingEntry);
-		var remaining = getRemainingFromEntry(remainingEntry);
+		remaining = getRemainingFromEntry(remainingEntry);
 		//				console.log("Remaining entry (" + index + ") for issue: " + issue.number + ": " + remainingDate + ", " + remaining);
 	}
-
 	//			console.log(" =>> last remaining: " + remaining);
 	return parseFloat(remaining);
 }
 
 // Return the estimate for the issue, taking into account any remaining annotation (> remaining) ahead of the given date. 
 export function issueEstimateBeforeDate(issue, startdate) {
-	var estimate = issueEstimate(issue);
+	let estimate = issueEstimate(issue);
 
 	if (estimateInIssues == "inbody") {
 		// We need to work on potential remaining.
@@ -684,10 +615,10 @@ export function issueEstimate(issue) {
 		case "inlabels":
 			// Ok, let's look at the labels
 			// We will consider all labels with a pure numerical form.
-			for (var l = 0; l < issue.labels.length; l++) {
-				var labelText = issue.labels[l].name;
+			for (let l = 0; l < issue.labels.length; l++) {
+				const labelText = issue.labels[l].name;
 				if (labelText.match(/^[1-9][0-9]*$/) != null) {
-					var estimate = parseInt(labelText);
+					const estimate = parseInt(labelText);
 					console.log("Estimate was: " + estimate);
 					return estimate;
 				}
@@ -698,7 +629,8 @@ export function issueEstimate(issue) {
 
 // Get all data from getBodyFields (by iterating)
 export function getAllBodyFields(body, start, data) {
-	var result = [], r;
+	let result = [];
+	let r;
 	if (body == undefined || body == null)
 		return result;
 	for (var i = 0; (r = getBodyField(body, start, data, i)) != null; i++)
@@ -727,7 +659,7 @@ export function issueRemainingMeta(issue, estimate) {
 export function getbodyCompletedTasks(body) {
 	if (body == undefined || body == null)
 		return 0;
-	var res = body.match(/^- \[(x|X)\]/mg);
+	const res = body.match(/^- \[(x|X)\]/mg);
 	if (res != null)
 		return res.length;
 	else
@@ -739,7 +671,7 @@ export function getbodyCompletedTasks(body) {
 export function getbodyTasks(body) {
 	if (body == undefined || body == null)
 		return 0;
-	var res = body.match(/^- \[(x|X| )\]/mg);
+	const res = body.match(/^- \[(x|X| )\]/mg);
 	if (res != null)
 		return res.length;
 	else
@@ -748,7 +680,7 @@ export function getbodyTasks(body) {
 
 // Set radio button from URL
 export function updateEstimateRadio() {
-	var temp = $("#estimateradio input[type='radio']:checked");
+	const temp = $("#estimateradio input[type='radio']:checked");
 	if (temp.length > 0)
 		estimateInIssues = temp.val();
 	console.log("EstimateInIssues now: " + estimateInIssues);
@@ -775,7 +707,7 @@ export function getMilestoneBurndownDuedate(description) {
 }
 
 export function getMilestoneInfo(description) {
-	var info = getBodyField(description, '> info ', '[#A-Za-z0-9].*$');
+	let info = getBodyField(description, '> info ', '[#A-Za-z0-9].*$');
 	if (info == null)
 		info = "";
 	return info;
@@ -785,16 +717,16 @@ export function getMilestoneInfo(description) {
 export function getMilestoneIssueDuration(issue) {
 	if (issue.state != "closed")
 		return null;
-	var closedDate = formatDate(new Date(issue.closed_at));
-	var milestoneStartDate = null;
+	const closedDate = formatDate(new Date(issue.closed_at));
+	let milestoneStartDate = null;
 	if (issue.milestone != undefined && issue.milestone.description != null)
-		var milestoneStartDate = getMilestoneStartdate(issue.milestone.description);
+		milestoneStartDate = getMilestoneStartdate(issue.milestone.description);
 	if (milestoneStartDate == null)
 		return null;
-	var startDate = formatDate(new Date(issue.created_at));
+	let startDate = formatDate(new Date(issue.created_at));
 	if (milestoneStartDate > startDate)
 		startDate = milestoneStartDate;
-	var duration = dateDiff(startDate, closedDate);
+	const duration = dateDiff(startDate, closedDate);
 	if (duration < 0)
 		return null;
 	if (duration > 100)
@@ -804,15 +736,16 @@ export function getMilestoneIssueDuration(issue) {
 
 // Format date as YYYY-MM-DD. If UTC argument given (as true), will go by UTC dates
 export function formatDate(date, utc) {
+	let day, month;
 	if (utc == true) {
-		var day = date.getUTCDate();
-		var month = date.getUTCMonth();
+		day = date.getUTCDate();
+		month = date.getUTCMonth();
 	} else {
-		var day = date.getDate();
-		var month = date.getMonth();
+		day = date.getDate();
+		month = date.getMonth();
 	}
 
-	var result = date.getFullYear() + "-";
+	let result = date.getFullYear() + "-";
 	if (month + 1 < 10)
 		result += "0";
 	result += (month + 1) + "-";
@@ -832,21 +765,21 @@ export function bestForeground(color, whiteColor, blackColor) {
 	if (color == undefined)
 		return blackColor;
 
+	let r, g, b;
 	if (color[0] == 'r') {
 		// assume rgb format
 		const colorsOnly = color.substring(color.indexOf('(') + 1, color.lastIndexOf(')')).split(/,\s*/);
-		var r = colorsOnly[0];
-		var g = colorsOnly[1];
-		var b = colorsOnly[2];
+		r = colorsOnly[0];
+		g = colorsOnly[1];
+		b = colorsOnly[2];
 	} else {
-		var hex = color.replace(/#/, '');
-		var r = parseInt(hex.substr(0, 2), 16);
-		var g = parseInt(hex.substr(2, 2), 16);
-		var b = parseInt(hex.substr(4, 2), 16);
+		const hex = color.replace(/#/, '');
+		r = parseInt(hex.substr(0, 2), 16);
+		g = parseInt(hex.substr(2, 2), 16);
+		b = parseInt(hex.substr(4, 2), 16);
 	}
 
-	var a = 1.0 - (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
-	//		    console.log(r, g, b, a);
+	const a = 1.0 - (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
 	if (a < 0.45)
 		return blackColor;
 	else
@@ -855,9 +788,8 @@ export function bestForeground(color, whiteColor, blackColor) {
 
 // Search all issue labels looking for a given label. 
 export function isLabelInIssue(issue, label) {
-	for (var l = 0; l < issue.labels.length; l++) {
-		var labelName = issue.labels[l].name;
-		if (labelName == label)
+	for (let l = 0; l < issue.labels.length; l++) {
+		if (issue.labels[l].name == label)
 			return true;
 	}
 	return false;
@@ -865,7 +797,7 @@ export function isLabelInIssue(issue, label) {
 
 // search all issue labels look for one of the labels in a list.
 export function isAnyLabelInIssue(issue, labelList) {
-	for (ll = 0; ll < labelList.length; ll++) {
+	for (let ll = 0; ll < labelList.length; ll++) {
 		if (isLabelInIssue(issue, labelList[ll]))
 			return true;
 	}
@@ -874,7 +806,7 @@ export function isAnyLabelInIssue(issue, labelList) {
 
 // Is person assigned to this issue?
 export function isPersonAssigned(issue, person) {
-	for (var as = 0; as < issue.assignees.length; as++) {
+	for (let as = 0; as < issue.assignees.length; as++) {
 		if (issue.assignees[as].login == person)
 			return true;
 	}
@@ -890,7 +822,7 @@ export function sortDates(issue_1, issue_2) {
 
 // Get owner (org or user) from repo fullname
 export function getFullnameOwner(fullname) {
-	var temp = fullname.split("/");
+	const temp = fullname.split("/");
 	if (temp == null)
 		return null;
 	else
@@ -899,7 +831,7 @@ export function getFullnameOwner(fullname) {
 
 // Get repo name from fullname
 export function getFullnameRepo(fullname) {
-	var temp = fullname.split("/");
+	const temp = fullname.split("/");
 	if (temp == null || temp.length == 1)
 		return null;
 	else
@@ -908,7 +840,7 @@ export function getFullnameRepo(fullname) {
 
 // get owner part of issue. If short form, use the owner from argument.
 export function getIssueOwner(issueRef, issueOwner) {
-	var issueRefSplit = issueRef.split("/");
+	const issueRefSplit = issueRef.split("/");
 	if (issueRefSplit.length == 1)
 		return issueOwner;
 	else
@@ -917,7 +849,7 @@ export function getIssueOwner(issueRef, issueOwner) {
 
 // get repo part of issue. If short form, use the owner from argument.
 export function getIssueRepo(issueRef, issueRepo) {
-	var issueRefSplit = issueRef.split("/");
+	const issueRefSplit = issueRef.split("/");
 	if (issueRefSplit.length == 1)
 		return issueRepo;
 	else
@@ -955,10 +887,10 @@ export function getRepoFromMilestoneUrl(url) {
 export function getUserTokenLocalStorage(userField, tokenField) {
 	// May not work in ealier versions of IE
 	try {
-		var userId = window.localStorage.getItem("gitHubUserId");
+		const userId = window.localStorage.getItem("gitHubUserId");
 		if (userId != null)
 			$(userField).val(userId);
-		var token = window.localStorage.getItem("gitHubAccessToken");
+		const token = window.localStorage.getItem("gitHubAccessToken");
 		if (token != null)
 			$(tokenField).val(token);
 	}
@@ -987,7 +919,7 @@ export function getDefaultLocalStorageValue(localStorageId) {
 }
 
 export function getDefaultLocalStorage(inputField, localStorageId) {
-	var value = getDefaultLocalStorageValue(localStorageId);
+	const value = getDefaultLocalStorageValue(localStorageId);
 	if (value != null) {
 		// Set the field both as value and default.
 		$(inputField).data("defaultValue", value);
@@ -1022,7 +954,7 @@ export function setLocalStorage(item, value) {
 export function gitAuth(userId, accessToken, fullExport) {
 	yoda_userId = userId;
 
-	var headers = [];
+	let headers = [];
 	if (fullExport == "fullExport")
 		headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
 	else if (fullExport == "textMatch")
@@ -1030,15 +962,10 @@ export function gitAuth(userId, accessToken, fullExport) {
 	else
 		headers['Accept'] = 'application/vnd.github.mercy-preview+json';
 
-	if (userId == "" || accessToken == "") {
+	if (userId == "" || accessToken == "")
 		console.log("Empty userId/accessToken.");
-	} else {
-		// Review this part!
+	else
 		headers['Authorization'] = 'token ' + accessToken;
-		//				headers['PRIVATE-TOKEN'] = accessToken;  // Gitlab play. API is differnet anyhow
-	}
-
-	//			headers['Access-Control-Max-Age'] = 86400; // 10 min, which is the maximum allowed for Chrome. 
 
 	$.ajaxSetup({
 		headers: headers
@@ -1051,8 +978,7 @@ export function getAuthUser() {
 
 // Download CSV data as file.
 export function downloadFileWithType(fileType, data, fileName) {
-	var csvData = data;
-	var blob = new Blob([csvData], {
+	const blob = new Blob([data], {
 		type: fileType
 	});
 
@@ -1061,8 +987,8 @@ export function downloadFileWithType(fileType, data, fileName) {
 		navigator.msSaveBlob(blob, fileName);
 	} else {
 		// FOR OTHER BROWSERS
-		var link = document.createElement("a");
-		var csvUrl = URL.createObjectURL(blob);
+		let link = document.createElement("a");
+		const csvUrl = URL.createObjectURL(blob);
 		link.href = csvUrl;
 		link.style = "visibility:hidden";
 		link.download = fileName;
@@ -1079,7 +1005,7 @@ export function downloadFilePNG(dataURL, fileName) {
 		navigator.msSaveBlob(dataURL, fileName);
 	} else {
 		// FOR OTHER BROWSERS
-		var link = document.createElement("a");
+		let link = document.createElement("a");
 		link.href = dataURL;
 		link.style = "visibility:hidden";
 		link.download = fileName;
@@ -1118,6 +1044,7 @@ export function getUrlLoop(urlList, collector, finalFunc, errorFunc, callNo) {
 		}
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	$.getJSON(urlList[0], function (response, status) {
 		getUrlLoop(urlList.slice(1), collector.concat(response), finalFunc, errorFunc, callNo);
 	}).done(function () { /* One call succeeded */ })
@@ -1127,7 +1054,7 @@ export function getUrlLoop(urlList, collector, finalFunc, errorFunc, callNo) {
 				errorFunc(errorThrown + " " + jqXHR.status);
 			}
 		})
-		.always(function () { /* One call ended */ });;
+		.always(function () { /* One call ended */ });
 }
 
 // Return number of results for a given (get/search) url. This is done by executing the query once, then retriving the last page indicated
@@ -1142,22 +1069,21 @@ export function getCount(url, userArg, page, finalFunc, errorFunc, callNo) {
 		console.log("Starting loop call no " + callNo + " with URL: " + url);
 	}
 
-	var oldIndex = url.indexOf("per_page=100&page=");
+	const oldIndex = url.indexOf("per_page=100&page=");
 	if (oldIndex != -1) {
 		url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
 	} else {
 		// Do we have a ?
-		if (url.indexOf("?") == -1) {
+		if (url.indexOf("?") == -1)
 			url = url + "?per_page=100&page=" + page;
-		} else {
+		else
 			url = url + "&per_page=100&page=" + page;
-		}
 	}
 
 	$.getJSON(url, function (response, status, xhr) {
 		if ((response != undefined && page == 1)) {
 			// First response, get the lastPage
-			var lastPage = getLastPage(xhr.getResponseHeader("Link"));
+			const lastPage = getLastPage(xhr.getResponseHeader("Link"));
 			if (lastPage == -1) {
 				$("*").css("cursor", "default");
 				finalFunc(userArg, response.length);
@@ -1175,7 +1101,7 @@ export function getCount(url, userArg, page, finalFunc, errorFunc, callNo) {
 				errorFunc(errorThrown + " " + jqXHR.status);
 			}
 		})
-		.always(function () { /* One call ended */ });;
+		.always(function () { /* One call ended */ });
 }
 
 // Collect various information from the API. URL gives the requested info, the function does the
@@ -1197,20 +1123,19 @@ export function getLoop(url, page, collector, finalFunc, errorFunc, callNo) {
 	}
 
 	if (page != -1) {
-		var oldIndex = url.indexOf("per_page=100&page=");
+		const oldIndex = url.indexOf("per_page=100&page=");
 		if (oldIndex != -1) {
 			url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
 		} else {
 			// Do we have a ?
-			if (url.indexOf("?") == -1) {
+			if (url.indexOf("?") == -1)
 				url = url + "?per_page=100&page=" + page;
-			} else {
+			else
 				url = url + "&per_page=100&page=" + page;
-			}
 		}
 	}
 
-	$.getJSON(url, function (response, status) {
+	$.getJSON(url, function (response) {
 		if ((response.items != undefined && response.items.length == 100 && page != -1) || (response.length == 100 && page != -1)) {
 			getLoop(url, page + 1, collector.concat(response), finalFunc, errorFunc, callNo);
 		} else {
@@ -1224,7 +1149,7 @@ export function getLoop(url, page, collector, finalFunc, errorFunc, callNo) {
 				errorFunc(errorThrown + " " + jqXHR.status);
 			}
 		})
-		.always(function () { /* One call ended */ });;
+		.always(function () { /* One call ended */ });
 }
 
 // Collect various information from the API. URL gives the requested info, the function calls repeatedly
@@ -1235,48 +1160,45 @@ export function getLoop(url, page, collector, finalFunc, errorFunc, callNo) {
 // Note, we are not using the callNo cancellation... 
 export function getLoopIterative(url, page, partFunc, finalFunc, errorFunc) {
 	if (page != -1) {
-		var oldIndex = url.indexOf("per_page=100&page=");
+		const oldIndex = url.indexOf("per_page=100&page=");
 		if (oldIndex != -1) {
 			url = url.substring(0, oldIndex) + "per_page=100&page=" + page;
 		} else {
 			// Do we have a ?
-			if (url.indexOf("?") == -1) {
+			if (url.indexOf("?") == -1)
 				url = url + "?per_page=100&page=" + page;
-			} else {
+			else
 				url = url + "&per_page=100&page=" + page;
-			}
 		}
 	}
 
 	console.log("Iterative call URL: " + url);
-	$.getJSON(url, function (response, status) {
+	$.getJSON(url, function (response) {
 		if (partFunc != null)
 			partFunc(response);
 
-		if (response.length == 100 && page != -1) {
+		if (response.length == 100 && page != -1)
 			getLoopIterative(url, page + 1, partFunc, finalFunc, errorFunc);
-		} else {
+		else
 			finalFunc();
-		}
 	}).done(function () { /* One call succeeded */ })
 		.fail(function (jqXHR, textStatus, errorThrown) {
 			if (errorFunc != null) {
 				errorFunc(errorThrown + " " + jqXHR.status);
 			}
 		})
-		.always(function () { /* One call ended */ });;
+		.always(function () { /* One call ended */ });
 }
 
 // Common function to be used for determing issues splitting for both category and bars. 
 export function issue_split(labelSplit, issues) {
-	var bars = new Array();
-	
-	var labelSplitUsingRegExp = false;
+	let bars = new Array();
+	let labelSplitUsingRegExp = false;
 	
 	// Special handling for "repo"
 	if (labelSplit == "repo") {
 		// This is a special situation. We will create a bar for each repo. Useful only when doing organization level graph.
-		for (i=0; i<issues.length; i++) {
+		for (let i = 0; i < issues.length; i++) {
 			var repo = getUrlRepo(issues[i].url);
 			if (bars.indexOf(repo) == -1)
 				bars.push(repo);
@@ -1285,19 +1207,19 @@ export function issue_split(labelSplit, issues) {
 	} else {
 		if (labelSplit.split(",").length > 1) {
 			// Explicit list of labels
-			var ls = labelSplit.split(",");
-			for (l = 0; l < ls.length; l++)
+			const ls = labelSplit.split(",");
+			for (let l = 0; l < ls.length; l++)
 				bars.push(ls[l].trim());
 		} else {
 			// Regular expression
 			if (labelSplit != "") {
 				labelSplitUsingRegExp = true;
-				var splitReg = new RegExp(labelSplit);
+				const splitReg = new RegExp(labelSplit);
 				if (labelSplit != "") {
-					for (var i=0; i<issues.length; i++) {
-						for (var l=0; l<issues[i].labels.length; l++) {
-							var labelName = issues[i].labels[l].name;
-							var res = labelName.match(splitReg);
+					for (let i = 0; i<issues.length; i++) {
+						for (let l=0; l<issues[i].labels.length; l++) {
+							const labelName = issues[i].labels[l].name;
+							const res = labelName.match(splitReg);
 							if (res != null) {
 								if (bars.indexOf(labelName) == -1) {
 									console.log("Found label: " + labelName);
@@ -1335,7 +1257,7 @@ export function synthesizeMilestoneLabels(issues) {
 
 // Filter issues based on milestone filter (can be regexp).
 export function filterIssuesMilestone(issues, milestoneFilter) {
-	milestoneRegExp = new RegExp(milestoneFilter);
+	var milestoneRegExp = new RegExp(milestoneFilter);
 	for (var i = 0; i < issues.length;) {
 		//				console.log("Filter" + issues[i].number + ", pull: " + issues[i].pull_request);
 		if (issues[i].milestone == undefined || !issues[i].milestone.title.match(milestoneRegExp)) {
@@ -1360,14 +1282,13 @@ export function getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
 		getFileUrl += "?ref=" + branch;
 	console.log("getFileUrl: " + getFileUrl);
 	$("*").css("cursor", "wait");
-	$.get(getFileUrl, function (response, status) {
+	$.get(getFileUrl, function (response) {
 		$("*").css("cursor", "default");
-
 		console.log(response);
 
 		// Now, let's search the response / directory entries looking for the filename requested.
-		var blobUrl = null;
-		for (var i = 0; i < response.length; i++)
+		let blobUrl = null;
+		for (let i = 0; i < response.length; i++)
 			if (response[i].name == file)
 				blobUrl = response[i].git_url;
 		if (blobUrl == null || blobUrl == "null") {
@@ -1386,10 +1307,11 @@ export function getGitFile(owner, repo, path, branch, finalFunc, errorFunc) {
 				console.log("Succesfully got file. Status: " + status + ", length: " + response.content.length);
 				finalFunc(atob(response.content));
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function (jqXHR, textStatus) {
 				console.log("Failed to download " + blobUrl + ": " + textStatus);
 			},
-			complete: function (jqXHR, textStatus) {
+			// eslint-disable-next-line no-unused-vars
+			complete: function (jqXHR) {
 				$("*").css("cursor", "default");
 			}
 		});
@@ -1411,16 +1333,16 @@ export function getRepoList() {
 // user boolean is optional
 export function updateRepos(owner, okFunc, failFunc, user) {
 	// Quick check. Do we already have a value in localStorage that we may use
-	var localStorageKey = "cache.repolist." + owner;
-	var localRepoList = getDefaultLocalStorageValue(localStorageKey);
+	const localStorageKey = "cache.repolist." + owner;
+	const localRepoList = getDefaultLocalStorageValue(localStorageKey);
 	if (localRepoList != null) {
 		// Check case age
-		var repoListTime = getDefaultLocalStorageValue(localStorageKey + ".time");
-		var currentTime = new Date().getTime();
-		var elapsedMinutes = (currentTime - repoListTime) / 60000;
+		const repoListTime = getDefaultLocalStorageValue(localStorageKey + ".time");
+		const currentTime = new Date().getTime();
+		const elapsedMinutes = (currentTime - repoListTime) / 60000;
 		console.log("Elapsed minutes since repoList stored:" + elapsedMinutes);
 
-		var cacheLiveTime = getDefaultLocalStorageValue("yoda.repolistcache");
+		let cacheLiveTime = getDefaultLocalStorageValue("yoda.repolistcache");
 		if (cacheLiveTime == null)
 			cacheLiveTime = 60;
 		if (cacheLiveTime == -1 || elapsedMinutes < cacheLiveTime) {
@@ -1433,23 +1355,24 @@ export function updateRepos(owner, okFunc, failFunc, user) {
 	}
 	yoda_repoList = [];
 
+	let getReposUrl;
 	if (user == true) {
 		// Ok, this is getting tricky. Ideally we would like to use the /users/:user/repos endpoint. However, this only returns the public repos.
 		// IF we are indeed targetting our own repos, then we need to use instead the /user/repos end point with affiliation=owner set.
 		if ($("#owner").val() == getAuthUser())
-			var getReposUrl = getGithubUrl() + "user/repos?affiliation=owner";
+			getReposUrl = getGithubUrl() + "user/repos?affiliation=owner";
 		else
-			var getReposUrl = getGithubUrl() + "users/" + $("#owner").val() + "/repos";
+			getReposUrl = getGithubUrl() + "users/" + $("#owner").val() + "/repos";
 	}
 	else {
-		var getReposUrl = getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
+		getReposUrl = getGithubUrl() + "orgs/" + $("#owner").val() + "/repos";
 	}
 
 	getLoop(getReposUrl, 1, [],
 		// Ok func
 		function (data) {
 			// 	This would be a good place to remove any archieved repos.
-			var r = data.length;
+			let r = data.length;
 			while (r--) {
 				if (data[r] == null || (typeof data[r].archived !== 'undefined' && data[r].archived == true))
 					data.splice(r, 1);
@@ -1486,10 +1409,10 @@ export function updateReposAndGUITopic(owner, fieldId, okFunc, failFunc) {
 	yoda_repoList = [];
 	var topics = decodeUrlParam(null, "repotopic").split(",");
 	console.log("Topics: " + topics);
-	var getReposUrl = getGithubUrl() + "search/repositories?q=org:" + owner + "+archived:false";
+	let getReposUrl = getGithubUrl() + "search/repositories?q=org:" + owner + "+archived:false";
 
-	var negative_topic = [];
-	for (var t = 0; t < topics.length; t++)
+	let negative_topic = [];
+	for (let t = 0; t < topics.length; t++)
 		if (topics[t].charAt(0) == "-")
 			negative_topic.push(topics[t].substring(1))
 		else
@@ -1499,8 +1422,8 @@ export function updateReposAndGUITopic(owner, fieldId, okFunc, failFunc) {
 		// Ok func
 		function (d) {
 			// For some strange reason the response here is container within an array structure in the "items" part. Must concatenate.
-			var data = [];
-			for (var i = 0; i < d.length; i++)
+			let data = [];
+			for (let i = 0; i < d.length; i++)
 				data = data.concat(d[i].items);
 			// 	This would be a good place to remove any archieved repos.
 			var r = data.length;
@@ -1513,7 +1436,7 @@ export function updateReposAndGUITopic(owner, fieldId, okFunc, failFunc) {
 			if (negative_topic.length > 0) {
 				r = data.length;
 				while (r--) {
-					for (var t = 0; t < data[r].topics.length; t++) {
+					for (let t = 0; t < data[r].topics.length; t++) {
 						if (negative_topic.indexOf(data[r].topics[t]) != -1) {
 							data.splice(r, 1);
 							break;
@@ -1524,20 +1447,15 @@ export function updateReposAndGUITopic(owner, fieldId, okFunc, failFunc) {
 
 			// Sort and store repos.
 			data.sort(function (a, b) {
-				if (a.name.toLowerCase() > b.name.toLowerCase()) {
-					return 1;
-				} else {
-					return -1;
-				}
+				return a.name.toLowerCase() > b.name.toLowerCase()? 1: -1;
 			});
 
 			yoda_repoList = data;
 
-			for (var r = 0; r < yoda_repoList.length; r++) {
-				var newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, true, true);
+			for (let r = 0; r < yoda_repoList.length; r++) {
+				const newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, true, true);
 				$(fieldId).append(newOption);
 			}
-
 			$(fieldId).trigger('change');
 
 			if (okFunc != null)
@@ -1563,38 +1481,37 @@ export function updateReposAndGUI(owner, fieldId, URLId, localStorageId, okFunc,
 	}
 
 	updateRepos(owner, function () {
-		var selectRepos = [];
+		let selectRepos = [];
 		if (yoda_firstRepoUpdate == true) {
 			yoda_firstRepoUpdate = false;
 
-			var urlRepoList = decodeUrlParam(null, URLId);
+			const urlRepoList = decodeUrlParam(null, URLId);
 			if (urlRepoList != null)
 				selectRepos = urlRepoList.split(",");
 			else {
-				var urlRepo = decodeUrlParam(null, "repo");
+				const urlRepo = decodeUrlParam(null, "repo");
 				if (urlRepo != null) {
 					selectRepos = urlRepo;
 				} else {
 					// No values into either URLId or (repo), let's check the localStorage
-					if (getDefaultLocalStorageValue(localStorageId) != null) {
+					if (getDefaultLocalStorageValue(localStorageId) != null)
 						selectRepos = getDefaultLocalStorageValue(localStorageId).split(",");
-					}
 				}
 			}
 		}
 
-		var reposSelected = false;
+		let reposSelected = false;
 		console.log("SelectRepos: " + selectRepos);
 
-		for (var r = 0; r < yoda_repoList.length; r++) {
-			var selectRepo = false;
+		for (let r = 0; r < yoda_repoList.length; r++) {
+			let selectRepo = false;
 			if (selectRepos.indexOf(yoda_repoList[r].name) != -1 ||
 				(selectRepos.length == 1 && selectRepos[0].includes("*") && select2MatchHelper(selectRepos[0], yoda_repoList[r].name))) {
 				selectRepo = true;
 				reposSelected = true;
 			}
 
-			var newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, selectRepo, selectRepo);
+			const newOption = new Option(yoda_repoList[r].name, yoda_repoList[r].name, selectRepo, selectRepo);
 			$(fieldId).append(newOption);
 		}
 
@@ -1614,9 +1531,9 @@ export function getIssues() {
 // Support functions for update functions below. First to get labels which can be directly given to the API. These are issues
 // which are do NOT start with "-" (negative filter) or "^" (regular expression)
 function getFullLabelFilters(labelFilter) {
-	var filter = "";
-	var filterArray = labelFilter.split(",");
-	for (var f = 0; f < filterArray.length; f++) {
+	let filter = "";
+	const filterArray = labelFilter.split(",");
+	for (let f = 0; f < filterArray.length; f++) {
 		if (filterArray[f].charAt(0) != '^' && filterArray[f].charAt(0) != '-') {
 			if (filter != "")
 				filter += ",";
@@ -1631,25 +1548,26 @@ function getFullLabelFilters(labelFilter) {
 // Issues without any labels matching the regexp will be removed from list.
 // The function will work on the yoda_issues variable.
 export function filterIssuesReqExp(labelFilter) {
-	var filterArray = labelFilter.split(",");
-	for (var f = 0; f < filterArray.length; f++) {
+	const filterArray = labelFilter.split(",");
+	for (let f = 0; f < filterArray.length; f++) {
+		let positiveMatch, labelReg;
 		if (filterArray[f].charAt(0) == '^' || filterArray[f].charAt(0) == '-') {
 			if (filterArray[f].charAt(0) == "-") {
-				var positiveMatch = false;
-				var labelReg = new RegExp(filterArray[f].substr(1));
+				positiveMatch = false;
+				labelReg = new RegExp(filterArray[f].substr(1));
 			} else {
-				var positiveMatch = true;
-				var labelReg = new RegExp(filterArray[f]);
+				positiveMatch = true;
+				labelReg = new RegExp(filterArray[f]);
 			}
 
 			// We have a regexp filter. Let's run through the issues.
 			console.log("Applying regexp filter (positive " + positiveMatch + "): " + filterArray[f]);
 
 			// Note, special for loop. i is incremented below... 
-			for (var i = 0; i < yoda_issues.length;) {
-				var match = false;
-				for (var l = 0; l < yoda_issues[i].labels.length; l++) {
-					var labelName = yoda_issues[i].labels[l].name;
+			for (let i = 0; i < yoda_issues.length;) {
+				let match = false;
+				for (let l = 0; l < yoda_issues[i].labels.length; l++) {
+					const labelName = yoda_issues[i].labels[l].name;
 					if (labelName.match(labelReg) != null) {
 						match = true;
 						break;
@@ -1680,8 +1598,8 @@ export function updateGitHubIssuesRepos(owner, repoList, labelFilter, stateFilte
 	}
 
 	// Specific repo only. 
-	var getIssuesUrl = getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter + "&direction=asc";
-	var fullFilter = getFullLabelFilters(labelFilter);
+	let getIssuesUrl = getGithubUrl() + "repos/" + owner + "/" + repoList[0] + "/issues?state=" + stateFilter + "&direction=asc";
+	const fullFilter = getFullLabelFilters(labelFilter);
 	if (fullFilter != "")
 		getIssuesUrl += "&labels=" + fullFilter;
 
@@ -1715,9 +1633,9 @@ export function updateGitHubIssuesOrg(owner, labelFilter, stateFilter, okFunc, f
 	yoda_issues = [];
 
 	// All issues into org.
-	var getIssuesUrl = getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter + "&direction=asc";
+	let getIssuesUrl = getGithubUrl() + "orgs/" + owner + "/issues?filter=all&state=" + stateFilter + "&direction=asc";
 
-	var fullFilter = getFullLabelFilters(labelFilter);
+	const fullFilter = getFullLabelFilters(labelFilter);
 	if (fullFilter != "")
 		getIssuesUrl += "&labels=" + fullFilter;
 
@@ -1778,7 +1696,7 @@ export function deepCopy(o) {
 }
 
 export function openYodaTool(url, copyOwnerRepo) {
-	var params = "";
+	let params = "";
 	// If we have owner and/or repolist set, let's put these as parameters to new tool so we don't have to put them again.
 	if (copyOwnerRepo && $("#owner").val() != undefined && $("#owner").val() != "") {
 		params += "?owner=" + $("#owner").val();
@@ -1788,7 +1706,7 @@ export function openYodaTool(url, copyOwnerRepo) {
 	window.open(url + params);
 }
 
-var topPanelHidden = false;
+let topPanelHidden = false;
 export function hideTopPanel() {
 	$("#yodamenu").closest(".frame").children().hide();
 	$("#yodamenu").parent().show(); // Leave the Hamburger there
@@ -1865,19 +1783,17 @@ export function enableMenu(helpTarget) {
 	// Close the dropdown menu if the user clicks outside of it
 	window.onclick = function (event) {
 		if (!event.target.matches('.dropimg')) {
-			var dropdowns = document.getElementsByClassName("dropdown-content");
-			var i;
-			for (i = 0; i < dropdowns.length; i++) {
-				var openDropdown = dropdowns[i];
-				if (openDropdown.classList.contains('show')) {
+			const dropdowns = document.getElementsByClassName("dropdown-content");
+			for (let i = 0; i < dropdowns.length; i++) {
+				const openDropdown = dropdowns[i];
+				if (openDropdown.classList.contains('show'))
 					openDropdown.classList.remove('show');
-				}
 			}
 		}
 	}
 
 	// Adjust frame, menu, etc. background color?
-	var background = getDefaultLocalStorageValue("yoda.global.framebackground");
+	const background = getDefaultLocalStorageValue("yoda.global.framebackground");
 	if (background != "") {
 		let root = document.documentElement;
 		root.style.setProperty("--main-bg-color", background);
@@ -1893,48 +1809,50 @@ export function menuClick() {
 // Helper function for Jira/ALM migrated issues
 //Finds an entry in an existing body. Returns null is not present
 export function extractFieldFromBodyTable(body, key) {
-	var fieldStart = body.indexOf("**" + key + "**");
+	const fieldStart = body.indexOf("**" + key + "**");
 	if (fieldStart == -1)
 		return null;
 
-	var valueStart = body.indexOf("|", fieldStart);
-	var valueEnd = body.indexOf("\n", fieldStart);
+	const valueStart = body.indexOf("|", fieldStart);
+	const valueEnd = body.indexOf("\n", fieldStart);
 	return body.substring(valueStart + 1, valueEnd);
 }
 
 // Extract fields from body which are positioned after a keyword line, e.g. "> RN", "> RNT", "> RC"
 // lineMode can be "single", "paragraph", "rest"
 export function extractKeywordField(body, key, lineMode, newLine) {
-	var reg = new RegExp(">[ ]?" + key + "[^A-Za-z]");
-	var res = body.match(reg);
+	const reg = new RegExp(">[ ]?" + key + "[^A-Za-z]");
+	const res = body.match(reg);
 	if (res == null)
 		return "";
 
-	var start = res.index;
-	var lineStart = body.indexOf('\n', start) + 1;
+	const start = res.index;
+	let lineStart = body.indexOf('\n', start) + 1;
 
 	if (lineMode == 'rest') {
 		// Simply return the rest
 		return body.substr(lineStart).replaceAll("\n", newLine);
 	}
 
+	let line;
 	if (lineMode == 'single') {
-		var lineEnd = body.indexOf('\n', lineStart);
+		const lineEnd = body.indexOf('\n', lineStart);
 		if (lineEnd == -1)
-			var line = body.substr(lineStart);
+			line = body.substr(lineStart);
 		else
-			var line = body.substr(lineStart, lineEnd - lineStart - 1);
+			line = body.substr(lineStart, lineEnd - lineStart - 1);
 		return line;
 	}
 
 	// Now multiline, which will be the default.	
-	var text = "";
+	let text = "";
 	do {
-		var lineEnd = body.indexOf('\n', lineStart);
+		const lineEnd = body.indexOf('\n', lineStart);
+		let line;
 		if (lineEnd == -1)
-			var line = body.substr(lineStart);
+			line = body.substr(lineStart);
 		else
-			var line = body.substr(lineStart, lineEnd - lineStart);
+			line = body.substr(lineStart, lineEnd - lineStart);
 		if (line.length == 0 || (line.length == 1 && line.charCodeAt(0) == 13) || (line.length > 0 && line.charAt(0) == '>'))
 			break;
 		if (text != "")
@@ -1943,6 +1861,7 @@ export function extractKeywordField(body, key, lineMode, newLine) {
 		if (lineEnd == -1)
 			break;
 		lineStart = lineEnd + 1;
+	// eslint-disable-next-line no-constant-condition
 	} while (true);
 	return text;
 }
@@ -1995,28 +1914,28 @@ export function chartCSVExport(csvDelimiter, event) {
 	if (event != undefined && event.ctrlKey) {
 		// we are actually asked to download canvas as graphics to a file instead.
 
-		var canvas = document.getElementById('canvas');
+		const canvas = document.getElementById('canvas');
 		downloadFilePNG(canvas.toDataURL('image/png'), 'yoda-graph.png');
 		return;
 	}
 
 	console.log("Exporting graph data to csv. Delimiter: " + csvDelimiter);
-	var chartData = window.myMixedChart.data;
+	const chartData = window.myMixedChart.data;
 
-	var data = [];
-	var fields = [];
+	let data = [];
+	let fields = [];
 	fields.push("Label");
-	for (var i = 0; i < chartData.datasets.length; i++)
+	for (let i = 0; i < chartData.datasets.length; i++)
 		fields.push(chartData.datasets[i].label);
 
-	for (var j = 0; j < chartData.labels.length; j++) {
-		var row = [];
+	for (let j = 0; j < chartData.labels.length; j++) {
+		let row = [];
 
 		// First label
 		row.push(chartData.labels[j]);
 
 		// Then data sets
-		for (var i = 0; i < chartData.datasets.length; i++) 
+		for (let i = 0; i < chartData.datasets.length; i++) 
 			row.push(chartData.datasets[i].data[j]);
 		data.push(row);
 	}
@@ -2040,42 +1959,39 @@ export function registerChartJS() {
 	Chart.defaults.font.size = 16;
 	Chart.register({
 		id: "yoda-label",
-		afterDatasetsDraw: function (chartInstance, easing) {
-			var ctx = chartInstance.ctx;
+		afterDatasetsDraw: function (chartInstance) {
+			let ctx = chartInstance.ctx;
 
 			chartInstance.data.datasets.forEach(function (dataset, i) {
 				var meta = chartInstance.getDatasetMeta(i);
 				if (!meta.hidden) {
 					meta.data.forEach(function (element, index) {
 						// Draw the text in black (line) or whitish (bar) with the specified font
-						if (dataset.type == "bar" && stacked.checked)
+						if (dataset.type == "bar" && $("#stacked").is(":checked"))
 							ctx.fillStyle = getColor('fontAsBackground')
 						else
 							ctx.fillStyle = getColor('fontContrast')
 						ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
-							// Make sure we do rounding if we have to.
+						// Make sure we do rounding if we have to.	
+						let dataString;
 						if (typeof (dataset.data[index]) == "number") 
-							var dataString = dataset.data[index].toFixed().toString();
+							dataString = dataset.data[index].toFixed().toString();
 						else
-							var dataString = dataset.data[index].toString();
+							dataString = dataset.data[index].toString();
 
 						// Make sure alignment settings are correct
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
 
-						var padding = 5;
-						var position = element.tooltipPosition();
-
+						const padding = 5;
+						const position = element.tooltipPosition();
 						// Don't draw zeros in stacked bar chart
-						if (!(dataset.type == "bar" && stacked.checked && dataset.data[index] == 0)) {
-							if (!stacked.checked || dataset.type == "line") {
-								// Label above bar
-								ctx.fillText(dataString, position.x, position.y - (Chart.defaults.font.size / 2) - padding);
-							} else {
-								// Label inside bar ... gives a bit of trouble at buttom... 
-								ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);
-							}
+						if (!(dataset.type == "bar" && $("#stacked").is(":checked") && dataset.data[index] == 0)) {
+							if (!$("#stacked").is(":checked") || dataset.type == "line") 
+								ctx.fillText(dataString, position.x, position.y - (Chart.defaults.font.size / 2) - padding); // Label above bar
+							else
+								ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding); // Label inside bar ... gives a bit of trouble at buttom... 
 						}
 					});
 				}

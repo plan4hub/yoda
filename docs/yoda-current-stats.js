@@ -18,17 +18,16 @@
 // OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import * as yoda from './yoda-utils.js'
-// import 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.1.2/chart.min.js'
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
 	["labelfilter", "categorysplit", "labelsplit", "other", "title", "stacked", "righttotal", "percentage"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 
-	var countType = $("#countradio input[type='radio']:checked").val();
+	const countType = $("#countradio input[type='radio']:checked").val();
 	if (countType != "noissues")
 		params += "&count=" + countType;
 
@@ -43,28 +42,24 @@ function createChart() {
 	console.log("Got " + issues.length + " issues");
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
-	var today = new Date();
+	let today = new Date();
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 	
-	console.log("Category split: " + categorysplit.value);
-	console.log("Label split: " + labelsplit.value);
+	console.log("Category split: " + $("#categorysplit").val());
+	console.log("Label split: " + $("#labelsplit").val());
 	
-	var temp = $("#countradio input[type='radio']:checked");
-	if (temp.length > 0) 
-	    var countType = temp.val();
+	const countType = $("#countradio input[type='radio']:checked").val();
 	console.log("Count type read: " + countType);
 
 	// Label magic (splitting based on label split filter, if specified)
 	// Let's build a map of labels
 	// Let's see if this look like a regular expression, or if it is simply a list of labels with , between.
-	var bars, labelSplitUsingRegExp;
-	[bars, labelSplitUsingRegExp] = yoda.issue_split(labelsplit.value, issues);
+	const [bars, labelSplitUsingRegExp] = yoda.issue_split($("#labelsplit").val(), issues);
 	console.log("Bar Labels: " + bars);
 
-	var categories, categorySplitUsingRegExp;
-	[categories, categorySplitUsingRegExp] = yoda.issue_split(categorysplit.value, issues);
+	let [categories, categorySplitUsingRegExp] = yoda.issue_split($("#categorysplit").val(), issues);
 	if (categories.length == 0)
 		categories = ["All Issues"]
 	console.log("Category Labels: " + categories);
@@ -74,44 +69,44 @@ function createChart() {
 	// 	Other for issues not match
 	// 	Total for all issues (matching date interval)'
 	//  TotalIssues for all issues (this extra total to be used for opened-total and closed-total options).
-	var categoryArray = [];
-	var dataArray = new Array(bars.length);
-	for (var i = 0; i < dataArray.length; i++)
+	let categoryArray = [];
+	let dataArray = new Array(bars.length);
+	for (let i = 0; i < dataArray.length; i++)
 		dataArray[i] = new Array();
-	var otherArray = [];
-	var totalArray = [];
-	var storyPointsPerDayArray = [];
+	let otherArray = [];
+	let totalArray = [];
+	let storyPointsPerDayArray = [];
 	
 	// Loop categories (X axis)
-	for (var cat = 0; cat < categories.length; cat++) {
+	for (let cat = 0; cat < categories.length; cat++) {
 		var category = categories[cat];
 		console.log("Category:" + category);
 		categoryArray.push(category);
 		
 		// Prepare data array
-		var dataArrayForCat = new Array(bars.length);
-		var dataDurationOpenForCat = new Array(bars.length);
-		var dataECTDurationForCat = new Array(bars.length);
-		for (var l=0; l<bars.length; l++) {
+		let dataArrayForCat = new Array(bars.length);
+		let dataDurationOpenForCat = new Array(bars.length);
+		let dataECTDurationForCat = new Array(bars.length);
+		for (let l = 0; l < bars.length; l++) {
 			dataArrayForCat[l] = 0;
 			dataDurationOpenForCat[l] = 0;
 			dataECTDurationForCat[l] = 0;
-		};
-		var otherForCat = 0;
-		var totalForCat = 0;
-		var otherDurationOpenForCat = 0;
-		var otherETCDurationForCat = 0;
+		}
+		let otherForCat = 0;
+		let totalForCat = 0;
+		let otherDurationOpenForCat = 0;
+		let otherETCDurationForCat = 0;
 		
 		// Ok, now let's count issues
-		for (var i=0; i < issues.length; i++) {
-			var submitDateString = yoda.createDate(issues[i]);    
-			var submitDate = new Date(submitDateString);
+		for (let i = 0; i < issues.length; i++) {
+			let submitDateString = yoda.createDate(issues[i]);    
+			let submitDate = new Date(submitDateString);
 
 			// Issue in this category...  
-			var catLabelList = issues[i].labels;
+			let catLabelList = issues[i].labels;
 			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
 			// This will cause an immediate match.
-			if (categorysplit.value == "repo") 
+			if ($("#categorysplit").val() == "repo") 
 				catLabelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 				
 			if (category != "All Issues" && catLabelList.findIndex(label => label.name == category) == -1) 
@@ -121,18 +116,18 @@ function createChart() {
 				var issueEstimate = yoda.issueEstimate(issues[i]);
 
 			// Issue in this category...  
-			var labelList = issues[i].labels;
+			let labelList = issues[i].labels;
 			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
 			// This will cause an immediate match.
-			if (labelsplit.value == "repo") 
+			if ($("#labelsplit").val() == "repo") 
 				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
 
 			// Ok, relevant. Bar splitting logic
-			var foundLabel = false;
-			for (l = 0; l < labelList.length && foundLabel == false; l++) {
-				var labelName = labelList[l].name;
+			let foundLabel = false;
+			const duration = yoda.dateDiff(submitDate, today);
+			for (let l = 0; l < labelList.length && foundLabel == false; l++) {
 				// Search bars array
-				var index = bars.indexOf(labelName);
+				let index = bars.indexOf(labelList[l].name);
 				if (index != -1) {
 					// Got a match. Make sure we don't continue search
 					if (countType == "velocity") {
@@ -143,14 +138,13 @@ function createChart() {
 						dataArrayForCat[index] = dataArrayForCat[index] + 1;
 						totalForCat++;
 					}
-
 					foundLabel = true;
 					
 					// Add the total duration, we will divide by # of issues later.
-					var duration = yoda.dateDiff(submitDate, today);
 					dataDurationOpenForCat[index] += duration;
 				}
 			}
+
 			if (foundLabel == false &&	$("#other").val() != "") {
 				if (countType == "velocity") {
 					otherForCat += issueEstimate;
@@ -161,7 +155,6 @@ function createChart() {
 				}
 				
 				// Add the total duration, we will divide by # of issues later.
-				var duration = yoda.dateDiff(submitDate, today);
 				otherDurationOpenForCat += duration;
 
 				if (countType == "ect") 
@@ -173,18 +166,17 @@ function createChart() {
 		if (countType == "durationopen" || countType == "ect") {
 			if (countType == "durationopen") {
 				// We now need to move to dataArrayForCat to contain instead of the # of issues the averation duration of the open time.
-				for (var i=0; i < bars.length; i++) {
-					var average = dataDurationOpenForCat[i] / dataArrayForCat[i];
+				for (let i = 0; i < bars.length; i++) {
+					let average = dataDurationOpenForCat[i] / dataArrayForCat[i];
 					dataArray[i].push(average.toFixed(0));
 				}
 				otherArray.push((otherDurationOpenForCat / otherForCat).toFixed(0));
 			} else { 
 				// ect
-				for (var i=0; i < bars.length; i++) {
-					var average = dataECTDurationForCat[i] / dataArrayForCat[i];
+				for (let i = 0; i < bars.length; i++) {
+					let average = dataECTDurationForCat[i] / dataArrayForCat[i];
 					dataArray[i].push(average.toFixed(0));
 				}
-				
 				otherArray.push((otherETCDurationForCat / otherForCat).toFixed(0));
 			}
 		} else {
@@ -192,19 +184,18 @@ function createChart() {
 			// We will push data to the data array
 			
 			// Are we doing percentages?
-			if (percentage.checked) {
+			if ($("#percentage").is(":checked")) {
 				// Percentage. Let's first calc total.
-				var total = otherForCat;
-				for (var i=0; i < bars.length; i++)
+				let total = otherForCat;
+				for (let i = 0; i < bars.length; i++)
 					total += dataArrayForCat[i];   
 							
-				for (var i=0; i < bars.length; i++)  
+				for (let i = 0; i < bars.length; i++)  
 					dataArray[i].push((100.0 * dataArrayForCat[i] / total).toFixed(1));
 				otherArray.push((100.0 * otherForCat / total).toFixed(1));
-
 			} else {			
 				// Normal case.			
-				for (var i=0; i < bars.length; i++) 
+				for (let i = 0; i < bars.length; i++) 
 					dataArray[i].push(dataArrayForCat[i]); 
 				otherArray.push(otherForCat);
 			}
@@ -216,12 +207,12 @@ function createChart() {
 	}
 	
 	// Ready, let's push the bars
-	var datasetArray = [];
-	for (var b = 0; b < bars.length; b++) {
+	let datasetArray = [];
+	for (let b = 0; b < bars.length; b++) {
 		// Here, we want to try again with the regular expression to see if we can come up with a better name for the bar into the legend.
-		var actualBar = bars[b];
-		if (labelSplitUsingRegExp && labelsplit.value.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
-			var splitReg = new RegExp(labelsplit.value);
+		let actualBar = bars[b];
+		if (labelSplitUsingRegExp && $("#labelsplit").val().indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
+			let splitReg = new RegExp($("#labelsplit").val());
 			actualBar = bars[b].replace(splitReg, '$1');
 		}
 		
@@ -250,7 +241,7 @@ function createChart() {
 	}
 
 	// What should we put on right axis
-	if (righttotal.checked) {
+	if ($("#righttotal").is(":checked")) {
 		if (countType == "velocity") {
 			datasetArray.push({
 				type : 'line',
@@ -281,33 +272,33 @@ function createChart() {
 		}
 	}
 	
-	if (categorySplitUsingRegExp && categorysplit.value.indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
-		var splitReg = new RegExp(categorysplit.value);
-		for (var c = 0; c < categoryArray.length; c++)
+	if (categorySplitUsingRegExp && $("#categorysplit").val().indexOf('(') != -1) {  // We have a parentesis, that means we have to try to change label name.
+		let splitReg = new RegExp($("#categorysplit").val());
+		for (let c = 0; c < categoryArray.length; c++)
 			categoryArray[c] = categoryArray[c].replace(splitReg, '$1');
 	}
 
 	// We will push data to a 
-	var chartData = {
+	let chartData = {
 			labels : categoryArray,
 			datasets : datasetArray
 	};
 	
-	var leftLabel = [];
+	let leftLabel = [];
 	leftLabel["durationopen"] = "Average duration open (days)";
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["velocity"] = "Story Points";
 
-	var chartScales = {
+	let chartScales = {
 		yleft: {
 			title: {
 				display: true,
-				text: percentage.checked?("Relative Percentage: ") + leftLabel[countType]:leftLabel[countType],
+				text: $("#percentage").is(":checked")? ("Relative Percentage: ") + leftLabel[countType] : leftLabel[countType],
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			position: "left",
 			ticks: {
 				beginAtZero: true
@@ -317,29 +308,30 @@ function createChart() {
 			}
 		},
 		x: {
-			stacked: stacked.checked,
+			stacked: $("#stacked").is(":checked"),
 			grid: {
 				color: yoda.getColor('gridColor')
 			}
 		}
 	};
+
 	// If percentage scale, make sure we go only to 100
-	if (percentage.checked)
+	if ($("#percentage").is(":checked"))
 		chartScales.yleft.max = 100;
 	
-	var rightLabel = [];
+	let rightLabel = [];
 	rightLabel["durationopen"] = "Total issues";
 	rightLabel["noissues"] = "Total issues";
 	rightLabel["velocity"] = "Story points per day";
 	
 	// Add second axis.
-	if (righttotal.checked) {
+	if ($("#righttotal").is(":checked")) {
 		chartScales["yright"] = {    
 			title: {
 				display: true,
 				text: rightLabel[countType],
 				font: {
-	           		size: 16                    
+					size: 16                    
 				}
 			},
 			position: "right",
@@ -353,11 +345,11 @@ function createChart() {
 	}
 
 	// DRAW
-	var ctx = document.getElementById("canvas").getContext("2d");
+	let ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
-	var chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
+	let chartTitle = "Github Issues " + $("#owner").val() + "/" + $("#repolist").val();
 	if (countType == "velocity") 
 		chartTitle = "Story points for " + $("#owner").val() + "/" + $("#repolist").val();
 	if ($("#title").val() != "")
@@ -374,7 +366,7 @@ function createChart() {
 					display : true,
 					text : chartTitle,
 					font: {
-		           		size: 20                    
+						size: 20                    
 					}
 				},
 			},
