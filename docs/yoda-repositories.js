@@ -1,4 +1,4 @@
-//  Copyright 2018 Hewlett Packard Enterprise Development LP
+7//  Copyright 2018 Hewlett Packard Enterprise Development LP
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -26,10 +26,10 @@ var repoDetails = []; // List of issues. Full structure as returned from github.
 var download = false; // global - a bit of a hack.
 
 function addIfNotDefault(params, field) {
-	var defaultValue = $("#" + field).prop('defaultValue');
+	let defaultValue = $("#" + field).prop('defaultValue');
 	// Hack. Make sure no real newlines into default value.
 	defaultValue = defaultValue.replace(/\n/g, "");
-	var value = $("#" + field).val();
+	let value = $("#" + field).val();
 	
 	if (value != defaultValue) {
 		console.log("value: " + value);
@@ -41,14 +41,14 @@ function addIfNotDefault(params, field) {
 }
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val();
+	let params = "owner=" + $("#owner").val();
 	if ($("#repolist").val() != "")
 		params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "descfile");
 	params = addIfNotDefault(params, "title");
 	
-	var outputFormat = $('input:radio[name="outputformat"]:checked').val();
+	const outputFormat = $('input:radio[name="outputformat"]:checked').val();
 	if (outputFormat != "html")
 		params += "&outputformat=" + outputFormat;
 
@@ -61,18 +61,18 @@ function getUrlParams() {
 
 function copy_text(element) {
     //Before we copy, we are going to select the text.
-    var text = document.getElementById(element);
-    var selection = window.getSelection();
+    const text = document.getElementById(element);
+    let selection = window.getSelection();
     selection.removeAllRanges();
-    var range = document.createRange();
+    let range = document.createRange();
     range.selectNodeContents(text);
 
     selection.addRange(range);
 
     // Now that we've selected element, execute the copy command  
     try {  
-        var successful = document.execCommand('copy');  
-        var msg = successful ? 'successful' : 'unsuccessful';  
+        const successful = document.execCommand('copy');  
+        const msg = successful ? 'successful' : 'unsuccessful';  
         console.log('Copy to clipboard command was ' + msg);  
       } catch(err) {  
         console.log('Oops, unable to copy to clipboard');  
@@ -92,17 +92,17 @@ function stripQuotes(str) {
 
 // Utility function
 function accessAsString(object,properties){
-   	for(var index=0; index < properties.length; index++){
-    	// go to deeper into object until your reached time
+	for(let index=0; index < properties.length; index++){
+		// go to deeper into object until your reached time
 		if (object[properties[index]] == undefined)
 			return ""; 
 		object = object[properties[index]];
 	}
 	
 	// If end result is an Array, we can do better than JSON.stringify.
-	var res = "";
+	let res = "";
 	if (Array.isArray(object)) {
-		for (var i = 0; i < object.length; i++) {
+		for (let i = 0; i < object.length; i++) {
 			if (res != "")
 				res += ", ";
 			res += stripQuotes(JSON.stringify(object[i]));
@@ -114,42 +114,41 @@ function accessAsString(object,properties){
 }
 
 export function makeTable() {
-	var rn = document.getElementById("REPOS");
+	const rn = document.getElementById("REPOS");
 	
-	var repoList = $("#repolist").val();
-	var repoText = "";
+	const repoList = $("#repolist").val();
+	let repoText = "";
 	
 	// Get formatting
-	var fields = $("#fields").val().split(",");
+	const fields = $("#fields").val().split(",");
 
 	// Headline
-	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+	if ($('input:radio[name="outputformat"]:checked').val() == "html")
 		repoText += "<h1>" + $("#title").val() + "</h1>";
-	} else {
+	else
 		repoText += "# " + $("#title").val() + "\n";
-	}
 	
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
 		repoText += "<table><thead><tr>";
-		fields.forEach((f, fIndex) => {
+		fields.forEach((f) => {
 			repoText += "<th>" + f.split(":")[0] + "</th>";
 		});
 		repoText += "</tr><thead>";
 		repoText += "<tbody>";	
 	} else {
-		fields.forEach((f, fIndex) => {
+		fields.forEach((f) => {
 			repoText += f.split(":")[0] + " | ";
 		});
 		repoText += "\n";
-		fields.forEach((f, fIndex) => {
+		fields.forEach((f) => {
 			repoText += '-'.repeat(f.split(":")[0].length) + " | ";
 		});
 		repoText += "\n";
 	}
 	
 	// Loop over repos
-	for (var r = 0; r < repoList.length; r++) {
-		for (var b = 0; b < repoDetails[r].branches.length; b++) {
+	for (let r = 0; r < repoList.length; r++) {
+		for (let b = 0; b < repoDetails[r].branches.length; b++) {
 			// Need to handle the situation that there is NO descriptor file...
 			if ($("#descfile").val() != "" && repoDetails[r].branches[b].file == undefined) {
 				console.log("Skipping branch " + repoDetails[r].branches[b].name + " as there is no descriptor file.");
@@ -159,12 +158,12 @@ export function makeTable() {
 			if ($('input:radio[name="outputformat"]:checked').val() == "html") 
 				repoText += "<tr>";
 			
-			fields.forEach((f, fIndex) => {
+			fields.forEach((f) => {
 				if ($('input:radio[name="outputformat"]:checked').val() == "html") 
 					repoText += "<td>";
 				
 				// Value
-				var w = f.split(":")[1];
+				const w = f.split(":")[1];
 				switch (w) {
 					case '%r':
 						repoText += repoDetails[r].name;
@@ -194,8 +193,8 @@ export function makeTable() {
 						if (w.startsWith("%j-")) {
 							// Need to go into JSON file. Let's hope it exists ... check that
 							if (repoDetails[r].branches[b].file != undefined) {
-								var aName = w.substr(3);
-								var aValue = accessAsString(repoDetails[r].branches[b].file, aName.split("."));
+								const aName = w.substr(3);
+								const aValue = accessAsString(repoDetails[r].branches[b].file, aName.split("."));
 								if (aValue.startsWith("http://") || aValue.startsWith("https://")) {
 									// Lookslike a link... Let's be smart about that.
 									if ($('input:radio[name="outputformat"]:checked').val() == "html") 
@@ -214,8 +213,8 @@ export function makeTable() {
 							}
 						}
 						if (w.startsWith("%i-")) {
-							var aName = w.substr(3);
-							var aValue = accessAsString(repoDetails[r], aName.split("."));
+							const aName = w.substr(3);
+							const aValue = accessAsString(repoDetails[r], aName.split("."));
 							if (aValue.startsWith("http://") || aValue.startsWith("https://")) {
 								// Lookslike a link... Let's be smart about that.
 								if ($('input:radio[name="outputformat"]:checked').val() == "html") 
@@ -246,23 +245,20 @@ export function makeTable() {
 			else
 				repoText += "\n";
 		}
-		
-		
 	}
 	if ($('input:radio[name="outputformat"]:checked').val() == "html") 
 		repoText += "</tbody></table>";
 
-	if ($('input:radio[name="outputformat"]:checked').val() == "html") {
+	if ($('input:radio[name="outputformat"]:checked').val() == "html")
 		rn.innerHTML = repoText;
-	} else {
+	else
 		rn.innerHTML = "<pre>" + repoText + "</pre>";
-	}
 
 	// Download?
 	if (download) {
-		var fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
+		const fileName = $("#filename").val() + "." + $('input:radio[name="outputformat"]:checked').val();
 		console.log("Downloading to " + fileName);
-		var appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
+		const appType = "application/" + $('input:radio[name="outputformat"]:checked').val() + ";charset=utf-8;";
 		yoda.downloadFileWithType(appType, repoText, fileName);		
 	}
 
@@ -277,9 +273,6 @@ export function startTable(_download) {
 	download = _download;
 	updateRepoData();
 }
-
-
-// ---------------
 
 export function updateRepos() {
 	yoda.updateReposAndGUI($("#owner").val(), "#repolist", "repolist", "yoda.repolist", null, null);
@@ -316,24 +309,24 @@ function updateDescriptorLoop(repoIndex, branchIndex) {
 function updateRepoDetails(repoIndex) {
 	if (repoIndex < repoDetails.length) {
 		// Get topics
-		var getTopicsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/topics";
+		const getTopicsUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/topics";
 		yoda.getLoop(getTopicsUrl, 1, [], function(data) {
 			repoDetails[repoIndex].topics = data[0].names;
 			
 			// Get all branches?
 			if ($('#allbranches').is(":checked")) {
-				var getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches";
+				const getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches";
 				yoda.getLoop(getBranchUrl, 1, [], function(data) {
 					repoDetails[repoIndex].branches = data;
 					updateRepoDetails(repoIndex + 1);
 				}, null);
 			} else {
 				// Not getting branches. BUT we do want to get the default branch always (IF there is a branch at all)
-				var getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches/" + repoDetails[repoIndex].default_branch;
+				const getBranchUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoDetails[repoIndex].name + "/branches/" + repoDetails[repoIndex].default_branch;
 				yoda.getLoop(getBranchUrl, 1, [], function(data) {
 					repoDetails[repoIndex].branches = data;
 					updateRepoDetails(repoIndex + 1);
-				}, function(data) {
+				}, function() {
 					console.log("PROBLEMS GETTING BRANCH" + getBranchUrl);
 					repoDetails[repoIndex].branches = [];
 					updateRepoDetails(repoIndex + 1);	
@@ -347,8 +340,8 @@ function updateRepoDetails(repoIndex) {
 }
 
 export function updateRepoData() {
-	var urlList = [];
-	repoList.forEach(function(repo, index) {
+	let urlList = [];
+	repoList.forEach(function(repo) {
 		urlList.push(yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo);
 	});
 	
@@ -365,12 +358,6 @@ export function updateRepoData() {
 }
 
 // --------------
-
-function setDefaultAndValue(id, value) {
-	element = document.getElementById(id);
-	element.defaultValue = value;
-	element.value = value;
-}
 
 export function init() {
 	// Enable yodamenu
@@ -399,10 +386,6 @@ export function init() {
 	yoda.decodeUrlParam("#user", "user");
 	yoda.decodeUrlParam("#token", "token");
 			
-	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
-		$(".frame").hide();
-	}
-
 	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());
@@ -410,15 +393,15 @@ export function init() {
 	// Event listeners
 	$("#hamburger").on("click", yoda.menuClick);
 
-	var firstMilestoneShowData = true;
 	$(document).ready(function() {
 		$('#repolist').select2({
 			// minimumInputLength: 2,
 			sorter: yoda.select2Sorter,
 			matcher: yoda.select2Matcher
 		});
-		  $('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
+		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist')); 
 
+		// eslint-disable-next-line no-unused-vars
 		$('#repolist').on('change.select2', function (e) {
 			repoList = 	$("#repolist").val();			
 			console.log("List of selected repos is now: " + repoList);
@@ -430,4 +413,7 @@ export function init() {
 		
 		updateRepos();
 	});
+
+	if (yoda.decodeUrlParam(null, "hideheader") == "true")
+	$(".frame").hide();
 }
