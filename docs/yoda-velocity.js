@@ -19,15 +19,15 @@
 
 import * as yoda from './yoda-utils.js'
 
-var repoList = [];  // selected repos
-var repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
+let repoList = [];  // selected repos
+let repoMilestones = []; // Double-array of repos,milestone (full structure) for selected repos
 
-var commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
-var noStoryBars = 0;
-var splitLabels = [];
+let commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
+let noStoryBars = 0;
+let splitLabels = [];
 
 function getUrlParams() {
-	var params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 
 	["splitlabels", "labelfilter", "splitother", "closedmilestones", "showpercent"].forEach((p) => {
@@ -39,25 +39,12 @@ function getUrlParams() {
 	return params;
 }
 
-function estimateClick(radio) {
-	yoda.setEstimateInIssues(radio.value);
-}
-
-// -------------------------------
-
-// TODO: Improve
-function errorFunc(errorText) {
-	alert("ERROR: " + errorText);
-}
-
-// ------------------
-
 function storeMilestones(milestones, repoIndex) {
 	repoMilestones[repoIndex] = milestones;
 	updateMilestones(repoIndex + 1);
 }
 
-var firstMilestoneShow = true;
+let firstMilestoneShow = true;
 export function updateMilestones(repoIndex) {
 	console.log("Updatemilestones called");
 	if (repoIndex == undefined) {
@@ -68,10 +55,11 @@ export function updateMilestones(repoIndex) {
 	}
 	
 	if (repoIndex < repoList.length) {
+		let getMilestonesUrl;
 		if ($('#closedmilestones').is(":checked"))
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=all";
 		else
-			var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
+			getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repoList[repoIndex] + "/milestones?state=open";
 		console.log("Milestone get URL: " + getMilestonesUrl);
 		
 		yoda.getLoop(getMilestonesUrl, 1, [], function(data) {storeMilestones(data, repoIndex);}, null);
@@ -84,13 +72,12 @@ export function updateMilestones(repoIndex) {
 		$("#milestonelist").empty();
 		commonMilestones = [];
 		
-		for (var r = 0; r < repoList.length; r++) {
-			for (var m = 0; m < repoMilestones[r].length; m++) {
-				var repoTitle = repoMilestones[r][m].title;
+		for (let r = 0; r < repoList.length; r++) {
+			for (let m = 0; m < repoMilestones[r].length; m++) {
+				const repoTitle = repoMilestones[r][m].title;
 				
-				if (commonMilestones.indexOf(repoTitle) == -1) {
+				if (commonMilestones.indexOf(repoTitle) == -1)
 					commonMilestones.push(repoTitle);
-				}
 			}
 		}
 		
@@ -100,14 +87,14 @@ export function updateMilestones(repoIndex) {
 		});
 		console.log("The common milestones are: " + commonMilestones);
 		
-		var milestoneListUrl = yoda.decodeUrlParam(null, "milestonelist");
+		const milestoneListUrl = yoda.decodeUrlParam(null, "milestonelist");
 		console.log("milestoneListUrl: " + milestoneListUrl);
 		
 		// We need to consider that milestoneListUrl can be either a regular expression (if we see a *) OR a list of specific milestones.
 		
-		var milestonesSelected = false;
-		for (var c = 0; c < commonMilestones.length; c++) {
-			var selectMilestone = false;
+		let milestonesSelected = false;
+		for (let c = 0; c < commonMilestones.length; c++) {
+			let selectMilestone = false;
 			if (firstMilestoneShow && 
 				((milestoneListUrl != null && milestoneListUrl.indexOf("*") != -1 && yoda.select2MatchHelper(milestoneListUrl, commonMilestones[c])) ||
 				(milestoneListUrl != null && milestoneListUrl.indexOf("*") == -1 && milestoneListUrl.indexOf(commonMilestones[c]) != -1))) {
@@ -115,7 +102,7 @@ export function updateMilestones(repoIndex) {
 				milestonesSelected = true;
 			}
 
-			var newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
+			const newOption = new Option(commonMilestones[c], commonMilestones[c], selectMilestone, selectMilestone);
 			$('#milestonelist').append(newOption);
 		}
 		
@@ -124,9 +111,8 @@ export function updateMilestones(repoIndex) {
 		
 		if (firstMilestoneShow) {
 			firstMilestoneShow = false;
-			if (yoda.decodeUrlParamBoolean(null, "draw") == "true") {
+			if (yoda.decodeUrlParamBoolean(null, "draw") == "true")
 				startChart();
-			}
 		}
 	}
 }
@@ -134,20 +120,20 @@ export function updateMilestones(repoIndex) {
 // ------------
 
 // Helper function to build the list of all milestones to query.
-var milestoneFilter = "";
+let milestoneFilter = "";
 export function addMilestoneFilter(repo) {
 	// Need to find the milestone # for that repo
 	console.log("Searching milestone definition for " + repo);
 
-	for (var r = 0; r < repoList.length; r++) {
+	for (let r = 0; r < repoList.length; r++) {
 		if (repoList[r] != repo)
 			continue;
 		
 		// Need to find the milestone (the number)..
-		for (var m = 0; m < repoMilestones[r].length; m++) {
+		for (let m = 0; m < repoMilestones[r].length; m++) {
 			console.log("Checking " + $("#milestonelist").val() + " against " + repoMilestones[r][m].title);
 			if (repoMilestones[r][m].title == milestoneFilter) {
-				var filter = "&milestone=" + repoMilestones[r][m].number;
+				const filter = "&milestone=" + repoMilestones[r][m].number;
 				console.log("Adding to filter for repo: " + repo + ":" + filter);
 				return filter;
 			}
@@ -162,55 +148,55 @@ export function addMilestoneFilter(repo) {
 export function addMilestone(issues) {
 	// Need to loop over milestones for selected repos and determine these basic data.
 	
-	var milestoneTitle = milestoneFilter;
-	var milestoneStartdate = null;
-	var milestoneDuedate = null;
+	const milestoneTitle = milestoneFilter;
+	let milestoneStartdate = null;
+	let milestoneDuedate = null;
 	
 	// This is a bit tricky. We will look across all selected repos and consider matching milestones.
 	// We will pick up any capacity value and add to a total. We will assume that dates are set 
 	// equally, so will just pick up what is there.... Warnings could be another option...
-	var totalCapacity = 0;
-	var totalED = 0;
-	for (var r = 0; r < repoList.length; r++) {
-		for (var m = 0; m < repoMilestones[r].length; m++) {
-			var title = repoMilestones[r][m].title;
-			
+	let totalCapacity = 0;
+	let totalED = 0;
+	for (let r = 0; r < repoList.length; r++) {
+		for (let m = 0; m < repoMilestones[r].length; m++) {
+			const title = repoMilestones[r][m].title;
 			if (milestoneTitle == title) {
-				
-				var milestone = repoMilestones[r][m];
+				const milestone = repoMilestones[r][m];
 
 				milestoneDuedate = yoda.formatDate(new Date(milestone.due_on));
 				console.log("  Milestone due: " + milestoneDuedate);
 				milestoneStartdate = yoda.getMilestoneStartdate(milestone.description);
 
-				var subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
+				const subteamCapacity = yoda.getAllBodyFields(milestone.description, "> subteam-capacity ", ".*$");
 				console.log("subteamCapacity:");
 				console.log(subteamCapacity);
+				let si, capacity;
 				if (subteamCapacity.length > 0 && $("#labelfilter").val() != "" && 
 					(si = subteamCapacity.findIndex(function(e) {	return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
 					// Use that
-					var capacity = subteamCapacity[si].split(",")[0];
+					capacity = subteamCapacity[si].split(",")[0];
 					console.log("Adding sub-team capacity " + capacity + " from repo " + repoList[r]);
 					totalCapacity += parseInt(capacity);
 				} else {
-					var capacity = yoda.getMilestoneCapacity(milestone.description);
+					capacity = yoda.getMilestoneCapacity(milestone.description);
 					if (capacity != null) {
 						console.log("Adding capacity " + capacity + " from repo " + repoList[r]);
 						totalCapacity += parseInt(capacity);
 					}
 				}
 				
-				var ed = yoda.getAllBodyFields(milestone.description, "> subteam-ed ", ".*$");
+				const ed = yoda.getAllBodyFields(milestone.description, "> subteam-ed ", ".*$");
 				console.log("ed:");
 				console.log(ed);
+				let ei;
 				if (ed.length > 0 && $("#labelfilter").val() != "" && 
 					(ei = ed.findIndex(function(e) { return (e.split(",")[1] == $("#labelfilter").val())})) != -1) {
 					// Use that
-					var edVal = ed[ei].split(",")[0];
+					const edVal = ed[ei].split(",")[0];
 					console.log("Adding sub-team ed " + edVal + " from repo " + repoList[r]);
 					totalED += parseInt(edVal);
 				} else {
-					var ed = yoda.getMilestoneED(milestone.description);
+					const ed = yoda.getMilestoneED(milestone.description);
 					if (ed != null) {
 						console.log("Adding ed " + ed + " from repo " + repoList[r]);
 						totalED += parseInt(ed);
@@ -220,27 +206,27 @@ export function addMilestone(issues) {
 		}
 	}
 
-	var milestoneCapacity = totalCapacity;
-	var milestoneED = totalED;
+	let milestoneCapacity = totalCapacity;
+	let milestoneED = totalED;
 	console.log("Adding milestone. " + milestoneTitle + ", No of issues: " + issues.length + ", startDate: " + milestoneStartdate + 
 			", dueDate: " + milestoneDuedate + ", capacity: " + milestoneCapacity, ", milestoneED: " + milestoneED);
 
-	var estimateArray = [];
-	for (var b = 0; b < noStoryBars; b++) {
+	let estimateArray = [];
+	for (var b = 0; b < noStoryBars; b++)
 		estimateArray.push(0);
-	}
-	var estimate = 0;
+	let estimate = 0;
 	
-	for (var i = 0; i < issues.length; i++) {
+	for (let i = 0; i < issues.length; i++) {
+		let issueEstimate;
 		if (milestoneStartdate != null)
-			var issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
+			issueEstimate = yoda.issueEstimateBeforeDate(issues[i], milestoneStartdate);
 		else
-			var issueEstimate = yoda.issueEstimate(issues[i]);
+			issueEstimate = yoda.issueEstimate(issues[i]);
 		
 		console.log(" => adding: " + issues[i].number + ", estimate: " + issueEstimate);
 		
-		var foundBar = false;
-		for (var b = 0; b < noStoryBars - 1; b++) {
+		let foundBar = false;
+		for (let b = 0; b < noStoryBars - 1; b++) {
 			if (yoda.isLabelInIssue(issues[i], splitLabels[b])) {
 				foundBar = true;
 				estimateArray[b] += issueEstimate;
@@ -256,9 +242,9 @@ export function addMilestone(issues) {
 	
 	// If both start and duedate are defined, we can work out esimate/per day
 	if (milestoneStartdate != null && milestoneDuedate != null) {
-		var days = yoda.dateDiff(milestoneStartdate, milestoneDuedate);
+		const days = yoda.dateDiff(milestoneStartdate, milestoneDuedate);
 		console.log("Days = " + days);
-		var average = (estimate / days).toFixed(1);
+		const average = (estimate / days).toFixed(1);
 		window.myMixedChart.data.datasets[noStoryBars].data.push(average);
 	} else {
 		window.myMixedChart.data.datasets[noStoryBars].data.push(0); // We cannot work out estimate/day, put 0
@@ -266,7 +252,7 @@ export function addMilestone(issues) {
 
 	// If we have a capacity number in the milestone, we may work out estimate/capacity
 	if (milestoneCapacity != null && milestoneCapacity > 0&& yoda.getEstimateInIssues() != "noissues") {
- 		var capacityFactor = (estimate/milestoneCapacity).toFixed(2);
+		const capacityFactor = (estimate/milestoneCapacity).toFixed(2);
 		console.log("Capacity factor = " + capacityFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 1].data.push(capacityFactor);
 	} else {
@@ -275,7 +261,7 @@ export function addMilestone(issues) {
 	
 	// If we have a ED number in the milestone, we may work out story point/ED
 	if (milestoneED != null && milestoneED > 0 && yoda.getEstimateInIssues() != "noissues") {
- 		var edFactor = (estimate/milestoneED).toFixed(2);
+		const edFactor = (estimate/milestoneED).toFixed(2);
 		console.log("edFactor = " + edFactor);
 		window.myMixedChart.data.datasets[noStoryBars + 2].data.push(edFactor);
 	} else {
@@ -284,7 +270,7 @@ export function addMilestone(issues) {
 	
 	// Update chart
 	window.myMixedChart.data.labels.push(milestoneTitle);
-	for (var b = 0; b < noStoryBars; b++) {
+	for (let b = 0; b < noStoryBars; b++) {
 		if ($('#showpercent').is(":checked")) {
 			if (estimate == 0)
 				window.myMixedChart.data.datasets[b].data.push(0);
@@ -312,19 +298,15 @@ export function getMilestoneData(milestones, index) {
 	}
 }
 
-//------------------
-
-
-// -------------------------
 export function startChart() {
-	var milestones = $("#milestonelist").val();
+	const milestones = $("#milestonelist").val();
 	console.log("Milestones: (" + milestones.length + "): " + milestones);
 	
 	splitLabels = [];
-	if ($("#splitlabels").val() != "") {
+	if ($("#splitlabels").val() != "")
 		splitLabels = $("#splitlabels").val().split(",");
-	}
-	var splitOther = $("#splitother").val();
+	// eslint-disable-next-line no-unused-vars
+	const splitOther = $("#splitother").val(); // not used?
 	
 	noStoryBars = splitLabels.length + 1; // Assume other bar always.
 	console.log("NoStoryBars = " + noStoryBars);
@@ -334,25 +316,23 @@ export function startChart() {
 	// -----------------------------------------------------------
 	// Start drawing raw the chart
 	//
-	var ctx = document.getElementById("canvas").getContext("2d");
-	
+	const ctx = document.getElementById("canvas").getContext("2d");
 	if (window.myMixedChart != null)
 		window.myMixedChart.destroy();
 	
 	// Axis legend depend on whether working from estimates in issues, or simply number of issues.
 	var axis = "";
-	if (yoda.getEstimateInIssues() == "noissues") {
+	if (yoda.getEstimateInIssues() == "noissues")
 		axis = "# of issues";
-	} else {
+	else
 		axis = "Story points";
-	}
 	if ($('#showpercent').is(":checked")) 
 		axis = "Story Point Relative Percentage";
 
 	// Push bars
-	var datasets = [];
-	var labels = [];
-	for (var b = 0; b < noStoryBars - 1; b++) {
+	let datasets = [];
+	let labels = [];
+	for (let b = 0; b < noStoryBars - 1; b++) {
 		datasets.push({
 			stack: 'storyPoints',
 			type : 'bar',
@@ -397,7 +377,6 @@ export function startChart() {
 		fill : false,
 		data : [],
 		yAxisID: "yright",
-//		backgroundColor : 'rgb(255, 255, 26)' 
 		backgroundColor : 'rgb(220, 220, 26)'
 	});
 	labels.push("Storypoints / capacity");
@@ -415,7 +394,7 @@ export function startChart() {
 	});
 	labels.push("Storypoints / ED");
 	
-	var stacked = true; 
+	let stacked = true; 
 	window.myMixedChart = new Chart(ctx, {
 		type : 'bar',	
 		data : {
@@ -435,7 +414,8 @@ export function startChart() {
 			},
 			tooltips : {
 				mode : 'index',
-				intersect : true
+				intersect : true,
+				enabled: false
 			},
 			scales: {
 				yleft: {
@@ -473,55 +453,50 @@ export function startChart() {
 						color: yoda.getColor('gridColor')
 					}
 				} 
-			},
-			tooltips: {
-				enabled: false
-			},
+			}
 		},
 	});
-
 
 	// Issue calls to get milestone data. Callback will collect the data, then issue call for the isues
 	// which in turn will call addMilestone to update the graph with data for issues in that milestone.'
 	// Consider raise...
-
 	getMilestoneData(milestones, 0);
 }
 
-// --------------
+// ---------
 
 //Label drawing
 Chart.defaults.font.size = 16;
 Chart.register({
 	id: "yoda-label",
- afterDatasetsDraw: function(chartInstance, easing) {
-     var ctx = chartInstance.ctx;
+	afterDatasetsDraw: function (chartInstance) {
+		var ctx = chartInstance.ctx;
 
-     chartInstance.data.datasets.forEach(function (dataset, i) {
-         var meta = chartInstance.getDatasetMeta(i);
-         if (!meta.hidden && meta.type == 'bar') {
-             meta.data.forEach(function(element, index) {
-                 // Draw the text in black, with the specified font
-                 ctx.fillStyle = yoda.getColor('fontContrast');
- 				 ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
+		chartInstance.data.datasets.forEach(function (dataset, i) {
+			var meta = chartInstance.getDatasetMeta(i);
+			if (!meta.hidden && meta.type == 'bar') {
+				meta.data.forEach(function (element, index) {
+					// Draw the text in black, with the specified font
+					ctx.fillStyle = yoda.getColor('fontContrast');
+					ctx.font = Chart.helpers.fontString(Chart.defaults.font.size, Chart.defaults.font.style, Chart.defaults.font.family);
 
-                 // Just naively convert to string for now
-                 var dataString = dataset.data[index].toString();
-				 // Ugly rounding?
-				 if (dataString.indexOf(".") != -1 && dataString.length > 7)
-			       dataString = dataset.data[index].toFixed(1).toString();
+					// Just naively convert to string for now
+					let dataString = dataset.data[index].toString();
+					// Ugly rounding?
+					if (dataString.indexOf(".") != -1 && dataString.length > 7)
+						dataString = dataset.data[index].toFixed(1).toString();
 
-                 // Make sure alignment settings are correct
-                 ctx.textAlign = 'center';
-                 ctx.textBaseline = 'middle';
+					// Make sure alignment settings are correct
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
 
-                 var padding = 5;
-                 var position = element.tooltipPosition();
-               	 ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);   // inside bar
-             });
-         }
-     });
- }
+					const padding = 5;
+					const position = element.tooltipPosition();
+					ctx.fillText(dataString, position.x, position.y + (Chart.defaults.font.size / 2) + padding);   // inside bar
+				});
+			}
+		});
+	}
 });
 
 Chart.register({
@@ -584,13 +559,13 @@ export function init() {
 		});
 		$('#milestonelist').on('select2:select', yoda.select2SelectEvent('#milestonelist'));
 
-		$('#repolist').on('change.select2', function (e) {
+		$('#repolist').on('change.select2', function () {
 			repoList = $("#repolist").val();
 			console.log("List of selected repos is now: " + repoList);
 			updateMilestones();
 		});
 
-		$('#milestonelist').on('change.select2', function (e) {
+		$('#milestonelist').on('change.select2', function () {
 			// Update start-date + due-date/burndown-date + capacity (sum)
 
 		});
