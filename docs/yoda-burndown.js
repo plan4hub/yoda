@@ -510,7 +510,7 @@ function makeTable(issues) {
 		} else {
 			const estimate = yoda.issueEstimate(issues[i]);
 			console.log("  Estimate for isue " + issues[i].number + " = " + estimate);
-			cell.innerHTML = est;
+			cell.innerHTML = estimate;
 			incrementCount(sums, "Grand Total", labelItem, assigneeList, "totalEstimateCodeFreeze", estimate, issues[i]);
 		}
 
