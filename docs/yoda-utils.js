@@ -337,8 +337,8 @@ export function addIfNotDefault(params, field) {
 			params += "&" + field + "=true";
 	} else {
 		// Normal field
-		// defaultValue = defaultValue.replace(/\n/g, "");
-		if ($(fname).val() != $(fname).prop('defaultValue'))
+		// Newlines may have been added. Ignore those.
+		if ($(fname).val() != $(fname).prop('defaultValue') && $(fname).val() != $(fname).prop('defaultValue').replace(/\n/g, ""))
 			params += "&" + field + "=" + $(fname).val();
 	}
 	return params;

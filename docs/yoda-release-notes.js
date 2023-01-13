@@ -41,9 +41,9 @@ function getUrlParams() {
 	if ($("#milestonelist").val() != "")
 		params += "&milestonelist=" + $("#milestonelist").val();
 
-		["labelfilter", "rnlabeltypes", "rnknownlabeltypes", "rnskiplabel", "rnmetalabel", "rnknownlabel", "hlformat", "sformat", "ssformat", 
-		"listformat", "catformat", "rnformat", "catlabel", "cssowner", "cssrepo", "csspath", "cssbranch", "closedmilestones", "tablelayout", 
-		"estimatecategory", "estimateissue"].forEach((p) => {
+	["labelfilter", "rnlabeltypes", "rnknownlabeltypes", "rnskiplabel", "rnmetalabel", "rnknownlabel", "hlformat", "sformat", "ssformat", 
+	"listformat", "catformat", "rnformat", "catlabel", "cssowner", "cssrepo", "csspath", "cssbranch", "closedmilestones", "tablelayout", 
+	"estimatecategory", "estimateissue"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 	
 	if (yoda.getEstimateInIssues() != "inbody")
