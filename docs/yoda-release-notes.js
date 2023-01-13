@@ -34,6 +34,21 @@ let repoIssues = []; // List of issues. Full structure as returned from github.
 let download = false; // global - a bit of a hack.
 let css = "";
 
+function addIfNotDefault(params, field) {
+	let defaultValue = $("#" + field).prop('defaultValue');
+	// Hack. Make sure no real newlines into default value.
+	defaultValue = defaultValue.replace(/\n/g, "");
+	const value = $("#" + field).val();
+
+	if (value != defaultValue) {
+		console.log("value: " + value);
+		console.log("defa : " + defaultValue);
+		return params + "&" + field + "=" + value;
+	} else {
+		return params;
+	}
+}
+
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
 	if ($("#repolist").val() != "")
@@ -44,7 +59,7 @@ function getUrlParams() {
 	["labelfilter", "rnlabeltypes", "rnknownlabeltypes", "rnskiplabel", "rnmetalabel", "rnknownlabel", "hlformat", "sformat", "ssformat", 
 	"listformat", "catformat", "rnformat", "catlabel", "cssowner", "cssrepo", "csspath", "cssbranch", "closedmilestones", "tablelayout", 
 	"estimatecategory", "estimateissue"].forEach((p) => {
-		params = yoda.addIfNotDefault(params, p); });
+		params = addIfNotDefault(params, p); });
 	
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
