@@ -1,0 +1,16 @@
+env:
+  browser: true
+  es2021: true
+  jquery: true
+  commonjs: true
+  es6: true
+extends: eslint:recommended
+overrides: []
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+rules: {}
+globals:
+  Chart: true
+  Papa: true
+  
