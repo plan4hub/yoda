@@ -19,12 +19,12 @@
 
 import * as yoda from './yoda-utils.js'
 
-var srcIssues = [];
-var dstIssues = [];
-var issuesToCopy = [];
+let srcIssues = [];
+let dstIssues = [];
+let issuesToCopy = [];
 
 function getUrlParams() {
-	var params = "srcowner=" + $("#srcowner").val() + "&dstowner=" + $("#dstowner").val() + "&srcrepo=" + $("#srcrepo").val() + "&dstrepo=" + $("#dstrepo").val();
+	let params = "srcowner=" + $("#srcowner").val() + "&dstowner=" + $("#dstowner").val() + "&srcrepo=" + $("#srcrepo").val() + "&dstrepo=" + $("#dstrepo").val();
 	["recurring", "bodyremove"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 	return params;
@@ -35,7 +35,6 @@ function logMessage(message) {
 	$('#console').scrollTop($('#console')[0].scrollHeight);
 }
 
-
 // ---------------------------------------
 // Milestone issues have been retrieved. Time to analyse data and draw the chart.
 export function doCopy(issues) {
@@ -45,32 +44,29 @@ export function doCopy(issues) {
 	copySingleIssue(issues);
 }
 
-
 //------------------
 // Note special logic to allow URL override of milestone. ONLY for first selection.
 export function showSrcMilestones(milestones) {
 	$("#srcmilestone").empty();
 	$("#srcmilestone").append($("<option></option>").attr("value", 0).text("Select milestone ... "));
-	for (var m = 0; m < milestones.length; m++) {
+	for (let m = 0; m < milestones.length; m++)
 		$("#srcmilestone").append($("<option></option>").attr("value", milestones[m].number).text(milestones[m].title));
-	}
 }
 
 export function showDstMilestones(milestones) {
 	$("#dstmilestone").empty();
 	$("#dstmilestone").append($("<option></option>").attr("value", 0).text("Select milestone ... "));
-	for (var m = 0; m < milestones.length; m++) {
+	for (let m = 0; m < milestones.length; m++)
 		$("#dstmilestone").append($("<option></option>").attr("value", milestones[m].number).text(milestones[m].title));
-	}
 }
 
 export function updateSrcMilestones() {
-	var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/milestones?state=all";
+	const getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/milestones?state=all";
 	yoda.getLoop(getMilestonesUrl, 1, [], showSrcMilestones, null);
 }
 
 export function updateDstMilestones() {
-	var getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestones?state=all";
+	const getMilestonesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestones?state=all";
 	yoda.getLoop(getMilestonesUrl, 1, [], showDstMilestones, null);
 }
 
@@ -78,15 +74,11 @@ export function updateDstMilestones() {
 
 export function showSrcRepos(repos) {
 	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
+		return a.name.toLowerCase() < b.name.toLowerCase()? -1 : 1;
 	});
 
-	for (var r = 0; r < repos.length; r++) {
+	for (let r = 0; r < repos.length; r++)
 		$("#srcrepolist").append($("<option></option>").attr("value", repos[r].name));
-	}
 }
 
 export function updateSrcRepos() {
@@ -94,25 +86,19 @@ export function updateSrcRepos() {
 	$("#srcrepo").val("");
 	$("#srcrepolist").empty();
 	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#srcowner").val() + "/repos";
+	const getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#srcowner").val() + "/repos";
 	yoda.getLoop(getReposUrl, 1, [], showSrcRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
 }
 
 // -------------
 
 export function showDstRepos(repos) {
 	repos.sort(function(a,b) {
-		if (a.name.toLowerCase() < b.name.toLowerCase()) 
-			return -1;
-		else
-			return 1;
+		return a.name.toLowerCase() < b.name.toLowerCase()? -1 : 1;
 	});
 
-	for (var r = 0; r < repos.length; r++) {
+	for (let r = 0; r < repos.length; r++)
 		$("#dstrepolist").append($("<option></option>").attr("value", repos[r].name));
-	}
 }
 
 export function updateDstRepos() {
@@ -120,39 +106,36 @@ export function updateDstRepos() {
 	$("#dstrepo").val("");
 	$("#dstrepolist").empty();
 	
-	var getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#dstowner").val() + "/repos";
+	const getReposUrl = yoda.getGithubUrl() + "orgs/" + $("#dstowner").val() + "/repos";
 	yoda.getLoop(getReposUrl, 1, [], showDstRepos, null);
-//	getReposUrl = yoda.getGithubUrl() + "users/" + $("#owner").val() + "/repos";
-//	yoda.getLoop(getReposUrl, -1, [], showRepos, null);
 }
 
-// ------------
-
 export function showIssues() {
-	var brackets = false;
+	let brackets = false;
 	if ($('#brackets').is(":checked")) {
-		var brackets = true;
+		brackets = true;
 	}
 	
-	var srcMilestone = $("#srcmilestone option:selected").text();
-	var dstMilestone = $("#dstmilestone option:selected").text();
+	const srcMilestone = $("#srcmilestone option:selected").text();
+	const dstMilestone = $("#dstmilestone option:selected").text();
 	issuesToCopy = [];
 	
-	for (var i = 0; i < srcIssues.length; i++) {
+	for (let i = 0; i < srcIssues.length; i++) {
 		logMessage(srcIssues[i].number + ": " + srcIssues[i].title);
 		
 		if (brackets==false || srcIssues[i].title.startsWith("[" + srcMilestone + "]")) {
-			var srcIssueTitle = srcIssues[i].title;
+			const srcIssueTitle = srcIssues[i].title;
 			
+			let dstIssueSearch;
 			if (brackets)
-				var dstIssueSearch = "[" + dstMilestone + "]" + srcIssueTitle.substring(srcMilestone.length + 2);
+				dstIssueSearch = "[" + dstMilestone + "]" + srcIssueTitle.substring(srcMilestone.length + 2);
 			else
-				var dstIssueSearch = srcIssueTitle;
+				dstIssueSearch = srcIssueTitle;
 			
 			console.log("Searching for '" + dstIssueSearch + "'");
 			// Now, let's check if this issue (minus the initial part) can be found into the destination milestone.
-			var foundIssue = 0;
-			for (var j = 0; j < dstIssues.length; j++) {
+			let foundIssue = 0;
+			for (let j = 0; j < dstIssues.length; j++) {
 				if (dstIssues[j].title == dstIssueSearch) {
 					logMessage("  WARNING: This issue already exists in the destination.");
 					foundIssue = 1;
@@ -178,9 +161,8 @@ export function showSrcIssues(issues) {
 	logMessage("Retrieved " + issues.length + " source issues.");
 	srcIssues = issues;
 	refreshState++;
-	if (refreshState == 2) {
+	if (refreshState == 2)
 		showIssues();
-	}
 }
 
 export function showDstIssues(issues) {
@@ -189,33 +171,22 @@ export function showDstIssues(issues) {
 	logMessage("Retrieved " + issues.length + " destination issues.");
 	dstIssues = issues;
 	refreshState++;
-	if (refreshState == 2) {
+	if (refreshState == 2)
 		showIssues();
-	}
 }
 
 //-------------- 
 
-var refreshState = 0;
+let refreshState = 0;
 export function refreshIssues() {
 	yoda.updateUrl(getUrlParams());
 	$("#console").val("");
 	refreshState = 0;
 	srcIssues = [];
 	dstIssues = [];
-	var srcMilestone = $("#srcmilestone").val(); 
-	var dstMilestone = $("#dstmilestone").val();
-	
-	
-
-//	if (dstMilestone == srcMilestone) {
-//		yoda.showSnackbarError("Source and Destination milestone identical.", 3000);
-//		return;
-//	}
 
 	// Get source issues
-	var getSrcIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + 
-	"/issues?state=all&direction=asc";
+	let getSrcIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#srcowner").val() + "/" + $("#srcrepo").val() + "/issues?state=all&direction=asc";
 	if ($("#recurring").val() != "")
 		getSrcIssuesUrl  += "&labels=" + $("#recurring").val();
 	if ($("#srcmilestone").val() != "0")
@@ -224,7 +195,7 @@ export function refreshIssues() {
 	yoda.getLoop(getSrcIssuesUrl, 1, [], showSrcIssues, function(errorText) { yoda.showSnackbarError("Error getting source issues: " + errorText, 3000);});
 
 	// Get destination issues
-	var getDstIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + 
+	let getDstIssuesUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + 
 	"/issues?state=all&direction=asc";
 	if ($("#recurring").val() != "")
 		getDstIssuesUrl  += "&labels=" + $("#recurring").val();
@@ -238,10 +209,9 @@ export function refreshIssues() {
 // --------------
 
 export function copySingleIssue(issues) {
-	var brackets = false;
-	if ($('#brackets').is(":checked")) {
-		var brackets = true;
-	}
+	let brackets = false;
+	if ($('#brackets').is(":checked"))
+		brackets = true;
 
 	if (issues.length == 0) {
 		// done
@@ -251,48 +221,49 @@ export function copySingleIssue(issues) {
 		return;
 	}
 	
-	var srcMilestone = $("#srcmilestone option:selected").text();
-	var dstMilestone = $("#dstmilestone option:selected").text();
+	const srcMilestone = $("#srcmilestone option:selected").text();
+	const dstMilestone = $("#dstmilestone option:selected").text();
 	
 	logMessage("Copying " + issues[0].number + ": " + issues[0].title);
 	
-	var srcIssueTitle = issues[0].title;
+	const srcIssueTitle = issues[0].title;
+	let newTitle;
 	if (brackets) 
-		var newTitle = "[" + dstMilestone + "]" + srcIssueTitle.substring(srcMilestone.length + 2);
+		newTitle = "[" + dstMilestone + "]" + srcIssueTitle.substring(srcMilestone.length + 2);
 	else
-		var newTitle = srcIssueTitle;
+		newTitle = srcIssueTitle;
 	
-	var newBody = issues[0].body;
+	let newBody = issues[0].body;
 	
 	// Need to to regexp substitution as per arg.
-	var regExpList = $("#bodyremove").val().split(",");
-	for (var r = 0; r < regExpList.length; r++) {
-		var search = regExpList[r].split("/")[0];
-		var rep = regExpList[r].split("/")[1];
+	const regExpList = $("#bodyremove").val().split(",");
+	for (let r = 0; r < regExpList.length; r++) {
+		const search = regExpList[r].split("/")[0];
+		const rep = regExpList[r].split("/")[1];
 		
 		console.log("Search: '" + search + "', rep: '" + rep + "'");
 //		console.log("Before: " + newBody);
-		var regExpSearch = new RegExp(search, "gm");
+		const regExpSearch = new RegExp(search, "gm");
 
-		var newBody = newBody.replace(regExpSearch, rep);
+		newBody = newBody.replace(regExpSearch, rep);
 //		console.log("After: " + newBody);
 	}
 	
-	var createIssueUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues";
+	const createIssueUrl = yoda.getGithubUrl() + "repos/" + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/issues";
 	console.log("createUrl: " + createIssueUrl);
 
-	if ($("#srcowner").val() == $("#dstowner").val() && $("#srcrepo").val() == $("#dstrepo").val()) {
-		var copiedFrom = "\n*Issue copied from #" + issues[0].number + " " + issues[0].title + "*\n"; 
-	} else {
-		var copiedFrom = "\n*Issue copied from " + $("#srcowner").val() + "/" + $("#srcrepo").val() + "#" + issues[0].number + " " + issues[0].title + "*\n"; 
-	}
+	let copiedFrom;
+	if ($("#srcowner").val() == $("#dstowner").val() && $("#srcrepo").val() == $("#dstrepo").val())
+		copiedFrom = "\n*Issue copied from #" + issues[0].number + " " + issues[0].title + "*\n"; 
+	else
+		copiedFrom = "\n*Issue copied from " + $("#srcowner").val() + "/" + $("#srcrepo").val() + "#" + issues[0].number + " " + issues[0].title + "*\n"; 
 	console.log(":" + copiedFrom + ":");
 	newBody += copiedFrom;
 
-	var urlData = {
-			"title": newTitle,
-			"body": newBody,
-			"labels" : issues[0].labels
+	const urlData = {
+		"title": newTitle,
+		"body": newBody,
+		"labels" : issues[0].labels
 	};
 	if ($("#dstmilestone").val() != "0")
 		urlData["milestone"] = $("#dstmilestone").val();
@@ -304,6 +275,7 @@ export function copySingleIssue(issues) {
 		data: JSON.stringify(urlData),
 		success: function(resp) { logMessage("  Succesfully created issue " + resp.number + ": " + resp.title); },
 		error: function() { logMessage("  Failed to create issue"); },
+		// eslint-disable-next-line no-unused-vars
 		complete: function(jqXHR, textStatus) { copySingleIssue(issues.splice(1));}
 	});
 }
@@ -314,7 +286,6 @@ export function copyIssues() {
 		return;
 	}
 	
-	
 	logMessage("");
 	logMessage("Will attempt to copy " + issuesToCopy.length + " issues.");
 	copySingleIssue(issuesToCopy);
@@ -323,12 +294,13 @@ export function copyIssues() {
 // --------------
 
 export function openSprint() {
+	let gitHubUrl;
 	if ($("#dstmilestone").val() != "0") {
-		var milestone = $("#dstmilestone").val();
-		var gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestone/" + milestone;
+		const milestone = $("#dstmilestone").val();
+		gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val() + "/milestone/" + milestone;
 		console.log("Open milestone.." + milestone + ", url: " + gitHubUrl);
 	} else {
-		var gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val();
+		gitHubUrl = yoda.getGithubUrlHtml() + $("#dstowner").val() + "/" + $("#dstrepo").val();
 	}
 	window.open(gitHubUrl);
 }
