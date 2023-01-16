@@ -49,7 +49,7 @@ function init() {
 
 		// Let's get the list of installations
         appOctokit.request('GET /app/installations', {}).then((installations) => {
-			const appInstallations = installations.data;	
+			appInstallations = installations.data;	
 			logger.info("List of installations:");
 			logger.info(appInstallations.map(inst => inst.id + "/" + inst.account.login).join(", "));
 		
@@ -89,6 +89,7 @@ function checkEvent(id, name, payload) {
 // Retrieve an octokit instance
 function getAppOctokit(issueRef) {
 	// We need to find a match for issueRef owner based on account.login
+	logger.debug("Searching for installation for owner: '" + issueRef.owner + "'. lower case is: '" + issueRef.owner.toLowerCase() + "'");
 	const r = appInstallations.findIndex(inst => inst.account.login.toLowerCase() == issueRef.owner.toLowerCase());
 	if (r != -1) {
 		logger.debug("Found installation. Installation Id: " + appInstallations[r].id);
