@@ -1,26 +1,26 @@
 module.exports = {checkEvent, init, getAppOctokit};
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 const configuration = require('./configuration.js');
 
-var fs = require('fs');
+const fs = require('fs');
 
 const { Octokit } = require('@octokit/rest');
 
 const { request } = require("@octokit/request");
 const { createAppAuth } = require('@octokit/auth-app');
 
-appInstallations = [];
+let appInstallations = [];
 
 // init - can also be used to reinit ... 
 function init() {
 	logger.info("Initializing GitHub App ...");
 
-	var pem = fs.readFileSync(configuration.getOption("app-pemfile"));
+	const pem = fs.readFileSync(configuration.getOption("app-pemfile"));
 	
-	var options = {
+	const options = {
 		appId: configuration.getOption('app-appid'),
 		privateKey: pem,
 		clientId: configuration.getOption('app-clientid'),
@@ -30,15 +30,15 @@ function init() {
 	})}; 
 	logger.debug(options);
 	
-	auth = createAppAuth(options);	
+	const auth = createAppAuth(options);	
 	logger.debug(auth);
 	
 	auth({ type: "app" }).then((authorization) => {
 		logger.debug(authorization);
 
         //Set-up authentication and store for later use if needed.
-        var authString = "token " + authorization.token;
-        appOctokit = new Octokit({
+        const authString = "token " + authorization.token;
+        const appOctokit = new Octokit({
                 userAgent: 'yoda-webhook',
 				baseUrl: configuration.getOption('baseurl'),
                 log: logger,
@@ -49,21 +49,21 @@ function init() {
 
 		// Let's get the list of installations
         appOctokit.request('GET /app/installations', {}).then((installations) => {
-			appInstallations = installations.data;	
+			const appInstallations = installations.data;	
 			logger.info("List of installations:");
 			logger.info(appInstallations.map(inst => inst.id + "/" + inst.account.login).join(", "));
 		
-	 		// Let's create - auto renewable - octokit instances for each installation and store them. 
-			for (var i = 0; i < appInstallations.length; i++) {
+			// Let's create - auto renewable - octokit instances for each installation and store them. 
+			for (let i = 0; i < appInstallations.length; i++) {
 				appInstallations[i].octokit = new Octokit({
-	  				authStrategy: createAppAuth,
-	  				auth: {
-	    				appId: configuration.getOption('app-appid'),
-	    				privateKey: pem,
-	    				installationId: appInstallations[i].id,
-  					},
-	                baseUrl: configuration.getOption('baseurl'),
-   	            	log: logger
+					authStrategy: createAppAuth,
+					auth: {
+						appId: configuration.getOption('app-appid'),
+						privateKey: pem,
+						installationId: appInstallations[i].id,
+					},
+					baseUrl: configuration.getOption('baseurl'),
+					log: logger
 				});
 				logger.debug("Created Octokit for app installation id: " + appInstallations[i].id);
 			}

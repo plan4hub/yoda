@@ -2,8 +2,8 @@ module.exports = {checkEvent, processIssueUrl, init};
 
 // const ThrottledPromise = require('throttled-promise');
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 const configuration = require('./configuration.js');
 const yoda = require('./yoda-utils.js');
@@ -11,17 +11,17 @@ const yodaAppModule = require('./github-app.js');
 
 const { Octokit } = require('@octokit/rest');
 
-userOctokit = null;
-fallbackOctokit = null;
+let userOctokit = null;
+let fallbackOctokit = null;
 
-var instDay, instHour, instMin;
-var instDayCount = 0, instHourCount = 0, instMinCount = 0;
+let instDay, instHour, instMin;
+let instDayCount = 0, instHourCount = 0, instMinCount = 0;
 
 function init() {
 	// We will built a userOctokit IF a password (token) is given
 //	if (!configuration.getOption("app-mode")) {
 	if (configuration.getOption('password') != undefined) {
-		var authString = "token " + configuration.getOption('password');
+		const authString = "token " + configuration.getOption('password');
 		userOctokit = new Octokit({
 			userAgent: 'yoda-webhook',
 			baseUrl: configuration.getOption('baseurl'),
@@ -36,14 +36,14 @@ function init() {
 		});
 	}
 	
-	var d = new Date();
+	const d = new Date();
 	instDay = d.getUTCDate();
 	instHour = d.getUTCHours();
 	instMin = d.getUTCMinutes();
 }
 
 function instOctokit() {
-	var d = new Date();
+	const d = new Date();
 	if (instDay == d.getUTCDate()) {
 		instDayCount++;
 		
@@ -78,7 +78,7 @@ function instOctokit() {
 function getOctokit(issueRef) {
 	instOctokit();
 	if (configuration.getOption("app-mode")) {
-		ok = yodaAppModule.getAppOctokit(issueRef);
+		const ok = yodaAppModule.getAppOctokit(issueRef);
 		if (ok != null)
 			return ok;
 		if (userOctokit != null)
@@ -96,22 +96,22 @@ function getSearchOctokit(issueRef, search) {
 	} else {
 		// Hmm. more tricky. We are not really sure which user (org) or repo is being targetted....
 		// Normal case will be a repo:
-		var searchTerms = search.trim().split(/(\s+)/).filter((e) => e.trim().length > 0);
-		var s = searchTerms.findIndex(e => e.startsWith("repo:"));
-		var owner = null;
+		const searchTerms = search.trim().split(/(\s+)/).filter((e) => e.trim().length > 0);
+		const s = searchTerms.findIndex(e => e.startsWith("repo:"));
+		let owner = null;
 		if (s != -1) {
-			var r = searchTerms[s].indexOf("/");
-			var owner = searchTerms[s].substr("repo:".length, r - "repo:".length);
+			const r = searchTerms[s].indexOf("/");
+			owner = searchTerms[s].substr("repo:".length, r - "repo:".length);
 			logger.debug("Extracted owner: " + owner + " from search term: " + search);
 		} else {
-			var s = searchTerms.findIndex(e => e.startsWith("user:"));
+			const s = searchTerms.findIndex(e => e.startsWith("user:"));
 			if (s != -1) {
-				var owner = searchTerms[s].substr("user:".length);
+				owner = searchTerms[s].substr("user:".length);
 				logger.debug("Extracted owner: " + owner + " from search term: " + search);
 			} else {
-				var s = searchTerms.findIndex(e => e.startsWith("org:"));
+				const s = searchTerms.findIndex(e => e.startsWith("org:"));
 				if (s != -1) {
-					var owner = searchTerms[s].substr("org:".length);
+					owner = searchTerms[s].substr("org:".length);
 					logger.debug("Extracted owner: " + owner + " from search term: " + search);
 				}
 			}
@@ -128,12 +128,12 @@ function getSearchOctokit(issueRef, search) {
 
 //getChildren function which will either get just from body or - if there is a "> issuesearch" clause do a search. Will return a promise.
 function getChildren(ownRef, body) {
-	return new Promise((resolve, reject) => {
-		var children = yoda.getChildrenFromBody(ownRef, body);
+	return new Promise((resolve) => {
+		let children = yoda.getChildrenFromBody(ownRef, body);
 		
 		if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("issuesearch"))) {
 			// Identify issues using a search criteria
-			var searchExpr = children.issueRefs[0].line.substr(configuration.getOption("issuesearch").length);
+			const searchExpr = children.issueRefs[0].line.substr(configuration.getOption("issuesearch").length);
 			logger.debug("  Searching for issues using term: " + searchExpr);
 			getSearchOctokit(ownRef, searchExpr).paginate(getSearchOctokit(ownRef, searchExpr).search.issuesAndPullRequests, {
 				q: 'is:issue ' + searchExpr,
@@ -151,15 +151,13 @@ function getChildren(ownRef, body) {
 				else
 					children.issueRefs.splice(1); 
 				
-				for (var i = 0; i < issues.length; i++) {
-					var childRef = yoda.getRefFromUrl(issues[i].url);
-					if (yoda.compareRefs(ownRef, childRef) != 0) {
+				for (let i = 0; i < issues.length; i++) {
+					const childRef = yoda.getRefFromUrl(issues[i].url);
+					if (yoda.compareRefs(ownRef, childRef) != 0)
 						children.issueRefs.push(childRef);
-					} else {
+					else
 						logger.info("  Ignoring reference to self.");
-					}
 				}
-				
 				resolve(children);
 			}).catch((err) => {
 				// Insert error message in children
@@ -174,28 +172,27 @@ function getChildren(ownRef, body) {
 	});
 }
 
-
 // Special case. Update child issue to indicate that the parentIssue indicate cannot be read... 
 function updatePartOfRefNotThere(childRef, parentIssue) {
 	logger.debug("updatePartOfRefNotThere: " + yoda.getFullRef(childRef) + " to indiciate that we cannot access " + yoda.getFullRef(parentIssue));
 	
 	// We need to get the issue again...
 	getOctokit(childRef).issues.get(childRef).then((result) => {
-		var parentRefs = yoda.getParentRefs(parentIssue, result.data.body);
-		var parentIndex = yoda.findRefIndex(parentRefs, parentIssue);
-	    var blockStart = parentRefs[parentIndex].index;
-		var blockLength = parentRefs[parentIndex].length;
-		var shortRef = yoda.getShortRef(childRef, parentIssue);
-		var refLine = configuration.getOption("issueref") + " " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
-		var newBody = result.data.body.slice(0, blockStart) + refLine + result.data.body.slice(blockStart + blockLength);
+		const parentRefs = yoda.getParentRefs(parentIssue, result.data.body);
+		const parentIndex = yoda.findRefIndex(parentRefs, parentIssue);
+		const blockStart = parentRefs[parentIndex].index;
+		const blockLength = parentRefs[parentIndex].length;
+		const shortRef = yoda.getShortRef(childRef, parentIssue);
+		const refLine = configuration.getOption("issueref") + " " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
+		const newBody = result.data.body.slice(0, blockStart) + refLine + result.data.body.slice(blockStart + blockLength);
 
-		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
-		getOctokit(childRef).issues.update(childUpdate).then((result) => {
+		const childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
+		getOctokit(childRef).issues.update(childUpdate).then(() => {
 			logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to indicated that we cannot find " + yoda.getFullRef(parentIssue));
 		}).catch((err) => {
 			logger.error(err);
 		});
-	}).catch((err) => {
+	}).catch(() => {
 		logger.error("  Failed to read issue " + yoda.getFullRef(childRef) + " in updatePartOfRefNotThere");
 	});
 }
@@ -210,20 +207,20 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	else
 		logger.debug("updatePartOfRef: " + yoda.getFullRef(childRef) + " to remove any pointer to " + parentIssue.url);
 	
-	var parentIssueRef = yoda.getRefFromUrl(parentIssue.url);
-	var parentRefs = yoda.getParentRefs(parentIssueRef, childIssue.body);
-	var parentIndex = yoda.findRefIndex(parentRefs, parentIssueRef);  
+	const parentIssueRef = yoda.getRefFromUrl(parentIssue.url);
+	const parentRefs = yoda.getParentRefs(parentIssueRef, childIssue.body);
+	const parentIndex = yoda.findRefIndex(parentRefs, parentIssueRef);  
 	
-	var shortRef = yoda.getShortRef(childRef, parentIssueRef);
-	var refLine = configuration.getOption("issueref") + " " + shortRef;
-	var issueType = yoda.getMatchingLabels(parentIssue, configuration.getOption("labelre"));
+	const shortRef = yoda.getShortRef(childRef, parentIssueRef);
+	let refLine = configuration.getOption("issueref") + " " + shortRef;
+	const issueType = yoda.getMatchingLabels(parentIssue, configuration.getOption("labelre"));
 	if (issueType != "")
 		refLine += " " + issueType + " ";
 	refLine += " *" + parentIssue.title.trim() + "*";
 	logger.trace(refLine);
 		
-	var parentRefLine = configuration.getOption("issueref") + " ";
-	var newBody = childIssue.body;
+//	const parentRefLine = configuration.getOption("issueref") + " ";
+	let newBody = childIssue.body;
 	if (parentIndex == -1) {
 		if (includeOrExclude) {
 			logger.debug("Issue reference not found. Inserting in beginning");
@@ -232,8 +229,8 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 	} else {
 		logger.debug("Issue reference found.");
 		logger.debug(parentRefs[parentIndex]);
-		var blockStart = parentRefs[parentIndex].index;
-		var blockLength = parentRefs[parentIndex].length;
+		const blockStart = parentRefs[parentIndex].index;
+		const blockLength = parentRefs[parentIndex].length;
 		
 		if (includeOrExclude) {
 			newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength);
@@ -245,14 +242,14 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		var loopProt = 0; // Always wear protective gear
 		do {
 			loopProt++;
-			var parentRefs = yoda.getParentRefs(parentIssueRef, newBody);
-			var allParentIndex = yoda.findAllRefIndex(parentRefs, parentIssueRef);
+			const parentRefs = yoda.getParentRefs(parentIssueRef, newBody);
+			const allParentIndex = yoda.findAllRefIndex(parentRefs, parentIssueRef);
 			if ((includeOrExclude && allParentIndex.length > 1) || (!includeOrExclude && allParentIndex.length > 0)) {
 				logger.info("  Removing extra partof reference in issue.");
 				
 				// Take last one out
-				var blockStart = parentRefs[allParentIndex.slice(-1)].index;
-				var blockLength = parentRefs[allParentIndex.slice(-1)].length;
+				const blockStart = parentRefs[allParentIndex.slice(-1)].index;
+				const blockLength = parentRefs[allParentIndex.slice(-1)].length;
 				newBody = newBody.slice(0, blockStart) + newBody.slice(blockStart + blockLength);
 			} else
 				break;
@@ -264,7 +261,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		
 		// update it.
 		var childUpdate = { owner: childRef.owner, repo: childRef.repo, issue_number: childRef.issue_number, body: newBody};
-		getOctokit(childRef).issues.update(childUpdate).then((result) => {
+		getOctokit(childRef).issues.update(childUpdate).then(() => {
 			if (includeOrExclude) 
 				logger.info("  Updated parent reference in " + yoda.getFullRef(childRef) + " to point to " + yoda.getFullRef(parentIssueRef));
 			else 
@@ -280,7 +277,7 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 // Boolean includeOrExclude. Set to true to make sure to include, set to false to make sure to exclude
 function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOrExclude) {
 //	return new ThrottledPromise((resolve, reject) => {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		logger.debug("Reading issue # " + index);
 		// Let's see about getting the issue.
 		getOctokit(issueRefs[index]).issues.get(issueRefs[index]).then((result) => {
@@ -303,13 +300,13 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOr
 //Helper function to query a list of issues, as given by their reference. The issue data will be populated in the issues field.
 //If there is a problem, issue will be set to null, and a warning logger.
 function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		var childPromises = [];
-		for (var i = 0; i < childRefs.issueRefs.length; i++) {
+		for (let i = 0; i < childRefs.issueRefs.length; i++) {
 			if (yoda.isRef(childRefs.issueRefs[i]))
 				childPromises.push(readSingleChildAndUpdatePartOf(childRefs.issueRefs, i, parentIssue, true));
 		}
-		for (var i = 0; i < excludeChildRefs.length; i++) {
+		for (let i = 0; i < excludeChildRefs.length; i++) {
 			if (yoda.isRef(excludeChildRefs[i]))
 				childPromises.push(readSingleChildAndUpdatePartOf(excludeChildRefs, i, parentIssue, false));
 		}
@@ -322,8 +319,6 @@ function readChildIssuesAndUpdatePartOf(childRefs, excludeChildRefs, parentIssue
 		});
 	});
 }
-
-
 
 //Furthermore, two lists can be supplied. A list of issues (by reference) that must present in the > contains list , and
 //a list of issues by references that should NOT be present in same list (either because a > parent has been removed, or because
@@ -383,7 +378,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 //	logger.trace(oldIssue);
 
 	var newBody = "";
-	var blockStart = children.blockStart;
+	const blockStart = children.blockStart;
 	var blockLength = children.blockLength;
 
 	if (blockStart == -1) {
@@ -401,20 +396,20 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	// 2. Insert headlines as ".line" items. 
 	// If we do those two things, we can let the remaining algorithm fill in the details for each issues as per normal.
 	// Example: > headline ###,MS,P - Tentative,Q - NotCodeFreeze
-	var hlLine = -1;
+	let hlLine = -1;
 	if (children.issueRefs.length > 0 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("headline")))
 		hlLine = 0;
 	if (children.issueRefs.length > 1 && children.issueRefs[0].line != undefined && children.issueRefs[0].line.startsWith(configuration.getOption("issuesearch")) && children.issueRefs[1].line != undefined && children.issueRefs[1].line.startsWith(configuration.getOption("headline")))
 		hlLine = 1;
 	if (hlLine != -1) {
-		var hlExpr = children.issueRefs[hlLine].line.substr(configuration.getOption("headline").length).trim();
+		let hlExpr = children.issueRefs[hlLine].line.substr(configuration.getOption("headline").length).trim();
 		// If no expression is given, put the the default (we'll store it further down)
 		if (hlExpr == "")
 			hlExpr = configuration.getOption("headline-default");
-		var hlParts = hlExpr.split(",");
-		var prefix = hlParts[0];
+		let hlParts = hlExpr.split(",");
+		const prefix = hlParts[0];
 		hlParts.splice(0, 1);
-		var hlMilestone = false;
+		let hlMilestone = false;
 		if (hlParts[0] == configuration.getOption("headline-ms")) {
 			hlMilestone = true;
 			hlParts.splice(0, 1);
@@ -424,29 +419,30 @@ function updateParentIssue(issueRef, children, oldIssue) {
 		logger.debug(hlParts.length);
 		logger.debug("Headline format. Prefix: '" + prefix + "', includeMilestones: " + hlMilestone + ", labels: " + hlParts.join(","));
 		
+		let allMilestones;
 		if (hlMilestone)
-			var allMilestones = yoda.getAllMilestones(children.issueRefs);
+			allMilestones = yoda.getAllMilestones(children.issueRefs);
 		else
-			var allMilestones = [""];
+			allMilestones = [""];
 		
 		// Ok, time to take over and simply redo children.issueRefs. First into temporary area.
 		// The headlines will be 
-		var newIssueRefs = [];
+		let newIssueRefs = [];
 		// First, keep > headline (and > issuessearch if there) lines as is. 
-		for (var r = 0; r <= hlLine; r++)
+		for (let r = 0; r <= hlLine; r++)
 			newIssueRefs.push(children.issueRefs[r]);
 		newIssueRefs[hlLine].line = configuration.getOption("headline") + " " + hlExpr;
 		
 		// First, iterate milestons
-		for (var m = 0; m < allMilestones.length; m++) {
+		for (let m = 0; m < allMilestones.length; m++) {
 			// Then we need to iterate all the labels in binary format (either they are there, or they are not). For this we could to 2^(# of labels)
-			for (var labelOpt = 0; labelOpt < (1 << hlParts.length); labelOpt++) {
+			for (let labelOpt = 0; labelOpt < (1 << hlParts.length); labelOpt++) {
 				// Ok, now we need to see if the relevant labels are set. 
 				// Example: In or example value 0 means none of the two labels set, Value 1 means P - Tentative set, Value 2 means Q - No CodeFreeze set, Value 3 means both labels set.
-				var header = prefix + allMilestones[m];
-				var posLabels = [];
-				var negLabels = [];
-				for (var l = 0; l < hlParts.length; l++) {
+				let header = prefix + allMilestones[m];
+				let posLabels = [];
+				let negLabels = [];
+				for (let l = 0; l < hlParts.length; l++) {
 					if (labelOpt & (1 << l)) 
 						posLabels.push(hlParts[l]);
 					else
@@ -457,9 +453,9 @@ function updateParentIssue(issueRef, children, oldIssue) {
 				if (posLabels.length == 0 && allMilestones[m] == "") 
 					header = ""; // Special case. If not showing milestones, and no labels set, simply drop the header as this is the "base case";
 				
-				var noIssues = 0;
+				let noIssues = 0;
 				// Now, let's add the matching issues.... Loop the issues.
-				for (var r = hlLine + 1; r < children.issueRefs.length; r++) {
+				for (let r = hlLine + 1; r < children.issueRefs.length; r++) {
 					// Right. IF the issue is a text item (could be e.g. one of the headlines we have added ourselves) we will simply skip it.
 					if (children.issueRefs[r].line != undefined)
 						continue;
@@ -494,7 +490,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 		children.issueRefs = newIssueRefs;
 	}
 	
-	var block = yoda.makeChildBlock(issueRef, children);
+	const block = yoda.makeChildBlock(issueRef, children);
 	logger.debug("Block:");
 	logger.debug(block); 
 
@@ -506,12 +502,10 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	
 	// Careful... we may not have an existing block! Note, that the block created will NOT have a newline at the end, so in order to force
 	// a blank line, we add two newlines in this case.
-	if (blockStart == undefined || blockStart == -1) {
+	if (blockStart == undefined || blockStart == -1)
 		newBody = block + '\n\n' + oldIssue.body; 
-		
-	} else {
+	else
 		newBody = oldIssue.body.slice(0, blockStart) + block + oldIssue.body.slice(blockStart + blockLength);		
-	}
 	
 	logger.trace(newBody);
 
@@ -521,7 +515,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 	if (oldIssue.body == newBody) {
 		logger.info("  Skipping update as body is already correct for " + yoda.getFullRef(issueRef));
 	} else {
-		var update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
+		const update = { owner: issueRef.owner, repo: issueRef.repo, issue_number: issueRef.issue_number, body: newBody};
 
 		getOctokit(issueRef).issues.update(update).then((result) => {
 			logger.info("  Updated child block in " + yoda.getFullRef(issueRef));
@@ -536,7 +530,7 @@ function updateParentIssue(issueRef, children, oldIssue) {
 //child list (> contains list) into parent.
 // Note: This is one way to use promises and sequentially execute list. TODO: Actually, this could be run in parallel...
 function processParentRefIssues(issueRef, pList, exclude, index) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		if (index == undefined)
 			index = 0; // Let's get going...
 
@@ -563,9 +557,9 @@ function processParentRefIssues(issueRef, pList, exclude, index) {
 //The issue is assumed to be loaded and available in issue, coming either from a get call or the (new) issue part of an event.
 function processIssue(issue) {
 	return new Promise(function(resolve, reject) {
-		var issueRef = yoda.getRefFromUrl(issue.url);
+		const issueRef = yoda.getRefFromUrl(issue.url);
 		// First handle issue as a child issue, i.e. examining any "> partof" lines, and doing appropriate updates to the referred parent issues.
-		var parentRefs = yoda.getParentRefs(issueRef, issue.body);
+		const parentRefs = yoda.getParentRefs(issueRef, issue.body);
 		logger.debug("Parent references: ");
 		logger.debug(parentRefs);
 		processParentRefIssues(issueRef, parentRefs, false).then(() => {
@@ -581,20 +575,20 @@ function processIssue(issue) {
 }
 
 // Event hold
-var eventHold = [];
+let eventHold = [];
 // Check if we have done processing for this issue recently. If so, return null (and schedule an update)
 function delayEvent(id, name, payload) {
-	var issueUrl = payload.issue.url;
+	const issueUrl = payload.issue.url;
 
 	// Do we already have the issue in the list? If so, clear previous timer.
-	var i = eventHold.findIndex((element) => (element.url == issueUrl));
+	const i = eventHold.findIndex((element) => (element.url == issueUrl));
 	if (i != -1)
 		clearTimeout(eventHold[i].timeOut);
 
 	logger.debug("Scheduling later execution for: " + issueUrl);
-	timeOut = setTimeout(function() {
+	const timeOut = setTimeout(function() {
 		// Remove element from list.
-		var i = eventHold.findIndex((element) => (element.url == issueUrl));
+		const i = eventHold.findIndex((element) => (element.url == issueUrl));
 		if (i != -1)
 			eventHold.splice(i, 1);
 					
@@ -611,9 +605,9 @@ function delayEvent(id, name, payload) {
 
 //Main entry point for checking events.
 function checkEvent(id, name, payload) {
-	var issueUrl = payload.issue.url;
-	var issueAction = payload.action;
-	var issueRef = yoda.getRefFromUrl(issueUrl);
+	const issueUrl = payload.issue.url;
+	const issueAction = payload.action;
+	const issueRef = yoda.getRefFromUrl(issueUrl);
 
 	if (payload.eventHold == undefined)
 		logger.info("Checking issues event (" + issueAction + ") with id " + id + " by " + payload.sender.login + " for " + issueUrl);
@@ -627,7 +621,7 @@ function checkEvent(id, name, payload) {
 	// NOTE: This should of course be adjusted if this service should perform other actions than parent/child issue references!
 	// The possible issues actions are:
 	// opened, edited, deleted, pinned, unpinned, closed, reopened, assigned, unassigned, labeled, unlabeled, locked, unlocked, transferred, milestoned, or demilestoned.
-	var handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled', "milestoned", "demilestoned"];
+	const handleEventTypes = ['opened', 'edited', 'closed', 'reopened', 'labeled', 'unlabeled', "milestoned", "demilestoned"];
 	if (handleEventTypes.indexOf(issueAction) == -1) {
 		logger.info("  Disgarding event as not an event issue type (" + issueAction+ ") that we are interested in.");
 		return;
@@ -637,7 +631,7 @@ function checkEvent(id, name, payload) {
 	// If running App mode, then we can identify based on presense of lack of [bot]
 	if (issueAction == 'edited' && 
 			((!configuration.getOption('app-mode') && payload.sender.login == configuration.getOption('user')) ||
-			 (configuration.getOption('app-mode') && payload.sender.login.indexOf("[bot]") != -1))) {
+			(configuration.getOption('app-mode') && payload.sender.login.indexOf("[bot]") != -1))) {
 		logger.info("  Disgarding event as looks like we initiated it.");
 		return;
 	} 
@@ -659,20 +653,20 @@ function checkEvent(id, name, payload) {
 		logger.trace("Found earlier body: " + payload.changes.body.from);
 
 		// Handle deletions...... 
-		var oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
-		var newParentRefs = yoda.getParentRefs(issueRef, payload.issue.body);
-		var deletedParentRefs = yoda.getRefsDiff(oldParentRefs, newParentRefs);
+		const oldParentRefs = yoda.getParentRefs(issueRef, payload.changes.body.from);
+		const newParentRefs = yoda.getParentRefs(issueRef, payload.issue.body);
+		const deletedParentRefs = yoda.getRefsDiff(oldParentRefs, newParentRefs);
 		logger.debug("deletedParentRefs:");
 		logger.debug(deletedParentRefs);
 
 		// Call to handle deletion of parents.
 		processParentRefIssues(issueRef, deletedParentRefs, true).then(() => {
 			// Any child deletions? Old children directly from body.
-			var oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
+			const oldChildRefs = yoda.getChildrenFromBody(issueRef, payload.changes.body.from).issueRefs;
 
 			// Get new children from new body (or issuesearch withint body), depending.
 			getChildren(issueRef, payload.issue.body).then((newChildRefs) => {
-				var deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
+				const deletedChildRefs = yoda.getRefsDiff(oldChildRefs, newChildRefs.issueRefs);
 				logger.debug("deletedChildRefs. No of elements: " + deletedChildRefs.length);
 				logger.debug(deletedChildRefs);
 
@@ -698,7 +692,7 @@ function processIssueUrl(url) {
 	logger.info("Retriving issue from url: " + url);
 
 	// Get the full issue, then process
-	var issueRef = yoda.getRefFromUrl(url);
+	const issueRef = yoda.getRefFromUrl(url);
 	getOctokit(issueRef).issues.get(issueRef).then((result) => {
 		logger.trace(result);
 		processIssue(result.data).then(() => {

@@ -1,8 +1,8 @@
 module.exports = {getMatchingLabels, labelMatch, compareRefs, getShortRef, getRefFromUrl, getFullRef, getParentRefs, getChildrenFromBody, makeChildBlock, insertDeleteRefs, getRefsDiff, findRefIndex, 
 		findAllRefIndex, makeIssuesUnique, noChildRefs, isRef, getAllMilestones, labelListPos, labelListNeg};
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 const configuration = require('./configuration.js');
 
@@ -31,9 +31,10 @@ function escapeRegExp(string) {
 // 2. A reference to an issue for another repo in same org. This is actually not legal GitHub, but useful shorthand for inpt: e.g. "obt#33"
 // 3. A full GitHub reference for an issue into repo, e.g. "hpsd/hpsp#338"
 // 4. A full URL to a GitHub issue, e.g. "https://github.hpe.com/hpsd/hpsd/issues/2058"
-var static_issueRef = "";
+let static_issueRef = "";
 function issueReferenceRegExp() {
 	if (static_issueRef == "")
+		// eslint-disable-next-line no-useless-escape
 		static_issueRef = "(((([^ ~]*/)?[^ ~]*)?#[1-9][0-9]*)|(" + escapeRegExp(configuration.getOption('baseurlui')) + "[^\/]+\/[^\/]+\/issues\/[1-9][0-9]*))";
 	
 	return static_issueRef;
@@ -49,7 +50,7 @@ function isRef(ref) {
 
 //Make reference construct from issue url, e.g. "https://github.hpe.com/api/v3/repos/jens-markussen/obt-migrate/issues/721" 
 function getRefFromUrl(url) {
-	var temp = url.split("/");
+	let temp = url.split("/");
 	return {
 		owner: temp[temp.length - 4], 
 		repo: temp[temp.length - 3],
@@ -59,7 +60,7 @@ function getRefFromUrl(url) {
 
 //Make refernce from ShortRef i.e. [[owner]/][repository]#number
 function getRefFromShortRef(ownRef, reference) {
-	var result = {};
+	let result = {};
 	Object.assign(result, ownRef);
 	reference = reference.trim();
 	if (reference.charAt(0) == "#") {
@@ -68,19 +69,18 @@ function getRefFromShortRef(ownRef, reference) {
 	} else {
 		if (reference.indexOf("/") == -1) {
 			// Assume repository and number, i.s. repository#number
-			var temp = reference.split("#");
+			let temp = reference.split("#");
 			result.repo = temp[0];
 			result.issue_number = temp[1];
 		} else {
 			// Assume full reference, i.e. owner/repository#number
-			var ownerTemp = reference.split("/");
-			var temp = ownerTemp[1].split("#");
+			let ownerTemp = reference.split("/");
+			let temp = ownerTemp[1].split("#");
 			result.repo = temp[0];
 			result.issue_number = temp[1];
 			result.owner = ownerTemp[0];
 		}
 	}
-	
 	logger.trace("getRefFromShortRef. ownRef: " + getFullRef(ownRef) + ", reference: " + reference + " => " + result.owner + "/" + result.repo + "#" + result.issue_number);
 	return result;
 }  
@@ -105,8 +105,8 @@ function compareRefs(a, b) {
 	if (!isRef(a) || !isRef(b))
 		return 1;
 	
-	var aFull = getFullRef(a);
-	var bFull = getFullRef(b);
+	let aFull = getFullRef(a);
+	let bFull = getFullRef(b);
 	if (aFull == bFull)
 		return 0;
 	if (aFull < bFull)
@@ -117,7 +117,7 @@ function compareRefs(a, b) {
 
 // Search for a given issue, skip search if not a child ref, but just a text line.
 function findRefIndex(aList, b) {
-	for (var i = 0; i < aList.length; i++) {
+	for (let i = 0; i < aList.length; i++) {
 		// Note, take care not to search in not childRef things...
 		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
 			return i;
@@ -127,8 +127,8 @@ function findRefIndex(aList, b) {
 
 // Find all matches
 function findAllRefIndex(aList, b) {
-	var result = [];
-	for (var i = 0; i < aList.length; i++) {
+	let result = [];
+	for (let i = 0; i < aList.length; i++) {
 		// Note, take care not to search in not childRef things...
 		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
 			result.push(i);
@@ -139,7 +139,7 @@ function findAllRefIndex(aList, b) {
 
 //Search for a given issue, skip search if not a child ref, but just a text line.
 function findRef(aList, b) {
-	for (var i = 0; i < aList.length; i++) {
+	for (let i = 0; i < aList.length; i++) {
 		if (isRef(aList[i]) && compareRefs(aList[i], b) == 0)
 			return true;
 	}
@@ -148,36 +148,33 @@ function findRef(aList, b) {
 
 // handle includes and excluces to list. modifies the issueRefs list inside the children construct 
 function insertDeleteRefs(children, includeRefs, excludeRefs) {
-	for (var i = 0; i < includeRefs.length; i++) {
+	for (let i = 0; i < includeRefs.length; i++) {
 		if (!findRef(children.issueRefs, includeRefs[i])) {
 			children.issueRefs.push(includeRefs[i]); // insert it.
 		}
 	}
-	for (var d = 0; d < excludeRefs.length; d++) {
-		var pos = findRefIndex(children.issueRefs, excludeRefs[d]);  
-		if (pos != -1) {
+	for (let d = 0; d < excludeRefs.length; d++) {
+		let pos = findRefIndex(children.issueRefs, excludeRefs[d]);  
+		if (pos != -1)
 			children.issueRefs.splice(pos, 1); // Delete it.
-		}
 	}
 }
 
 // find deleted items, i.e. items in list1, while NOT in list2
 function getRefsDiff(refList1, refList2) {
-	var result = [];
-	for (var i = 0; i < refList1.length; i++) {
-		if (isRef(refList1[i]) && !findRef(refList2, refList1[i])) {
+	let result = [];
+	for (let i = 0; i < refList1.length; i++) {
+		if (isRef(refList1[i]) && !findRef(refList2, refList1[i]))
 			result.push(refList1[i]);
-		}
 	}
 	return result;
 }
 
 function makeIssuesUnique(children) {
-	for (var i = 0; i < children.issueRefs.length; i++) {
-		for (var j = 0; j < children.issueRefs.length; j++) {
-			if (i != j && compareRefs(children.issueRefs[i], children.issueRefs[j]) == 0) {
+	for (let i = 0; i < children.issueRefs.length; i++) {
+		for (let j = 0; j < children.issueRefs.length; j++) {
+			if (i != j && compareRefs(children.issueRefs[i], children.issueRefs[j]) == 0)
 				children.issueRefs.splice(i, 1);
-			}
 		}
 	}
 }
@@ -185,9 +182,9 @@ function makeIssuesUnique(children) {
 // ------------------
 // FUNCTIONS to help with labels
 function getMatchingLabels(issue, labelRegExp) {
-	var result = "";
-	var reg = new RegExp(labelRegExp);
-	for (var l = 0; l < issue.labels.length; l++) {
+	let result = "";
+	const reg = new RegExp(labelRegExp);
+	for (let l = 0; l < issue.labels.length; l++) {
 		if (issue.labels[l].name.match(reg)) {
 			if (result != "")
 				result += ", ";
@@ -200,18 +197,17 @@ function getMatchingLabels(issue, labelRegExp) {
 }
 
 function labelMatch(labelName, labelRegExp) {
-	
-	var reg = new RegExp(labelRegExp);
-	var match = labelName.match(reg) != null;
+	const reg = new RegExp(labelRegExp);
+	const match = labelName.match(reg) != null;
 	logger.trace(labelName, labelRegExp, match);
 	return match;
 }
 
 // Check that issue has ALL labels in list. true => ok
 function labelListPos(issue, labelList) {
-	for (var c = 0; c < labelList.length; c++) {
-		var found = false;
-		for (var l = 0; l < issue.labels.length; l++)
+	for (let c = 0; c < labelList.length; c++) {
+		let found = false;
+		for (let l = 0; l < issue.labels.length; l++)
 			if (labelList[c] == issue.labels[l].name) {
 				found = true;
 				break;
@@ -224,7 +220,7 @@ function labelListPos(issue, labelList) {
 
 // Check that issue has NONE the labels in list. true => ok
 function labelListNeg(issue, labelList) {
-	for (var l = 0; l < issue.labels.length; l++)
+	for (let l = 0; l < issue.labels.length; l++)
 		if (labelList.indexOf(issue.labels[l].name) != -1)
 			return false;
 	return true;
@@ -232,13 +228,13 @@ function labelListNeg(issue, labelList) {
 
 // Helper function for milestones
 function getAllMilestones(refList) {
-	var milestones = [];
-	var noMilestone = false;
-	for (var i = 0; i < refList.length; i++) {
+	let milestones = [];
+	let noMilestone = false;
+	for (let i = 0; i < refList.length; i++) {
 		if (refList[i].issue != undefined) { // Yesn, an issue
 			noMilestone = true;
 			if (refList[i].issue.milestone != undefined) { 
-				ms = refList[i].issue.milestone.title;
+				let ms = refList[i].issue.milestone.title;
 				if (milestones.indexOf(ms) == -1)
 					milestones.push(ms);
 			}
@@ -253,8 +249,8 @@ function getAllMilestones(refList) {
 
 // Count number of childReferences in list
 function noChildRefs(refList) {
-	var total = 0;
-	for (var i = 0; i < refList.length; i++) {
+	let total = 0;
+	for (let i = 0; i < refList.length; i++) {
 		if (isRef(refList[i]))
 			total++;
 	}
@@ -269,22 +265,24 @@ function noChildRefs(refList) {
 
 
 function getEstimate(issue) {
-	var estimate = getBodyField(issue.body, '^>[ ]?estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
-	if (estimate == null) {
+	// eslint-disable-next-line no-useless-escape
+	let estimate = getBodyField(issue.body, '^>[ ]?estimate ', '[ ]*[0-9][0-9]*(\.[0-9])?([0-9])?[ ]*$');
+	if (estimate == null)
 		return 0;
-	} else {
+	else
 		return parseFloat(estimate);
-	}
 }
 
 
 // We will be really! pragmatic here. The remaining estimate will be simply the last "> remaining" line in the body...
 function getRemaining(issue) {
-	var reg = new RegExp('^>[ ]?remaining [ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ]([0-9][0-9]*(\.[0-9])?)[ ]*$', 'mg');
-	var remaining = getEstimate(issue);
+	// eslint-disable-next-line no-useless-escape
+	let reg = new RegExp('^>[ ]?remaining [ ]*2[0-9][0-9][0-9]-[0-1]?[0-9]-[0-3]?[0-9][ ]([0-9][0-9]*(\.[0-9])?)[ ]*$', 'mg');
+	let remaining = getEstimate(issue);
 	
+	let res;
 	do {
-		var res = reg.exec(issue.body);
+		res = reg.exec(issue.body);
 		if (res != null) {
 			logger.trace(res);
 			remaining = res[1];
@@ -295,17 +293,17 @@ function getRemaining(issue) {
 
 // This will build the childBlock, i.e. the block with "> contains (summary)" followed by a list of issues according to the defined format.
 function makeChildBlock(ownRef, childIssues) {
-	issueRefs = childIssues.issueRefs;
+	const issueRefs = childIssues.issueRefs;
 //	if (issueRefs.length == 0) {
 //		return ""; // No issue means empty block. This can be debated... 
 //	}
 	
-	var totalEstimate = 0;
-	var totalRemaining = 0;
-	var totalOpen = 0;
-	var totalClosed = 0;
-	var result = "";
-	for (var i = 0; i < issueRefs.length; i++) {
+	let totalEstimate = 0;
+	let totalRemaining = 0;
+	let totalOpen = 0;
+	let totalClosed = 0;
+	let result = "";
+	for (let i = 0; i < issueRefs.length; i++) {
 		// Is this a text line (rather than a child reference?
 		if (issueRefs[i].line != undefined) {
 			// Add line
@@ -329,15 +327,15 @@ function makeChildBlock(ownRef, childIssues) {
 					totalOpen++;
 				}
 				refLine += shortRef; 
-				var issueType = getMatchingLabels(issueRefs[i].issue, configuration.getOption("labelre"));
+				const issueType = getMatchingLabels(issueRefs[i].issue, configuration.getOption("labelre"));
 				logger.trace("'" + issueType + "'");
 				if (issueType != "")
 					refLine += " " + issueType + " ";
 
 				// Get estimate, remaining.
-				var estimate = getEstimate(issueRefs[i].issue);
+				const estimate = getEstimate(issueRefs[i].issue);
 				totalEstimate += estimate;
-				var remaining = getRemaining(issueRefs[i].issue);
+				let remaining = getRemaining(issueRefs[i].issue);
 				if (issueRefs[i].issue.state == "closed")
 					remaining = 0;
 				totalRemaining += remaining;
@@ -355,9 +353,8 @@ function makeChildBlock(ownRef, childIssues) {
 	}
 	
 	result = configuration.getOption('issuelist') + " (total estimate: " + totalEstimate + ", total remaining: " + totalRemaining + ", # open issues: " + totalOpen + ", # closed issues: " + totalClosed + ")\n" + result;
-	if (result.endsWith("\n")) {
+	if (result.endsWith("\n"))
 		result = result.substring(0, result.length - 1);
-	}
 	
 	return result;
 }
@@ -367,37 +364,32 @@ function makeChildBlock(ownRef, childIssues) {
 // FUNCTIONS FOR EXTRACTING ISSUE REFERNCES FROM BODY TEXT
 
 
-
 // Function to get a field from the body text.
 // index is used to point to the instance
 // Concatenation of start and data values indicates a regular expression to search for
 // The data part is returned.
 // Optional parameter index is used to indicate that subsequent matches should be returned.
 function getBodyField(body, start, data, index) {
-	if (index == undefined) {
+	if (index == undefined)
 		index = 0;
-	}
-	if (body == null) {
+	if (body == null)
 		return null;
-	}
-	var reg = new RegExp(start + data, 'mg');
-	var res = body.match(reg);
+	const reg = new RegExp(start + data, 'mg');
+	const res = body.match(reg);
 
 	if (res != null) {
-		if (index >= res.length) {
+		if (index >= res.length)
 			return null;
-		}
 
 		// Return the match requested. First lets find out how long the start part is
-		var regStart = new RegExp(start);
-		var resStart = res[index].match(regStart);
+		const regStart = new RegExp(start);
+		const resStart = res[index].match(regStart);
 		if (resStart.length == 0)
 			return null; // strange.
 		// And extract the remaining part.
-		newString = res[index].substr(resStart[0].length);
-
-		var reg2 = new RegExp(data);
-		var res2 = newString.match(reg2);
+		const newString = res[index].substr(resStart[0].length);
+		const reg2 = new RegExp(data);
+		const res2 = newString.match(reg2);
 		return res2[0].trim();
 	} else {
 		return null;
@@ -410,22 +402,22 @@ function getBodyField(body, start, data, index) {
 // the starting position. This will be useful for when we have to update this data.
 function getParentRefs(ownRef, body) {
 	logger.trace("Getting parent references from body: " + body);
-	var issueRefs = [];
+	let issueRefs = [];
 	
 	// We are going to need a loop cutting the the body text as we go along
-	var reg = new RegExp("^[ ]*" + configuration.getOption("issuerefre") + '[ ]*' + issueReferenceRegExp() + '[ ]*(.*)$', 'mg');
+	const reg = new RegExp("^[ ]*" + configuration.getOption("issuerefre") + '[ ]*' + issueReferenceRegExp() + '[ ]*(.*)$', 'mg');
 	logger.trace(reg);
+	let res;
 	do {
-		var refEntry = {};
-		var res = reg.exec(body);
+		let refEntry = {};
+		res = reg.exec(body);
 		logger.trace(res);
 		if (res != null) {
 			logger.trace(res);
-			if (res[5] != undefined) {  // Full URL issue reference
-				refEntry = getRefFromUrl(res[5]); 
-			} else {                    // Normal GitHub issue reference
-				refEntry = getRefFromShortRef(ownRef, res[2]);
-			}
+			if (res[5] != undefined) 
+				refEntry = getRefFromUrl(res[5]);  // Full URL issue reference
+			else
+				refEntry = getRefFromShortRef(ownRef, res[2]);  // Normal GitHub issue reference
 			logger.debug("  Parent reference: " + getFullRef(refEntry));
 
 			refEntry.index = res.index;
@@ -445,17 +437,17 @@ function getParentRefs(ownRef, body) {
 // Lines within the contains block (up to a blank line) that are not issue references will be includes with data the "line" item.
 function getChildrenFromBody(ownRef, body) {
 	logger.trace("Getting child references from body: " + body);
-	var result = { blockStart: -1, blockLength: 0, issueRefs: []};
+	const result = { blockStart: -1, blockLength: 0, issueRefs: []};
 	
 	// Regexp matching one reference line. Format should be like e.g. "- [ ] hpsp#22 (whatever data, will be updated anyway)"
-	var refLineReg = '(^([ ]*)- (\\[[ xX]\\])?[ ]*' + issueReferenceRegExp() + '[ ]*(.*)|(..*)$)';
+	const refLineReg = '(^([ ]*)- (\\[[ xX]\\])?[ ]*' + issueReferenceRegExp() + '[ ]*(.*)|(..*)$)';
 	
 	// Regexp for full block, ie. starting with e.g. "> contains (data, will be updated)" followed directly by n lines
 	// with entries as per above.
 	// ^> contains[ ]*(.*)$((\r?\n)+^- \[([ xX])\][ ]*(((.*\/)?.*)?#[1-9][0-9]*)[ ]*(.*)$)*
-	var issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelistre") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
+	const issueStart = new RegExp("^[ ]*" + configuration.getOption("issuelistre") + "[ ]*(.*)$([\r]?[\n]?" + refLineReg + ")*", "mg");
 	logger.trace(issueStart);
-	var blockStart = issueStart.exec(body);
+	const blockStart = issueStart.exec(body);
 	logger.trace("blockStart:");
 	logger.trace(blockStart);
 	if (blockStart == null) {
@@ -464,27 +456,28 @@ function getChildrenFromBody(ownRef, body) {
 		return result;
 	}
 	
-	var block = blockStart[0];
+	const block = blockStart[0];
 	result.blockStart = blockStart.index;
 	result.blockLength = blockStart[0].length;
 	logger.trace("Found child reference block at blockStart: " + result.blockStart + ", length: " + result.blockLength);
 	
 	// Extract just the child part, i.e. take way contains issue reference lines (or text to remember).
-	var startChildBlock = block.indexOf('\n');
+	const startChildBlock = block.indexOf('\n');
 	if (startChildBlock == -1) {
 		// completely empty block!
 		logger.trace("Child block is empty");
 		return result;
 	}
-	var childBlock = block.substr(startChildBlock);
+	const childBlock = block.substr(startChildBlock);
 	logger.trace("Child block:");
 	logger.trace(childBlock);
 	
 	// Let's loop the issues using the refLineReg regular expression..
-	var reg = new RegExp(refLineReg, 'mg');
+	const reg = new RegExp(refLineReg, 'mg');
 	logger.trace(reg);
+	let res;
 	do {
-		var res = reg.exec(childBlock);
+		res = reg.exec(childBlock);
 		logger.trace(res);
 		if (res != null) {
 			var refEntry = {};

@@ -1,10 +1,10 @@
 module.exports = {parseOptions, getOption};
 
 // Main options array
-var options;
+let options;
 
-var log4js = require('log4js');
-var logger = log4js.getLogger();
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 logger.level = "INFO"; // To be sure we get some tracing during options parsing and final log level setting.
 
 const commandLineArgs = require('command-line-args');
@@ -178,34 +178,32 @@ const optionDefinitions = [
 ];
 
 const sections = [
-	  {
-	    header: 'Yoda webhook',
-	    content: 'Listens to GitHub Events in order to validate and/or transform issues on the fly.'
-	  },
-	  {
-	    header: 'Options',
-	    optionList: optionDefinitions
-	  }
-	]
+	{
+		header: 'Yoda webhook',
+		content: 'Listens to GitHub Events in order to validate and/or transform issues on the fly.'
+	},
+	{
+		header: 'Options',
+		optionList: optionDefinitions
+	}
+]
 
 const usage = commandLineUsage(sections);
 
 function parseOptions() {
 	try {
 		// If env variable YODA_WEBHOOK_OPTIONS is set, use this instead.
-		if (process.env.YODA_WEBHOOK_OPTIONS != undefined) {
+		if (process.env.YODA_WEBHOOK_OPTIONS != undefined)
 			options = commandLineArgs(optionDefinitions, {argv: process.env.YODA_WEBHOOK_OPTIONS.split(" ")});
-		} else {
+		else
 			options = commandLineArgs(optionDefinitions);
-		}
 		
 		if (options['help'] == true) {
 			logger.info(usage);
 			process.exit(0);
 		}
 
-		error = false;
-
+		let error = false;
 		if (!options['app-mode'] && options['user'] == undefined) {
 			logger.error("No --user or -u given");
 			error = true;
@@ -261,13 +259,13 @@ function parseOptions() {
 
 	// Initialize logging
 	log4js.configure({
-	  appenders: {
-		out: { type: 'stdout' },
-		app: { type: 'dateFile', filename: options['logfile'], daysToKeep: 7 } 
-	  },
-	  categories: {
-		default: { appenders: [ 'out', 'app' ], level: options['loglevel'] }
-	  }
+		appenders: {
+			out: { type: 'stdout' },
+			app: { type: 'dateFile', filename: options['logfile'], daysToKeep: 7 } 
+		},
+		categories: {
+			default: { appenders: [ 'out', 'app' ], level: options['loglevel'] }
+		}
 	});
 
 	// Derived detauls

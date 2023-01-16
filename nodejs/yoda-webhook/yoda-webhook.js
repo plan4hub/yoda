@@ -4,15 +4,14 @@ configuration.parseOptions();
 
 // log4js
 const log4js = require('log4js');
-var logger = log4js.getLogger();
+const logger = log4js.getLogger();
 
 const yodaRefModule = require('./issue-references.js');
 const yodaAppModule = require('./github-app.js');
 
 // Run as GitHub App?
-if (configuration.getOption("app-mode")) {
+if (configuration.getOption("app-mode"))
 	yodaAppModule.init();
-} 
 
 yodaRefModule.init();
 
@@ -32,7 +31,7 @@ if (configuration.getOption('url') != undefined) {
 	//	Use EventSource trick for dev purposes, i.e. where direct webhook from GitHub to server not possibly for example for own laptop.
 	//	Testing using web proxy smee.io
 	const EventSource = require('eventsource');
-	var source;
+	let source;
 	if (configuration.getOption('webhookproxy') != undefined) {
 		logger.debug('Adding webhookproxy EventSource with url: ' + configuration.getOption('webhookproxy'));
 		source = new EventSource(configuration.getOption('webhookproxy')); // ,  {proxy: 'http://web-proxy.sdc.hpecorp.net:8080'}); // ); //
@@ -65,11 +64,12 @@ if (configuration.getOption('url') != undefined) {
 		});
 	}
 
+	let server;
 	if (configuration.getOption('cert') == undefined) {
 		// HTTP
 		// Start the server.
 		logger.info("Bringing up server in HTTP mode.");
-		const server = require('http').createServer(createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
+		server = require('http').createServer(createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
 		logger.trace(server);
 	} else {
 		// HTTPS
@@ -79,11 +79,11 @@ if (configuration.getOption('url') != undefined) {
 		fs = require("fs");
 
 		const options = {
-		  key: fs.readFileSync(configuration.getOption('cert-key')),
-		  cert: fs.readFileSync(configuration.getOption('cert'))
+			key: fs.readFileSync(configuration.getOption('cert-key')),
+			cert: fs.readFileSync(configuration.getOption('cert'))
 		};
 
-		const server = https.createServer(options, createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
+		server = https.createServer(options, createNodeMiddleware(webhooks, {path: "/"})).listen(configuration.getOption('port'));
 		logger.trace(server);
 	}
 
@@ -93,9 +93,8 @@ if (configuration.getOption('url') != undefined) {
 		server.close(function() {process.exit(0)});
 	});
 
-	if (configuration.getOption('webhookproxy') == undefined) {
+	if (configuration.getOption('webhookproxy') == undefined)
 		logger.info("Server running. Accepting connections on port: " + configuration.getOption('port'));
-	} else {
+	else
 		logger.info("Server running. Accepting via webhook proxy at: " + configuration.getOption('webhookproxy'));
 	}
-}
