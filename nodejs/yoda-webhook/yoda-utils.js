@@ -92,11 +92,10 @@ function getFullRef(ref) {
 
 //Make an issue reference in GitHub style, using only #number if same repo, or owner/repo#number if not.
 function getShortRef(fromReference, toReference) {
-	if (fromReference.owner == toReference.owner && fromReference.repo == toReference.repo) {
+	if (fromReference.owner == toReference.owner && fromReference.repo == toReference.repo)
 		return "#" + toReference.issue_number;
-	} else {
+	else
 		return getFullRef(toReference);
-	} 
 }
 
 //A function to compare two references
@@ -105,8 +104,9 @@ function compareRefs(a, b) {
 	if (!isRef(a) || !isRef(b))
 		return 1;
 	
-	let aFull = getFullRef(a);
-	let bFull = getFullRef(b);
+	// Be sure to compare case-insensitive
+	let aFull = getFullRef(a).toLowerCase();
+	let bFull = getFullRef(b).toLowerCase();
 	if (aFull == bFull)
 		return 0;
 	if (aFull < bFull)

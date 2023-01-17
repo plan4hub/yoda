@@ -281,6 +281,17 @@ function readSingleChildAndUpdatePartOf(issueRefs, index, parentIssue, includeOr
 		// Let's see about getting the issue.
 		getOctokit(issueRefs[index]).issues.get(issueRefs[index]).then((result) => {
 			logger.trace(result);
+
+			// Now a trick. As the issueRefs (owner + repo) that we have used to get the issue may have incorrect casing
+			// we will redo those based on the URL received into the get request.
+			const { owner, repo, _ } = yoda.getRefFromUrl(result.data.url);
+			if (owner != issueRefs[index].owner || repo != issueRefs[index].repo) {
+				logger.info("Adjusting owner/repo for " + issueRefs[index].owner + "/" + issueRefs[index].repo + "#" + issueRefs[index].issue_number + " to " + owner + "/" + repo + "#" + issueRefs[index].issue_number);
+				issueRefs[index].owner = owner;
+				issueRefs[index].repo = repo;
+			}
+
+			// Then store the actual result on top into the issue.
 			issueRefs[index].issue = result.data;
 			
 			// Check/update > partof. NOte. we don't need to wait for the result here.
