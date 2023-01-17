@@ -149,9 +149,8 @@ function findRef(aList, b) {
 // handle includes and excluces to list. modifies the issueRefs list inside the children construct 
 function insertDeleteRefs(children, includeRefs, excludeRefs) {
 	for (let i = 0; i < includeRefs.length; i++) {
-		if (!findRef(children.issueRefs, includeRefs[i])) {
+		if (!findRef(children.issueRefs, includeRefs[i]))
 			children.issueRefs.push(includeRefs[i]); // insert it.
-		}
 	}
 	for (let d = 0; d < excludeRefs.length; d++) {
 		let pos = findRefIndex(children.issueRefs, excludeRefs[d]);  

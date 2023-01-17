@@ -232,11 +232,10 @@ function updatePartOfRef(childRef, childIssue, parentIssue, includeOrExclude) {
 		const blockStart = parentRefs[parentIndex].index;
 		const blockLength = parentRefs[parentIndex].length;
 		
-		if (includeOrExclude) {
+		if (includeOrExclude)
 			newBody = childIssue.body.slice(0, blockStart) + refLine + childIssue.body.slice(blockStart + blockLength);
-		} else {
+		else
 			newBody = childIssue.body.slice(0, blockStart) + childIssue.body.slice(blockStart + blockLength);
-		}
 		
 		// Check newBody for OTHER references TO THE SAME PARENT, i.e. not the first. If there, must be removed.
 		var loopProt = 0; // Always wear protective gear

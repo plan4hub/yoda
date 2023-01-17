@@ -97,4 +97,4 @@ if (configuration.getOption('url') != undefined) {
 		logger.info("Server running. Accepting connections on port: " + configuration.getOption('port'));
 	else
 		logger.info("Server running. Accepting via webhook proxy at: " + configuration.getOption('webhookproxy'));
-	}
+}
