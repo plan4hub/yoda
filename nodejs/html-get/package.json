@@ -1,0 +1,31 @@
+{
+  "name": "html-get",
+  "version": "1.0.0",
+  "description": "Get an HTML element by id using headless browser",
+  "main": "html-get.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hewlettpackard/yoda.git"
+  },
+  "keywords": [
+    "html",
+    "get",
+    "canvas",
+    "headless"
+  ],
+  "author": "Jens Vedel Markussen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hewlettpackard/yoda/issues"
+  },
+  "homepage": "https://github.com/hewlettpackard/yoda#readme",
+  "dependencies": {
+    "command-line-args": "^5.2.1",
+    "command-line-usage": "^6.1.3",
+    "fs": "^0.0.1-security",
+    "puppeteer": "^19.5.2"
+  }
+}
