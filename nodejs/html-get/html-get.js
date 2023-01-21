@@ -4,6 +4,7 @@
 // While the tool can be run locally a container version based on Puppeteer in container build (https://pptr.dev/guides/docker) may be
 // a bit smarter.
 
+
 const puppeteer = require('puppeteer')
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
@@ -27,7 +28,23 @@ const optionDefinitions = [
 	{
 		name: 'id',
 		type: String,
-		description: "The HTML id to retrieve. Mandatory."
+		description: "The HTML id to watch for changes. Mandatory."
+	},
+	{
+		name: 'gettag',
+		type: String,
+		description: "The HTML tag (not id) to retrieve. For HTML default is html (i.e. the full page)."
+	},
+	{
+		name: 'getid',
+		type: String,
+		description: "The HTML id. For png files, default is to get using id."
+	},
+	{
+		name: 'poll',
+		type: Number,
+		description: "Number of ms to wait between polling to see if HTML id rendered. Default 500 ms.",
+		defaultValue: 500
 	},
 	{
 		name: 'file',
@@ -48,6 +65,11 @@ const optionDefinitions = [
 		type: String,
 		description: 'Type of element to retrieve. Support are png, svg, html. Default: html',
 		defaultValue: 'html'
+	},
+	{
+		name: 'template',
+		type: String,
+		description: 'Merge result into a specified (typically HTML) template doc. Will replace <_HTMLGET_> tag.'
 	},
 	{
 		name: 'help',
@@ -77,7 +99,7 @@ async function run(options) {
 		// Headless option allows us to disable visible GUI, so the browser runs in the "background"
 		// for development lets keep this to true so we can see what's going on but in
 		// on a server we must set this to true
-		headless: true,
+		headless: false,
 		// This setting allows us to scrape non-https websites easier
 		ignoreHTTPSErrors: true,
 	})
@@ -116,34 +138,50 @@ async function run(options) {
 			if (element == null)
 				return [false, "No such id"];
 			if (type == 'html')
-				before = document.querySelector(selector).outerHTML;
+				before = document.querySelector(selector).getInnerHTML();
 			else if (type == 'png')
 				before = document.querySelector(selector).toDataURL('image/png');
+			console.log("Got before: " + before);
 		} catch (error) {
 			return [false, error];
 		}
 		return [true, before];
 	}, selector, type);
 
-	if ( status == false) {
+	if (status == false) {
 		console.log("Problem during setup: " + beforeContent);
 		process.exit(1);
 	}
+	console.log(beforeContent);
 
 	await page.waitForFunction((selector, beforeContent, type) => {
 		if (type == 'html')
-			return document.querySelector(selector).outerHTML != beforeContent
+			return document.querySelector(selector).getInnerHTML() != beforeContent
 		else if (type == 'png')
 			return document.querySelector(selector).toDataURL('image/png') != beforeContent
-	}, { polling: 1000 }, selector, beforeContent, type);
+	}, { polling: /* options['poll'] */ 1000 }, selector, beforeContent, type);
 
 	// Get the data
-	let result = await page.evaluate((selector, type) => {
-		if (type == 'html')
-			return document.querySelector(selector).outerHTML;
-		else if (type == 'png')
-			return document.querySelector(selector).toDataURL('image/png');
-	}, selector, type);
+	let result = await page.evaluate((selectorId, selectorTag, type) => {
+		if (type == 'html') {
+			if (selectorId != undefined)
+				return document.querySelector(selectorId).outerHTML;
+			else
+				return document.getElementsByTagName(selectorTag)[0].outerHTML;
+		} else if (type == 'png') {
+			if (selectorId != undefined)
+				return document.querySelector(selectorId).toDataURL('image/png');
+			else
+				return document.getElementsByTagName(selectorTag)[0].toDataURL('image/png');
+		}
+	}, options['getid'], options['gettag'], type);
+
+	// Template?
+	if (options['template'] != undefined) {
+		let template = fs.readFileSync(options['template'], 'utf8');
+		console.log(template);
+		result = template.replace("<_HTMLGET_>", result);
+	}
 
 	if (options['file'] != undefined) {
 		if (options['type'] == 'png')
@@ -168,9 +206,12 @@ try {
 	if (options['help'] == true) {
 		console.log(usage);
 
-		console.log("Example:");
+		console.log("Examples:");
 		console.log('node html-get.js --file mygraph1.png -t png -id canvas --url "https://pages.github.hpe.com/hpsd/yoda/yoda-cfd.html?owner=hpsd&repolist=hpsd&interval=7&labelfilter=T1%20-%20Defect,^C%20-&title=NFV-D%20Customer%20Encountered%20Defects&draw=cfd&dark=true&user=(github-user)&token=(github-token)"');
+		console.log('');
 		console.log('node html-get.js -id RN --url (release notes URL incl. user/token)');
+		console.log('');
+		console.log('node html-get.js --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --file issues.html --template yoda-template.html --getid "#issuesTable"');
 
 		process.exit(0);
 	}
@@ -201,8 +242,18 @@ catch (err) {
 	process.exit(1);
 }
 
+
+if (options['type'] == 'html') {
+	if (options['gettag'] == undefined && options['getid'] == undefined) 
+		options['gettag'] = 'html';
+} else if (options['type'] == 'png') {
+	if (options['gettag'] == undefined && options['getid'] == undefined) 
+		options['getid'] = options['id'];
+}	
+
 var verbose = options['verbose'];
 if (verbose)
 	console.log(options);
+
 
 run(options);
