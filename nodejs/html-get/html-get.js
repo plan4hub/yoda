@@ -99,7 +99,7 @@ async function run(options) {
 		// Headless option allows us to disable visible GUI, so the browser runs in the "background"
 		// for development lets keep this to true so we can see what's going on but in
 		// on a server we must set this to true
-		headless: false,
+		headless: true,
 		// This setting allows us to scrape non-https websites easier
 		ignoreHTTPSErrors: true,
 	})
@@ -141,7 +141,6 @@ async function run(options) {
 				before = document.querySelector(selector).getInnerHTML();
 			else if (type == 'png')
 				before = document.querySelector(selector).toDataURL('image/png');
-			console.log("Got before: " + before);
 		} catch (error) {
 			return [false, error];
 		}
@@ -152,7 +151,6 @@ async function run(options) {
 		console.log("Problem during setup: " + beforeContent);
 		process.exit(1);
 	}
-	console.log(beforeContent);
 
 	await page.waitForFunction((selector, beforeContent, type) => {
 		if (type == 'html')
@@ -179,7 +177,6 @@ async function run(options) {
 	// Template?
 	if (options['template'] != undefined) {
 		let template = fs.readFileSync(options['template'], 'utf8');
-		console.log(template);
 		result = template.replace("<_HTMLGET_>", result);
 	}
 
