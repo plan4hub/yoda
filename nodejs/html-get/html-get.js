@@ -63,7 +63,7 @@ const optionDefinitions = [
 		name: 'type',
 		alias: 't',
 		type: String,
-		description: 'Type of element to retrieve. Support are png, svg, html. Default: html',
+		description: 'Type of element to retrieve. Support are png, html. Default: html',
 		defaultValue: 'html'
 	},
 	{
@@ -214,7 +214,7 @@ try {
 		console.log('');
 		console.log('node html-get.js --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --file issues.html --template yoda-template.html --getid "#issuesTable"');
 		console.log('');
-		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas"');
+		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas" > yoda.png');
 		console.log('');
 		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --getid "#issuesTable" --template yoda-template.html');
 		process.exit(0);
