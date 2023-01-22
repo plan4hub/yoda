@@ -8,7 +8,6 @@ WORKDIR /home/pptruser/app
 COPY package.json .
 RUN npm install
 COPY *.js /home/pptruser/app/
-
-CMD ["node", "/home/pptruser/app/html-get.js"]
+ENTRYPOINT ["node", "/home/pptruser/app/html-get.js"]
 
 
