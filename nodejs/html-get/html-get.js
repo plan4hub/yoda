@@ -208,15 +208,15 @@ try {
 		console.log(usage);
 
 		console.log("Examples:");
-		console.log('node html-get.js --file mygraph1.png -t png -id canvas --url "https://pages.github.hpe.com/hpsd/yoda/yoda-cfd.html?owner=hpsd&repolist=hpsd&interval=7&labelfilter=T1%20-%20Defect,^C%20-&title=NFV-D%20Customer%20Encountered%20Defects&draw=cfd&dark=true&user=(github-user)&token=(github-token)"');
+		console.log('node html-get.js --file mygraph1.png -t png -id "#canvas" --url "https://pages.github.hpe.com/hpsd/yoda/yoda-cfd.html?owner=hpsd&repolist=hpsd&interval=7&labelfilter=T1%20-%20Defect,^C%20-&title=NFV-D%20Customer%20Encountered%20Defects&draw=cfd&dark=true&user=(github-user)&token=(github-token)"');
 		console.log('');
-		console.log('node html-get.js -id RN --url (release notes URL incl. user/token)');
+		console.log('node html-get.js -id "#RN" --url (release notes URL incl. user/token)');
 		console.log('');
 		console.log('node html-get.js --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --file issues.html --template yoda-template.html --getid "#issuesTable"');
 		console.log('');
-		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas" > yoda.png');
+		console.log('docker run html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas" > yoda.png');
 		console.log('');
-		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --getid "#issuesTable" --template yoda-template.html');
+		console.log('docker run html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --getid "#issuesTable" --template yoda-template.html > issues.html');
 		process.exit(0);
 	}
 
