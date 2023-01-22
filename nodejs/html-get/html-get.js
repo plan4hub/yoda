@@ -102,6 +102,7 @@ async function run(options) {
 		headless: true,
 		// This setting allows us to scrape non-https websites easier
 		ignoreHTTPSErrors: true,
+		args: ['--no-sandbox', '--disable-setuid-sandbox']
 	})
 	// then we need to start a browser tab
 	let page = await browser.newPage();
@@ -209,7 +210,8 @@ try {
 		console.log('node html-get.js -id RN --url (release notes URL incl. user/token)');
 		console.log('');
 		console.log('node html-get.js --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --file issues.html --template yoda-template.html --getid "#issuesTable"');
-
+		console.log('');
+		console.log('docker run -i --init --cap-add=SYS_ADMIN   html-get  --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas"');
 		process.exit(0);
 	}
 
