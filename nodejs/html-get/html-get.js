@@ -181,15 +181,18 @@ async function run(options) {
 		result = template.replace("<_HTMLGET_>", result);
 	}
 
+	if (options['type'] == 'png')
+		result = Buffer.from(result.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+
 	if (options['file'] != undefined) {
-		if (options['type'] == 'png')
-			result = Buffer.from(result.replace(/^data:image\/\w+;base64,/, ""), 'base64');
 		fs.writeFile(options['file'], result, function (err) {
 			if (err) throw err;
 		});
 	} else {
 		// Write to stdout
-		console.log(result);
+		fs.write(process.stdout.fd, result, function (err) {
+			if (err) throw err;
+		});
 	}
 
 	// close everything
@@ -211,7 +214,9 @@ try {
 		console.log('');
 		console.log('node html-get.js --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --file issues.html --template yoda-template.html --getid "#issuesTable"');
 		console.log('');
-		console.log('docker run -i --init --cap-add=SYS_ADMIN   html-get  --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas"');
+		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-current-stats.html?owner=hpsd&repolist=yoda&draw=true&user=(github-user)&token=(github-token)" --type png --id "#canvas"');
+		console.log('');
+		console.log('docker run -i --init --cap-add=SYS_ADMIN html-get --url "https://pages.github.hpe.com/hpsd/yoda/yoda-exporter.html?owner=hpsd&repolist=yoda&estimate=inbody&table=true&user=(github-user)&token=(github-token)" --id "#issuesTable" --getid "#issuesTable" --template yoda-template.html');
 		process.exit(0);
 	}
 
