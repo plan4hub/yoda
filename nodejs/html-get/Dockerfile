@@ -10,3 +10,5 @@ RUN npm install
 COPY *.js /home/pptruser/app/
 COPY *template*.html /home/pptruser/app/
 ENTRYPOINT ["node", "/home/pptruser/app/html-get.js"]
+CMD ["--help"]
+
