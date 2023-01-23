@@ -134,7 +134,6 @@ async function run(options) {
 			await page.evaluate('try { Chart.defaults.animation = false; } catch (e) { }'); // Could be a chartjs page, let's turn off animation and ignore any errors doing so
 
 		// Get content now
-		const selector = options['id'];
 		const [status, beforeContent] = await page.evaluate((selector, type) => {
 			let before;
 			try {
@@ -149,19 +148,25 @@ async function run(options) {
 				return [false, error];
 			}
 			return [true, before];
-		}, selector, type);
+		}, options['id'], type);
 
 		if (status == false) {
 			console.log("Problem during setup: " + beforeContent);
 			process.exit(1);
 		}
 
+		if (options["verbose"])
+			console.log("Got content before: " + beforeContent);
+
 		await page.waitForFunction((selector, beforeContent, type) => {
 			if (type == 'html')
 				return document.querySelector(selector).getInnerHTML() != beforeContent
 			else if (type == 'png')
 				return document.querySelector(selector).toDataURL('image/png') != beforeContent
-		}, { polling: /* options['poll'] */ 1000 }, selector, beforeContent, type);
+		}, { polling: /* options['poll'] */ 1000 }, options['id'], beforeContent, type);
+
+		if (options["verbose"])
+			console.log("Done waiting: " + beforeContent);
 	}
 
 	// Get the data
@@ -179,13 +184,16 @@ async function run(options) {
 		}
 	}, options['getid'], options['gettag'], type);
 
+	if (options["verbose"])
+		console.log("Read data (length " + result.length + "): " + result);
+
 	// Template?
 	if (options['template'] != undefined) {
 		let template = fs.readFileSync(options['template'], 'utf8');
 		result = template.replace("<_HTMLGET_>", result);
 	}
 
-	if (options['type'] == 'png')
+	if (type == 'png')
 		result = Buffer.from(result.replace(/^data:image\/\w+;base64,/, ""), 'base64');
 
 	if (options['file'] != undefined) {
@@ -237,6 +245,20 @@ try {
 		error = true;
 	}
 
+	if (options['type'] == 'html') {
+		if (options['gettag'] == undefined && options['getid'] == undefined) 
+			options['gettag'] = 'html';
+	} else if (options['type'] == 'png') {
+		if (options['gettag'] == undefined && options['getid'] == undefined) {
+			if (options['id'] == undefined) {
+				console.log('Really? You asked for a png element, but gave me no clue, neither --getid nor --id ...');
+				error = true;
+			} else {
+				options['getid'] = options['id'];
+			}
+		}
+	}	
+	
 	if (error) {
 		console.log(usage);
 		process.exit(1);
@@ -246,15 +268,6 @@ catch (err) {
 	console.log(usage);
 	process.exit(1);
 }
-
-
-if (options['type'] == 'html') {
-	if (options['gettag'] == undefined && options['getid'] == undefined) 
-		options['gettag'] = 'html';
-} else if (options['type'] == 'png') {
-	if (options['gettag'] == undefined && options['getid'] == undefined) 
-		options['getid'] = options['id'];
-}	
 
 var verbose = options['verbose'];
 if (verbose)
