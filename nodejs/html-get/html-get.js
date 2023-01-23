@@ -210,8 +210,10 @@ try {
 
 	if (options['help'] == true) {
 		console.log(usage);
-
 		console.log("Examples:");
+		console.log('');
+		console.log('node html-get.js --url "https://www.google.com"');
+		console.log('');
 		console.log('node html-get.js --file mygraph1.png -t png -id "#canvas" --url "https://pages.github.hpe.com/hpsd/yoda/yoda-cfd.html?owner=hpsd&repolist=hpsd&interval=7&labelfilter=T1%20-%20Defect,^C%20-&title=NFV-D%20Customer%20Encountered%20Defects&draw=cfd&dark=true&user=(github-user)&token=(github-token)"');
 		console.log('');
 		console.log('node html-get.js -id "#RN" --url (release notes URL incl. user/token)');
