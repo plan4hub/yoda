@@ -28,7 +28,7 @@ const optionDefinitions = [
 	{
 		name: 'id',
 		type: String,
-		description: "The HTML id to watch for changes. Mandatory."
+		description: "An HTML id to watch for changes before retriving the data."
 	},
 	{
 		name: 'gettag',
@@ -127,38 +127,42 @@ async function run(options) {
 	});
 
 	const type = options['type'];
-	if (options['type'] == 'png')
-		await page.evaluate('try { Chart.defaults.animation = false; } catch (e) { }'); // Could be a chartjs page, let's turn off animation and ignore any errors doing so
 
-	// Get content now
-	const selector = options['id'];
-	const [status, beforeContent] = await page.evaluate((selector, type) => {
-		let before;
-		try {
-			let element = document.querySelector(selector);
-			if (element == null)
-				return [false, "No such id"];
-			if (type == 'html')
-				before = document.querySelector(selector).getInnerHTML();
-			else if (type == 'png')
-				before = document.querySelector(selector).toDataURL('image/png');
-		} catch (error) {
-			return [false, error];
+	// Should we wait for id to render?
+	if (options['id'] != undefined) {
+		if (type == 'png')
+			await page.evaluate('try { Chart.defaults.animation = false; } catch (e) { }'); // Could be a chartjs page, let's turn off animation and ignore any errors doing so
+
+		// Get content now
+		const selector = options['id'];
+		const [status, beforeContent] = await page.evaluate((selector, type) => {
+			let before;
+			try {
+				let element = document.querySelector(selector);
+				if (element == null)
+					return [false, "No such id"];
+				if (type == 'html')
+					before = document.querySelector(selector).getInnerHTML();
+				else if (type == 'png')
+					before = document.querySelector(selector).toDataURL('image/png');
+			} catch (error) {
+				return [false, error];
+			}
+			return [true, before];
+		}, selector, type);
+
+		if (status == false) {
+			console.log("Problem during setup: " + beforeContent);
+			process.exit(1);
 		}
-		return [true, before];
-	}, selector, type);
 
-	if (status == false) {
-		console.log("Problem during setup: " + beforeContent);
-		process.exit(1);
+		await page.waitForFunction((selector, beforeContent, type) => {
+			if (type == 'html')
+				return document.querySelector(selector).getInnerHTML() != beforeContent
+			else if (type == 'png')
+				return document.querySelector(selector).toDataURL('image/png') != beforeContent
+		}, { polling: /* options['poll'] */ 1000 }, selector, beforeContent, type);
 	}
-
-	await page.waitForFunction((selector, beforeContent, type) => {
-		if (type == 'html')
-			return document.querySelector(selector).getInnerHTML() != beforeContent
-		else if (type == 'png')
-			return document.querySelector(selector).toDataURL('image/png') != beforeContent
-	}, { polling: /* options['poll'] */ 1000 }, selector, beforeContent, type);
 
 	// Get the data
 	let result = await page.evaluate((selectorId, selectorTag, type) => {
@@ -223,11 +227,6 @@ try {
 	let error = false;
 	if (options['url'] == undefined) {
 		console.log("No --url or -u given");
-		error = true;
-	}
-
-	if (options['id'] == undefined) {
-		console.log("No --id given");
 		error = true;
 	}
 
