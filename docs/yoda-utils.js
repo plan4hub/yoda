@@ -956,14 +956,14 @@ export function gitAuth(userId, accessToken, fullExport) {
 
 	let headers = [];
 	if (fullExport == "fullExport")
-		headers['Accept'] = 'application/vnd.github.symmetra-preview.full+json';
+		headers['Accept'] = 'application/full+json';
 	else if (fullExport == "textMatch")
-		headers['Accept'] = 'application/vnd.github.symmetra-preview.text-match+json';
+		headers['Accept'] = 'application/text-match+json';
 	else
-		headers['Accept'] = 'application/vnd.github.mercy-preview+json';
+		headers['Accept'] = 'application/json';
 
-	if (userId == "" || accessToken == "")
-		console.log("Empty userId/accessToken.");
+	if (accessToken == "")
+		console.log("Empty accessToken.");
 	else
 		headers['Authorization'] = 'token ' + accessToken;
 
