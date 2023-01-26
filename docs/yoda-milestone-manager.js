@@ -134,7 +134,7 @@ function updateCompleteMilestoneList() {
 
 // Create a new milestone across all selected repositories.
 // eslint-disable-next-line no-unused-vars
-function createMilestone() {
+export function createMilestone() {
 	// First a few basic checks.
 	const title = $("#newmilestonetitle").val();
 	if (title == "") {
