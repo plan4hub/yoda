@@ -1344,7 +1344,7 @@ export function updateRepos(owner, okFunc, failFunc, user) {
 
 		let cacheLiveTime = getDefaultLocalStorageValue("yoda.repolistcache");
 		if (cacheLiveTime == null)
-			cacheLiveTime = 60;
+			cacheLiveTime = 3600;
 		if (cacheLiveTime == -1 || elapsedMinutes < cacheLiveTime) {
 			console.log("  .. reusing repoList. Newer than interval or set to indefinate");
 			// Let's use that
