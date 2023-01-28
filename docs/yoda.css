@@ -1,5 +1,5 @@
 /*
- Copyright 2018 Hewlett Packard Enterprise Development LP
+ Copyright 2018-2023 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -28,25 +28,13 @@ body {
   --main-bg-color: #01a982;
 }
 
-/* HATE spinners */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
-
 .field {
-    float: left;
-    box-sizing: border-box;
-    margin: 0 0 3px 0px;
-    position: relative;
+    margin: 3px 2px 3px 5px;
     display: inline-block;
-    
+}
+
+.frame .field input {
+    margin: 1px 0px 0px 0px;
 }
 
 .tooltip,
@@ -87,51 +75,46 @@ input[type=number] {
     visibility: visible;
     opacity: 1;
 }
-label {
+label { 
 	font-size: 14px;
 	font-weight: bold;
 	color: white;
 }
-select, input, label, textarea {
+
+select {
 	display: block;
     float: top;
-    margin: 5px 5px 2px 2px;
-}
-#countradio label {
-	display: inline;
-    float: left;
+    box-sizing:content-box;
 }
 
-#countradio input {
-	display: inline;
-    float: left;
+input, label, textarea {
+	display: block;
+    float: top;
+    box-sizing:content-box;
 }
 
-#estimateradio label {
-	display: inline;
-    float: left;
-} 
-
-#estimateradio input {
-	display: inline;
-    float: left;
-} 
-
-#outputformatradio label {
-	display: inline;
-    float: left;
-} 
-
- #outputformatradio input {
-	display: inline;
-    float: left;
+input {
+    padding: 4px 2px 4px 2px;
 }
 
+#countradio label,
+#estimateradio label,
+#outputformatradio label,
 #estimatern label {
 	display: inline;
     float: left;
-} 
- 
+    margin: 5px 7px 0px 0px;
+}
+
+#countradio input,
+#estimateradio input,
+#outputformatradio input,
+#estimatern input {
+	display: inline;
+    float: left;
+    margin: 0px 2px 0px 0px;
+}
+
 .frame {
 	float: top;
 	display: flex;
@@ -212,6 +195,7 @@ thead {
   	grid-template-columns: 200px 200px 200px;
   	float: left;
 }
+
 .labelframe {
 	float: left;
 	border: 2px dashed green;
@@ -219,19 +203,23 @@ thead {
 	padding: 5px 5px; 
   	width: 620px;
 }
+
 .frameheader {
 	color: white;
 	width: 20%;
 }
+
 .thetwoframes {
 	float: top;
 }
+
 .flatfield {
-    float: left;
     margin: 0 0 3px 0px;
     position: relative;
     display: inline-block;
 }
+
+/* Snack bar and animation stuff */
 #snackbar {
     visibility: hidden;
     min-width: 250px;
@@ -273,31 +261,18 @@ thead {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
 }
-/* Input field */
-.select2-selection__rendered { }
 
-/* Around the search field */
-.select2-search {  }
-
-/* Search field */
-.select2-search input {  }
-
-/* Each result */
-.select2-results {  }
-
-/* Higlighted (hover) result */
-.select2-results__option--highlighted {  }
-
-/* Selected option */
-.select2-results__option[aria-selected=true] {  }
-
+/* Select 2 stuff */ 
 .select2, .select2 option {
   font-size:15px;
+  padding: 0px 0px 0px 0px;
+}
+
+[class^='select2'] {
+    border-radius: 0px !important;
 }
 
 /* Dropdown menu stuff */
-.dropimg {
-}
 .dropdown {
     display: inline-block;
     margin: auto 5px;
@@ -313,7 +288,7 @@ thead {
 }
 .dropdown-content a {
     color: black;
-    padding: 12px 16px;
+    padding: 10px 10px;
     text-decoration: none;
     display: block;
     font-family: sans-serif;
@@ -325,4 +300,3 @@ thead {
 .show {
 	display:block;
 }
-
