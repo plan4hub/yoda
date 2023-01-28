@@ -558,15 +558,6 @@ export function drawKanban() {
 	}
 	
 	setupSortable();
-
-	// Set-up scroll / sticky stuff
-	window.onscroll = function () {
-		if (window.pageYOffset > 141)
-			$(".columnheader").addClass("stickycolheader")
-		else
-			$(".columnheader").removeClass("stickycolheader")
-	};
-
 	yoda.updateUrl(getUrlParams());
 }
 
