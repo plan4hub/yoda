@@ -125,11 +125,12 @@ input {
 /*	background: #00a3cc;  */   /* Nice blue */ 
 }
 button {
-	margin: 10px;
-  	padding: 10px 5px;
-	padding: 10px;
+	margin: 7px;
+  	padding: 8px;
 	background-color: #adad85;
 	color: white;
+    border-color: rgba(193, 214, 188, 0.548);
+    border-width: thick;
 }
 .tablebutton {
 	margin: 2px;
