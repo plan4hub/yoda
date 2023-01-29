@@ -1708,13 +1708,20 @@ export function openYodaTool(url, copyOwnerRepo) {
 
 let topPanelHidden = false;
 export function hideTopPanel() {
-	$("#yodamenu").closest(".frame").children().hide();
-	$("#yodamenu").parent().show(); // Leave the Hamburger there
+	// If there is no second frame (index 1) 
+	if ($(".frame").length < 2)
+		return; // no place to put hamburger and get back
+
+	$("#yodamenu").closest(".frame").hide();
+	// Move hamburger
+	$(".dropdown").first().prependTo($(".frame").eq(1));
 	topPanelHidden = true;
 }
 
 export function showTopPanel() {
-	$("#yodamenu").closest(".frame").children().show();
+	// Move hamburger back
+	$(".dropdown").first().prependTo($(".frame").eq(0));
+	$("#yodamenu").closest(".frame").show();
 	// A bit of a hack, but don't know of better way to address user and token fields which should remain hidden.
 	try {
 		$("#user").closest("div").hide();

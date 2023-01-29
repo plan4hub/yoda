@@ -73,6 +73,26 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 	</div>
 
+	<div class="frame">
+		<div class="field">
+			<label>Multi-label column definitions</label> <input type="text"
+				id="sharedlabeldef" size="180"
+				value="Severity=^S[1-4] -,Issue Type=^T[1-9] - "> <span
+				class="tooltip">Comma separated list of fields to merge into
+				single column. Add initial ! to skip issues without value</span>
+		</div>
+	</div>
+
+	<div class="frame">
+		<div class="field">
+			<label>Single label column definitions (fiels automatically
+				added to the end)</label> <input type="text" id="singlelabeldef" size="180"
+				value="Support,Customer Encountered,P - Tentative"> <span
+				class="tooltip">Comma separate list of boolean fields defined
+				by labels</span>
+		</div>
+	</div>
+
 	<div class="frame" style="display: none;">
 		<div class="field">
 			<label>CSS Owner</label>
@@ -96,26 +116,6 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			<label>CSS Branch / Commit</label>
 			<input type="text" size="20" id="cssbranch" value="">
 			<span class="tooltip">Optional branch for CSS file</span>
-		</div>
-	</div>
-
-	<div class="frame">
-		<div class="field">
-			<label>Multi-label column definitions</label> <input type="text"
-				id="sharedlabeldef" size="180"
-				value="Severity=^S[1-4] -,Issue Type=^T[1-9] - "> <span
-				class="tooltip">Comma separated list of fields to merge into
-				single column. Add initial ! to skip issues without value</span>
-		</div>
-	</div>
-
-	<div class="frame">
-		<div class="field">
-			<label>Single label column definitions (fiels automatically
-				added to the end)</label> <input type="text" id="singlelabeldef" size="180"
-				value="Support,Customer Encountered,P - Tentative"> <span
-				class="tooltip">Comma separate list of boolean fields defined
-				by labels</span>
 		</div>
 	</div>
 
