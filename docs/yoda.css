@@ -19,6 +19,12 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FR
 OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+
+html {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
 body {
     min-width: 1020px;
     word-wrap: break-word;
@@ -76,7 +82,7 @@ body {
     opacity: 1;
 }
 label { 
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: bold;
 	color: white;
 }

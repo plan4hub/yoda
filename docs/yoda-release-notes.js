@@ -35,18 +35,20 @@ let download = false; // global - a bit of a hack.
 let css = "";
 
 function addIfNotDefault(params, field) {
-	let defaultValue = $("#" + field).prop('defaultValue');
-	// Hack. Make sure no real newlines into default value.
-	defaultValue = defaultValue.replace(/\n/g, "");
-	const value = $("#" + field).val();
-
-	if (value != defaultValue) {
-		console.log("value: " + value);
-		console.log("defa : " + defaultValue);
-		return params + "&" + field + "=" + value;
+	const fname = "#" + field;
+	if ($(fname).prop('type') == 'checkbox') {
+		// Checkbox case
+		if ($(fname).prop('defaultChecked') && !$(fname).prop('checked'))
+			params += "&" + field + "=false";
+		else if (!$(fname).prop('defaultChecked') && $(fname).prop('checked'))
+			params += "&" + field + "=true";
 	} else {
-		return params;
+		// Normal field
+		// Newlines may have been added. Ignore those.
+		if ($(fname).val() != $(fname).prop('defaultValue'))
+			params += "&" + field + "=" + $(fname).val().replace(/\n/g, "");
 	}
+	return params;
 }
 
 function getUrlParams() {
