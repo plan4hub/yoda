@@ -42,7 +42,7 @@ do
 		# Ok, let's check if that is the most recent version
 		NEWEST_VERSION=`curl --silent https://api.cdnjs.com/libraries/${LIB}?fields=version | cut -d":" -f2 | cut -d \" -f2`
 		
-		if [ $VERSION != $NEWEST_VERSION ]
+		if [ "$VERSION" != "$NEWEST_VERSION" ]
 		then
 			echo "    Newer version ($NEWEST_VERSION) is available"
 			if [ $UPDATE == "true" ] 
