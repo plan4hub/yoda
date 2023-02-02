@@ -275,6 +275,7 @@ thead {
 }
 
 [class^='select2'] {
+    font-size:15px;
     border-radius: 0px !important;
 }
 
