@@ -1534,7 +1534,7 @@ function getFullLabelFilters(labelFilter) {
 	let filter = "";
 	const filterArray = labelFilter.split(",");
 	for (let f = 0; f < filterArray.length; f++) {
-		if (filterArray[f].charAt(0) != '^' && filterArray[f].charAt(0) != '-') {
+		if (filterArray[f].charAt(0) != '^' && filterArray[f].charAt(0) != '-' && filterArray[f].charAt(0) != '>') {
 			if (filter != "")
 				filter += ",";
 			filter += filterArray[f];
@@ -1575,6 +1575,34 @@ export function filterIssuesReqExp(labelFilter) {
 				}
 
 				if ((positiveMatch && !match) || (!positiveMatch && match))
+					yoda_issues.splice(i, 1);
+				else
+					i++;
+			}
+		}
+	}
+
+	// Ok, now let's get creative. We will use > to indiciate that a given field must be present in the issue (e.g. ">RN"). 
+	// OR >- to indicate that thse field must NOT be present in the issue (e.g. ">-RN").
+	for (let f = 0; f < filterArray.length; f++) {
+		let positiveMatch, field;
+		if (filterArray[f].charAt(0) == '>') {
+			if (filterArray[f].length > 1 && filterArray[f].charAt(1) == "-") {
+				positiveMatch = false;
+				field = filterArray[f].substr(2);
+			} else {
+				positiveMatch = true;
+				field = filterArray[f].substr(1);
+			}
+
+			// We have a regexp filter. Let's run through the issues.
+			console.log("Applying field checking filter (positive " + positiveMatch + "): " + filterArray[f] + ". Field:" + field);
+
+			// Note, special for loop. i is incremented below... 
+			for (let i = 0; i < yoda_issues.length;) {
+				const match = getBodyField(yoda_issues[i].body, '^>[ ]?' + field, '.*$') != null;
+
+				if ((!positiveMatch && match) || (positiveMatch && !match))
 					yoda_issues.splice(i, 1);
 				else
 					i++;
