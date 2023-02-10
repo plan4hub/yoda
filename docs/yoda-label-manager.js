@@ -114,7 +114,7 @@ export function copyLabels(nameColorArray) {
 	const color = nameColorArray[0].color;
 	const description = nameColorArray[0].description;
 	
-//	console.log("copyLabels. Name: " + name + ", color: " + color);
+//	console.log("copyLabels. Name: " + name + ", color: " + color + ", description:" + description);
 	
 	// Let's check if the label is present in dstArray.
 	for (let l = 0; l < globalLabels["dstlabels"].length; l++) {
@@ -238,7 +238,7 @@ export function getSrcLabels() {
 	yoda.getLoop(getLabelsUrl, 1, [], function(labels) {
 		showLabels("srclabels", labels, function(label) {
 			// eslint-disable-next-line no-useless-escape
-			return "copyLabels([{ name: \'" + label.name + "\', color: \'"+ label.color + "\'}]);";
+			return "copyLabels([{ name: \'" + label.name + "\', color: \'"+ label.color + "\', description: \'" + label.description + "\'}]);";
 		})
 	}, 	clearSrcLabels);
 }
