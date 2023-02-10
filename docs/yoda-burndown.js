@@ -414,7 +414,9 @@ function makeTable(issues) {
 		if (!$("#showclosed").is(":checked") && issues[i].state == 'closed')
 			continue;
 
-		//		console.log(issues[i]);
+		// If assignee filter given, then continue if person not assigned here.
+		if ($("#assignee").val() != "" && !yoda.isPersonAssigned(issues[i], $("#assignee").val()))
+			continue;
 
 		const row = bodyRef.insertRow();
 
