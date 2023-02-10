@@ -19,6 +19,7 @@ _________
 # Table of Contents
 
 - [Yoda](#yoda)
+- [Table of Contents](#table-of-contents)
 	- [Is Yoda for you?](#is-yoda-for-you)
 	- [GitHub Token](#github-token)
 	- [Estimates into issues](#estimates-into-issues)
@@ -26,15 +27,16 @@ _________
 	- [Handling of milestones](#handling-of-milestones)
 	- [Yoda URL Parameters](#yoda-url-parameters)
 	- [Yoda Defaults](#yoda-defaults)
+	- [GitHub Integration](#github-integration)
 - [GitHub Reports](#github-reports)
 	- [Issue Statistics Report](#issue-statistics-report)
-	- [Issue Statistics Report - Current View](#issue-statistics-report-current-view)
+	- [Issue Statistics Report - Current View](#issue-statistics-report---current-view)
+		- [Use for time based velocity charts](#use-for-time-based-velocity-charts)
 	- [Burndown Report](#burndown-report)
 	- [Velocity Report](#velocity-report)
 	- [CFD Chart](#cfd-chart)
 	- [Release Notes](#release-notes)
-	- [Repository Overview](#repositories)
-	- [CSV Statistics Report](#csv-statistics-report)
+	- [Repositories](#repositories)
 - [Issue Tools](#issue-tools)
 	- [Kanban Board](#kanban-board)
 	- [Milestone Manager](#milestone-manager)
@@ -42,8 +44,9 @@ _________
 	- [Issue Exporter](#issue-exporter)
 	- [Issue Web Exporter](#issue-web-exporter)
 	- [Task Copier](#task-copier)
-
 - [Embedding Reports into another Web Page](#embedding-reports-into-another-web-page)
+- [Selecting repos based on topics or name wildcarding](#selecting-repos-based-on-topics-or-name-wildcarding)
+- [CSV Statistics Report](#csv-statistics-report)
 
 
 ## Is Yoda for you?
@@ -157,6 +160,8 @@ Issues are shown in a bar chart with the X-axis showing dates between two dates 
 Per default, all issues in the selected repos are considered. It is possible to specify a label filter as a comma-separate list of label values (logical AND assumed). E.g. "T1 - Defect" to show only defects, if you labeling standard denotes defects with a "T1 - Defect" label. If you prefix label(s) in the list with a minus (-), issues marked with such label(s) are excluded.
 
 As a special filtering feature, you may filter also using regular expressions. If you specify in the comma-separated list a value starting `^` (or `-^` for negative match), the subsequent regular expression will be used as filter.  
+
+Finally you can filter on special fields into the issue body (first comment); while this is strictly not a label filter. You can filter for presence - or - lack of a given field. This is done by starting the filter by `>`. Example: `>-estimate` to filter issues which *do not have* an `> estimate` entry.
 
 For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labeling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
 
