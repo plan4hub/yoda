@@ -1856,6 +1856,10 @@ export function extractFieldFromBodyTable(body, key) {
 // Extract fields from body which are positioned after a keyword line, e.g. "> RN", "> RNT", "> RC"
 // lineMode can be "single", "paragraph", "rest"
 export function extractKeywordField(body, key, lineMode, newLine) {
+	// body could be null....
+	if (body == null)
+		return "";
+
 	const reg = new RegExp(">[ ]?" + key + "[^A-Za-z]");
 	const res = body.match(reg);
 	if (res == null)
