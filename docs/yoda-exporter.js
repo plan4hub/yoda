@@ -504,26 +504,27 @@ function exportIssues(issues) {
 			
 			let value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
 			if (value != null) {
-				const t = Date.parse(value.trim());
 				// Does this look like a date - from Javascript perspective? 
-				if (!isNaN(t)) {
+				if (yoda.isValidDate(value)) {
+					console.log(value + "seems like a data to Javascript");
 					let d = new Date();
-					d.setTime(t);
+					d.setTime(Date.parse(value.trim()));
 					value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
-				} else {
-					// // Does this look like a date - anyway?
-					if (value.split('/').length == 3) {
-						let [tDay, tMonth, tYear] = value.split(" ")[0].split("/");
-						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
-							let d = new Date();
-							if (tYear < 2000)
-								tYear = parseInt(tYear) + 2000;
-							console.log(value, tYear, tMonth, tDay)
-							d.setUTCFullYear(tYear, tMonth - 1, tDay);
-							value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
-						}
+				} else if (value.split('/').length == 3) {
+					console.log(value + " looks like a date.");
+					// Does this look like a date - anyway?
+					let [tDay, tMonth, tYear] = value.split(" ")[0].split("/");
+					if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
+						let d = new Date();
+						if (tYear < 2000)
+							tYear = parseInt(tYear) + 2000;
+						console.log(value, tYear, tMonth, tDay)
+						d.setUTCFullYear(tYear, tMonth - 1, tDay);
+						value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
 					}
-				}
+				} else {
+					// NOP - value is good
+				}	
 				el[header] = value;
 			} else {
 				if (fieldRequired)

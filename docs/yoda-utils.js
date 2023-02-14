@@ -256,6 +256,11 @@ export function showSnackbarError(message, timeout) {
 	showSnackbar(message, '#cc0e24', timeout);
 }
 
+
+export function isValidDate(date) {
+	return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
+}
+
 // Select2 utils
 // Sorter is not really a sorter, but called as such. It add the menu option to select all matches (including all entries if no search)
 export function select2Sorter(matches) {
