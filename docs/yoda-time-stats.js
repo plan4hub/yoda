@@ -620,7 +620,7 @@ function createChart() {
 			});
 		}
 	}
-	
+	 
 	// We will push data to a 
 	const chartData = {
 			labels : dateArray,
