@@ -704,10 +704,13 @@ function createChart() {
 		chartTitle = $("#title").val(); 
 	}
 	
+	const killBarSpacing = chartData.labels.length > 200 && $("#stacked").is(":checked") && !$("#righttotal").is(":checked");
 	window.myMixedChart = new Chart(ctx, {
 		type : 'bar',	
 		data : chartData,
 		options : {
+			categoryPercentage: killBarSpacing? 1.0: 0.9,
+			barPercentage: killBarSpacing? 1.0: 0.9,
 			showDatapoints: true,
 			responsive : true,
 			plugins: {

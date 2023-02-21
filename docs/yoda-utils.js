@@ -2009,6 +2009,8 @@ export function registerChartJS() {
 			chartInstance.data.datasets.forEach(function (dataset, i) {
 				var meta = chartInstance.getDatasetMeta(i);
 				if (!meta.hidden) {
+					if (meta.data.length > 200)
+						return; // Forget it, we will not be able to see the individual values anyway.
 					meta.data.forEach(function (element, index) {
 						// Draw the text in black (line) or whitish (bar) with the specified font
 						if (dataset.type == "bar" && $("#stacked").is(":checked"))
