@@ -120,7 +120,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 		
 		<div class="field">
-			<label>Repository cache live time</label> <input type="text" id="repolistcache" size="5" onchange="setLocalStorage('yoda.repolistcache', this.value)">
+			<label>Repo cache timeout</label> <input type="text" id="repolistcache" size="13" onchange="setLocalStorage('yoda.repolistcache', this.value)">
 			<span class="tooltip">Repository live time in minutes. Default is 3600 (24 hours). Put -1 for indefinite.</span>
 		</div>
 
@@ -146,7 +146,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>Other ("blank" for blank)</label>
-			<input type="text" id="time_other" size="13" onchange="setLocalStorage('yoda.time.other', this.value)">
+			<input type="text" id="time_other" size="17" onchange="setLocalStorage('yoda.time.other', this.value)">
 			<span class="tooltip">Bar label for other issues</span>
 		</div>
 	</div>
@@ -170,7 +170,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>Other ("blank" for blank)</label>
-			<input type="text" id="time_other" size="13" onchange="setLocalStorage('yoda.current.other', this.value)">
+			<input type="text" id="time_other" size="17" onchange="setLocalStorage('yoda.current.other', this.value)">
 			<span class="tooltip">Bar label for other issues</span>
 		</div>
 	</div>
@@ -182,19 +182,19 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		<div class="field">
 			<label>Tentative Label</label>
-			<input type="text" id="burndown_tentative" size="13" onchange="setLocalStorage('yoda.burndown.tentative', this.value)">
+			<input type="text" id="burndown_tentative" size="15" onchange="setLocalStorage('yoda.burndown.tentative', this.value)">
 			<span class="tooltip">Label indicating tentative/stretch issues</span>
 		</div>
 		
 		<div class="field">
 			<label>In Progress Label</label>
-			<input type="text" id="burndown_inprogress" size="13" onchange="setLocalStorage('yoda.burndown.inprogress', this.value)">
+			<input type="text" id="burndown_inprogress" size="15" onchange="setLocalStorage('yoda.burndown.inprogress', this.value)">
 			<span class="tooltip">Label indicating work has started</span>
 		</div>
 		
 		<div class="field">
 			<label>Not Codefreeze Label</label>
-			<input type="text" id="burndown_notcodefreeze" size="13" onchange="setLocalStorage('yoda.burndown.notcodefreeze', this.value)">
+			<input type="text" id="burndown_notcodefreeze" size="15" onchange="setLocalStorage('yoda.burndown.notcodefreeze', this.value)">
 			<span class="tooltip">Label indicating work is not needed for code freeze</span>
 		</div>
 		
@@ -281,7 +281,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		</div>
 
 		<div class="field">
-			<label>Frame background color</label> <input type="text" id="framebackground" size="15" value="" onchange="setLocalStorage('yoda.global.framebackground', this.value)">
+			<label>Frame background color</label> <input type="text" id="framebackground" size="17" value="" onchange="setLocalStorage('yoda.global.framebackground', this.value)">
 			 <span class="tooltip">Frame background color (default green #01a982)</span>
 		</div>
 	</div>
