@@ -1963,6 +1963,11 @@ export function chartCSVExport(csvDelimiter, event) {
 		return;
 	}
 
+	// Must press Alt to get CSV. Otherwise, ignore.
+	if (event != undefined && !event.altKey) 
+		return;
+
+
 	console.log("Exporting graph data to csv. Delimiter: " + csvDelimiter);
 	const chartData = window.myMixedChart.data;
 
