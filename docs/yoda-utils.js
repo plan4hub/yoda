@@ -1557,12 +1557,22 @@ export function filterIssuesReqExp(labelFilter) {
 	for (let f = 0; f < filterArray.length; f++) {
 		let positiveMatch, labelReg;
 		if (filterArray[f].charAt(0) == '^' || filterArray[f].charAt(0) == '-') {
+			// Let's handle the - somewhat crazy - idea of being able to synthesize a label for issues matching (or not) the regexp.
+			// A synthesized label will be separated from the regexp using tilde (~). Example: "^C - ~Customer Encountered"
+			let synthesize = filterArray[f].lastIndexOf("~");
+
 			if (filterArray[f].charAt(0) == "-") {
 				positiveMatch = false;
-				labelReg = new RegExp(filterArray[f].substr(1));
+				if (synthesize == -1)
+					labelReg = new RegExp(filterArray[f].substring(1));
+				else
+					labelReg = new RegExp(filterArray[f].substring(1, synthesize));
 			} else {
 				positiveMatch = true;
-				labelReg = new RegExp(filterArray[f]);
+				if (synthesize == -1)
+					labelReg = new RegExp(filterArray[f]);
+				else
+					labelReg = new RegExp(filterArray[f].substring(0, synthesize));
 			}
 
 			// We have a regexp filter. Let's run through the issues.
@@ -1579,7 +1589,11 @@ export function filterIssuesReqExp(labelFilter) {
 					}
 				}
 
-				if ((positiveMatch && !match) || (!positiveMatch && match))
+				// synthesize label?
+				if (((positiveMatch && match) || (!positiveMatch && !match)) && synthesize != -1)
+					yoda_issues[i].labels.push({name: filterArray[f].substring(synthesize + 1)});
+
+				if (((positiveMatch && !match) || (!positiveMatch && match)) && synthesize == -1)
 					yoda_issues.splice(i, 1);
 				else
 					i++;
