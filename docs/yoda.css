@@ -51,30 +51,17 @@ body {
     text-align: center;
     border-radius: 6px;
     padding: 5px 5px 2px 2px;
-    white-space: nowrap;
     
     /* Position the tooltip */
     position: absolute;
     z-index: 1;
-    top: 5px;
-    /* left: 95%; */
+    /* top: 0px; */
+    /* left: 105%;  */
     
- 	opacity: 0;
-    transition: opacity 1s;
+ 	opacity: 0; 
+     transition: opacity 2s; 
 }
 
-.tooltip,
-.field .tooltip::after,
-.flatfield .tooltip::after {
-    content: " ";
-    position: absolute;
-    top: 50%;
-    right: 100%; /* To the left of the tooltip */
-    margin-top: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent grey transparent transparent;
-}
 .field:hover .tooltip,
 .flatfield:hover .tooltip {
     visibility: visible;
