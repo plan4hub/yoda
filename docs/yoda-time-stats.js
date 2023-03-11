@@ -639,7 +639,7 @@ function createChart() {
 		yleft: {
 			title: {
 				display: true,
-				text: $("percentage").is(":checked")? ("Relative Percentage: ") + leftLabel[countType] : leftLabel[countType],
+				text: $("#percentage").is(":checked")? ("Relative Percentage: ") + leftLabel[countType] : leftLabel[countType],
 				font: {
 					size: 16                    
 				}
