@@ -183,6 +183,8 @@ Optionally, a title may be given. Otherwise a default title "GitHub Issues (owne
 
 Further options display, instead of # of open issues, issues opened or closed in the period, or the average duration for issues being open. When using these options a further checkbox, termed *Right total* comes into play. If checked, the right axis will show the number of open issues, as opposed to the default/unchecked mode where the right axis shows the total opened/closed during the period.
 
+Finally, it is possible to product a so-called "floating bar chart" showing both closed issues (as a negative number below the Y-axis) and opened issues (as a positive number above the Y-axis).
+
 It is even possible to report relative percentages (so all statistics add up to 100%) instead of reporting on number of issues. This can be controlled with `percentage` URL argument or by checking the corresponding checkbox.
 
 Yet a further option focuses on issues comments rather than issues. This can be used to give a further indication of the level of activity. Select "comments" to count instead of issues.

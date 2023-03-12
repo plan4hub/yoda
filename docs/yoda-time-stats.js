@@ -296,6 +296,131 @@ function startCommentsChart() {
 	createCommentsChart(0, -1);
 }
 
+// Central count logic. Separated so as to allow to call multiple times...
+function countIssues(issues, date, previousDate, countType, labelSplit, bars) {
+	// Prepare data array
+	let dataArrayForDay = new Array(bars.length);
+	let dataDurationOpenForDay = new Array(bars.length);
+	let dataECTDurationForDay = new Array(bars.length);
+	for (let l = 0; l < bars.length; l++) {
+		dataArrayForDay[l] = 0;
+		dataDurationOpenForDay[l] = 0;
+		dataECTDurationForDay[l] = 0;
+	}
+	let otherForDay = 0;
+	let totalForDay = 0;
+	let otherDurationOpenForDay = 0;
+	let otherETCDurationForDay = 0;
+	let totalAlways = 0;
+
+	// Ok, now let's count issues
+	for (let i = 0; i < issues.length; i++) {
+		// We must consider issues which have been opened BEFORE date, but  
+		// NOT closed before date
+		const submitDateString = yoda.createDate(issues[i]);
+		const submitDate = new Date(submitDateString);
+
+		if (submitDate > date)
+			continue; // Submitted later - forget it.
+
+		// Closed, and closed before OR DURING date?
+		const closedString = yoda.closedDate(issues[i]);
+		if (closedString != null) {
+			const closedDate = new Date(closedString);
+
+			// Check if open now, all cases.
+			if (closedDate > date)
+				totalAlways++;
+
+			// Don't want this issue if closed ahead of this
+			if ((countType == "noissues" || countType == "durationopen") && closedDate <= date)
+				continue;
+
+			// Closed before previous date
+			if ((countType == "closed" || countType == "velocity") && closedDate <= previousDate)
+				continue;
+
+			// Closed later
+			if ((countType == "closed" || countType == "velocity") && closedDate > date)
+				continue;
+
+			// If we are counting ECT and required data is not available, disregard the issue 
+			if (countType == "ect" && yoda.getMilestoneIssueDuration(issues[i]) == null)
+				continue;
+		} else {
+			if (issues[i].state != "open") {
+				console.log("SUPER AHAHHHHHHH");
+				console.log(issues[i].url);
+			}
+			totalAlways++;
+			if ((countType == "closed" || countType == "velocity"))
+				continue;
+		}
+
+		// Ok, it is open, IF we are counting opened, we are only interested if it was opened during this period.
+		if (countType == "opened" && submitDate < previousDate)
+			continue;  // Earlier period, forget it.
+
+		// Ok, relevant
+		let foundLabel = false;
+		let labelList = issues[i].labels;
+
+		// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
+		// This will cause an immediate match.
+		if (labelSplit == "repo")
+			labelList = [{ name: yoda.getUrlRepo(issues[i].url) }];
+
+		let issueEstimate;
+		if (countType == "velocity")
+			issueEstimate = yoda.issueEstimate(issues[i]);
+
+		// Log's look at the labels.
+		for (let l = 0; l < labelList.length; l++) {
+			// Search bars array
+			const index = bars.indexOf(labelList[l].name);
+			if (index != -1) {
+				// Got a match. Make sure we don't continue search
+				if (countType == "velocity") {
+					dataArrayForDay[index] = dataArrayForDay[index] + issueEstimate;
+					totalForDay += issueEstimate;
+				} else {
+					// All other.. 
+					dataArrayForDay[index] = dataArrayForDay[index] + 1;
+					totalForDay++;
+				}
+
+				l = labelList.length;
+				foundLabel = true;
+
+				// Add the total duration, we will divide by # of issues later.
+				const duration = yoda.dateDiff(submitDate, date);
+				dataDurationOpenForDay[index] += duration;
+
+				if (countType == "ect")
+					dataECTDurationForDay[index] += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
+			}
+		}
+		if (foundLabel == false && $("#other").val() != "") {
+			if (countType == "velocity") {
+				otherForDay += issueEstimate;
+				totalForDay += issueEstimate;
+			} else {
+				otherForDay++;
+				totalForDay++;
+			}
+
+			// Add the total duration, we will divide by # of issues later.
+			const duration = yoda.dateDiff(submitDate, date);
+			otherDurationOpenForDay += duration;
+
+			if (countType == "ect")
+				otherETCDurationForDay += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
+		}
+	}
+
+	return [dataArrayForDay, dataDurationOpenForDay, dataECTDurationForDay, otherForDay, totalForDay, otherDurationOpenForDay, otherETCDurationForDay, totalAlways];
+}
+
 // ---------------------------------------
 // Issues have been retrieved. Time to analyse data and draw the chart.
 function createChart() {
@@ -389,126 +514,18 @@ function createChart() {
 		else
 			dateArray.push(yoda.formatDate(date));
 		
-		// Prepare data array
-		let dataArrayForDay = new Array(bars.length);
-		let dataDurationOpenForDay = new Array(bars.length);
-		let dataECTDurationForDay = new Array(bars.length);
-		for (let l = 0; l < bars.length; l++) {
-			dataArrayForDay[l] = 0;
-			dataDurationOpenForDay[l] = 0;
-			dataECTDurationForDay[l] = 0;
+		// CALL TO ACTUALLY COUNT FUNCTION !!!
+		let dataArrayForDay, dataDurationOpenForDay, dataECTDurationForDay, otherForDay, totalForDay, otherDurationOpenForDay, otherETCDurationForDay, totalAlways;
+		[dataArrayForDay, dataDurationOpenForDay, dataECTDurationForDay, otherForDay, totalForDay, otherDurationOpenForDay, otherETCDurationForDay, totalAlways] = 
+			countIssues(issues, date, previousDate, countType == "opened_closed"? "opened": countType, labelSplit, bars);
+
+		// Count again (closed)?
+		let _dataArrayForDay, _dataDurationOpenForDay, _dataECTDurationForDay, _otherForDay, _totalForDay, _otherDurationOpenForDay, _otherETCDurationForDay, _totalAlways;
+		if (countType == "opened_closed") {  // TBD: may need some ANDs here... like maybe not percentage, not stacked, etc. 
+			[_dataArrayForDay, _dataDurationOpenForDay, _dataECTDurationForDay, _otherForDay, _totalForDay, _otherDurationOpenForDay, _otherETCDurationForDay, _totalAlways] = 
+				countIssues(issues, date, previousDate, "closed", labelSplit, bars);
 		}
-		let otherForDay = 0;
-		let totalForDay = 0;
-		let otherDurationOpenForDay = 0;
-		let otherETCDurationForDay = 0;
-		let totalAlways = 0;
-		
-		// Ok, now let's count issues
-		for (let i = 0; i < issues.length; i++) {
-			// We must consider issues which have been opened BEFORE date, but  
-			// NOT closed before date
-			const submitDateString = yoda.createDate(issues[i]);    
-			const submitDate = new Date(submitDateString);
-			
-			if (submitDate > date)
-				continue; // Submitted later - forget it.
-			
-			// Closed, and closed before OR DURING date?
-			const closedString = yoda.closedDate(issues[i]); 
-			if (closedString != null) {
-				const closedDate = new Date(closedString);
 				
-				// Check if open now, all cases.
-				if (closedDate > date)
-					totalAlways++;
-
-				// Don't want this issue if closed ahead of this
-				if ((countType == "noissues" || countType == "durationopen") && closedDate <= date)
-					continue;
-				
-				// Closed before previous date
-				if ((countType == "closed" || countType == "velocity") && closedDate <= previousDate)
-					continue;
-					
-				// Closed later
-				if ((countType == "closed" || countType == "velocity") && closedDate > date)
-					continue;
-				
-				// If we are counting ECT and required data is not available, disregard the issue 
-				if (countType == "ect" && yoda.getMilestoneIssueDuration(issues[i]) == null)
-					continue;
-			} else {
-				if (issues[i].state != "open") {
-					console.log("SUPER AHAHHHHHHH");
-					console.log(issues[i].url);
-				}
-				totalAlways++;
-				if ((countType == "closed" || countType == "velocity"))
-					continue;
-			}
-			
-			// Ok, it is open, IF we are counting opened, we are only interested if it was opened during this period.
-			if (countType == "opened" && submitDate < previousDate)
-				continue;  // Earlier period, forget it.
-			
-			// Ok, relevant
-			let foundLabel = false;
-			let labelList = issues[i].labels;
-			
-			// Trick: if we have special "repo" text into labelsplit, then we'll create an artificial labellist with just the repo name.
-			// This will cause an immediate match.
-			if (labelSplit == "repo") 
-				labelList = [{name: yoda.getUrlRepo(issues[i].url)}];
-			
-			let issueEstimate;
-			if (countType == "velocity")
-				issueEstimate = yoda.issueEstimate(issues[i]);
-
-			// Log's look at the labels.
-			for (let l = 0; l < labelList.length; l++) {
-				// Search bars array
-				const index = bars.indexOf(labelList[l].name);
-				if (index != -1) {
-					// Got a match. Make sure we don't continue search
-					if (countType == "velocity") {
-						dataArrayForDay[index] = dataArrayForDay[index] + issueEstimate;
-						totalForDay += issueEstimate;
-					} else {
-						// All other.. 
-						dataArrayForDay[index] = dataArrayForDay[index] + 1;
-						totalForDay++;
-					}
-					
-					l = labelList.length;
-					foundLabel = true;
-					
-					// Add the total duration, we will divide by # of issues later.
-					const duration = yoda.dateDiff(submitDate, date);
-					dataDurationOpenForDay[index] += duration;
-					
-					if (countType == "ect")
-						dataECTDurationForDay[index] += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
-				}
-			}
-			if (foundLabel == false &&	$("#other").val() != "") {
-				if (countType == "velocity") {
-					otherForDay += issueEstimate;
-					totalForDay += issueEstimate;
-				} else {
-					otherForDay++;
-					totalForDay++;
-				}
-				
-				// Add the total duration, we will divide by # of issues later.
-				const duration = yoda.dateDiff(submitDate, date);
-				otherDurationOpenForDay += duration;
-
-				if (countType == "ect") 
-					otherETCDurationForDay += yoda.getMilestoneIssueDuration(issues[i]); // cannot be null here;
-			}
-		}
-		
 		// Switch to duration?
 		if (countType == "durationopen" || countType == "ect") {
 			if (countType == "durationopen") {
@@ -540,11 +557,18 @@ function createChart() {
 				for (let i = 0; i < bars.length; i++)
 					dataArray[i].push((100.0 * dataArrayForDay[i] / total).toFixed(1));
 				otherArray.push((100.0 * otherForDay / total).toFixed(1));
-			} else {			
-				// Normal case.			
-				for (let i = 0; i < bars.length; i++) 
-					dataArray[i].push(dataArrayForDay[i]); 
-				otherArray.push(otherForDay);
+			} else {
+				if (countType == "opened_closed") { 		
+					// // Floating bar case
+					for (let i = 0; i < bars.length; i++)
+						dataArray[i].push([- _dataArrayForDay[i], dataArrayForDay[i]]);
+					otherArray.push([- _otherForDay, otherForDay]);
+				} else {
+					// Normal case.			
+					for (let i = 0; i < bars.length; i++)
+						dataArray[i].push(dataArrayForDay[i]);
+					otherArray.push(otherForDay);
+				}
 			}
 		}
 		
@@ -613,14 +637,14 @@ function createChart() {
 				label : 'Total',
 				fill : false,
 				yAxisID: "yright",
-				data : (countType == "closed" || countType == "opened")?totalAlwaysArray : totalArray,
+				data : (countType == "closed" || countType == "opened" || countType == "opened_closed")?totalAlwaysArray : totalArray,
 				lineTension: 0,
 				borderColor: yoda.getColor("lineBackground"),
 				order: 1
 			});
 		}
 	}
-	 
+
 	// We will push data to a 
 	const chartData = {
 			labels : dateArray,
@@ -632,6 +656,7 @@ function createChart() {
 	leftLabel["noissues"] = "No of issues";
 	leftLabel["opened"] = "No of issues opened";
 	leftLabel["closed"] = "No of issues closed";
+	leftLabel["opened_closed"] = "No of issues opened / closed";
 	leftLabel["velocity"] = "Story Points";
 	leftLabel["ect"] = "ECT - Engineering Cycle Time (days)"
 
@@ -650,7 +675,13 @@ function createChart() {
 				beginAtZero: true
 			},
 			grid: {
-				color: yoda.getColor('gridColor')
+				color: yoda.getColor('gridColor'),
+				lineWidth: function(context) {
+					if (context.tick.value == 0)
+						return 3;
+					else
+						return 1;
+				}
 			}
 		},
 		x: {
