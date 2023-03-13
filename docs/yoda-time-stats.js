@@ -701,6 +701,7 @@ function createChart() {
 	rightLabel["velocity"] = "Story points per day";
 	rightLabel["opened"] = "No open issues";
 	rightLabel["closed"] = "No open issues";
+	rightLabel["opened_closed"] = "No open issues";
 	
 	// Add second axis.
 	if ($("#righttotal").is(":checked")) {
