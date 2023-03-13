@@ -235,7 +235,8 @@ function createChart() {
 			fill : false,
 			data : otherArray,
 			yAxisID: "yleft",
-			backgroundColor : 'rgb(191, 191, 191)', // grey'ish
+//			backgroundColor : 'rgb(191, 191, 191)', // grey'ish
+			backgroundColor : 'rgb(200, 191, 231)',
 			order: 2
 		});
 	}
