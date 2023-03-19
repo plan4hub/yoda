@@ -9,5 +9,6 @@ WORKDIR /usr/app
 COPY package.json .
 RUN npm install
 COPY *.js /usr/app/
+COPY yoda-restapi-swagger.yaml /usr/app/
 
 CMD ["node", "yoda-restapi.js"]
