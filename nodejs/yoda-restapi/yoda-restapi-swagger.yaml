@@ -1,0 +1,140 @@
+openapi: 3.0.0
+info:
+  title: Yoda REST API
+  description: Simplified REST API towards issues in multiple repos and does high level filtering and aggregation according to configurable rules.
+  version: 0.0.1
+servers:
+  - url: /
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing
+# https://swagger.io/docs/specification/authentication/bearer-authentication/
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    InternalServerError:
+      description: An internal error has occured while processing the request
+security:
+  - bearerAuth: []         # use the same name as above
+paths:
+  /products:
+    get:
+      summary: Returns a list of products
+      description: List of Product supported by the API
+      responses:
+        '200':    # status code
+          description: A JSON array of products
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    product:
+                      type: string
+                    product_name:
+                      type: string
+                    solution:
+                      type: string
+                    solution_family:
+                      type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /queries:
+    get:
+      summary: Returns a list of stored queries
+      description: List of stored queries supported by the API
+      responses:
+        '200':    # status code
+          description: A JSON array of queries
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    query:
+                      type: string
+                    description:
+                      type: string
+                    parameters:
+                      type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /issues:
+    get:
+      summary: Return GitHub issues associated with products
+      description: Return GitHub issues mapped according to specified filters and view
+      parameters:
+        - name: query
+          in: query
+          description: Use a stored query which can define any of the parameters below. Use queries endpoint to see queries. Comma-separated list for more queries (must be mutually exclusive)
+          schema:
+            type: string
+        - name: product
+          in: query
+          description: Product(s) to use for scoping GitHub issues. Comma-separated list for more products. Omit to get all.
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: Issue states to target. Possible values are 'open', 'closed', or 'all'. Default 'open'
+          schema:
+            type: string
+            pattern: '^(open|closed|all)$'
+        - name: labels
+          in: query
+          description: A list of comma separated label names to use in filtering. Example 'T1 - Defect,Support,-S4 - Low'
+          schema:
+            type: string
+        - name: regexp_filter
+          in: query
+          description: Filter issue based on labels using regular expressions. Comma separate (AND) for severral, - for negative. Example '^C -,-^Th -'
+        - name: since
+          in: query
+          description: Only show issues with update after the given time. This is a timestamp in ISO 8601 format YYYY-MM-DDTHH:MM:SSZ
+          schema:
+            type: string
+        - name: fields
+          in: query
+          descriptions: 'Issue fields to return. These can GitHub issue fields or synthetized fields. Comma-separated list of field[~alias] Default id,state,created_at,closed_at,title,html_url:url'
+          schema:
+            type: string
+      responses:
+        '200':    # status code
+          description: A JSON array of issues with fields as per parameters
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    id:
+                      type: string
+        '400':    # status code
+          description: Bad request
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

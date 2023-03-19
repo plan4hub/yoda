@@ -1,0 +1,23 @@
+{
+  "name": "yoda-restapi",
+  "version": "1.0.1",
+  "description": "yoda restapi",
+  "main": "yoda-restapi.js",
+  "scripts": {
+    "start": "node yoda-restapi.js"
+  },
+  "author": "Jens Vedel Markussen",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/auth-app": "^3.6.0",
+    "@octokit/core": "^3.5.1",
+    "@octokit/request": "^5.6.1",
+    "@octokit/rest": "^18.11.1",
+    "command-line-args": "^5.2.0",
+    "command-line-usage": "^6.1.1",
+    "http": "",
+    "https": "",
+    "js-yaml": "^4.1.0",
+    "log4js": "^6.3.0"
+  }
+}

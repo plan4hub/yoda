@@ -1,0 +1,109 @@
+solutions:
+  NFV Director:
+    solution_family: ORC
+    products:
+      NFVD:
+        product_name: HPE NFV Director
+        components:
+          NFVD:
+            component_name: NFV Director
+            repositories:
+            - hpsd/nfvd
+            - hpsd/nso
+          GVNFM:
+            component_name: Generic VNF Manager
+            repositories:
+            - hpsd/gvnfm
+          SDC.D:
+            component_name: Service Design Center. Designer
+            repositories:
+            - hpsd/obt
+  Service Director:
+    solution_family: ORC
+    products:
+      SD:
+        product_name: HPE Service Director
+        components:
+          SD:
+            component_name: Service Director
+            repositories:
+            - hpsd/@rnd,sd,-adapter,issues
+          SDC.AF:
+            component_name: Service Director Adapter Factory
+            repositories:
+            - hpsd/@rnd,sd,adapter,issues
+  Service Activator:
+    solution_family: FRI
+    products:
+      SA:
+        product_name: HPE Service Activator
+        components:
+          SA:
+            component_name: Service Activator
+            repositories:
+              - hpsa/hpsa
+          TnD:
+            component_name: Test and Diagnostics
+            repositories:
+              - hpsa/test-diag
+  Internal Tools:
+    solution_family: ORC
+    products:
+      yoda:
+        product_name: Yoda
+        components:
+          yoda:
+            component_name: Yoda
+            repositories:
+              - hpsd/yoda
+
+queries:
+  scope_open_support_defects: 
+    parameters: state=open&labels=T1 - Defect,Support
+    description: Retrieve all open Support defects
+
+  ctg_dash_defect_fields:
+    parameters: fields=id,solution_family,product,component,Type,Origin,Support,Company,state,created_at,closed_at,Severity,SFDC CaseId,title~Title
+    description: Request only the most basic fields
+
+tokens:
+  ctg_dash:
+    token: 4617e7c6813112772aa7c43080c4ac1e1eda47391094a0f743ca3036b49606bb
+  dev:
+    token: 1617e7c6813112772aa7c43080c4ac1e1eda47391094a0f743ca3036b49606bb
+
+# Set of extra fields
+extra_fields:
+  # Customer should concatenate (with comma) any values
+  Company:
+    rule: extract_label
+    pattern: '^C - (.*)'
+    separator: ","
+    none_value: null
+  Severity:
+    rule: extract_label
+    pattern: '^S[1-4] - (.*)$'
+    none_value: null
+    # If separator is empty then take only first
+    separator: ""
+    mapping: 'map["Urgent"]="Critical"; map["High"]="Serious";'
+  Type:
+    rule: extract_label
+    pattern: '^T[1-9][0-9]? - (.*)$'
+    none_value: ""
+    separator: ""
+  Support:
+    rule: binary_label
+    pattern: '^Support$'
+    value_match: "True"
+    value_nomatch: "False"
+  Origin:
+    rule: binary_label
+    pattern: '^C - .*$'
+    value_match: "External"
+    value_nomatch: "Internal"
+  SFDC CaseId:
+    rule: extract_issue
+    field: "title"
+    pattern: '^.*[\(]([0-9]+)[\)]$'
+    none_value: null
