@@ -164,6 +164,30 @@ async function listener(req, res) {
 			res.writeHead(200, { 'Content-type': 'application/json' });
 			res.end(JSON.stringify(queries));
 		} else {
+			// /issues query
+
+			// First let's get all fields. 
+			// Fields. First get all fields from Swagger UI
+			const allFields = configuration.getAPI()["paths"]["/issues"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["items"]["properties"];
+			logger.trace("All fields:");
+			logger.trace(allFields);
+
+			// Then, lets determine the fields for this query. If no field argument given, that means all of them.
+			let fields;
+			if (q.query["fields"] != undefined) {
+				fields = q.query["fields"];
+				// Make sure that all fields mentioned are indeed one of the allowed fields.
+				const fieldArray = fields.split(",");
+				for (let fi = 0; fi < fieldArray.length; fi++) {
+					if (allFields[fieldArray[fi]] == undefined) {
+						res.writeHead(404, { 'Content-type': 'application/json' });
+						res.end('{"message": "Unsupported field requested: ' + fieldArray[fi] + '"}');
+						return
+					}
+				}
+			} else
+				fields = Object.keys(allFields).join(",")
+
 			let products = null;
 			if (q.query["product"] != undefined) {
 				products = q.query["product"].split(",");
@@ -253,18 +277,6 @@ async function listener(req, res) {
 			logger.debug("Query parameters:");
 			logger.debug(params);
 
-			// Fields. First get all fields from Swagger UI
-			const allFields = configuration.getAPI()["paths"]["/issues"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["items"]["properties"];
-			logger.debug("All fields:");
-			logger.debug(allFields);
-
-			// Then, lets determine the fields for this query. If no field argument given, that means all of them.
-			let fields;
-			if (q.query["fields"] != undefined)
-				fields = q.query["fields"];
-			else
-				fields = Object.keys(allFields).join(",")
-
 			let result = [];
 			for (let ri = 0; ri < repos.length; ri++) {
 				// Let's get'em...
@@ -339,7 +351,6 @@ async function listener(req, res) {
 							v = repos[ri][f];
 						else
 							v = issues[i][f];
-					// let v = yoda.accessAsString(issues[i], f);
 						if (v != undefined)
 							resultIssue[f] = v;
 						else
@@ -349,7 +360,6 @@ async function listener(req, res) {
 				}
 				logger.debug("Adding " + issues.length + " issues from " + repos[ri].owner + "/" + repos[ri].repo);
 			}
-
 			logger.debug("Final # of issues is: " + result.length);
 
 			res.writeHead(200, { 'Content-type': 'application/json' });

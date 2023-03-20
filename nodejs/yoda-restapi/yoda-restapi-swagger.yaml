@@ -84,7 +84,7 @@ paths:
             type: string
         - name: fields
           in: query
-          descriptions: Comma separated list of issue fields to return; these can GitHub issue fields or synthetized fields. All fields if omitted
+          description: Comma separated list of issue fields to return - these can GitHub issue fields or synthetized fields. All fields if omitted
           schema:
             type: string
         - name: product
@@ -136,6 +136,10 @@ paths:
                       type: string
                     state:
                       type: string
+                    type:
+                      type: string
+                    severity:
+                      type: string
                     title:
                       type: string
                     created_at:
@@ -144,15 +148,11 @@ paths:
                       type: string
                     updated_at:
                       type: string
-                    company:
-                      type: string
-                    severity:
-                      type: string
-                    type:
-                      type: string
                     support:
                       type: boolean
                     origin:
+                      type: string
+                    company:
                       type: string
                     sfdc_id:
                       type: string
