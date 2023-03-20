@@ -1,4 +1,4 @@
-module.exports = {getMatchingLabels, labelMatch, extractFromIssue, filterIssueReqExp, deepCopy, accessAsString};
+module.exports = {getMatchingLabels, labelMatch, extractFromIssue, filterIssueReqExp, deepCopy, accessField};
 
 const log4js = require('log4js');
 const logger = log4js.getLogger();
@@ -19,30 +19,18 @@ function stripQuotes(str) {
 }
 
 // Utility function
-function accessAsString(object, ref) {
+function accessField(object, ref) {
 	let properties = ref.split(".");
 	if (properties.length == 0 || object[properties[0]] == undefined)
-		return undefined;
+		return null;
 
-	for (let index=0; index < properties.length; index++){
-		// go to deeper into object until your reached time
-		if (object[properties[index]] == undefined)
-			return ""; 
-		object = object[properties[index]];
-	}
-	
-	// If end result is an Array, we can do better than JSON.stringify.
-	let res = "";
-	if (Array.isArray(object)) {
-		for (let i = 0; i < object.length; i++) {
-			if (res != "")
-				res += ", ";
-			res += stripQuotes(JSON.stringify(object[i]));
-		}
-	} else {
-		res = stripQuotes(JSON.stringify(object));
-	}
-	return res;
+	if (properties.length == 1)
+		return object[properties[0]];
+
+	if (object[properties[0]] == undefined)
+		return null;
+
+	return accessField(object[properties[0]], properties.slice(1).join("."));
 }
 
 // ------------------
@@ -65,7 +53,7 @@ function getMatchingLabels(issue, labelRegExp, separator, none_value) {
 	}
 
 	if (result == "")
-		return none_value
+		return (none_value == undefined)? null: none_value;
 	else
 		return result;
 }
@@ -80,13 +68,18 @@ function labelMatch(issue, labelRegExp) {
 
 function extractFromIssue(issue, field, labelRegExp, none_value) {
 	let result = "";
-	const reg = new RegExp(labelRegExp);
-	let issueField = issue[field];   // TBD: Or use access function?
+	let issueField = accessField(issue, field);
 	if (issueField == undefined)
-		return none_value;
+		return (none_value == undefined)? null: none_value;
+
+	// Is pattern specified? If not, simply return the value
+	if (labelRegExp == undefined)
+		return issueField;
+
+	const reg = new RegExp(labelRegExp);
 	let m = issueField.match(reg);
 	if (!m || m[1] == undefined)
-		return none_value;
+		return (none_value == undefined)? null: none_value;
 	return m[1];
 }
 

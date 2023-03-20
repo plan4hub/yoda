@@ -85,9 +85,9 @@ async function listener(req, res) {
 		// First a special check. Is the client asking for our docs via the docs endpoint; then let's give it.
 		if (pre_q.pathname == "/docs") {
 			logger.info("Serving OpenAPI spec via /docs endpoint");
-			const api = fs.readFileSync('yoda-restapi-swagger.yaml', 'utf8');
+			const apiYAML = configuration.getAPIYAML();
 			res.writeHead(200, { 'Content-type': 'text/yaml' });
-			res.end(api);
+			res.end(apiYAML);
 			return;
 		}
 
@@ -248,15 +248,22 @@ async function listener(req, res) {
 			// First, let's investigate the query paramters and pass directly to the GitHub request.
 			let params = { state: 'open' };
 			for (let p in q.query)
-				if (["milestone", "state", "assignee", "creator", "mentioned", "labels", "since"].indexOf(p) != -1)
+				if (["state", "labels", "since"].indexOf(p) != -1)
 					params[p] = q.query[p];
 			logger.debug("Query parameters:");
 			logger.debug(params);
 
-			// Fields?
-			let fields = "id,solution_family,product,component,state,created_at,closed_at,title,html_url";
+			// Fields. First get all fields from Swagger UI
+			const allFields = configuration.getAPI()["paths"]["/issues"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["items"]["properties"];
+			logger.debug("All fields:");
+			logger.debug(allFields);
+
+			// Then, lets determine the fields for this query. If no field argument given, that means all of them.
+			let fields;
 			if (q.query["fields"] != undefined)
 				fields = q.query["fields"];
+			else
+				fields = Object.keys(allFields).join(",")
 
 			let result = [];
 			for (let ri = 0; ri < repos.length; ri++) {
@@ -326,21 +333,17 @@ async function listener(req, res) {
 
 					let resultIssue = {};
 					for (let fi in fieldArray) {
-						let [f, alias] = fieldArray[fi].split("~");
-						if (alias == undefined)
-							alias = f;
-
-						// TBD: Maybe allow body field fields (i.e. get from issue body, e.g. "> fix-date")
-
-						if (repos[ri][f] != undefined)
-							resultIssue[alias] = repos[ri][f];
-						else {
-							let v = yoda.accessAsString(issues[i], f);
-							if (v != undefined)
-								resultIssue[alias] = v;
-							else
-								resultIssue[alias] = null;
-						}
+						let f = fieldArray[fi];
+						let v;
+						if (['product', 'product_name', 'component', 'solution', 'solution_family'].indexOf(f) != -1)
+							v = repos[ri][f];
+						else
+							v = issues[i][f];
+					// let v = yoda.accessAsString(issues[i], f);
+						if (v != undefined)
+							resultIssue[f] = v;
+						else
+							resultIssue[f] = null;
 					}
 					result.push(resultIssue);
 				}

@@ -1,10 +1,10 @@
-module.exports = {parseOptions, getOption, getConfig};
+module.exports = {parseOptions, getOption, getConfig, getAPI, getAPIYAML};
 
 // Main options array
 let options;
 
-// Config 
-let config;
+// Config, api
+let config, api, apiYAML;
 
 const log4js = require('log4js');
 const logger = log4js.getLogger();
@@ -109,7 +109,7 @@ const optionDefinitions = [
 const sections = [
 	{
 		header: 'Yoda REST API',
-		content: 'Provides a simplified REST API towards issues in multiple repos and does high level filtering and aggregation according to configurable rules.'
+		content: 'Simplified REST API towards issues in multiple repos and does high level filtering and aggregation according to configurable rules.'
 	},
 	{
 		header: 'Options',
@@ -206,9 +206,19 @@ function parseOptions() {
 		logger.error("Could not read config file. Error: " + e);
 		process.exit(1);
   	}
+
+	// Read OpenAPI spec
+	try {
+		apiYAML = fs.readFileSync('yoda-restapi-swagger.yaml', 'utf8');
+		api = yaml.load(apiYAML);
+  	} catch (e) {
+		logger.error("Could not read OpenAPI spec. Error: " + e);
+		process.exit(1);
+  	}
   
 	logger.info("Options: " + JSON.stringify(options));
 	logger.info("Config: " + JSON.stringify(config));
+	logger.info("OpenAPI: " + JSON.stringify(api));
 }
 
 function getOption(option) {
@@ -217,4 +227,12 @@ function getOption(option) {
 
 function getConfig() {
 	return config;
+}
+
+function getAPI() {
+	return api;
+}
+
+function getAPIYAML() {
+	return apiYAML;
 }

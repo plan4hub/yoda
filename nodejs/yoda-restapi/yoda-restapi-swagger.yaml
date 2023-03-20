@@ -6,8 +6,6 @@ info:
 servers:
   - url: /
     description: Optional server description, e.g. Main (production) server
-  - url: http://staging-api.example.com
-    description: Optional server description, e.g. Internal staging server for testing
 # https://swagger.io/docs/specification/authentication/bearer-authentication/
 components:
   securitySchemes:
@@ -84,6 +82,11 @@ paths:
           description: Use a stored query which can define any of the parameters below. Use queries endpoint to see queries. Comma-separated list for more queries (must be mutually exclusive)
           schema:
             type: string
+        - name: fields
+          in: query
+          descriptions: Comma separated list of issue fields to return; these can GitHub issue fields or synthetized fields. All fields if omitted
+          schema:
+            type: string
         - name: product
           in: query
           description: Product(s) to use for scoping GitHub issues. Comma-separated list for more products. Omit to get all.
@@ -100,19 +103,17 @@ paths:
           description: A list of comma separated label names to use in filtering. Example 'T1 - Defect,Support,-S4 - Low'
           schema:
             type: string
-        - name: regexp_filter
-          in: query
-          description: Filter issue based on labels using regular expressions. Comma separate (AND) for severral, - for negative. Example '^C -,-^Th -'
         - name: since
           in: query
           description: Only show issues with update after the given time. This is a timestamp in ISO 8601 format YYYY-MM-DDTHH:MM:SSZ
           schema:
             type: string
-        - name: fields
+        - name: regexp_filter
           in: query
-          descriptions: 'Issue fields to return. These can GitHub issue fields or synthetized fields. Comma-separated list of field[~alias] Default id,state,created_at,closed_at,title,html_url:url'
+          description: Filter issue based on labels using regular expressions. Comma separate (AND) for severral, - for negative. Example '^C -,-^Th -'
           schema:
             type: string
+
       responses:
         '200':    # status code
           description: A JSON array of issues with fields as per parameters
@@ -125,6 +126,47 @@ paths:
                   properties:
                     id:
                       type: string
+                    product:
+                      type: string
+                    product_name:
+                      type: string
+                    solution:
+                      type: string
+                    solution_family:
+                      type: string
+                    state:
+                      type: string
+                    title:
+                      type: string
+                    created_at:
+                      type: string
+                    closed_at:
+                      type: string
+                    updated_at:
+                      type: string
+                    company:
+                      type: string
+                    severity:
+                      type: string
+                    type:
+                      type: string
+                    support:
+                      type: boolean
+                    origin:
+                      type: string
+                    sfdc_id:
+                      type: string
+                    milestone:
+                      type: string
+                    user:
+                      type: string
+                    assignee:
+                      type: string
+                    html_url:
+                      type: string
+
+# user (.login)?, labels (array?), assignee (.login), milestone (.title)                    
+
         '400':    # status code
           description: Bad request
           content:

@@ -75,35 +75,44 @@ tokens:
 # Set of extra fields
 extra_fields:
   # Customer should concatenate (with comma) any values
-  Company:
+  company:
     rule: extract_label
     pattern: '^C - (.*)'
     separator: ","
-    none_value: null
-  Severity:
+  severity:
     rule: extract_label
     pattern: '^S[1-4] - (.*)$'
     none_value: null
     # If separator is empty then take only first
     separator: ""
     mapping: 'map["Urgent"]="Critical"; map["High"]="Serious";'
-  Type:
+  type:
     rule: extract_label
     pattern: '^T[1-9][0-9]? - (.*)$'
-    none_value: ""
     separator: ""
-  Support:
+  support:
     rule: binary_label
     pattern: '^Support$'
-    value_match: "True"
-    value_nomatch: "False"
-  Origin:
+    value_match: true
+    value_nomatch: false
+  origin:
     rule: binary_label
     pattern: '^C - .*$'
     value_match: "External"
     value_nomatch: "Internal"
-  SFDC CaseId:
+  sfdc_id:
     rule: extract_issue
     field: "title"
     pattern: '^.*[\(]([0-9]+)[\)]$'
-    none_value: null
+  milestone:
+    rule: extract_issue
+    field: "milestone.title"
+  user:
+    rule: extract_issue
+    field: "user.login"
+  assignee:
+    rule: extract_issue
+    field: "assignee.login"
+
+
+# also the none_value's should default to null, may be allowed to be overwritten
