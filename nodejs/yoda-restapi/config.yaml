@@ -63,7 +63,7 @@ queries:
     description: Retrieve all open Support defects
 
   ctg_dash_defect_fields:
-    parameters: fields=id,solution_family,product,component,Type,Origin,Support,Company,state,created_at,closed_at,Severity,SFDC CaseId,title~Title
+    parameters: fields=id,severity,state,title,product,component,created_at,closed_at,support,origin,company,sfdc_id
     description: Request only the most basic fields
 
 tokens:
@@ -115,4 +115,4 @@ extra_fields:
     field: "assignee.login"
 
 
-# also the none_value's should default to null, may be allowed to be overwritten
+
