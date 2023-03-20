@@ -142,7 +142,7 @@ async function listener(req, res) {
 
 		let q = url.parse(req.url + extraQ, true);
 		if (req.method != "GET" || ["/issues", "/products", "/queries"].indexOf(q.pathname) == -1) {
-			res.writeHead(404, { 'Content-type': 'application/json' });
+			res.writeHead(400, { 'Content-type': 'application/json' });
 			res.end('{"message": "Unsupported method/endpoint: ' + req.method + ' ' + q.pathname + '"}');
 			return
 		}
@@ -180,7 +180,7 @@ async function listener(req, res) {
 				const fieldArray = fields.split(",");
 				for (let fi = 0; fi < fieldArray.length; fi++) {
 					if (allFields[fieldArray[fi]] == undefined) {
-						res.writeHead(404, { 'Content-type': 'application/json' });
+						res.writeHead(400, { 'Content-type': 'application/json' });
 						res.end('{"message": "Unsupported field requested: ' + fieldArray[fi] + '"}');
 						return
 					}

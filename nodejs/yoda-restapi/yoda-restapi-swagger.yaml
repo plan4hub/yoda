@@ -166,9 +166,6 @@ paths:
                       type: string
                     html_url:
                       type: string
-
-# user (.login)?, labels (array?), assignee (.login), milestone (.title)                    
-
         '400':    # status code
           description: Bad request
           content:
