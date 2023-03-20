@@ -130,6 +130,8 @@ paths:
                       type: string
                     product_name:
                       type: string
+                    component:
+                      type: string
                     solution:
                       type: string
                     solution_family:

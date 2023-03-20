@@ -286,6 +286,7 @@ async function listener(req, res) {
 						owner: repos[ri].owner,
 						repo: repos[ri].repo,
 						per_page: 100,
+						direction: "asc",
 						...params
 					},
 					(response) => response.data
