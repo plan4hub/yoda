@@ -206,7 +206,7 @@ The tool may also show the so-called ECT (Engineering Cycle Time). This is defin
 
 ## Issue Statistics Report - Current View
 
-A variant of the issues statistics report that focuses strictly on open issues is also available. This case considers naturally only the current situation. Consequently, all parameters related to dates (start date, end date, interval, etc.) is of course not valid and thus not present. Instead the issues may be grouped along the X-axis into different categories. The splitting into categories works in exactly the same way as when splitting issues into different bars. 
+A variant of the issues statistics report that focuses strictly on issues in their current state is also available. The default is to consider only open issues, but even closed or all issues may be scoped with an option. This case considers naturally only the current situation. Consequently, all parameters related to dates (start date, end date, interval, etc.) is of course not valid and thus not present. Instead the issues may be grouped along the X-axis into different categories. The splitting into categories works in exactly the same way as when splitting issues into different bars. 
 
 In effect, this allows issues to be split according to two dimensions; a category along the X-axis and the actual bars (stacked or non-stacked) along the Y-axis.
 

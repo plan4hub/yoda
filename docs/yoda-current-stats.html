@@ -51,13 +51,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Repositories</label>
-			<select id="repolist" style="width: 350px" class="select2" multiple></select>
+			<select id="repolist" style="width: 300px" class="select2" multiple></select>
 			<span class="tooltip">Repositories to show</span>
 		</div>
 		
 		<div class="field" style="display: none;">
 			<label>GitHub user</label>
-			<input type="text" size="20" id="user" value="">
+			<input type="text" size="15" id="user" value="">
 			<span class="tooltip">Your GitHub user-id</span>
 		</div>
 
@@ -69,8 +69,20 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		<div class="field">
 			<label>Label filter</label>
-			<input type="text" size="40" id="labelfilter" value="">
+			<input type="text" size="30" id="labelfilter" value="">
 			<span class="tooltip">Label filter as comma separated list w/o spaces (AND)</span>
+		</div>
+
+		<div class="field">
+			<label>Scope</label>
+			<div id="scoperadio">
+				<div>
+					<label><input type="radio" name="scope" value="open" checked="checked">Open Issues</label> 
+					<label><input type="radio" name="scope" value="closed">Closed Issues</label>
+					<label><input type="radio" name="scope" value="all">All Issues</label>
+				</div>
+			</div>
+			<span class="tooltip">Issue scope.</span>
 		</div>
 
 		<div class="field">

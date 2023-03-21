@@ -31,6 +31,10 @@ function getUrlParams() {
 	if (countType != "noissues")
 		params += "&count=" + countType;
 
+	const scope = $("#scoperadio input[type='radio']:checked").val();
+	if (scope != "open")
+		params += "&scope=" + scope;
+
 	return params;
 }
 
@@ -40,6 +44,10 @@ function createChart() {
 	// get reference to the issues (not deep copy, so cheap)
 	const issues = yoda.getIssues();
 	console.log("Got " + issues.length + " issues");
+
+	// Let's do a trick. We will add a synthesized label containing the state.
+	for (let i = 0; i < issues.length; i++) 
+		issues[i].labels.push({name: 'State - ' + issues[i].state});
 	
 	// Let's set today as 0:0:0 time (so VERY start of the day)
 	let today = new Date();
@@ -386,9 +394,9 @@ function createChart() {
 
 function startChart() {
 	if ($("#repolist").val() == "") 
-		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), "open", createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesOrg($("#owner").val(), $("#labelfilter").val(), $("#scoperadio input[type='radio']:checked").val(), createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 	else
-		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), "open", null, createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
+		yoda.updateGitHubIssuesRepos($("#owner").val(), $("#repolist").val(), $("#labelfilter").val(), $("#scoperadio input[type='radio']:checked").val(), null, createChart, function(errorText) { yoda.showSnackbarError("Error getting issues: " + errorText, 3000);});
 }
 
 // --------------
@@ -421,6 +429,8 @@ export function init() {
 
 	yoda.decodeUrlParamRadio("estimate", "estimate");
 	yoda.updateEstimateRadio();
+
+	yoda.decodeUrlParamRadio("scope", "scope");
 
 	// Local storage
 	yoda.getUserTokenLocalStorage("#user", "#token");

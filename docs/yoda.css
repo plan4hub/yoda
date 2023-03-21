@@ -92,6 +92,7 @@ input {
 #countradio label,
 #estimateradio label,
 #outputformatradio label,
+#scoperadio label,
 #estimatern label {
 	display: inline;
     float: left;
@@ -101,6 +102,7 @@ input {
 #countradio input,
 #estimateradio input,
 #outputformatradio input,
+#scoperadio input,
 #estimatern input {
 	display: inline;
     float: left;
