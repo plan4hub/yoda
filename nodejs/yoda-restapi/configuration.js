@@ -62,6 +62,13 @@ const optionDefinitions = [
 		defaultValue: '/var/tmp/yoda-restapi/config.yaml'
 	},
 	{
+		name: 'cache-timeout',
+		alias: 't',
+		type: Number,
+		description: 'Cache live time in seconds. Default 600 (10 minutes).',
+		defaultValue: 600
+	},
+	{
 		name: 'app-mode',
 		type: Boolean,
 		description: 'Run in GitHub App mode (i.e. using tokens retrieved from GitHub App Installation(s)).',
