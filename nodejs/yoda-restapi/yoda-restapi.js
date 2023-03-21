@@ -168,11 +168,14 @@ async function listener(req, res) {
 	} else {
 		// issues query
 		let promise;
+		let resusePromise;
 		if (queryCache.has(req.url)) {
 			logger.info("Reusing query promise for " + req.url);
 			promise = queryCache.get(req.url);
+			resusePromise = true;
 		} else {
 			logger.info("Building new query promise for " + req.url);
+			resusePromise = false;
 			promise = new Promise(async resolve => {
 				try {
 					// First let's get all fields. 
@@ -373,14 +376,18 @@ async function listener(req, res) {
 					resolve([500, { 'Content-type': 'application/json' }, '{"message": "Internal error occurred. Check log file."}']);
 				}
 			});
-			// Store the promise in the cache and start the timer.
+			// Store the promise in the cache 
 			queryCache.set(req.url, promise);
-			setTimeout(() => {
-				logger.info("Clearing cache for " + req.url);
-				queryCache.delete(req.url); 
-            }, configuration.getOption('cache-timeout') * 1000);  
 		}
 		[httpCode, header, result] = await promise;
+
+		// If new promise, start the timer
+		if (!resusePromise)
+			setTimeout(() => {
+				logger.info("Clearing cache for " + req.url);
+				queryCache.delete(req.url);
+			}, configuration.getOption('cache-timeout') * 1000);  
+
 		res.writeHead(httpCode, header);
 		res.end(result);
 	}
