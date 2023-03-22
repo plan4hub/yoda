@@ -10,6 +10,7 @@ solutions:
             repositories:
             - hpsd/nfvd
             - hpsd/nso
+            - hpsd/nfvd-cloud
           GVNFM:
             component_name: Generic VNF Manager
             repositories:
