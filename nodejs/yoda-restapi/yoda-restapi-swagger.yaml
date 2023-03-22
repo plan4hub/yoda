@@ -15,8 +15,23 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              message:
+                type: string
     InternalServerError:
       description: An internal error has occured while processing the request
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              message:
+                type: string
+
 security:
   - bearerAuth: []         # use the same name as above
 paths:

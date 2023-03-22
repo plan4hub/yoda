@@ -108,8 +108,8 @@ async function listener(req, res) {
 	}
 	if (token == "") {
 		logger.info("Rejecting request. No token");
-		res.writeHeader(401);
-		res.end();
+		res.writeHeader(401, { 'Content-type': 'application/json' });
+		res.end('{"message": "No token supplied"}');
 		return;
 	}
 	let validToken = false;
@@ -122,8 +122,8 @@ async function listener(req, res) {
 	}
 	if (!validToken) {
 		logger.info("Rejecting request. Invalid token");
-		res.writeHeader(401);
-		res.end();
+		res.writeHeader(401, { 'Content-type': 'application/json' });
+		res.end('{"message": "Invalid token supplied"}');
 		return;
 	}
 
