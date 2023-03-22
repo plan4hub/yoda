@@ -157,6 +157,8 @@ paths:
                       type: string
                     component:
                       type: string
+                    repository:
+                      type: string
                     solution:
                       type: string
                     solution_family:

@@ -354,6 +354,7 @@ async function listener(req, res) {
 						for (let i = 0; i < issues.length; i++) {
 							// Synthetize fields...
 							issues[i]["id"] = repos[ri]["owner"] + "/" + repos[ri]["repo"] + "#" + issues[i]["number"];
+							issues[i]["repository"] = repos[ri]["owner"] + "/" + repos[ri]["repo"];
 
 							let resultIssue = {};
 							for (let fi in fieldArray) {
