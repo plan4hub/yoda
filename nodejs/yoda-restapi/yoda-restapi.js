@@ -154,8 +154,12 @@ async function listener(req, res) {
 		// products query
 		let products = [];
 		for (let s in c.solutions)
-			for (let p in c.solutions[s]["products"])
-				products.push({ product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"] });
+			for (let p in c.solutions[s]["products"]) {
+				let components = [];
+				for (let comp in c.solutions[s]["products"][p]["components"])
+					components.push({ component: comp, component_name: c.solutions[s]["products"][p]["components"][comp]["component_name"]});
+				products.push({ product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"], components: components });
+			}
 		res.writeHead(200, { 'Content-type': 'application/json' });
 		res.end(JSON.stringify(products));
 	} else if (q.pathname == "/queries") {
@@ -209,7 +213,7 @@ async function listener(req, res) {
 					for (let s in c.solutions)
 						for (let p in c.solutions[s]["products"]) {
 							// Include this product?
-							if (products == null || products.indexOf(p) != -1) { // Yes, we include
+							if ((products == null && c.solutions[s]["products"][p]["exclude_from_all"] != true) || (products != null && products.indexOf(p) != -1)) { // Yes, we include  
 								// Include all components
 								for (let comp in c.solutions[s]["products"][p]["components"]) {
 									// Include all repos
@@ -368,7 +372,7 @@ async function listener(req, res) {
 						}
 						logger.debug("Adding " + issues.length + " issues from " + repos[ri].owner + "/" + repos[ri].repo);
 					}
-					logger.debug("Final # of issues is: " + result.length);
+					logger.info("Final # of issues for query: " + req.url + " is " + result.length);
 
 					resolve([200, {'Content-type': 'application/json'}, JSON.stringify(result)]); 
 				} catch (e) {
@@ -384,7 +388,7 @@ async function listener(req, res) {
 		// If new promise, start the timer
 		if (!resusePromise)
 			setTimeout(() => {
-				logger.info("Clearing cache for " + req.url);
+				logger.info("Clearing cache for: " + req.url);
 				queryCache.delete(req.url);
 			}, configuration.getOption('cache-timeout') * 1000);  
 
@@ -392,8 +396,6 @@ async function listener(req, res) {
 		res.end(result);
 	}
 }
-
-
 
 let server;
 

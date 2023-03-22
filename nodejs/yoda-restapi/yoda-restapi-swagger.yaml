@@ -42,6 +42,16 @@ paths:
                       type: string
                     solution_family:
                       type: string
+                    components:
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          component:
+                            type: string
+                          component_name:
+                            type: string
+
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':

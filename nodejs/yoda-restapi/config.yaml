@@ -51,6 +51,7 @@ solutions:
     products:
       yoda:
         product_name: Yoda
+        exclude_from_all: true
         components:
           yoda:
             component_name: Yoda
