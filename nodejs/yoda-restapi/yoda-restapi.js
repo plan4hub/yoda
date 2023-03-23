@@ -195,7 +195,12 @@ async function listener(req, res) {
 						// Make sure that all fields mentioned are indeed one of the allowed fields.
 						const fieldArray = fields.split(",");
 						for (let fi = 0; fi < fieldArray.length; fi++) {
-							if (allFields[fieldArray[fi]] == undefined)
+							let f;
+							if (fieldArray[fi].indexOf(":"))
+								[f, _] = fieldArray[fi].split(":");
+							else
+								f = fieldArray[fi];
+							if (allFields[f] == undefined)
 								resolve([400, { 'Content-type': 'application/json' }, '{"message": "Unsupported field requested: ' + fieldArray[fi] + '"}']);
 						}
 					} else
@@ -358,16 +363,20 @@ async function listener(req, res) {
 
 							let resultIssue = {};
 							for (let fi in fieldArray) {
-								let f = fieldArray[fi];
+								let f, alias;
+								if (fieldArray[fi].indexOf(":") != -1)
+									[f, alias] = fieldArray[fi].split(":");
+								else
+									f = alias = fieldArray[fi];
 								let v;
 								if (['product', 'product_name', 'component', 'solution', 'solution_family'].indexOf(f) != -1)
 									v = repos[ri][f];
 								else
 									v = issues[i][f];
 								if (v != undefined)
-									resultIssue[f] = v;
+									resultIssue[alias] = v;
 								else
-									resultIssue[f] = null;
+									resultIssue[alias] = null;
 							}
 							result.push(resultIssue);
 						}
