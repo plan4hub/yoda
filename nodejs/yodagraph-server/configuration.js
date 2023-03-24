@@ -55,6 +55,13 @@ const optionDefinitions = [
 		defaultValue: '/var/tmp/yodagraph-server/yodagraph-server.log'
 	},
 	{
+		name: 'cache-timeout',
+		alias: 't',
+		type: Number,
+		description: 'Cache live time in seconds. Default 3600 (1 hour).',
+		defaultValue: 3600
+	},
+	{
 		name: 'cert',
 		type: String,
 		description: 'HTTPS certificate.'

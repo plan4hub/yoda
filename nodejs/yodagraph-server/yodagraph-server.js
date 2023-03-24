@@ -22,6 +22,9 @@ const log4js = require('log4js');
 const { url } = require('inspector');
 var logger = log4js.getLogger();
 
+// The queryCache.
+const queryCache = new Map();
+
 var browser;
 
 async function init() {
@@ -64,80 +67,111 @@ async function listener(req, res) {
     ui = req.url.indexOf('url=');
     if (ui == -1) {
         logger.warn("WARNING: Received request without url: " + req.url);
-        res.writeHead(200,{'Content-type':'text/html'});
+        res.writeHead(200, { 'Content-type': 'text/html' });
         res.end(usage);
         return
     } else {
         var url = req.url.substring(ui + 4);
     }
 
-    // Width?
-    var w = req.url.match(/width=([0-9]*)/);
-    if (w != undefined) 
-        width = parseInt(w[1]);
-    else
-        width = configuration.getOption('width');
-    logger.trace("Width set at " + width);
+    let promise;
+    let resusePromise;
+    if (queryCache.has(req.url)) {
+        logger.info("Reusing query promise for " + req.url);
+        promise = queryCache.get(req.url);
+        resusePromise = true;
+    } else {
+        logger.info("Building new query promise for " + req.url);
+        resusePromise = false;
+        promise = new Promise(async resolve => {
+            try {
+                // Width?
+                var w = req.url.match(/width=([0-9]*)/);
+                if (w != undefined)
+                    width = parseInt(w[1]);
+                else
+                    width = configuration.getOption('width');
+                logger.trace("Width set at " + width);
 
-    // Add user/token?
-   if (url.indexOf("user=") == -1 && configuration.getOption('user') != undefined) {
-        logger.trace("Added default user and password");
-        url += "&user=" + configuration.getOption('user') + "&token=" + configuration.getOption('password');
-    }
-    logger.debug("Url: " + url);
+                // Add user/token?
+                if (url.indexOf("user=") == -1 && configuration.getOption('user') != undefined) {
+                    logger.trace("Added default user and password");
+                    url += "&user=" + configuration.getOption('user') + "&token=" + configuration.getOption('password');
+                }
+                logger.debug("Url: " + url);
 
-    // then we need to start a browser tab
-    let page = await browser.newPage();
-    logger.trace("New page created");
+                // then we need to start a browser tab
+                let page = await browser.newPage();
+                logger.trace("New page created");
 
-    await page.setViewport({
-        width: width,
-        height: 2000,
-        deviceScaleFactor: 1,
-    });
-    logger.trace("View port set.");
+                await page.setViewport({
+                    width: width,
+                    height: 2000,
+                    deviceScaleFactor: 1,
+                });
+                logger.trace("View port set.");
 
-    try {
-        await page.goto(url, {
-//            waitUntil: 'domcontentloaded'
-//            waitUntil: 'networkidle0'
-      });
-    } catch (err) {
-        logger.error("Failed loading page for url: " + url);
-        logger.error(err);
-        res.writeHead(404,{'Content-type':'text/html'});
-        res.end("Error doing GET on specified url");
-        return
-    }
+                try {
+                    await page.goto(url, {
+                        //            waitUntil: 'domcontentloaded'
+                        //            waitUntil: 'networkidle0'
+                    });
+                } catch (err) {
+                    logger.error("Failed loading page for url: " + url);
+                    logger.error(err);
+                    res.writeHead(404, { 'Content-type': 'text/html' });
+                    res.end("Error doing GET on specified url");
+                    return
+                }
 
-    var data = null;
-    try {
-        await page.evaluate('Chart.defaults.animation = false;'); // turn off Chartjs animations.
+                var data = null;
+                try {
+                    await page.evaluate('Chart.defaults.animation = false;'); // turn off Chartjs animations.
 
-        await page.waitForFunction('document.querySelector("#canvas").height > 400', {
-            timeOut: configuration.getOption('timeout')
+                    await page.waitForFunction('document.querySelector("#canvas").height > 400', {
+                        timeOut: configuration.getOption('timeout')
+                    });
+                    data = await page.evaluate(() => {
+                        return document.querySelector('#canvas').toDataURL('image/png');
+                    });
+                } catch (err) {
+                    logger.error("Failed building or getting graph for url: " + url);
+                    resolve([404, { 'Content-type': 'text/html' }, "Error waiting for graph - likely timeout"]);
+                }
+
+                // strip off the data: url prefix to get just the base64-encoded bytes and then put as buffer
+                var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+
+                res.writeHead(200, { 'Content-type': 'image/png' });
+                res.end(buf);
+
+                // close page
+                // Don't close last page as this will be keeping application storage stuff.
+                var pages = await browser.pages();
+                if (pages.length > 2)
+                    await page.close();
+
+                logger.info("Succesfully responded with graph for url: " + url);
+                resolve([200, { 'Content-type': 'image/png' }, buf]);
+            } catch (e) {
+                logger.error(e);
+                resolve([500, { 'Content-type': 'text/html' }, 'Error: Check log file.']);
+            }
         });
-        data = await page.evaluate(() => {
-            return document.querySelector('#canvas').toDataURL('image/png');
-        });
-    }  catch (err) {
-        logger.error("Failed building or getting graph for url: " + url);
-        res.writeHead(404,{'Content-type':'text/html'});
-        res.end("Error waiting for graph - likely timeout");
-        return
+        // Store the promise in the cache 
+        queryCache.set(req.url, promise);
     }
+    [httpCode, header, result] = await promise;
 
-    // strip off the data: url prefix to get just the base64-encoded bytes and then put as buffer
-    var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-    res.writeHead(200,{'Content-type':'image/png'});
-    res.end(buf);
-    logger.info("Succesfully responded with graph for url: " + url);
+    // If new promise, start the timer
+    if (!resusePromise)
+        setTimeout(() => {
+            logger.info("Clearing cache for: " + req.url);
+            queryCache.delete(req.url);
+        }, configuration.getOption('cache-timeout') * 1000);
 
-    // close page
-    // Don't close last page as this will be keeping application storage stuff.
-    var pages = await browser.pages();
-    if (pages.length > 2)
-        await page.close();
+    res.writeHead(httpCode, header);
+    res.end(result);
 }
 
 // Set things up
