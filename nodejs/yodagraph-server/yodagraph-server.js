@@ -37,6 +37,7 @@ async function init() {
     logger.info(args);
     browser = await puppeteer.launch({
         args: args,
+//        headless: false,
         ignoreHTTPSErrors: true,
 
     });
@@ -119,9 +120,7 @@ async function listener(req, res) {
                 } catch (err) {
                     logger.error("Failed loading page for url: " + url);
                     logger.error(err);
-                    res.writeHead(404, { 'Content-type': 'text/html' });
-                    res.end("Error doing GET on specified url");
-                    return
+                    resolve([404, { 'Content-type': 'text/html' }, "Error doing GET on specified url"]);
                 }
 
                 var data = null;
@@ -129,7 +128,7 @@ async function listener(req, res) {
                     await page.evaluate('Chart.defaults.animation = false;'); // turn off Chartjs animations.
 
                     await page.waitForFunction('document.querySelector("#canvas").height > 400', {
-                        timeOut: configuration.getOption('timeout')
+                        timeout: configuration.getOption('timeout')
                     });
                     data = await page.evaluate(() => {
                         return document.querySelector('#canvas').toDataURL('image/png');
