@@ -142,9 +142,6 @@ async function listener(req, res) {
                 // strip off the data: url prefix to get just the base64-encoded bytes and then put as buffer
                 var buf = Buffer.from(data.replace(/^data:image\/\w+;base64,/, ""), 'base64');
 
-                res.writeHead(200, { 'Content-type': 'image/png' });
-                res.end(buf);
-
                 // close page
                 // Don't close last page as this will be keeping application storage stuff.
                 var pages = await browser.pages();
