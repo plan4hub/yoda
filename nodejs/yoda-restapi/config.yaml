@@ -28,11 +28,11 @@ solutions:
           SD:
             component_name: Service Director
             repositories:
-            - hpsd/@rnd,sd,-adapter,issues
+            - hpsd/@rnd,sd,-adapter,issues,-rnd-internal
           SDC.AF:
             component_name: Service Director Adapter Factory
             repositories:
-            - hpsd/@rnd,sd,adapter,issues
+            - hpsd/@rnd,sd,adapter,issues,-rnd-internal
   Service Activator:
     solution_family: FRI
     products:
