@@ -84,6 +84,7 @@ extra_fields:
   severity:
     rule: extract_label
     pattern: '^S[1-4] - (.*)$'
+    # none_value can be specified, but null is actually also the default
     none_value: null
     # If separator is empty then take only first
     separator: ""

@@ -62,9 +62,9 @@ logger.info("Server starting ...");
 	});
 } */
 
-function getOctokit(issueRef) {
+function getOctokit(owner) {
 	if (configuration.getOption("app-mode")) {
-		const ok = yodaAppModule.getAppOctokit(issueRef);
+		const ok = yodaAppModule.getAppOctokit(owner);
 		if (ok != null)
 			return ok;
 		if (userOctokit != null)
@@ -249,8 +249,8 @@ async function listener(req, res) {
 									q += "+topic:" + topics[t];
 
 							logger.debug("Doing repo search: " + q);
-							const topicRepos = await getOctokit().paginate(
-								getOctokit().rest.search.repos,
+							const topicRepos = await getOctokit(owner).paginate(
+								getOctokit(owner).rest.search.repos,
 								{
 									q: q,
 									per_page: 100
@@ -298,8 +298,8 @@ async function listener(req, res) {
 					let result = [];
 					for (let ri = 0; ri < repos.length; ri++) {
 						// Let's get'em...
-						const issues = await getOctokit().paginate(
-							getOctokit().rest.issues.listForRepo,
+						const issues = await getOctokit(repos[ri].owner).paginate(
+							getOctokit(repos[ri].owner).rest.issues.listForRepo,
 							{
 								owner: repos[ri].owner,
 								repo: repos[ri].repo,

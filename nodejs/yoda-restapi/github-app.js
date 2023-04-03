@@ -39,7 +39,7 @@ function init() {
         //Set-up authentication and store for later use if needed.
         const authString = "token " + authorization.token;
         const appOctokit = new Octokit({
-                userAgent: 'yoda-webhook',
+                userAgent: 'yoda-restapi',
 				baseUrl: configuration.getOption('baseurl'),
                 log: logger,
                 auth: authString
