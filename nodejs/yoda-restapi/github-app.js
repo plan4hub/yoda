@@ -89,10 +89,10 @@ function checkEvent(id, name, payload) {
 // Retrieve an octokit instance
 function getAppOctokit(owner) {
 	// We need to find a match for issueRef owner based on account.login
-	logger.debug("Searching for installation for owner: '" + owner + "'. lower case is: '" + owner.toLowerCase() + "'");
+	logger.trace("Searching for installation for owner: '" + owner + "'. lower case is: '" + owner.toLowerCase() + "'");
 	const r = appInstallations.findIndex(inst => inst.account.login.toLowerCase() == owner.toLowerCase());
 	if (r != -1) {
-		logger.debug("Found installation. Installation Id: " + appInstallations[r].id);
+		logger.trace("Found installation. Installation Id: " + appInstallations[r].id);
 		return appInstallations[r].octokit;
 	} else {
 		logger.warn("Could not find app installation for owner: " + owner);
