@@ -56,11 +56,11 @@ if (configuration.getOption("app-mode"))
 logger.info("Server starting ...");
 
 //	If we are running in GitHub App mode, let's listen as well for installation events. They are interesting....
-if (configuration.getOption('app-mode')) {
+/* if (configuration.getOption('app-mode')) {
 	webhooks.on('installation', ({ id, name, payload }) => {
 		yodaAppModule.checkEvent(id, name, payload);
 	});
-} 
+} */
 
 function getOctokit(owner) {
 	if (configuration.getOption("app-mode")) {
