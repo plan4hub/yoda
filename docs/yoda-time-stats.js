@@ -500,8 +500,18 @@ function createChart() {
 	// Need to consider previous date, so that we can observe interval. Go back one interval
     let previousDate = new Date(startDate);
     const startDay = previousDate.getDate(); // Hack, need to keep startDay when advancing using month (m) syntax.
-    yoda.advanceDate(previousDate, "-" + interval, startDay);
-    console.log("Initial previousDate: " + previousDate);
+
+	// Set previousdate and startdate. 
+	if (countType == "noissues" || countType == "durationopen") {
+		// First normal case
+		yoda.advanceDate(previousDate, "-" + interval, startDay);
+		console.log("Initial previousDate: " + previousDate);
+	} else {
+		// Then interval cases
+		yoda.advanceDate(startDate, interval, startDay);
+		console.log("Adjusted startDate: " + startDate);
+	}
+
 	for (let date = new Date(startDate); date <= endDate; previousDate = new Date(date), yoda.advanceDate(date, interval, startDay)) {
 		console.log("Date: " + date + ", previousDate: " + previousDate);
 		date.setHours(23);
