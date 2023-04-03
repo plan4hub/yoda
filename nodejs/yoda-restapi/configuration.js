@@ -160,11 +160,6 @@ function parseOptions() {
 			error = true;
 		}
 		
-		if (options['app-mode'] && options['app-clientsecret'] == undefined) {
-			logger.error("No --app-clientsecret given");
-			error = true;
-		}
-
 		if (options['app-mode'] && options['app-pemfile'] == undefined) {
 			logger.error("No --app-pemfile given");
 			error = true;
