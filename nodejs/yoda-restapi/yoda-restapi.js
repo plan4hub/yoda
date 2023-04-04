@@ -414,6 +414,7 @@ if (configuration.getOption('cert') == undefined) {
     // Start the server.
     logger.info("Bringing up server in HTTP mode.");
     server = http.createServer(listener);
+	server.timeout = 0;
     server.listen(configuration.getOption('port'));
 } else {
     // HTTPS
@@ -426,6 +427,7 @@ if (configuration.getOption('cert') == undefined) {
     };
 
     server = https.createServer(options, listener);
+	server.timeout = 0;
     server.listen(configuration.getOption('port'));
 }
 
