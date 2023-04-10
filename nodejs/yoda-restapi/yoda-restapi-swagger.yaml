@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: Yoda REST API
-  description: Simplified REST API towards issues in multiple repos and does high level filtering and aggregation according to configurable rules.
-  version: 0.0.1
+  description: Simplified REST API towards GitHub issues at product level. Supports issues across multiple repos and provides filtering and aggregation according to configurable rules.
+  version: 0.0.2
 servers:
   - url: /
     description: Optional server description, e.g. Main (production) server
