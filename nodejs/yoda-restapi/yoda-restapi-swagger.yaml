@@ -151,6 +151,8 @@ paths:
                   properties:
                     id:
                       type: string
+                    node_id:
+                      type: string
                     product:
                       type: string
                     product_name:
