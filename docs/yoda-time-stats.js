@@ -22,7 +22,7 @@ import * as yoda from './yoda-utils.js'
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
 	params += "&repolist=" + $("#repolist").val();
-	["startdate", "enddate", "interval", "labelfilter", "labelsplit", "other", "title", "stacked", "righttotal", "percentage"].forEach((p) => {
+	["startdate", "enddate", "interval", "labelfilter", "labelsplit", "other", "title", "dateformat", "stacked", "righttotal", "percentage"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 
 	if (yoda.getEstimateInIssues() != "inbody")
@@ -518,11 +518,23 @@ function createChart() {
 		date.setMinutes(59);
 		date.setSeconds(59);
 		
-		// Push to date array the labels. For open issues just the date. For others prepend with "<"
-		if (countType != "noissues")
-			dateArray.push(".. " + yoda.formatDate(date));
-		else
+		// Push to date array the labels. For open issues just the date. For others prepend with ".. " OR work with date format... 
+		if (countType != "noissues") {
+			if ($("#dateformat").val() == "")
+				dateArray.push(".. " + yoda.formatDate(date));
+			else {
+				let lastDate = new Date(date);
+				yoda.advanceDate(lastDate, "-1", startDay);
+				let firstFormatted = yoda.formatIntervalDate(previousDate, $("#dateformat").val());
+				let lastFormatted = yoda.formatIntervalDate(lastDate, $("#dateformat").val());
+				if (firstFormatted == lastFormatted)
+					dateArray.push(firstFormatted);
+				else
+					dateArray.push(firstFormatted + " .. " + lastFormatted);
+			}
+		} else {
 			dateArray.push(yoda.formatDate(date));
+		}
 		
 		// CALL TO ACTUALLY COUNT FUNCTION !!!
 		let dataArrayForDay, dataDurationOpenForDay, dataECTDurationForDay, otherForDay, totalForDay, otherDurationOpenForDay, otherETCDurationForDay, totalAlways;
@@ -814,6 +826,8 @@ export function init() {
 	yoda.decodeUrlParam("#labelsplit", "labelsplit");
 	yoda.decodeUrlParam("#other", "other");
 	yoda.decodeUrlParam("#title", "title");
+	yoda.decodeUrlParam("#dateformat", "dateformat");
+
 	yoda.decodeUrlParamBoolean("#stacked", "stacked");
 	yoda.decodeUrlParamBoolean("#righttotal", "righttotal");
 	yoda.decodeUrlParamBoolean("#percentage", "percentage");

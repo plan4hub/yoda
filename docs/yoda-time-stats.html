@@ -109,41 +109,48 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 	<div class="frame">
 		<div class="field">
-			<label>Start date (blank=2m ago)</label>
-			<input type="text" id="startdate" size="20" value="">
-			<span class="tooltip">Timeline start</span>
+			<label>Start date</label>
+			<input type="text" id="startdate" size="10" value="">
+			<span class="tooltip">Timeline start  (blank = two months ago)</span>
 		</div>
 
 		<div class="field">
-			<label>End date (today=blank)</label>
-			<input type="text" id="enddate" size="20" value="">
-			<span class="tooltip">Timeline end</span>
+			<label>End date</label>
+			<input type="text" id="enddate" size="10" value="">
+			<span class="tooltip">Timeline end (blank=today)</span>
 		</div>
 
 		<div class="field">
 			<label>Interval</label>
-			<input type="text" id="interval" size="8" value="7">
+			<input type="text" id="interval" size="4" value="7">
 			<span class="tooltip">Interval in days or months (<i>m</i> postfix)</span>
 		</div>
 
 		<div class="field">
-			<label>Label Bar Splitting</label>
-			<input type="text" id="labelsplit" size="13" value="^S[1-4] -">
+			<label>Label Bar Split</label>
+			<input type="text" id="labelsplit" size="15" value="^S[1-4] -">
 			<span class="tooltip">Split issues into bars (reg. exp or comma sep. list)</span>
 		</div>
 
 		<div class="field">
-			<label>Other (blank to omit)</label>
-			<input type="text" id="other" size="13" value="Other">
-			<span class="tooltip">Bar label for other issues</span>
+			<label>Other)</label>
+			<input type="text" id="other" size="10" value="Other">
+			<span class="tooltip">Bar label for other issues (blank to omit)</span>
 		</div>
 		
 		<div class="field">
 			<label>Title</label>
-			<input type="text" id="title" size="30" value="">
+			<input type="text" id="title" size="35" value="">
 			<span class="tooltip">Chart title</span>
 		</div>
 		
+		<div class="field">
+			<label>Date format</label>
+			<input type="text" id="dateformat" size="10" value="">
+			<span class="tooltip">Optional Date format instead of default ".. YYYY-MM-DD" for interval graphs, e.g. opened.<br>
+				Supported: %m (month), %cy (calendar year), %CY (full calendar year), %fy (fiscal year), %cq (calendar quarter), %fq (fiscal quarter)</span>
+		</div>
+
 		<button id="drawbutton">Draw chart</button>
 
 		<div class="field">

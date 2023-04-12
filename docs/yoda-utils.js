@@ -517,6 +517,27 @@ export function getPureDescription(description) {
 	return res;
 }
 
+// Format Interval Date
+// Supported: %m (month), %cy (calendar year), %CY (full calendar year), %fy (fiscal year), %cq (calendar quarter), %fq (fiscal quarter)
+export function formatIntervalDate(date, dateFormat) {
+	let result = dateFormat;
+	if (result.indexOf("%m") != -1) 
+		result = result.replaceAll("%m", ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]);
+	if (result.indexOf("%CY") != -1) 
+		result = result.replaceAll("%CY", date.getFullYear());
+	if (result.indexOf("%cy") != -1) 
+		result = result.replaceAll("%cy", date.getFullYear().toString().substring(2));
+	if (result.indexOf("%fy") != -1)
+		result = result.replaceAll("%fy", (date.getFullYear() + ((date.getMonth() == 10 || date.getMonth() == 11)?1:0)).toString().substring(2));
+	if (result.indexOf("%cq") != -1) 
+		result = result.replaceAll("%cq", (Math.floor(date.getMonth() / 3) + 1));
+	if (result.indexOf("%fq") != -1) 
+		result = result.replaceAll("%fq", (Math.floor(((date.getMonth() + 2) % 12) / 3) + 1));
+
+	return result;
+}
+
+
 // get date part of remaining entry.
 export function getDateFromEntry(remainingEntry) {
 	const dateEnd = remainingEntry.indexOf(" ");
