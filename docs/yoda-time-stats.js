@@ -533,7 +533,12 @@ function createChart() {
 					dateArray.push(firstFormatted + " .. " + lastFormatted);
 			}
 		} else {
-			dateArray.push(yoda.formatDate(date));
+			if ($("#dateformat").val() == "")
+				dateArray.push(yoda.formatDate(date));
+			else {
+				let dateFormatted = yoda.formatIntervalDate(date, $("#dateformat").val());
+				dateArray.push(dateFormatted);
+			}
 		}
 		
 		// CALL TO ACTUALLY COUNT FUNCTION !!!

@@ -519,6 +519,7 @@ export function getPureDescription(description) {
 
 // Format Interval Date
 // Supported: %m (month), %cy (calendar year), %CY (full calendar year), %fy (fiscal year), %cq (calendar quarter), %fq (fiscal quarter)
+//            %d (day with prependen 0), %M (month number with prepended 0)
 export function formatIntervalDate(date, dateFormat) {
 	let result = dateFormat;
 	if (result.indexOf("%m") != -1) 
@@ -533,6 +534,11 @@ export function formatIntervalDate(date, dateFormat) {
 		result = result.replaceAll("%cq", (Math.floor(date.getMonth() / 3) + 1));
 	if (result.indexOf("%fq") != -1) 
 		result = result.replaceAll("%fq", (Math.floor(((date.getMonth() + 2) % 12) / 3) + 1));
+	if (result.indexOf("%d") != -1) 
+		result = result.replaceAll("%d", (date.getDate()).toString().padStart(2, '0'));
+		if (result.indexOf("%M") != -1) 
+		result = result.replaceAll("%M", (date.getMonth() + 1).toString().padStart(2, '0'));
+	
 
 	return result;
 }
