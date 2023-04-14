@@ -53,8 +53,11 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
-	if ($("#repolist").val() != "")
-		params += "&repolist=" + $("#repolist").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		if ($("#repolist").val() != "")
+			params += "&repolist=" + $("#repolist").val();
 	if ($("#milestonelist").val() != "")
 		params += "&milestonelist=" + $("#milestonelist").val();
 

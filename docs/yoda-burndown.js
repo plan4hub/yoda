@@ -24,7 +24,11 @@ let repoMilestones = []; // Double-array of repos,milestone (full structure) for
 let commonMilestones = []; // Options for milestone selection (milestones in all repos, just title).
 
 function getUrlParams() {
-	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 	if (yoda.getEstimateInIssues() != "inbody")
 		params += "&estimate=" + yoda.getEstimateInIssues();
 

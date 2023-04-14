@@ -1773,8 +1773,12 @@ export function openYodaTool(url, copyOwnerRepo) {
 	// If we have owner and/or repolist set, let's put these as parameters to new tool so we don't have to put them again.
 	if (copyOwnerRepo && $("#owner").val() != undefined && $("#owner").val() != "") {
 		params += "?owner=" + $("#owner").val();
-		if ($("#repolist").val() != undefined && $("#repolist").val() != "")
-			params += "&repolist=" + $("#repolist").val();
+		if (decodeUrlParam(null, "repotopic") != null)
+			params += "&repotopic=" + decodeUrlParam(null, "repotopic");
+		else {
+			if ($("#repolist").val() != undefined && $("#repolist").val() != "")
+				params += "&repolist=" + $("#repolist").val();
+		}
 	}
 	window.open(url + params);
 }

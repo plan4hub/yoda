@@ -30,7 +30,10 @@ let selectMilestones = [];
 
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
-	params += "&repolist=" + $("#repolist").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 	params += "&milestonelist=" + $("#milestonelist").val();
 	if ($('#closedmilestones').is(":checked")) 
 		params += "&closedmilestones=true";

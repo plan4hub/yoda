@@ -54,7 +54,11 @@ function parseMarkdown(markdown) {
 }
 
 function getUrlParams() {
-	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 
 	["labelfilter", "milestonefilter", "singlelabeldef", "sharedlabeldef", "splitbodydef", "fields", "translation", "csvdelimiter", "labelindicator", 
 	"epiclabel", "outputfile", "cssowner", "cssrepo", "csspath", "cssbranch", "exportevents"].forEach((p) => {

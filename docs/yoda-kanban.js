@@ -44,7 +44,11 @@ let columnNameList = [];
 let columnDefList = [];
 
 function getUrlParams() {
-	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 	if (yoda.getEstimateInIssues() != "inbody") 
 		params += "&estimate=" + yoda.getEstimateInIssues();
 	if ($("#milestonelist").val() != "")

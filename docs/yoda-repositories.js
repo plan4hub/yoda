@@ -42,7 +42,9 @@ function addIfNotDefault(params, field) {
 
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
-	if ($("#repolist").val() != "")
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
 		params += "&repolist=" + $("#repolist").val();
 	params = addIfNotDefault(params, "fields");
 	params = addIfNotDefault(params, "descfile");

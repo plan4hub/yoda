@@ -21,7 +21,10 @@ import * as yoda from './yoda-utils.js'
 
 function getUrlParams() {
 	let params = "owner=" + $("#owner").val();
-	params += "&repolist=" + $("#repolist").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 	["startdate", "enddate", "interval", "labelfilter", "milestonefilter", "assigneefilter", "title"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 	return params;

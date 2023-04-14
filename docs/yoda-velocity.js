@@ -27,7 +27,11 @@ let noStoryBars = 0;
 let splitLabels = [];
 
 function getUrlParams() {
-	let params = "owner=" + $("#owner").val() + "&repolist=" + $("#repolist").val();
+	let params = "owner=" + $("#owner").val();
+	if (yoda.decodeUrlParam(null, "repotopic") != null)
+		params += "&repotopic=" + yoda.decodeUrlParam(null, "repotopic");
+	else
+		params += "&repolist=" + $("#repolist").val();
 	params += "&estimate=" + yoda.getEstimateInIssues();
 
 	["splitlabels", "labelfilter", "splitother", "closedmilestones", "showpercent"].forEach((p) => {
