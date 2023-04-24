@@ -151,6 +151,7 @@ async function listener(req, res) {
 	logger.debug("query:", q.search);
 	if (q.pathname == "/products") {
 		// products query
+		logger.info("Serving product search: " + req.url);
 		let products = [];
 		for (let s in c.solutions)
 			for (let p in c.solutions[s]["products"]) {
@@ -163,6 +164,7 @@ async function listener(req, res) {
 		res.end(JSON.stringify(products));
 	} else if (q.pathname == "/queries") {
 		// queries
+		logger.info("Serving queries search: " + req.url);
 		let queries = [];
 		for (let q in c.queries)
 			queries.push({ query: q, description: c.queries[q]["description"], parameters: c.queries[q]["parameters"] });
