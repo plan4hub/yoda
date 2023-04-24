@@ -228,7 +228,7 @@ async function listener(req, res) {
 							if ((products == null && c.solutions[s]["products"][p]["exclude_from_all"] != true) || (products != null && products.indexOf(p) != -1)) { // Yes, we include  
 								for (let comp in c.solutions[s]["products"][p]["components"]) {
 									// Include this component?
-									if ((components != null && components.indexOf(comp) != -1)) { // Yes, we include  
+									if (components == null || (components != null && components.indexOf(comp) != -1)) { // Yes, we include  
 										// Include all repos
 										for (let i = 0; i < c.solutions[s]["products"][p]["components"][comp]["repositories"].length; i++) {
 											let repo = c.solutions[s]["products"][p]["components"][comp]["repositories"][i];
