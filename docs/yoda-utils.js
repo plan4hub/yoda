@@ -987,9 +987,9 @@ export function gitAuth(userId, accessToken, fullExport) {
 
 	let headers = [];
 	if (fullExport == "fullExport")
-		headers['Accept'] = 'application/full+json';
+		headers['Accept'] = 'application/vnd.github.full+json';
 	else if (fullExport == "textMatch")
-		headers['Accept'] = 'application/text-match+json';
+		headers['Accept'] = 'application/vnd.github.text+json';
 	else
 		headers['Accept'] = 'application/json';
 

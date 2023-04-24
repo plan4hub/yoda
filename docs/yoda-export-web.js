@@ -608,6 +608,7 @@ export function startExport() {
 			var repo = repoIssueList[r].split("/")[0];
 			globRepoList.push(repo);
 			var repoIssues = repoIssueList[r].split("/")[1].split(",");
+			console.log(repoIssues);
 			for (var i = 0; i < repoIssues.length; i++) {
 				issueUrlList.push(yoda.getGithubUrl() + "repos/" + $("#owner").val() + "/" + repo + "/issues/" + repoIssues[i]);
 			}
