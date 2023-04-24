@@ -9,8 +9,11 @@ solutions:
             component_name: NFV Director
             repositories:
             - hpsd/nfvd
-            - hpsd/nso
             - hpsd/nfvd-cloud
+          NSO:
+            component_name: Network Service Orchestrator
+            repositories:
+            - hpsd/nso
           GVNFM:
             component_name: Generic VNF Manager
             repositories:

@@ -117,6 +117,11 @@ paths:
           description: Product(s) to use for scoping GitHub issues. Comma-separated list for more products. Omit to get all.
           schema:
             type: string
+        - name: component
+          in: query
+          description: Components(s) to use for scoping GitHub issues. Comma-separated list for more components. Omit to get all (subject to any product search)
+          schema:
+            type: string
         - name: state
           in: query
           description: Issue states to target. Possible values are 'open', 'closed', or 'all'. Default 'open'

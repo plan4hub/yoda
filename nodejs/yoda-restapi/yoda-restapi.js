@@ -48,7 +48,6 @@ function init() {
 
 init();
 
-
 // Run as GitHub App?
 if (configuration.getOption("app-mode"))
 	yodaAppModule.init();
@@ -212,6 +211,12 @@ async function listener(req, res) {
 						logger.info("Searching for product(s): " + products);
 					}
 
+					let components = null;
+					if (q.query["component"] != undefined) {
+						components = q.query["component"].split(",");
+						logger.info("Searching for components(s): " + components);
+					}
+
 					// Step 1: Determine products to be addressed, extra repos (may contain topic based search)
 					let repos = []
 					let c = configuration.getConfig();
@@ -219,13 +224,15 @@ async function listener(req, res) {
 						for (let p in c.solutions[s]["products"]) {
 							// Include this product?
 							if ((products == null && c.solutions[s]["products"][p]["exclude_from_all"] != true) || (products != null && products.indexOf(p) != -1)) { // Yes, we include  
-								// Include all components
 								for (let comp in c.solutions[s]["products"][p]["components"]) {
-									// Include all repos
-									for (let i = 0; i < c.solutions[s]["products"][p]["components"][comp]["repositories"].length; i++) {
-										let repo = c.solutions[s]["products"][p]["components"][comp]["repositories"][i];
-										logger.debug(s, p, comp, repo);
-										repos.push({ repospec: repo, component: comp, component_name: c.solutions[s]["products"][p]["components"][comp]["component_name"], product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"] });
+									// Include this component?
+									if ((components != null && components.indexOf(comp) != -1)) { // Yes, we include  
+										// Include all repos
+										for (let i = 0; i < c.solutions[s]["products"][p]["components"][comp]["repositories"].length; i++) {
+											let repo = c.solutions[s]["products"][p]["components"][comp]["repositories"][i];
+											logger.debug(s, p, comp, repo);
+											repos.push({ repospec: repo, component: comp, component_name: c.solutions[s]["products"][p]["components"][comp]["component_name"], product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"] });
+										}
 									}
 								}
 							}
