@@ -32,10 +32,6 @@ solutions:
             component_name: Service Director
             repositories:
             - hpsd/@rnd,sd,-adapter,issues,-rnd-internal,-om
-          SOM:
-            component_name: Service Order Manager
-            repositories:
-            - hpsd/som
           SDC.AF:
             component_name: Service Director Adapter Factory
             repositories:
@@ -54,6 +50,16 @@ solutions:
             component_name: Test and Diagnostics
             repositories:
               - hpsa/test-diag
+  Service Provisioner:
+    solution_family: FRI
+    products:
+      SOM:
+        product_name: HPE Service Order Manager
+        components:
+          SOM:
+            component_name: Service Order Manager
+            repositories:
+            - hpsd/som
   Internal Tools:
     solution_family: ORC
     products:
