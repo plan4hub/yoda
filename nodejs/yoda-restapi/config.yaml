@@ -31,7 +31,11 @@ solutions:
           SD:
             component_name: Service Director
             repositories:
-            - hpsd/@rnd,sd,-adapter,issues,-rnd-internal
+            - hpsd/@rnd,sd,-adapter,issues,-rnd-internal,-om
+          SOM:
+            component_name: Service Order Manager
+            repositories:
+            - hpsd/som
           SDC.AF:
             component_name: Service Director Adapter Factory
             repositories:
