@@ -371,7 +371,7 @@ It is a very simple tool. You select the repositories that will be involved in t
 
 Similarly, you can change those common fields easily across all the repos. First make the change into the milestone for one of the repos, then press "Copy/Update" to replicate to the milestones in the other repos. If the milestone does not exist in one of the selected repositories, it will be created.
 
-Milestone manager allows you to maintain a capacity value (used in the Burndown and Velocity graph tools) as well as an ED (Engineering Days) values used exclusively in the Velocity Graph tool. If subteams are working in the same repo, it is possible to specifify capacities per team by clicking the magnifying glass and entering a set of lines as *<capacity>,<team label>*. Same for ED. 
+Milestone manager allows you to maintain a capacity value (used in the Burndown and Velocity graph tools) as well as an ED (Engineering Days) values used exclusively in the Velocity Graph tool. If subteams are working in the same repo, it is possible to specifify capacities per team by clicking the magnifying glass and entering a set of lines as `<capacity>,<team label>`. Same for ED. 
 
 The Milestone Manager is available [here](yoda-milestone-manager.html).
 
