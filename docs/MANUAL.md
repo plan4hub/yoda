@@ -409,7 +409,7 @@ Columns mentioned in "Single label column definitions" are added based on the la
 
 Correspondingly, "Single label column regexps" add columns with label indicators to the CSV file. In this case, however, the colums are not explicitly named, only their pattern. For example, assuming that the labelling convention calls for prefixing customer encountered issues with "C - <customer name>", then the prefix "^C -" will cause all customer labels to received their own column, like "C - Acme Corp".
 
-It is also possible to define columns which will be extracted from value fields (using the `> (field) (value)` notation) from the body of the issue. Define those into the "Body Fields" line. Such columns are defined as a comma-separate list with the headline, then the field name. Default is "Fix Date:fix-date,Resolution Date:resolution-date"
+It is also possible to define columns which will be extracted from value fields (using the `> (field) (value)` notation) from the body of the issue. Define those into the "Body Fields" line. Such columns are defined as a comma-separate list with the headline, then the field name. Default is "Fix Date:fix-date,Resolution Date:resolution-date". An optional third argument may be specified in which case all lines(s) matching (field) will be considered. If the initial part of the (value) can be interpreted as a GitHub issue reference it will be formatted as a hyperlink.
 
 In order to support localized table headers (table format only, has no effect for CSV file), it is possible to translate the normal/English headers in a "Translation" line using a comma-separated list of *<header>:<localized header>* entries.
 
