@@ -500,41 +500,74 @@ function exportIssues(issues) {
 			// Right. Let's split into header and field
 			const header = splitbodyDef[s].split(":")[0];
 			let field = splitbodyDef[s].split(":")[1];
+			let regExp = splitbodyDef[s].split(":")[2];
 			
 			if (field.startsWith("!")) {
 				fieldRequired = true;
 				field = field.substr(1);
 			}
-			
-			let value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
-			if (value != null) {
-				// Does this look like a date - from Javascript perspective? 
-				if (yoda.isValidDate(value)) {
-					console.log(value + "seems like a data to Javascript");
-					let d = new Date();
-					d.setTime(Date.parse(value.trim()));
-					value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
-				} else if (value.split('/').length == 3) {
-					console.log(value + " looks like a date.");
-					// Does this look like a date - anyway?
-					let [tDay, tMonth, tYear] = value.split(" ")[0].split("/");
-					if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
-						let d = new Date();
-						if (tYear < 2000)
-							tYear = parseInt(tYear) + 2000;
-						console.log(value, tYear, tMonth, tDay)
-						d.setUTCFullYear(tYear, tMonth - 1, tDay);
-						value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
-					}
+
+			if (regExp != undefined) {
+				// special handling for regExp. Not only will we loop, but we will also do RegExp magic when extracting. Could in theory be merged with old/below handling, but
+				// doing separately for now.
+
+				let r = yoda.getAllBodyFields(issues[i].body, '^>[ ]*' + field + '[ ]+', regExp, 0);
+				if (r.length > 0) {
+					let result = [];
+					r.forEach(element => {
+						if (element.split(" ")[0].indexOf("#") != -1) {
+							let url = null;
+							// Ok. Let's be a bit smart here. IF the initial part of the string can be interpreted as a github issue, lets make sure it is shown as a link.
+							// Ok, we have a #. Good enough to consider an issue reference.
+							if (element.split(" ")[0][0] == "#")  // Local?
+								url = issues[i].html_url.replace(issues[i].number, element.split(" "[0].substring(1)));
+							else // Not local
+								url = yoda.getGithubUrlHtml() + element.split(" ")[0].replace("#", "/issues/");
+							result.push('<a href="' + url + '" target="_blank">' + element.split(" ")[0] + '</a> ' + element.split(" ").slice(1).join(" "));
+						} else {
+							result.push(element);
+						}
+					});
+
+					el[header] = result.join("<br>");
 				} else {
-					// NOP - value is good
-				}	
-				el[header] = value;
+					if (fieldRequired)
+						skipIssue = true;
+					else
+						el[header] = "";
+				}
 			} else {
-				if (fieldRequired)
-					skipIssue = true;
-				else
-					el[header] = "";
+				// No regexp, normal handling.
+				let value = yoda.getLabelMatch(issues[i].body, ">[ ]*" + field + " ");
+				if (value != null) {
+					// Does this look like a date - from Javascript perspective? 
+					if (yoda.isValidDate(value)) {
+						console.log(value + "seems like a data to Javascript");
+						let d = new Date();
+						d.setTime(Date.parse(value.trim()));
+						value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
+					} else if (value.split('/').length == 3) {
+						console.log(value + " looks like a date.");
+						// Does this look like a date - anyway?
+						let [tDay, tMonth, tYear] = value.split(" ")[0].split("/");
+						if (!isNaN(tDay) && !isNaN(tMonth) && !isNaN(tYear)) {
+							let d = new Date();
+							if (tYear < 2000)
+								tYear = parseInt(tYear) + 2000;
+							console.log(value, tYear, tMonth, tDay)
+							d.setUTCFullYear(tYear, tMonth - 1, tDay);
+							value = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, '0') + "-" + String(d.getUTCDate()).padStart(2, '0');
+						}
+					} else {
+						// NOP - value is good
+					}
+					el[header] = value;
+				} else {
+					if (fieldRequired)
+						skipIssue = true;
+					else
+						el[header] = "";
+				}
 			}
 		}
 
