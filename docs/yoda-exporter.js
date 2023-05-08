@@ -60,7 +60,7 @@ function getUrlParams() {
 	else
 		params += "&repolist=" + $("#repolist").val();
 
-	["labelfilter", "milestonefilter", "splitlabeldef", "sharedlabeldef", "splitbodydef", "fields", "translation", "csvdelimiter", "labelindicator", 
+	["labelfilter", "milestonefilter", "singlelabeldef", "splitlabeldef", "sharedlabeldef", "splitbodydef", "fields", "translation", "csvdelimiter", "labelindicator", 
 	"epiclabel", "outputfile", "cssowner", "cssrepo", "csspath", "cssbranch", "exportevents"].forEach((p) => {
 		params = yoda.addIfNotDefault(params, p); });
 
