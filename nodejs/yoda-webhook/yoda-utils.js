@@ -256,7 +256,10 @@ function noChildRefs(refList) {
 	return total;
 }
 
-
+function round(value, precision) {
+	const multiplier = Math.pow(10, precision || 0);
+	return Math.round(value * multiplier) / multiplier;
+}
 // ----------------------
 // FUNCTION for building reference lines. Assumes issueRef has a structure with both owner/repo/issue_number, as well 
 // as the issue itself in the issue field. The return value will be the aggregated string for the section, summming up
@@ -351,7 +354,7 @@ function makeChildBlock(ownRef, childIssues) {
 		}
 	}
 	
-	result = configuration.getOption('issuelist') + " (total estimate: " + totalEstimate + ", total remaining: " + totalRemaining + ", # open issues: " + totalOpen + ", # closed issues: " + totalClosed + ")\n" + result;
+	result = configuration.getOption('issuelist') + " (total estimate: " + round(totalEstimate, 2) + ", total remaining: " + round(totalRemaining, 2) + ", # open issues: " + totalOpen + ", # closed issues: " + totalClosed + ")\n" + result;
 	if (result.endsWith("\n"))
 		result = result.substring(0, result.length - 1);
 	
