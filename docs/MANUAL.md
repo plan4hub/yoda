@@ -163,7 +163,7 @@ As a special filtering feature, you may filter also using regular expressions. I
 
 Yet another filtering feature is not really filtering. It allows as part of the filter to add a synthesized label to an issue. If matching (or not) based on the regular expression then the label text put after a `~` will be added to the issue. This can then later be used e.g. for bar splitting. Example: `^C -~Customer Encountered`.
 
-Finally you can filter on special fields into the issue body (first comment); while this is strictly not a label filter. You can filter for presence - or - lack of a given field. This is done by starting the filter by `>`. Example: `>-estimate` to filter issues which *do not have* an `> estimate` entry.
+Finally you can filter on special fields into the issue body (first comment); while this is strictly not a label filter. You can filter for presence - or - lack of a given field. This is done by starting the filter by `>`. Example: `>-estimate` to filter issues which *do not have* an `> estimate` entry. This can futher be combined to synthesize labels depending on the value of a given field. For example `>version~V -` would synthesize labels - using a `V - ` prefix - of field value(s) in the form `> version (product_Vx)`.
 
 For a given date, you have the option of splitting issues into several bars based on a regular expression working on issues labels. The primary intention is to split based on  issue severity. It is recommended to have a good standard for these. If your labeling standard uses "S1 - Urgent", "S2 - High", "S3 - Medium", and "S4 - Low" respectively for severity labels, then putting "^S[1-4] -" will create one bar per severity value encountered. 
 

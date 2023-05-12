@@ -1580,6 +1580,57 @@ function getFullLabelFilters(labelFilter) {
 // The function will work on the yoda_issues variable.
 export function filterIssuesReqExp(labelFilter) {
 	const filterArray = labelFilter.split(",");
+
+	// First handle >/>- i.e. indicating if a given field must/must NOT present    AND
+	// > and conjunction with ~ to indicate the desire to instead synthesize a label (like MS) based on the field.
+	for (let f = 0; f < filterArray.length; f++) {
+		let positiveMatch, field;
+		if (filterArray[f].charAt(0) == '>') {
+			if (filterArray[f].indexOf("~") == -1) {
+				// Ok, now let's get creative. We will use > to indiciate that a given field must be present in the issue (e.g. ">RN"). 
+				// OR >- to indicate that thse field must NOT be present in the issue (e.g. ">-RN").
+				if (filterArray[f].length > 1 && filterArray[f].charAt(1) == "-") {
+					positiveMatch = false;
+					field = filterArray[f].substr(2);
+				} else {
+					positiveMatch = true;
+					field = filterArray[f].substr(1);
+				}
+
+				// We have a regexp filter. Let's run through the issues.
+				console.log("Applying field checking filter (positive " + positiveMatch + "): " + filterArray[f] + ". Field:" + field);
+
+				// Note, special for loop. i is incremented below... 
+				for (let i = 0; i < yoda_issues.length;) {
+					const match = getBodyField(yoda_issues[i].body, '^>[ ]?' + field, '.*$') != null;
+
+					if ((!positiveMatch && match) || (positiveMatch && !match))
+						yoda_issues.splice(i, 1);
+					else
+						i++;
+				}
+			} else {
+				// Synthesize label for the field, if present of course.
+				const tilde = filterArray[f].indexOf("~");
+				console.log(tilde);
+				field = filterArray[f].substr(1, tilde - 1);
+				const prefix = filterArray[f].substr(tilde + 1);
+
+				// Check the issues
+				for (let i = 0; i < yoda_issues.length; i++) {
+					const matches = getAllBodyFields(yoda_issues[i].body, '^>[ ]+' + field + '[ ]+', '.*$');  // multiple matches using getAllBodyFields
+					if (matches.length > 0) {
+						for (let m = 0; m < matches.length; m++) {
+							console.log("  Synthesizing label: " + prefix + matches[m]);
+							yoda_issues[i].labels.push({ "name": prefix + matches[m] });
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Next, regular expression part. Note, that this may work on labels just synthesized above (therefore order is important)
 	for (let f = 0; f < filterArray.length; f++) {
 		let positiveMatch, labelReg;
 		if (filterArray[f].charAt(0) == '^' || filterArray[f].charAt(0) == '-') {
@@ -1627,33 +1678,6 @@ export function filterIssuesReqExp(labelFilter) {
 		}
 	}
 
-	// Ok, now let's get creative. We will use > to indiciate that a given field must be present in the issue (e.g. ">RN"). 
-	// OR >- to indicate that thse field must NOT be present in the issue (e.g. ">-RN").
-	for (let f = 0; f < filterArray.length; f++) {
-		let positiveMatch, field;
-		if (filterArray[f].charAt(0) == '>') {
-			if (filterArray[f].length > 1 && filterArray[f].charAt(1) == "-") {
-				positiveMatch = false;
-				field = filterArray[f].substr(2);
-			} else {
-				positiveMatch = true;
-				field = filterArray[f].substr(1);
-			}
-
-			// We have a regexp filter. Let's run through the issues.
-			console.log("Applying field checking filter (positive " + positiveMatch + "): " + filterArray[f] + ". Field:" + field);
-
-			// Note, special for loop. i is incremented below... 
-			for (let i = 0; i < yoda_issues.length;) {
-				const match = getBodyField(yoda_issues[i].body, '^>[ ]?' + field, '.*$') != null;
-
-				if ((!positiveMatch && match) || (positiveMatch && !match))
-					yoda_issues.splice(i, 1);
-				else
-					i++;
-			}
-		}
-	}
 }
 
 // Generic function to retrieve issues across multiple repos.
