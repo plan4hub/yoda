@@ -921,9 +921,6 @@ export function init() {
 	yoda.decodeUrlParam("#user", "user");
 	yoda.decodeUrlParam("#token", "token");
 
-	if (yoda.decodeUrlParam(null, "hideheader") == "true")
-		$(".frame").hide();
-
 	$('#countfield').select2();
 	$('#barsplit').select2();
 	$('#axiscolumn').select2();

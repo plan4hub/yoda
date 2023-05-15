@@ -579,7 +579,4 @@ export function init() {
 			// Potential automatic startup actions can go here.
 		}, null);
 	});
-
-	if (yoda.decodeUrlParam(null, "hideheader") == "true")
-		$(".frame").hide();
 }

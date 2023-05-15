@@ -814,10 +814,6 @@ export function init() {
 	yoda.decodeUrlParam("#user", "user");
 	yoda.decodeUrlParam("#token", "token");
 
-	if (yoda.decodeUrlParam(null, "hideheader") == "true") {
-		$(".frame").hide();
-	}
-
 	// Login
 	console.log("Github authentisation: " + $("#user").val() + ", token: " + $("#token").val());
 	yoda.gitAuth($("#user").val(), $("#token").val());

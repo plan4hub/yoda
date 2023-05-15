@@ -1409,7 +1409,4 @@ export function init() {
 
 		}, null);
 	});
-
-	if (yoda.decodeUrlParam(null, "hideheader") == "true")
-		$(".frame").hide();
 }

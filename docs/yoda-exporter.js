@@ -834,7 +834,4 @@ export function init() {
 		});
 		$('#repolist').on('select2:select', yoda.select2SelectEvent('#repolist'));
 	});
-
-	if (yoda.decodeUrlParam(null, "hideheader") == "true")
-		$(".frame").hide();
 }

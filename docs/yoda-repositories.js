@@ -415,7 +415,4 @@ export function init() {
 		
 		updateRepos();
 	});
-
-	if (yoda.decodeUrlParam(null, "hideheader") == "true")
-	$(".frame").hide();
 }

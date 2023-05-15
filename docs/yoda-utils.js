@@ -1848,6 +1848,10 @@ function add_to_menu(url, copyOwnerRepo, menuText) {
 
 // Menu stuff
 export function enableMenu(helpTarget) {
+	// As the very first thing, let's hide the panel IF the special hideheader=true argument is given
+	if (decodeUrlParam(null, "hideheader") == "true")
+		$(".frame").hide();
+
 	// Build the menu
 	$("#yodamenu").append('<a href="index.html">Landing Page</a>');
 	add_to_menu("yoda-time-stats.html", true, "Time Statistics Report");
