@@ -13,7 +13,7 @@ Yoda main features:
 
 ## Getting Started
 
-To get started with Yoda is easy. There is no need to download or install it separately as you can run Yoda straight off GitHub via the [Yoda Landing Page](https://hewlettpackard.github.io/yoda/).
+To get started with Yoda is easy. There is no need to download or install it separately as you can run Yoda straight off GitHub via the [Yoda Landing Page](https://plan4hub.github.io/yoda/).
 
 ![Landing Page Graphics](docs/yoda-landing-page.jpg?raw=true "Yoda Landing Page") 
 
@@ -41,7 +41,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Authors
 
-* Jens Vedel Markussen, Hewlett Packard Enterprise. E-mail: jens.markussen@hpe.com.
+* Jens Vedel Markussen. E-mail: jens.markussen@gmail.com.
 
 
 ## License
