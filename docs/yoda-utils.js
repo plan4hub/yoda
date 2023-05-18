@@ -1869,9 +1869,9 @@ export function enableMenu(helpTarget) {
 	add_to_menu("yoda-time-stats-csv.html", true, "CSV based Statistics");
 	add_to_menu("yoda-repositories.html", true, "Repository Overview");
 	if (helpTarget != undefined)
-		$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html' + helpTarget + '" target="_blank">User Manual</a>');
+		$("#yodamenu").append('<a href="https://plan4hub.github.io/yoda/MANUAL.html' + helpTarget + '" target="_blank">User Manual</a>');
 	else
-		$("#yodamenu").append('<a href="https://hewlettpackard.github.io/yoda/MANUAL.html" target="_blank">User Manual</a>');
+		$("#yodamenu").append('<a href="https://plan4hub.github.io/yoda/MANUAL.html" target="_blank">User Manual</a>');
 	add_to_menu("yoda-admin.html", false, "Admin Settings");
 
 	$("#yodamenu").append("<a id=hidepanel href='#'>Hide Panel</a>");

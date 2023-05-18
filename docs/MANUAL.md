@@ -217,8 +217,6 @@ As a further option, it is possible to set-up the tool to work out velocity base
 
 The report is available [here](yoda-time-stats.html).
 
-[Example](yoda-time-stats.html?owner=HewlettPackard&repolist=yoda-demo&draw=true)
-
 [Example. Issues over time for coreos-installer in CoreOS](yoda-time-stats.html?owner=coreos&repolist=coreos-installer&startdate=2019-05-01&interval=1m&labelsplit=&other=Issues&draw=true)
 
 [Example. Opened issues over time for typings/api repo](yoda-time-stats.html?owner=typings&repolist=api&startdate=2016-01-01&enddate=2017-02-01&interval=1m&labelsplit=bug,enhancement,question&count=opened&draw=true)
@@ -263,7 +261,7 @@ URL arguments accepted are: owner, repo, estimate (noissues, inbody, or inlabels
 
 The report is available [here](yoda-burndown.html).
 
-[Example](yoda-burndown.html?owner=HewlettPackard&repo=yoda-demo&estimate=inbody&milestone=Sprint 2&draw=chart).
+[Example](yoda-burndown.html?owner=plan4hub&repo=yoda-demo&estimate=inbody&milestone=Sprint 2&draw=chart).
 
 
 
@@ -281,7 +279,7 @@ In the case of label splitting, it is also possible to tick a checkbox (Show Bar
 
 The report is available [here](yoda-velocity.html).
 
-[Example](yoda-velocity.html?owner=HewlettPackard&repo=yoda-demo).
+[Example](yoda-velocity.html?owner=plan4hub&repo=yoda-demo).
 
 
 ## CFD Chart
@@ -298,7 +296,7 @@ As wit the Issue Statistics Report, multiple repositories may be specified. It i
 
 The report is available [here](yoda-cfd.html).
 
-[Example](yoda-cfd.html?owner=HewlettPackard&repolist=yoda-demo&interval=3&draw=cfd).  
+[Example](yoda-cfd.html?owner=plan4hub&repolist=yoda-demo&interval=3&draw=cfd).  
 
 
 ## Release Notes
@@ -317,7 +315,7 @@ URL arguments accepted are: owner, repo, milestones, outputformat, tablelayout, 
 
 The report is available [here](yoda-release-notes.html).
 
-[Example](yoda-release-notes.html?owner=HewlettPackard&repolist=yoda-demo).  
+[Example](yoda-release-notes.html?owner=plan4hub&repolist=yoda-demo).  
 
 
 ## Repositories
@@ -358,7 +356,7 @@ If unlocked (uncheck the box), the viewer may also be used to modify column-defi
 
 The Kanban Board is available [here](yoda-kanban.html).
 
-[Example](yoda-kanban.html?owner=HewlettPackard&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
+[Example](yoda-kanban.html?owner=plan4hub&repolist=yoda-demo&milestonelist=Sprint%201,Sprint%202&columns=[Defect]open:T1%20-%20Defect,[Enhancement]open:T2%20-%20Enhancement,[Task]open:T3%20-%20Task,[Other]open:*,[Closed]closed:*).
 
 [Example - typings/registry repo](yoda-kanban.html?owner=typings&repolist=registry&estimate=noissues&milestonelist=All%20milestones&columns=[Bug]open:bug,[Enhancement]open:enhancement,[Question]open:question,[Other]open:*,[Closed]closed:*)
 
@@ -384,7 +382,7 @@ Label manager can also delete labels, but only in case no issues (open or closed
 
 Label manager is available [here](yoda-label-manager.html).
 
-[Example](yoda-label-manager.html?srcowner=hewlettpackard&srcrepo=yoda-demo&dstowner=hewlettpackard&dstrepo=yoda-demo2).
+[Example](yoda-label-manager.html?srcowner=plan4hub&srcrepo=yoda-demo&dstowner=plan4hub&dstrepo=yoda-demo2).
 
 
 ## Issue Exporter
@@ -419,7 +417,7 @@ Finally, it is possible to detail if only open issues, only closed issues, or si
 
 Issues exporter is available [here](yoda-exporter.html).
 
-[Example](yoda-exporter.html?owner=HewlettPackard&repolist=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
+[Example](yoda-exporter.html?owner=plan4hub&repolist=yoda-demo&outputfile=yoda.csv&estimate=inbody&state=all&export=true).
 
 A further option is to export (certain types) of issue events. This is controlled by a checkbox. If you do this, a CSV file with all labelled, unlabelled, milestoned, or demilestoned events will be exported.
 
@@ -456,7 +454,7 @@ It is possible to embed Yoda reports into other Web Pages, typically using the H
 
 Example:
 
-`<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.com/HewlettPackard/yoda/yoda-time-stats.html?owner=HewlettPackard&amp;repo=yoda-demo&amp;draw=true&amp;hideheader=true"></iframe>`
+`<iframe width="1200px" height="600px" style="border:0" src="https://pages.github.com/plan4hub/yoda/yoda-time-stats.html?owner=plan4hub&amp;repo=yoda-demo&amp;draw=true&amp;hideheader=true"></iframe>`
 
 
 # Selecting repos based on topics or name wildcarding
