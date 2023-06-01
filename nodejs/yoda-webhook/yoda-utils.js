@@ -319,13 +319,13 @@ function makeChildBlock(ownRef, childIssues) {
 			if (issueRefs[i].issue == null) {
 				refLine = refLine + "- [ ] " + shortRef + " **Unable to get issue details - non-existing issue/access right problem?**";
 			} else {
-				refLine += "- [";
+				refLine += "- ";
 
 				if (issueRefs[i].issue.state == "closed") {
-					refLine += "x] ";
+//					refLine += "[x] ";
 					totalClosed++;
 				} else {
-					refLine += " ] ";
+//					refLine += "[ ] ";
 					totalOpen++;
 				}
 				refLine += shortRef; 
@@ -346,7 +346,7 @@ function makeChildBlock(ownRef, childIssues) {
 				if (estimate != 0)
 					refLine += " (" +  estimate + " / " + remaining + ")";
 
-				refLine += " *" + issueRefs[i].issue.title.trim() + "*";
+				// refLine += " *" + issueRefs[i].issue.title.trim() + "*";
 			}
 			logger.debug("refline: '" + refLine + "'");
 			issueRefs[i].refLine = refLine;
