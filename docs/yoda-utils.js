@@ -94,7 +94,7 @@ export function GetURLParameter(sParam) {
 	}
 	return null;
 }
-
+ 
 // Get last page. Given Link response header like "// <https://github.hpe.com/api/v3/repositories/12598/comments?per_page=100&page=2>; rel="next", <https://github.hpe.com/api/v3/repositories/12598/comments?per_page=100&page=6>; rel="last""
 // return the last page, 6 in this case.
 function getLastPage(link) {
