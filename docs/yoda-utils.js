@@ -2127,7 +2127,7 @@ export function registerChartJS() {
 		beforeDraw: function (c) {
 			var ctx = c.ctx;
 			ctx.fillStyle = getColor('htmlBackground');
-			ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
+			ctx.fillRect(0, 0, c.width, c.height);
 		}
 	});
 }
