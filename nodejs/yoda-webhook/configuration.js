@@ -117,7 +117,7 @@ const optionDefinitions = [
 	{
 		name: 'baseurlui',
 		type: String,
-		description: 'Base endpoint for GitHub as seen from the UI. Default: https://www.github.com',
+		description: 'Base endpoint for GitHub as seen from the UI.  Default: https://www.github.com',
 		defaultValue: 'https://www.github.com'
 	},
 	{
