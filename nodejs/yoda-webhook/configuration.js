@@ -111,14 +111,14 @@ const optionDefinitions = [
 	{
 		name: 'baseurl',
 		type: String,
-		description: 'Base API endpoint. Default: https://github.hpe.com/api/v3',
-		defaultValue: 'https://github.hpe.com/api/v3'
+		description: 'Base API endpoint. Default: https://api.github.com',
+		defaultValue: 'https://api.github.com'
 	},
 	{
 		name: 'baseurlui',
 		type: String,
-		description: 'Base endpoint for GitHub as seen from the UI. Optional, if not set will be derived from baseurl',
-		defaultValue: ''
+		description: 'Base endpoint for GitHub as seen from the UI. Default: https://www.github.com',
+		defaultValue: 'https://www.github.com'
 	},
 	{
 		name: 'logfile',
