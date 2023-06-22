@@ -1,91 +1,31 @@
 solutions:
-  NFV Director:
-    solution_family: ORC
-    products:
-      NFVD:
-        product_name: HPE NFV Director
-        components:
-          NFVD:
-            component_name: NFV Director
-            repositories:
-            - hpsd/nfvd
-            - hpsd/nfvd-cloud
-          NSO:
-            component_name: Network Service Orchestrator
-            repositories:
-            - hpsd/nso
-          GVNFM:
-            component_name: Generic VNF Manager
-            repositories:
-            - hpsd/gvnfm
-          SDC.D:
-            component_name: Service Design Center. Designer
-            repositories:
-            - hpsd/obt
-  Service Director:
-    solution_family: ORC
-    products:
-      SD:
-        product_name: HPE Service Director
-        components:
-          SD:
-            component_name: Service Director
-            repositories:
-            - hpsd/@rnd,sd,-adapter,issues,-rnd-internal,-om
-          SDC.AF:
-            component_name: Service Director Adapter Factory
-            repositories:
-            - hpsd/@rnd,sd,adapter,issues,-rnd-internal
-  Service Activator:
-    solution_family: FRI
-    products:
-      SA:
-        product_name: HPE Service Activator
-        components:
-          SA:
-            component_name: Service Activator
-            repositories:
-              - hpsa/hpsa
-          TnD:
-            component_name: Test and Diagnostics
-            repositories:
-              - hpsa/test-diag
-  Service Provisioner:
-    solution_family: FRI
-    products:
-      SOM:
-        product_name: HPE Service Order Manager
-        components:
-          SOM:
-            component_name: Service Order Manager
-            repositories:
-            - hpsd/som
-  Internal Tools:
-    solution_family: ORC
+  Yoda:
+    solution_family: Yoda
     products:
       yoda:
         product_name: Yoda
-        exclude_from_all: true
         components:
           yoda:
-            component_name: Yoda
+            component_name: yoda
             repositories:
-              - hpsd/yoda
+            - plan4hub/yoda
+      yoda-demo:
+        product_name: Yoda Demo
+        components:
+          yoda-demo:
+            component_name: yoda
+            repositories:
+            - plan4hub/yoda-demo
+            - plan4hub/yoda-demo2
 
 queries:
-  scope_open_support_defects: 
-    parameters: state=open&labels=T1 - Defect,Support
-    description: Retrieve all open Support defects
-
-  ctg_dash_defect_fields:
-    parameters: fields=id,severity,state,title,product,component,created_at,closed_at,support,origin,company,sfdc_id
-    description: Request only the most basic fields
+  open-demo-bug: 
+    parameters: state=open&labels=T1 - Defect&product=yoda-demo
+    description: Retrieve all open Yoda Demo bugs
 
 tokens:
-  ctg_dash:
-    token: 4617e7c6813112772aa7c43080c4ac1e1eda47391094a0f743ca3036b49606bb
   dev:
-    token: 1617e7c6813112772aa7c43080c4ac1e1eda47391094a0f743ca3036b49606bb
+    token: 1617e7c6813112772aa7c43080c4ac1e1eda77391094a0f743ca3036b49606b9
 
 # Set of extra fields
 extra_fields:
@@ -129,6 +69,3 @@ extra_fields:
   assignee:
     rule: extract_issue
     field: "assignee.login"
-
-
-
