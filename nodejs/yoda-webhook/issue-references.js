@@ -122,7 +122,15 @@ function getSearchOctokit(issueRef, search) {
 		}
 		
 		// build pseudo child
-		return yodaAppModule.getAppOctokit({owner: owner});
+		const octokit = yodaAppModule.getAppOctokit({owner: owner});
+		if (octokit != null)
+			return octokit;
+		else {
+			if (userOctokit != null)
+				return userOctokit;
+			else
+				return fallbackOctokit;			
+		}
 	}
 }
 
