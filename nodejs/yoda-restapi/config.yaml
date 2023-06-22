@@ -1,26 +1,29 @@
-solutions:
-  Yoda:
-    solution_family: Yoda
-    products:
+products:
+  yoda:
+    product_name: Yoda
+    product_family: Plan4Hub
+    components:
       yoda:
-        product_name: Yoda
-        components:
-          yoda:
-            component_name: yoda
-            repositories:
-            - plan4hub/yoda
+        component_name: yoda
+        repositories:
+        - plan4hub/yoda
+  yoda-demo:
+    product_name: Yoda Demo
+    product_family: Plan4Hub Internal
+    exclude_from_all: true
+    components:
       yoda-demo:
-        product_name: Yoda Demo
-        components:
-          yoda-demo:
-            component_name: yoda
-            repositories:
-            - plan4hub/yoda-demo
-            - plan4hub/yoda-demo2
+        component_name: yoda-demo
+        repositories:
+        - plan4hub/yoda-demo
+        - plan4hub/yoda-demo2
 
 queries:
   open-demo-bug: 
     parameters: state=open&labels=T1 - Defect&product=yoda-demo
+    description: Retrieve all open Yoda Demo bugs
+  lego-bug:
+    parameters: state=all&product=yoda-demo&labels=C - Lego
     description: Retrieve all open Yoda Demo bugs
 
 tokens:
@@ -56,10 +59,10 @@ extra_fields:
     pattern: '^C - .*$'
     value_match: "External"
     value_nomatch: "Internal"
-  sfdc_id:
+  support_id:
     rule: extract_issue
     field: "title"
-    pattern: '^.*[\(]([0-9]+)[\)]$'
+    pattern: '^.*[\[](SUP-[0-9]+)[\]]$'
   milestone:
     rule: extract_issue
     field: "milestone.title"

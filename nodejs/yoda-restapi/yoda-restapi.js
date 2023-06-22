@@ -153,13 +153,12 @@ async function listener(req, res) {
 		// products query
 		logger.info("Serving product search: " + req.url);
 		let products = [];
-		for (let s in c.solutions)
-			for (let p in c.solutions[s]["products"]) {
-				let components = [];
-				for (let comp in c.solutions[s]["products"][p]["components"])
-					components.push({ component: comp, component_name: c.solutions[s]["products"][p]["components"][comp]["component_name"]});
-				products.push({ product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"], components: components });
-			}
+		for (let p in c.products) {
+			let components = [];
+			for (let comp in c.products[p]["components"])
+				components.push({ component: comp, component_name: c.products[p]["components"][comp]["component_name"]});
+			products.push({ product: p, product_name: c.products[p]["product_name"], product_family: c.products[p]["product_family"], components: components });
+		}
 		res.writeHead(200, { 'Content-type': 'application/json' });
 		res.end(JSON.stringify(products));
 	} else if (q.pathname == "/queries") {
@@ -222,23 +221,22 @@ async function listener(req, res) {
 					// Step 1: Determine products to be addressed, extra repos (may contain topic based search)
 					let repos = []
 					let c = configuration.getConfig();
-					for (let s in c.solutions)
-						for (let p in c.solutions[s]["products"]) {
-							// Include this product?
-							if ((products == null && c.solutions[s]["products"][p]["exclude_from_all"] != true) || (products != null && products.indexOf(p) != -1)) { // Yes, we include  
-								for (let comp in c.solutions[s]["products"][p]["components"]) {
-									// Include this component?
-									if (components == null || (components != null && components.indexOf(comp) != -1)) { // Yes, we include  
-										// Include all repos
-										for (let i = 0; i < c.solutions[s]["products"][p]["components"][comp]["repositories"].length; i++) {
-											let repo = c.solutions[s]["products"][p]["components"][comp]["repositories"][i];
-											logger.debug(s, p, comp, repo);
-											repos.push({ repospec: repo, component: comp, component_name: c.solutions[s]["products"][p]["components"][comp]["component_name"], product: p, product_name: c.solutions[s]["products"][p]["product_name"], solution: s, solution_family: c.solutions[s]["solution_family"] });
-										}
+					for (let p in c.products) {
+						// Include this product?
+						if ((products == null && c.products[p]["exclude_from_all"] != true) || (products != null && products.indexOf(p) != -1)) { // Yes, we include  
+							for (let comp in c.products[p]["components"]) {
+								// Include this component?
+								if (components == null || (components != null && components.indexOf(comp) != -1)) { // Yes, we include  
+									// Include all repos
+									for (let i = 0; i < c.products[p]["components"][comp]["repositories"].length; i++) {
+										let repo = c.products[p]["components"][comp]["repositories"][i];
+										logger.debug(p, comp, repo, i);
+										repos.push({ repospec: repo, component: comp, component_name: c.products[p]["components"][comp]["component_name"], product: p, product_name: c.products[p]["product_name"], product_family: c.products[p]["product_family"] });
 									}
 								}
 							}
 						}
+					}
 
 					// Step 2: Expand repos / do repo search as required.
 					let ri = repos.length;
@@ -378,7 +376,7 @@ async function listener(req, res) {
 								else
 									f = alias = fieldArray[fi];
 								let v;
-								if (['product', 'product_name', 'component', 'solution', 'solution_family'].indexOf(f) != -1)
+								if (['product', 'product_name', 'component', 'product_family'].indexOf(f) != -1)
 									v = repos[ri][f];
 								else
 									v = issues[i][f];

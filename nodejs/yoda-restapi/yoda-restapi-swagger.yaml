@@ -53,9 +53,7 @@ paths:
                       type: string
                     product_name:
                       type: string
-                    solution:
-                      type: string
-                    solution_family:
+                    product_family:
                       type: string
                     components:
                       type: array
@@ -166,9 +164,7 @@ paths:
                       type: string
                     repository:
                       type: string
-                    solution:
-                      type: string
-                    solution_family:
+                    product_family:
                       type: string
                     state:
                       type: string
@@ -190,7 +186,7 @@ paths:
                       type: string
                     company:
                       type: string
-                    sfdc_id:
+                    support_id:
                       type: string
                     milestone:
                       type: string
