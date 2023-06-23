@@ -69,11 +69,11 @@ The `extra_fields` section is a very powerful mechanism to introduce extra field
 
 Three rules are supported:
 
-`extract_label`: Retrieves label(s) matching a regular expression and extracts the value from the first expression (i.e. the value inside the first set of parentesis in the regular expression). If a separator is given, then all labels matching will be returned, separated by the separator. If separator is blank only one of the matching labels will be returned. Optionally, it is possible to apply a mapping of some or all values. This is done by stating JavaScript code populating values into a `map` variable.
+`extract_label`: Retrieves label(s) matching a regular expression and extracts the value from the first expression (i.e. the value inside the first set of parentesis in the regular expression). If a separator is given, then all labels matching will be returned, separated by the separator. If separator is blank only one of the matching labels will be returned. Optionally, it is possible to apply a mapping of some or all values. This is done by stating JavaScript code populating values into a `map` variable. A field `none_value` defaults to `null`, but may be overwritten.
 
 `binary_label`: Assume one of two values, as specified by `value_match` or `value_nomatch`, depending of whether - one or more - labels exist matching a supplied regular expression.
 
-`extract_issue`: Extract a value from the JSON returned for an issue. If a pattern is given, then return the value of the first expression (again, the value inside the parentesis).
+`extract_issue`: Extract a value from the JSON returned for an issue. If a pattern is given, then return the value of the first expression (again, the value inside the parentesis). A field `none_value` defaults to `null`, but may be overwritten.
 
 Example:
 ```
