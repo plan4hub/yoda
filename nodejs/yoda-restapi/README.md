@@ -69,7 +69,7 @@ The `extra_fields` section is a very powerful mechanism to introduce extra field
 
 Three rules are supported:
 
-`extract_label`: Retrieves label(s) matching a regular expression and extracts the value from the first expression (i.e. the value inside the first set of parentesis in the regular expression). If a separator is given, then all labels matching will be returned, separated by the separator. If separator is blank only one of the matching labels will be returned.
+`extract_label`: Retrieves label(s) matching a regular expression and extracts the value from the first expression (i.e. the value inside the first set of parentesis in the regular expression). If a separator is given, then all labels matching will be returned, separated by the separator. If separator is blank only one of the matching labels will be returned. Optionally, it is possible to apply a mapping of some or all values. This is done by stating JavaScript code populating values into a `map` variable.
 
 `binary_label`: Assume one of two values, as specified by `value_match` or `value_nomatch`, depending of whether - one or more - labels exist matching a supplied regular expression.
 
@@ -119,3 +119,7 @@ extra_fields:
     rule: extract_issue
     field: "assignee.login"
 ```
+
+## Swagger file
+
+As the swagger filed defines the fields returned for a given issue (it is possible to ask for a subset of the fields by explicitly given the `fields` argument), this part must be updated if additional (or fewer) fields are desired. Ensure that new fields are covered by a corresponding definition in the `extra_fields` section of the configuration file.
