@@ -322,10 +322,10 @@ function makeChildBlock(ownRef, childIssues) {
 				refLine += "- ";
 
 				if (issueRefs[i].issue.state == "closed") {
-//					refLine += "[x] ";
+					refLine += "[x] ";
 					totalClosed++;
 				} else {
-//					refLine += "[ ] ";
+					refLine += "[ ] ";
 					totalOpen++;
 				}
 				refLine += shortRef; 
