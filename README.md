@@ -17,21 +17,16 @@ To get started with Yoda is easy. There is no need to download or install it sep
 
 ![Landing Page Graphics](docs/yoda-landing-page.jpg?raw=true "Yoda Landing Page") 
 
-In order to access issues in non-public repositories, you will need to set an appropriate personal GitHub Token. This is explained in the MANUAL linked via the landing page.
+In order to access issues in non-public repositories, you will need to set an appropriate personal GitHub Token. This is explained in the [MANUAL](docs/MANUAL.md) linked via the landing page.
 
-You can of course copy Yoda to your own Webserver, GitHub repository, or GitHub Enterprise. Simply get all the files in the `/docs` folder.
+You can of course also copy Yoda to your own GitHub repository (cloud or Enterprise). Simply get all the files in the `/docs` folder. Note, that Yoda can run against any GitHub (cloud or Enterprise) instance.
 
 
 ## Documentation
 
 Documentation is available either via the Yoda landing page, or directly [here](docs/MANUAL.md).
 
-Furthermore, an Yoda presentation is available via the Yoda landing page or [here](docs/Yoda-Agile-Project-Management-with-GitHub.pdf).
-
-
-## Testing
-
-TODO: Right now, there is no automated testing for Yoda. Plan is to use [Selenium](http://www.seleniumhq.org/). 
+Furthermore, an Yoda presentation explaining the rationale, etc. is available [here](docs/Yoda-Agile-Project-Management-with-GitHub.pdf).
 
 
 ## Contributing
