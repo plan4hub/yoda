@@ -50,11 +50,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>GitHub user</label>
 			<input type="text" size="25" id="user">
+			<span class="tooltip">Your GitHub user id.</span>
 		</div>
 
 		<div class="field">
 			<label>GitHub token</label>
 			<input type="text" size="45" id="token">
+			<span class="tooltip">A personal GitHub token associated with your GitHub user.</span>
 		</div>
 
 		<button id="updatetoken" onclick="updateToken()">Update token</button>
@@ -69,13 +71,13 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>GitHub API URL</label>
 			<input type="text" size="25" id="githubapibaseurl" onchange="setLocalStorage('gitHubApiBaseUrl', this.value)">
-			<span class="tooltip">GitHub API URL. Change to suite e.g. a GitHub Enterprise instance"</span>
+			<span class="tooltip">GitHub API URL. Change to suite e.g. a GitHub Enterprise instance.</span>
 		</div>
 
 		<div class="field">
 			<label>GitHub HTML URL</label>
 			<input type="text" size="25" id="githubbaseurl" onchange="setLocalStorage('gitHubBaseUrl', this.value)">
-			<span class="tooltip">GitHub (HTML) URL. Change to suite e.g. a GitHub Enterprise instance</span>
+			<span class="tooltip">GitHub (HTML) URL. Change to suite e.g. a GitHub Enterprise instance.</span>
 		</div>
 		
 		<button id="setgithubcom" onclick="setGitHubCom()">Set github.com values</button>
@@ -90,6 +92,7 @@ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		<div class="field">
 			<label>Owner default</label>
 			<input type="text" size="25" id="owner" onchange="setLocalStorage('yoda.owner', this.value)">
+			<span class="tooltip">Default owner (organization or user) for which to scope repos.</span>
 		</div>
 
 		<div class="field">
