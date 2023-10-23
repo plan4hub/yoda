@@ -62,8 +62,6 @@ To access non-public repos, you need to set GitHub user-name and token. To retri
 
 The token is set centrally for Yoda in your browser by using [Yoda Admin](yoda-admin.html).
 
-*Note*: This feature uses the "localStorage" mechanism, which is not supported in earlier Internet Explorer versions.
-
 
 ## Estimates into issues
 
