@@ -19,9 +19,9 @@
   "author": "Jens Vedel Markussen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hewlettpackard/yoda/issues"
+    "url": "https://github.com/plan4hub/yoda/issues"
   },
-  "homepage": "https://github.com/hewlettpackard/yoda#readme",
+  "homepage": "https://github.com/plan4hub/yoda#readme",
   "dependencies": {
     "command-line-args": "^5.2.1",
     "command-line-usage": "^6.1.3",
