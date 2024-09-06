@@ -1,5 +1,7 @@
 /*
- Copyright 2018-2023 Hewlett Packard Enterprise Development LP
+
+Copyright 2018-2023 Hewlett Packard Enterprise Development LP
+Copyright 2024- Jens Vedel Markussen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -30,7 +32,8 @@ body {
 }
 
 :root {
-  --main-bg-color: #01a982;
+  /* --main-bg-color: #01a982; */
+  --main-bg-color: #008fb3;
 }
 
 .field {
