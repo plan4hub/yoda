@@ -33,6 +33,7 @@ body {
 
 :root {
   /* --main-bg-color: #01a982; */
+  /* --main-bg-color: #008fb3; */ 
   --main-bg-color: #008fb3;
 }
 
@@ -159,13 +160,15 @@ thead {
     padding-top: 11px;
     padding-bottom: 11px;
 /*    background-color: var(--main-bg-color); */
-    background-color: #01a982; 
+/*    background-color: #01a982; */ 
+    background-color: #008fb3; 
     color: white;
 }
 
 .ic {
 /*    background-color: var(--main-bg-color); */
-    background-color: #01a982; 
+/*    background-color: #01a982; */ 
+    background-color: #008fb3; 
     color: white;
 }
 
