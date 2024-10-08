@@ -19,7 +19,7 @@ Then run the following command in order to understand the options:
 
 ## Configuration your GitHub webhook
 
-You may lace GitHub webhook either at repository or organisation layer. You find the setup under *Settings/Hooks*. Fill in fields as follows:
+You may place GitHub webhook either at repository or organisation layer. You find the setup under *Settings/Hooks*. Fill in fields as follows:
 
 Payload URL: `http://(server:port)` or `https://(server:port)` 
 Content Type: `application/json`
